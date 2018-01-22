@@ -1,0 +1,126 @@
+	body{
+		/*margin: 0;*/
+	}
+  .text-primary-color{ color: #FFFFFF; }
+	.bt-panel{
+  margin: 0 auto;
+  margin-top : 0px;
+  margin-left : 25px;
+  margin-bottom: 150px;
+	}
+  .panel-principal{
+    position: absolute;
+		/*margin-top: 100px;*/
+  }
+    .navbar{
+    background: #00BCD4;
+  }
+  .idProd{
+    display: none;
+  }
+  .modal{
+    overflow-y: auto;
+  }
+  .fab{
+    position: fixed;
+    right: 5px;
+    margin-top: 20px;
+    bottom: 60px;
+    border-radius: 50%;
+    z-index: 1024;
+  }
+  /*.center_div{
+    margin: 0 auto;
+    width: 80%;
+  }*/
+    .center_div_form{
+    margin: 0 auto;
+
+  }
+    .fab2{
+    position: fixed;
+    right: 50px;
+    margin-top: 20px;
+    bottom: 60px;
+    border-radius: 50%;
+    z-index: 1024;
+  }
+  .ProductoDet{
+  	  justify-content: center;
+  }
+
+  .spinner {
+  width: auto;
+  left: 200px;
+}
+.spinner input {
+  text-align: center;
+  height: 100px;
+  width: 100px;
+  font-size: 50px;
+}
+.input-group-btn-vertical {
+  position: relative;
+  white-space: nowrap;
+  vertical-align: middle;
+  display: table-cell;
+}
+.input-group-btn-vertical > .btn {
+    display: block;
+    float: none;
+    width: 50px;
+    /* padding: 8px; */
+    margin-left: -1px;
+    position: relative;
+    border-radius: 0;
+    height: 50px;
+    /* justify-content: center; */
+    margin-left: 20px;
+    margin-bottom: 2px;
+    outline: none !important;
+}
+.input-group-btn-vertical > .btn:first-child {
+  border-top-right-radius: 4px;
+}
+.input-group-btn-vertical > .btn:last-child {
+  margin-top: -2px;
+  border-bottom-right-radius: 4px;
+}
+.input-group-btn-vertical i{
+    position: absolute;
+    top: -5px;
+    right: 8px;
+}
+.alert {
+	z-index: 1060!important;
+}
+table tbody tr:first-child td:empty {
+	display: none;
+}
+
+/* Large desktops and laptops */
+@media (min-width: 1200px) {
+
+}
+
+/* Landscape tablets and medium desktops */
+@media (min-width: 992px) and (max-width: 1199px) {
+
+}
+
+/* Portrait tablets and small desktops */
+@media (min-width: 768px) and (max-width: 991px) {
+  .fechaActual{
+    width: 50px;
+  }
+}
+
+/* Landscape phones and portrait tablets */
+@media (max-width: 767px) {
+
+}
+
+/* Portrait phones and smaller */
+@media (max-width: 480px) {
+
+}
