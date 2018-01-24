@@ -1,6 +1,6 @@
 <?php 
 
-include_once '/../models/DBManager.php';
+include_once '../models/DBManager.php';
 
 $Ssql="SELECT IdProductoMarca as ID, ProductoMarca, Anulado, FechaReg, UsuarioReg, FechaMod, UsuarioMod FROM botica.Gen_ProductoMarca";
    $result = getSQLResultSet($Ssql);
@@ -8,7 +8,7 @@ $Ssql="SELECT IdProductoMarca as ID, ProductoMarca, Anulado, FechaReg, UsuarioRe
 
 	$data = array();
 
-	while ($rows = mysql_fetch_assoc($result)) {
+	while ($rows = mysqli_fetch_assoc($result)) {
 		$data[] = $rows;
 	}
 

@@ -45,7 +45,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('H3', 'Total');
 
         $result = ListarCierre();
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["FechaDoc"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["TipoDoc"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["Serie"]);

@@ -1,6 +1,6 @@
 <?php
-include_once("/../clases/DtGeneral.php");
-include_once("/../clases/BnGeneral.php");
+include_once("../clases/DtGeneral.php");
+include_once("../clases/BnGeneral.php");
 //header( 'Content-Type: ;charset=utf-8' );
 
 $cabecerajson = json_decode($_POST['data']);

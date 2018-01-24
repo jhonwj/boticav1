@@ -123,6 +123,10 @@ calcularFlete();
 
     $("#btnGuardarProductoDet").on({
       click : function(e){
+		  if ($('#txtProductoPrecioI').val() == '0.00' || $('#txtProductoPrecioI').val() == '' || $('#txtProductoPrecioI').val() == '0') {
+		  	alert('Establezca un precio');
+			return;
+		  }
         agregarProductoDet($("#txtProductoCantidadI").val(), $("#txtProductoPrecioI").val());
         $("#modalCantidadI").modal("hide");
         $("#modalProductoDet").modal("hide");
@@ -949,7 +953,7 @@ function calcularFlete() {
           </div>
           <div class="input-group">
             <label class="">P/U</label>
-            <input type="text" required id="txtProductoPrecioI"  class="form-control" placeholder="0.00">
+            <input type="number" step="any" required id="txtProductoPrecioI"  class="form-control" placeholder="0.00" min="0">
           </div>
         </div>
       </div>

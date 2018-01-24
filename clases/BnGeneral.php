@@ -1,6 +1,6 @@
 <?php
 
-	include_once("/../models/DBManager.php");
+	include_once("../models/DBManager.php");
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){
 		$textoFinal=$Texto;
@@ -568,6 +568,17 @@ INNER JOIN botica.Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdPro
 		return getSQLResultSet($Ssql);
 	}
 
+	// VentaForm obtener Lote y fecha de vencimiento proximos a vencer
+	function ListarLoteFechaVencimiento()
+	{
+		$Ssql = "SELECT * FROM botica.lo_movimientodetalle group by IdProducto ORDER BY FechaVen ASC;";
+		return getSQLResultSet($Ssql);
+	}
 
+	function isLogin($user = '', $pass = '')
+	{
+		$Ssql = "SELECT * FROM botica.Seg_Usuario WHERE Usuario='$user' AND Password='$pass'";
+		return getSQLResultSet($Ssql);
+	}
 
  ?>

@@ -1,6 +1,6 @@
 <?php 
 
-	include_once '/../clases/BnGeneral.php';
+	include_once '../clases/BnGeneral.php';
 
 	$idCompuesto = $_GET["Compuesto"];
 	$Compuesto = $_GET["CompuestoNombre"];
@@ -9,7 +9,7 @@
 		$idCompuesto = "00000";
 		$result = fn_devolverProductosXCompuesto($idCompuesto, $Compuesto);
 		$data = array();
-		while ($rows = mysql_fetch_assoc($result)) {
+		while ($rows = mysqli_fetch_assoc($result)) {
 				$data[] = $rows;
 			}
 		$results = array(
@@ -30,7 +30,7 @@
 
 	$data = array();
 
-	while ($rows = mysql_fetch_assoc($result)) {
+	while ($rows = mysqli_fetch_assoc($result)) {
 		$data[] = $rows;
 	}
 

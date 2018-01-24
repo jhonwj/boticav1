@@ -11,7 +11,7 @@ include_once '../clases/BnGeneral.php';
 		//echo "dadasd".$anno;
 		$result = devolverKardexValorizado($producto, $anno, $stock, $precio, $Tipo);
 		$data = array();
-		while ($rows = mysql_fetch_assoc($result)) {
+		while ($rows = mysqli_fetch_assoc($result)) {
 				$data[] = $rows;
 			}
 

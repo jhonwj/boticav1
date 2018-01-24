@@ -1,5 +1,5 @@
 <?php
-include_once("/../clases/DtGeneral.php");
+include_once("../clases/DtGeneral.php");
 
 $clientejson = json_decode($_POST['data'], true);
 

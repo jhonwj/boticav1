@@ -1,7 +1,7 @@
 <?php
-//include_once '/../clases/ClsBnCajaBanco.php';
-//include_once '/../clases/ClsDtCajaBanco.php';
-include_once '/../clases/DtGeneral.php';
+//include_once '../clases/ClsBnCajaBanco.php';
+//include_once '../clases/ClsDtCajaBanco.php';
+include_once '../clases/DtGeneral.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -9,7 +9,7 @@ switch ($method) {
     case 'GET':
         /*$result = ListarCajaBanco($_GET['IdCuenta'], $_GET['FechaDoc']);
         $data = array();
-        while ($rows = mysql_fetch_assoc($result)) {
+        while ($rows = mysqli_fetch_assoc($result)) {
             $data[] = $rows;
         }
         $results = array(

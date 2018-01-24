@@ -9,7 +9,7 @@ $dataSintoma = json_decode($_POST["data3"], true);
 if (empty($dataDiagnostico[4])) {
 if (isset($dataDiagnostico)) {
 	$result = fn_guardarDiagnostico($dataDiagnostico[0], $dataDiagnostico[1], $dataDiagnostico[2], $dataDiagnostico[3], "jeam");
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	$IdDiagnostico =  $row["IdDiagnostico"];
 }
 if (isset($dataTratamiento)) {

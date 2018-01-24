@@ -1,5 +1,5 @@
 <?php
-include_once("/../models/DBManager.php");
+include_once("../models/DBManager.php");
 
 function ListarCajaBanco($idCuenta, $fechaDoc)
 {

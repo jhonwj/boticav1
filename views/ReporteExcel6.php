@@ -56,7 +56,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('P3', 'TOTAL');
 
         $result = ListarRegNov($fechaIni, $fechaFin, $declarado);
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["IdMovimiento"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["MovimientoFecha"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["IdMovimientoTipo"]);

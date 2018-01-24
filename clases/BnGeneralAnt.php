@@ -1,15 +1,15 @@
 <?php
 
-	include_once("/../models/DBManager.php");
+	include_once("../models/DBManager.php");
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){
 		$textoFinal=$Texto;
 		$long=strlen($textoFinal);
 		$long=$long/2;
 		$maximoCaracteres=30-$long;
-		for ($i=1; $i < $maximoCaracteres ; $i++) { 
-			
-		
+		for ($i=1; $i < $maximoCaracteres ; $i++) {
+
+
 				$textoFinal=" " . $textoFinal;
 
 		}
@@ -414,7 +414,7 @@ INNER JOIN botica.Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdPro
 	function fn_devolverCompuestosXProducto($IdProducto){
 		$Ssql="CALL SbVe_ListarCompuestoXProducto($IdProducto);";
 		return getSQLResultSet($Ssql);
-	} 
+	}
 	function fn_devolverDiagnosticoXTratamiento($Diagnostico, $edad){
 		$Ssql="CALL SbVe_BuscarTratamiento('$Diagnostico', $edad);";
 		return getSQLResultSet($Ssql);

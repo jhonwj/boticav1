@@ -1,6 +1,6 @@
 <?php
 
-include_once '/../clases/BnGeneral.php';
+include_once '../clases/BnGeneral.php';
 
 $TipoOpe = $_GET['tipoOpe'];
 $Cliente = $_GET['cliente'];
@@ -15,7 +15,7 @@ $res="";
 $res = BuscarEstadoCuentaDet($Cliente, $TipoOpeNumero);
 $data = array();
 
-while ($rows = mysql_fetch_assoc($res)) {
+while ($rows = mysqli_fetch_assoc($res)) {
   $data[] = $rows;
 }
  echo json_encode($data);

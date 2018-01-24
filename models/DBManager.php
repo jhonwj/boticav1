@@ -4,7 +4,7 @@ header( 'Content-Type: text/html;charset=utf-8' );
 
 function ejecutarSQLCommand($commando){
 
-  $mysqli = new mysqli("localhost", "neurofac_botica", "A*=TS$A_pPZS", "neurofac_botica");
+  $mysqli = new mysqli("localhost", "root", '', "botica");
   //$mysqli = new mysqli("localhost", "root", "", "botica");
 /* check connection */
 if ($mysqli->connect_errno) {
@@ -42,29 +42,31 @@ return true;
 function getSQLResultSet($commando){
 
     // $link = mysql_connect("localhost", "root", "");
-    $link = mysql_connect("localhost", "neurofac_botica", "A*=TS$A_pPZS");
-    $acentos = mysql_query("SET NAMES 'utf8'");
+    $mysqli = new mysqli("localhost", "root", '', 'botica');
+    $mysqli->set_charset("utf8");
+    // $acentos = mysql_query("SET NAMES 'utf8'");
 
-    if (!$link) {
-        die('Error de coneccion ' . mysql_error());
+    if (!$mysqli) {
+        die('Error de conexion ' . $mysqli->error );
     }
-    $db_selected = mysql_select_db('neurofac_botica', $link);
-    if (!$db_selected) {
-        die ('Can\'t use botica : ' . mysql_error());
-    }
+    //$db_selected = mysql_select_db('botica', $link);
+    //if (!$db_selected) {
+        //die ('Can\'t use botica : ' . mysql_error());
+    //}
 
-    $query=$commando;
-    $result = mysql_query($query);
+    $query = $commando;
+    //$result = mysql_query($query);
+    $result = $mysqli->query( $query );
 
     if (!$result) {
-        $message = 'Invalid query: ' . mysql_error() . " ";
+        $message = 'Invalid query: ' . $mysqli->error . " ";
         $message .= 'Whole query: ' . $query;
 
         die($message);
         return null;
         exit();
     }
-    mysql_close();
+    mysqli_close($mysqli);
     return $result;
 }
 

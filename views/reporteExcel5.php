@@ -53,7 +53,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('M3', 'Estado');
 
         $result = ListarRegVenta($fechaIni, $fechaFin, $declarado);
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["idDocVenta"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["FechaDoc"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["CodSunat"]);

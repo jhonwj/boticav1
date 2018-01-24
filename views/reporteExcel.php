@@ -47,7 +47,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('Q3', 'STOCK POR MAYOR');
 
    $result = fn_devolverProducto("","");
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["IdProducto"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["ProductoMarca"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["ProductoFormaFarmaceutica"]);

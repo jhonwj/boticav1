@@ -45,7 +45,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('H3', 'STOCK');*/
 
    $result = devolverKardexValorizado($producto, $anno, $stock, $precio, $Tipo);
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["d1"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["d2"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["d3"]);

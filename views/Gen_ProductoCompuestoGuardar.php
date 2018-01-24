@@ -23,7 +23,7 @@ $Producto = json_decode($_GET["data"], true);
 	}else{
 		if (empty($idproductoCompuesto)) {
 	$result = fn_guardarProductoCompuesto($productoCompuesto, "Jeam");
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	$idCompuesto = $row["IdProductoCompuesto"];
 	foreach ($Producto as $key) {
 		fn_guardarProductoCompuestoDet($idCompuesto ,$key[0]);

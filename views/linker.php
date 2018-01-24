@@ -13,3 +13,12 @@
 <script src="../resources/js/jquery.print.js"></script>
 <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
+
+
+<?php
+ session_start();
+if (!isset($_SESSION['user'])) {
+    header('Location: /');
+    die();
+}
+?>

@@ -17,7 +17,7 @@ if(!$movimiento[0][10]){
 	$fecha = "0000-00-00";
 }
 $VerificarMovimiento = VerificarMovimiento($movimiento[0][0], $movimiento[0][1], $movimiento[0][2], $movimiento[0][3]);
-$row = mysql_fetch_array($VerificarMovimiento);
+$row = mysqli_fetch_array($VerificarMovimiento);
 if ($row[0]>=1) {
 	echo "E";
 }else{

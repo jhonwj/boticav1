@@ -6,7 +6,7 @@ $result = ListarCierre();
 
 $data = array();
 
-while($row = mysql_fetch_array($result)){
+while($row = mysqli_fetch_array($result)){
   $data[] = $row;
 }
 

@@ -15,7 +15,7 @@ include_once '../clases/BnGeneral.php';
 
 		$result = ListarRegNov($fechaIni, $fechaFin, $declarado);
 		$data = array();
-		while ($rows = mysql_fetch_assoc($result)) {
+		while ($rows = mysqli_fetch_assoc($result)) {
 				$data[] = $rows;
 			}
 

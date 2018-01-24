@@ -1,6 +1,6 @@
 <?php 
 
-include_once '/../clases/BnGeneral.php';
+include_once '../clases/BnGeneral.php';
 
 	$diagnostico = $_GET["diagnostico"];
 	$edad = $_GET["edad"];
@@ -8,7 +8,7 @@ include_once '/../clases/BnGeneral.php';
 
 	$data = array();
 
-	while ($rows = mysql_fetch_assoc($result)) {
+	while ($rows = mysqli_fetch_assoc($result)) {
 		$data[] = $rows;
 	}
 

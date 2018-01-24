@@ -45,7 +45,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('H3', 'STOCK');*/
    $result = ListarReporteKardex($producto, $fechaIni, $fechaFin, $Tipo);
 echo "<pre>";
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		print_r($row);
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["d1"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["d2"]);

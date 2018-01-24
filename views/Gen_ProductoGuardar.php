@@ -62,7 +62,7 @@ if ($producto[17]["value"]=="on" && $producto[22]["value"]=="on") {
 if (empty($producto[0]["value"])) {
 	//echo $producto[2]["value"];
 	$result = fn_guardarProducto($producto[2]["value"], $producto[4]["value"], $producto[6]["value"], $producto[8]["value"], $producto[9]["value"], $producto[10]["value"], $producto[11]["value"], $producto[12]["value"], $producto[13]["value"], $producto[14]["value"],$producto[15]["value"],$producto[16]["value"], $ventaEstrategica, $porcentajeUtilidad, $precioContado, $precioMayor, $stockMayor, $controlStock, $stockMinimo , $user);
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	$idProducto = $row["IdProducto"];
 	foreach ($CompuestosJson as $key) {
 		//echo $key[0];

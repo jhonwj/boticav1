@@ -1,6 +1,8 @@
 <html class>
 <head>
   <title>BOTICA - </title>
+ <script src="resources/js/jquery-3.2.1.min.js"></script>
+
 </head>
 <style type="text/css">
 html,
@@ -139,22 +141,23 @@ body:before {
       var xhr = $.ajax({
         url: "../controllers/validarLogin.php",
         type: "post",
-        data: {data : $("#frmLogin").serializeArray()},
+        data: {nameUser: $('#nameUser').val(), namePass: $('#namePass').val()},
         dataType: "html",
         success: function(res){
+            res = $.parseJSON(res);
 
+            if (res.isLogin) {
+                window.location = "/views/gen_productoform.php";
+            }
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown){ 
+        error: function(XMLHttpRequest, textStatus, errorThrown){
             alert("Status: " + textStatus); alert("Error: " + errorThrown);
         }
       });
+      e.preventDefault();
     });
-    console.log(xhr);
   });
 
-  function Ingresar(){
-    window.location = "http:/sistemasjeam.com/boticav1/views/index.php";
-  }
 </script>
 <body>
 <section class="login-box">
@@ -166,10 +169,10 @@ body:before {
     <h2>Ingrese sus datos</h2>
   </header>
   <div class="login-content">
-    <form id="frmLogin">
-    <input class="login-mail" name="nameUser" type="text" placeholder="Usuario"/>
-    <input class="login-pass" name="namePass" type="password" placeholder="Contraseña"/>
-    <button type="submit" class="login-enter" onclick="Ingresar();">Entrar    </button>
+    <form id="frmLogin" method="post">
+    <input class="login-mail" name="nameUser" id="nameUser" type="text" placeholder="Usuario"/>
+    <input class="login-pass" name="namePass" id="namePass" type="password" placeholder="Contraseña"/>
+    <button type="submit" class="login-enter">Entrar    </button>
     </form>
   </div>
 </section>

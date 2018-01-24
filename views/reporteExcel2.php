@@ -41,7 +41,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('H3', 'STOCK');
 
    $result = ListarReporteStock($almacen,"");
    $cont = 4;
-	while ($row = mysql_fetch_assoc($result)) {
+	while ($row = mysqli_fetch_assoc($result)) {
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["marca"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["categoria"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["formafarmaceutica"]);

@@ -1,22 +1,24 @@
 <?php
-define("Producto", "http://sistemasjeam.com/boticav1/views/gen_productoform.php");
-define("Forma_Farmaceutica", "http://sistemasjeam.com/boticav1/views/gen_productoformafarmaceuticaform.php");
-define("Medicion", "http://sistemasjeam.com/boticav1/views/gen_productomedicionform.php");
-define("Marca", "http://sistemasjeam.com/boticav1/views/gen_productomarcaform.php");
-define("Categoria", "http://sistemasjeam.com/boticav1/views/gen_productocategoriaform.php");
-define("Compuesto", "http://sistemasjeam.com/boticav1/views/gen_productocompuestoform.php");
-define("PuntoVenta", "http://sistemasjeam.com/boticav1/views/v_ventaform.php");
-define("Experto", "http://sistemasjeam.com/boticav1/views/v_expertoform.php");
-define("Inventario", "http://sistemasjeam.com/boticav1/views/lo_inventarioform.php");
-define("RegVenta", "http://sistemasjeam.com/boticav1/views/ve_regventaform.php");
-define("Cierre", "http://sistemasjeam.com/boticav1/views/ve_cierreform.php");
-define("RegMovimiento", "http://sistemasjeam.com/boticav1/views/lo_regmovimiento.php");
-define("RegCompraContable", "http://sistemasjeam.com/boticav1/views/lo_regcompracontable.php");
-define("ReporteStock", "http://sistemasjeam.com/boticav1/views/lo_reportestockform.php");
-define("ReporteKardex", "http://sistemasjeam.com/boticav1/views/lo_kardexform.php");
-define("ReporteKardexValorizado", "http://sistemasjeam.com/boticav1/views/lo_kardexvalorizadoform.php");
-define("Login", "http://sistemasjeam.com/boticav1/index.php");
-define("CajaYBanco", "http://sistemasjeam.com/boticav1/views/frmcb_cajabanco.php");
+define("SITE_URL", '/');
+define("Producto", SITE_URL . "views/gen_productoform.php");
+define("Forma_Farmaceutica", SITE_URL . "views/gen_productoformafarmaceuticaform.php");
+define("Medicion", SITE_URL . "views/gen_productomedicionform.php");
+define("Marca", SITE_URL . "views/gen_productomarcaform.php");
+define("Categoria", SITE_URL . "views/gen_productocategoriaform.php");
+define("Compuesto", SITE_URL . "views/gen_productocompuestoform.php");
+define("PuntoVenta", SITE_URL . "views/v_ventaform.php");
+define("Experto", SITE_URL . "views/v_expertoform.php");
+define("Inventario", SITE_URL . "views/lo_inventarioform.php");
+define("RegVenta", SITE_URL . "views/ve_regventaform.php");
+define("Cierre", SITE_URL . "views/ve_cierreform.php");
+define("RegMovimiento", SITE_URL . "views/lo_regmovimiento.php");
+define("RegCompraContable", SITE_URL . "views/lo_regcompracontable.php");
+define("ReporteStock", SITE_URL . "views/lo_reportestockform.php");
+define("ReporteKardex", SITE_URL . "views/lo_kardexform.php");
+define("ReporteKardexValorizado", SITE_URL . "views/lo_kardexvalorizadoform.php");
+define("Login", SITE_URL . "index.php");
+define("CajaYBanco", SITE_URL . "views/frmcb_cajabanco.php");
+define("Logout", SITE_URL . "controllers/logout.php");
 
  ?>
 
@@ -77,6 +79,9 @@ define("CajaYBanco", "http://sistemasjeam.com/boticav1/views/frmcb_cajabanco.php
       </li>
       <li class="dropdown">
         <a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a>
+      </li>
+      <li class="dropdown">
+        <a href="<?php echo Logout; ?>"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>
       </li>
     </ul>
     <!-- <ul class="nav navbar-nav navbar-right"> -->

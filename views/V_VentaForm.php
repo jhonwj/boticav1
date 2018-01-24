@@ -1,5 +1,5 @@
 <?php
-include_once("/../clases/BnGeneral.php");
+include_once("../clases/BnGeneral.php");
 //include("../clases/DtGeneral.php");
 include_once("../clases/helpers/Modal.php");
  ?>
@@ -126,7 +126,7 @@ $("#FechaVen").hide();
         //console.log(Encontrado);
 
         if (Encontrado ==0) {
-          var fila = "<tr><td class='idProd'>"+ $("#tempId").val() +"</td><td class='nombreProducto'>"+ $("#tempProducto").val() +"</td><td>"+ $('.spinner input').val() + "</td><td>" + $("#txtPrecio").val() + "</td><td>"+ $("#txtTotal").val() +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
+          var fila = "<tr><td class='idProd'>"+ $("#tempId").val() +"</td><td class='nombreProducto'>"+ $("#tempProducto").val() +"</td><td>"+ $('.spinner input').val() + "</td><td>" + $("#txtPrecio").val() + "</td><td>"+ $("#txtTotal").val() +"</td><td class='nombreProducto'>"+ $("#tempLote").val() + "</td><td class='nombreProducto'>"+ $("#tempFechaVen").val() +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
         $("#tablePuntoVentaDet tbody").append(fila);
 
         }
@@ -301,7 +301,7 @@ $("#btnGuardarMetPago").click(function(){
           $("#txtSubTot").val("");
           $("#txtTotalGen").val("");
           $("#ModalMetPago").modal("hide");
-          window.location.href = "http://sistemasjeam.com/boticav1/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
+          window.location.href = "/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
           //window.print();
         }
         else{
@@ -469,7 +469,9 @@ function ListarProducto(almacen){
             /*{ mRender: function ( data, type, row ) {
                return '';
             } }*/
-            { mData: 'VentaEstrategica' }
+            { mData: 'VentaEstrategica' },
+            { mData: 'IdLote' },
+            { mData: 'FechaVen' }
             ]
         });
       $('#tableProducto tbody').off("click").on('click', 'tr', function () {
@@ -485,6 +487,9 @@ function ListarProducto(almacen){
 
         $("#tempId").val($(this).children("td").eq(0).text());
         $("#tempProducto").val($(this).children("td").eq(1).text());
+        $("#tempLote").val($(this).children("td").eq(11).text());
+        $("#tempFechaVen").val($(this).children("td").eq(12).text());
+
         $("#txtPrecio").val($(this).children("td").eq(2).text());
         $('.spinner input').val("1");
         if ($('.spinner input').val()<="1") {
@@ -565,7 +570,7 @@ function fn_SumarProd(){
       <div class="pull-right">
         <?php
         	$result = fn_devolverFecha();
-        	while ($row = mysql_fetch_array($result)) {
+        	while ($row = mysqli_fetch_array($result)) {
         	echo '<input type="text" id="fecha" class="form-control fechaActual" disabled placeholder="fecha" value="'.$row[0].'">';
         	}
          ?>
@@ -574,7 +579,7 @@ function fn_SumarProd(){
       <div class="pull-right">
         <?php
             $result = fn_devolverPuntodeVenta("", "");
-            while ($row = mysql_fetch_array($result)) {
+            while ($row = mysqli_fetch_array($result)) {
             echo '<input type="text" id="txtSerie" class="form-control puntoVentaActual" readonly placeholder="fecha" value="'.$row[2].'">';
             }
           ?>
@@ -620,7 +625,9 @@ function fn_SumarProd(){
     	<th>Producto</th>
     	<th>Cantidad</th>
     	<th>Precio</th>
-    	<th>Tot.</th>
+        <th>Tot.</th>
+        <th>Lote.</th>
+    	<th>FechaVencimiento.</th>
     </thead>
     <tbody>
 
@@ -692,6 +699,8 @@ function fn_SumarProd(){
              <th>Medicion</th>
              <th>Stock</th>
              <th>Venta Estrategica</th>
+             <th>Lote</th>
+             <th>FechaVencimiento</th>
             </thead>
         </table>
         </div>
@@ -721,7 +730,9 @@ function fn_SumarProd(){
     				</div>
       			</div>
       			<input id="tempId" type="hidden">
-    			<input id="tempProducto" type="hidden">
+                <input id="tempProducto" type="hidden">
+                <input id="tempLote" type="hidden">
+    			<input id="tempFechaVen" type="hidden">
       			<hr/>
       			<div class="input-group">
       				<span class="input-group-addon">S/.</span>
@@ -754,7 +765,7 @@ function fn_SumarProd(){
               <tbody>
                 <?php
                    $result = fn_devolverTipoDocVenta("", "");
-                    while ($row = mysql_fetch_array($result)) {
+                    while ($row = mysqli_fetch_array($result)) {
                     	if ($row["TipoDoc"]) {
                     		echo '<tr>';
                      		echo '<td class="idTipoDoc">'.$row["IdTipoDoc"]."</td>";
@@ -789,7 +800,7 @@ function fn_SumarProd(){
               <tbody>
                 <?php
                    $result = fn_devolverAlmacen("", "");
-                    while ($row = mysql_fetch_array($result)) {
+                    while ($row = mysqli_fetch_array($result)) {
                     		echo '<tr>';
                      		echo '<td class="idTipoDoc">'.$row["IdAlmacen"]."</td>";
                      		echo "<td>".$row["Almacen"]."</td>";
@@ -891,7 +902,7 @@ function fn_SumarProd(){
            <div class="row">
              <?php
                 $result = fn_devolverMetPago();
-                while ($row = mysql_fetch_array($result)) {
+                while ($row = mysqli_fetch_array($result)) {
                   echo '<div class="col-md-4">';
                   echo '<button id="mP'.$row["MetodoPago"].'" class="btn btn-info btn-lg">'.$row["MetodoPago"]."</button>";
                   echo "</div>";
@@ -937,7 +948,7 @@ function fn_SumarProd(){
      </div>
    </div>
   </div>
-  <!-- MODAL ELIMINAR CAJA BANCO -->
+  <!-- MODAL CREAR PROFORMA -->
   <?php
   Modal::render('ModalProforma', [
       'id' => 'modalProformaVenta',

@@ -1,13 +1,13 @@
 <?php 
 
-	include_once '/../clases/BnGeneral.php';
+	include_once '../clases/BnGeneral.php';
 
 	$idProducto = $_GET["Producto"];
 	if(!empty($idProducto)){
 		//$idCompuesto = "00000";
 		$result = fn_DevolverProductoDet($idProducto);
 		$data = array();
-		while ($rows = mysql_fetch_assoc($result)) {
+		while ($rows = mysqli_fetch_assoc($result)) {
 				$data[] = $rows;
 			}
 
@@ -24,7 +24,7 @@
 
 	/*$data = array();
 
-	while ($rows = mysql_fetch_assoc($result)) {
+	while ($rows = mysqli_fetch_assoc($result)) {
 		$data[] = $rows;
 	}
 

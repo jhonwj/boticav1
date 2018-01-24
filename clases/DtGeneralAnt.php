@@ -2,7 +2,7 @@
 
 //include("../models/DBManager.php");
 //include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
-include_once("/../clases/BnGeneral.php");
+include_once("../clases/BnGeneral.php");
 
 function fn_guardarProductoMarca($productoMarca,$usuario){
 
@@ -372,7 +372,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    	$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam')";
 		    	$result = getSQLResultSet($Ssql);
 		    	$hash = "";
-		    	while ($row = mysql_fetch_assoc($result)) {
+		    	while ($row = mysqli_fetch_assoc($result)) {
 		    		$hash = $row["Hash"];
 		    	}
 		    	return $hash;
