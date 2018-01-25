@@ -43,10 +43,10 @@ $objPHPExcel->getActiveSheet()->setCellValue('H3', 'STOCK');*/
 //$objPHPExcel->getActiveSheet()->setCellValue('A4', '=CONCATENATE(A1, " ", A2)');
 
    $result = ListarReporteKardex($producto, $fechaIni, $fechaFin, $Tipo);
-echo "<pre>";
+//echo "<pre>";
    $cont = 4;
 	while ($row = mysqli_fetch_assoc($result)) {
-		print_r($row);
+		//print_r($row);
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["d1"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["d2"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["d3"]);
@@ -54,7 +54,7 @@ echo "<pre>";
 		$objPHPExcel->getActiveSheet()->setCellValue('H'.$cont, $row["d5"]);
 		$cont++;
 	}
-	exit();
+	//exit();
 
 $default_border = array(
     'style' => PHPExcel_Style_Border::BORDER_THIN,

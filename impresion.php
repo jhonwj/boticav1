@@ -3,7 +3,7 @@ include("boticav1/clases/BnGeneral.php");
 $IdDocVenta=$_GET['IdDocVenta'];
 
 try {
-									$criterio="botica.Ve_DocVenta.IdDocVenta=$IdDocVenta";
+									$criterio="Ve_DocVenta.IdDocVenta=$IdDocVenta";
 									$result = fn_devolverDocVenta($criterio, "");
 									$Linea1="--------------------------------";
 									$Linea2="================================";
@@ -112,7 +112,7 @@ try {
 											//$text = str_replace( "-"," ", $text);
 											$text = str_replace( "/r/n"," \r\n , ", $text); // replace and make string Array									
 		                                    printer_draw_text($handle, $text,1,$Top);
-		                                    $criterio="botica.Ve_DocVentaDet.IdDocVenta=$IdDocVenta";
+		                                    $criterio="Ve_DocVentaDet.IdDocVenta=$IdDocVenta";
 											$resultDet = fn_devolverDocVentaDet($criterio, "Gen_Producto.Producto desc");
 											$Total=0;
 											while ($rowDet =mysql_fetch_row($resultDet)) {

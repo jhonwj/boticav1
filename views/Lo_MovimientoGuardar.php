@@ -36,8 +36,8 @@ if ($row[0]>=1) {
 //}
 /*else{
 	$res = fn_modificarProducto($producto[0]["value"], $producto[2]["value"], $producto[4]["value"], $producto[6]["value"], $producto[8]["value"], $producto[9]["value"], $producto[10]["value"], $producto[11]["value"], $producto[12]["value"], $producto[13]["value"], $producto[14]["value"],$producto[15]["value"],$producto[16]["value"],$producto[17]["value"] , $producto[18]["value"]);
-	$Ssql = "DELETE FROM botica.Gen_ProductoCompuestoDet WHERE Gen_ProductoCompuestoDet.Gen_Producto_IdProducto =".$producto[0]["value"];
-	$Ssql2 = "DELETE FROM botica.Gen_ProductoDet WHERE Gen_ProductoDet.IdProducto =".$producto[0]["value"];
+	$Ssql = "DELETE FROM Gen_ProductoCompuestoDet WHERE Gen_ProductoCompuestoDet.Gen_Producto_IdProducto =".$producto[0]["value"];
+	$Ssql2 = "DELETE FROM Gen_ProductoDet WHERE Gen_ProductoDet.IdProducto =".$producto[0]["value"];
 	if(!ejecutarSQLCommand($Ssql) || !ejecutarSQLCommand($Ssql2)){
 		foreach ($CompuestosJson as $key) {
 		fn_guardarProductoCompuestoDet($key[0], $producto[0]["value"]);

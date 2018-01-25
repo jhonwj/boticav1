@@ -25,7 +25,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
    <body>
      <div class="ticket">
      <?php
-     $criterio="botica.Ve_DocVenta.IdDocVenta=$IdDocVenta";
+     $criterio="Ve_DocVenta.IdDocVenta=$IdDocVenta";
      $result = fn_devolverDocVenta($criterio, "");
      while ($row =mysql_fetch_row($result)) {
      $IDocVentaNro = $row[12];
@@ -53,7 +53,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
          <th>TOT</th>
        </thead>
        <tbody>
-         <?php $criterio="botica.Ve_DocVentaDet.IdDocVenta=$IdDocVenta";
+         <?php $criterio="Ve_DocVentaDet.IdDocVenta=$IdDocVenta";
           $resultDet = fn_devolverDocVentaDet($criterio, "Gen_Producto.Producto desc");
           while ($rowDet =mysql_fetch_row($resultDet)) {
             $Cant = $rowDet[5];

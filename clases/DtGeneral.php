@@ -6,7 +6,7 @@ include_once("../clases/BnGeneral.php");
 
 function fn_guardarProductoMarca($productoMarca,$usuario){
 
-		$Ssql="INSERT INTO botica.Gen_ProductoMarca (ProductoMarca,Anulado, FechaReg,UsuarioReg) VALUES('$productoMarca',0, now(),'$usuario')";
+		$Ssql="INSERT INTO Gen_ProductoMarca (ProductoMarca,Anulado, FechaReg,UsuarioReg) VALUES('$productoMarca',0, now(),'$usuario')";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -17,7 +17,7 @@ function fn_guardarProductoMarca($productoMarca,$usuario){
     }
 function fn_modificarProductoMarca($idproductoMarca,$productoMarca,$anulado,$usuario){
 
-		$Ssql="UPDATE botica.Gen_ProductoMarca SET ProductoMarca='$productoMarca',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoMarca=$idproductoMarca";
+		$Ssql="UPDATE Gen_ProductoMarca SET ProductoMarca='$productoMarca',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoMarca=$idproductoMarca";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -29,7 +29,7 @@ function fn_modificarProductoMarca($idproductoMarca,$productoMarca,$anulado,$usu
 
     function fn_eliminarProductoMarca($idProductoMarca){
 
-		$Ssql="DELETE FROM botica.Gen_ProductoMarca WHERE IdProductoMarca = $idProductoMarca";
+		$Ssql="DELETE FROM Gen_ProductoMarca WHERE IdProductoMarca = $idProductoMarca";
 		//echo $Ssql;
 		if(eliminar($Ssql)){
 			return "SI";
@@ -41,7 +41,7 @@ function fn_modificarProductoMarca($idproductoMarca,$productoMarca,$anulado,$usu
 ///////////////////////////////////////////////////CATEGORIA
 function fn_guardarProductoCategoria($productoCategoria,$usuario){
 
-		$Ssql="INSERT INTO botica.Gen_ProductoCategoria (ProductoCategoria,Anulado, FechaReg,UsuarioReg) VALUES('$productoCategoria',0, now(),'$usuario')";
+		$Ssql="INSERT INTO Gen_ProductoCategoria (ProductoCategoria,Anulado, FechaReg,UsuarioReg) VALUES('$productoCategoria',0, now(),'$usuario')";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -52,7 +52,7 @@ function fn_guardarProductoCategoria($productoCategoria,$usuario){
     }
 function fn_modificarProductoCategoria($idProductoCategoria,$productoCategoria,$anulado,$usuario){
 
-		$Ssql="UPDATE botica.Gen_ProductoCategoria SET ProductoCategoria='$productoCategoria',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoCategoria=$idProductoCategoria";
+		$Ssql="UPDATE Gen_ProductoCategoria SET ProductoCategoria='$productoCategoria',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoCategoria=$idProductoCategoria";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -64,7 +64,7 @@ function fn_modificarProductoCategoria($idProductoCategoria,$productoCategoria,$
 
     function fn_eliminarProductoCategoria($IdProductoCategoria){
 
-		$Ssql="DELETE FROM botica.Gen_ProductoCategoria WHERE IdProductoCategoria = $IdProductoCategoria";
+		$Ssql="DELETE FROM Gen_ProductoCategoria WHERE IdProductoCategoria = $IdProductoCategoria";
 		//echo $Ssql;
 		if(eliminar($Ssql)){
 			return "SI";
@@ -77,7 +77,7 @@ function fn_modificarProductoCategoria($idProductoCategoria,$productoCategoria,$
 //////////////////////////////////////////////////BLOQUE
 function fn_guardarProductoBloque($productoBloque, $procentajeMin, $procentajeMax,$usuario){
 
-		$Ssql="INSERT INTO botica.Gen_ProductoBloque (Bloque, PorcentajeMin, PorcentajeMax, FechaReg,UsuarioReg) VALUES('$productoBloque',$procentajeMin, $procentajeMax, now(),'$usuario')";
+		$Ssql="INSERT INTO Gen_ProductoBloque (Bloque, PorcentajeMin, PorcentajeMax, FechaReg,UsuarioReg) VALUES('$productoBloque',$procentajeMin, $procentajeMax, now(),'$usuario')";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -88,8 +88,8 @@ function fn_guardarProductoBloque($productoBloque, $procentajeMin, $procentajeMa
     }
 function fn_modificarProductoBloque($idproductoBloque,$productoBloque, $procentajeMin, $procentajeMax,$usuario){
 
-	$Ssql="UPDATE botica.Gen_ProductoBloque SET Bloque='$productoBloque', PorcentajeMin=$procentajeMin,PorcentajeMax=$procentajeMax, FechaMod=now(),UsuarioMod='$usuario' WHERE IdBloque=$idproductoBloque";
-	// $Ssql="INSERT INTO botica.Gen_ProductoBloque (Bloque, PorcentajeMin, PorcentajeMax, FechaReg,UsuarioReg) VALUES('$productoBloque',$procentajeMin, $procentajeMax, now(),'$usuario')";
+	$Ssql="UPDATE Gen_ProductoBloque SET Bloque='$productoBloque', PorcentajeMin=$procentajeMin,PorcentajeMax=$procentajeMax, FechaMod=now(),UsuarioMod='$usuario' WHERE IdBloque=$idproductoBloque";
+	// $Ssql="INSERT INTO Gen_ProductoBloque (Bloque, PorcentajeMin, PorcentajeMax, FechaReg,UsuarioReg) VALUES('$productoBloque',$procentajeMin, $procentajeMax, now(),'$usuario')";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -101,7 +101,7 @@ function fn_modificarProductoBloque($idproductoBloque,$productoBloque, $procenta
 
     function fn_eliminarProductoBloque($IdProductoCategoria){
 
-		$Ssql="DELETE FROM botica.Gen_ProductoCategoria WHERE IdProductoCategoria = $IdProductoCategoria";
+		$Ssql="DELETE FROM Gen_ProductoCategoria WHERE IdProductoCategoria = $IdProductoCategoria";
 		//echo $Ssql;
 		if(eliminar($Ssql)){
 			return "SI";
@@ -113,7 +113,7 @@ function fn_modificarProductoBloque($idproductoBloque,$productoBloque, $procenta
  ///////////////////////////////////////////////////Medicion
 function fn_guardarProductoMedicion($productoMedicion,$usuario){
 
-		$Ssql="INSERT INTO botica.Gen_ProductoMedicion (ProductoMedicion,Anulado, FechaReg,UsuarioReg) VALUES('$productoMedicion',0, now(),'$usuario')";
+		$Ssql="INSERT INTO Gen_ProductoMedicion (ProductoMedicion,Anulado, FechaReg,UsuarioReg) VALUES('$productoMedicion',0, now(),'$usuario')";
 		echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -124,7 +124,7 @@ function fn_guardarProductoMedicion($productoMedicion,$usuario){
     }
 function fn_modificarProductoMedicion($idProductoMedicion,$productoMedicion,$anulado,$usuario){
 
-		$Ssql="UPDATE botica.Gen_ProductoMedicion SET ProductoMedicion='$productoMedicion',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoMedicion=$idProductoMedicion";
+		$Ssql="UPDATE Gen_ProductoMedicion SET ProductoMedicion='$productoMedicion',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoMedicion=$idProductoMedicion";
 		echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -136,7 +136,7 @@ function fn_modificarProductoMedicion($idProductoMedicion,$productoMedicion,$anu
 
     function fn_eliminarProductoMedicion($IdProductoMedicion){
 
-		$Ssql="DELETE FROM botica.Gen_ProductoMedicion WHERE IdProductoMedicion = $IdProductoMedicion";
+		$Ssql="DELETE FROM Gen_ProductoMedicion WHERE IdProductoMedicion = $IdProductoMedicion";
 		//echo $Ssql;
 		if(eliminar($Ssql)){
 			return "SI";
@@ -148,7 +148,7 @@ function fn_modificarProductoMedicion($idProductoMedicion,$productoMedicion,$anu
      ///////////////////////////////////////////////////FormaFarmaceutica
 function fn_guardarProductoFormaFarmaceutica($productoFormaFarmaceutica,$usuario){
 
-		$Ssql="INSERT INTO botica.Gen_ProductoFormaFarmaceutica (ProductoFormaFarmaceutica,Anulado, FechaReg,UsuarioReg) VALUES('$productoFormaFarmaceutica',0, now(),'$usuario')";
+		$Ssql="INSERT INTO Gen_ProductoFormaFarmaceutica (ProductoFormaFarmaceutica,Anulado, FechaReg,UsuarioReg) VALUES('$productoFormaFarmaceutica',0, now(),'$usuario')";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -159,7 +159,7 @@ function fn_guardarProductoFormaFarmaceutica($productoFormaFarmaceutica,$usuario
     }
 function fn_modificarProductoFormaFarmaceutica($idProductoFarmaceutica,$productoFarmaceutica,$anulado,$usuario){
 
-		$Ssql="UPDATE botica.Gen_ProductoFormaFarmaceutica SET ProductoFormaFarmaceutica='$productoFarmaceutica',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoFormaFarmaceutica=$idProductoFarmaceutica";
+		$Ssql="UPDATE Gen_ProductoFormaFarmaceutica SET ProductoFormaFarmaceutica='$productoFarmaceutica',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoFormaFarmaceutica=$idProductoFarmaceutica";
 		//echo $Ssql;
 		//exit();
 		if(ejecutarSQLCommand($Ssql)){
@@ -172,7 +172,7 @@ function fn_modificarProductoFormaFarmaceutica($idProductoFarmaceutica,$producto
 
     function fn_modificarProductoFormaFarmaceuticaEstado($IdProductoFarmaceutica, $anulado, $usuario){
 
-		$Ssql="UPDATE botica.Gen_ProductoFormaFarmaceutica SET Anulado=$anulado,FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoFormaFarmaceutica = $IdProductoFarmaceutica";
+		$Ssql="UPDATE Gen_ProductoFormaFarmaceutica SET Anulado=$anulado,FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoFormaFarmaceutica = $IdProductoFarmaceutica";
 		//echo $Ssql;
 		//exit();
 		if(ejecutarSQLCommand($Ssql)){
@@ -191,7 +191,7 @@ function fn_guardarProductoCompuesto($productoCompuesto,$usuario){
     }
 function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$anulado,$usuario){
 
-		$Ssql="UPDATE botica.Gen_ProductoCompuesto SET ProductoCompuesto='$productoCompuesto',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoCompuesto=$idProductoCompuesto";
+		$Ssql="UPDATE Gen_ProductoCompuesto SET ProductoCompuesto='$productoCompuesto',Anulado=$anulado, FechaMod=now(),UsuarioMod='$usuario' WHERE IdProductoCompuesto=$idProductoCompuesto";
 		//echo $Ssql;
 		if(ejecutarSQLCommand($Ssql)){
 			return "SI";
@@ -203,7 +203,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
     function fn_eliminarProductoCompuesto($idProductoCompuesto){
 
-		$Ssql="DELETE FROM botica.Gen_ProductoCompuesto WHERE IdProductoCompuesto = $idProductoCompuesto";
+		$Ssql="DELETE FROM Gen_ProductoCompuesto WHERE IdProductoCompuesto = $idProductoCompuesto";
 		//echo $Ssql;
 		if(eliminar($Ssql)){
 			return "SI";
@@ -237,7 +237,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 				//	echo $fechaCredito;
 					//exit();
 				$fechaDoc=fn_devolverfechaActual();
-				$Ssql="CALL botica.SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario', $EsCredito, '$fechaCredito')";
+				$Ssql="CALL SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario', $EsCredito, '$fechaCredito')";
 				$res=getSQLResultSet($Ssql);
 				$idDocVenta = "";
 				while ($row =mysql_fetch_row($res)) {
@@ -293,7 +293,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
 		    function fn_guardarCliente($cliente, $dni, $direccion, $telefono, $email, $usuario){
 
-				$Ssql="INSERT INTO botica.Ve_DocVentaCliente(Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.Telefono, Ve_DocVentaCliente.Email, Ve_DocVentaCliente.Anulado, Ve_DocVentaCliente.FechaReg,Ve_DocVentaCliente.UsuarioReg)
+				$Ssql="INSERT INTO Ve_DocVentaCliente(Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.Telefono, Ve_DocVentaCliente.Email, Ve_DocVentaCliente.Anulado, Ve_DocVentaCliente.FechaReg,Ve_DocVentaCliente.UsuarioReg)
 						VALUES(
 							'$cliente',
 							'$dni',
@@ -317,7 +317,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
 				function fn_modificarCliente($idCliente, $cliente, $dni, $direccion, $telefono, $email, $usuario)
 				{
-					$Ssql = "UPDATE botica.Ve_DocVentaCliente SET
+					$Ssql = "UPDATE Ve_DocVentaCliente SET
 					Cliente = '$cliente',
 					DniRuc =  '$dni',
 					Direccion = '$direccion',
@@ -349,7 +349,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
 		    function fn_guardarSintoma($Sintoma){
 
-				$Ssql="INSERT INTO botica.Ve_ExpertoSintoma(Ve_ExpertoSintoma.Sintoma) VALUES ('$Sintoma')";
+				$Ssql="INSERT INTO Ve_ExpertoSintoma(Ve_ExpertoSintoma.Sintoma) VALUES ('$Sintoma')";
 				$res=ejecutarSQLCommand($Ssql);
 				if($res){
 					return $res;
@@ -360,7 +360,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
 				function fn_modificarSintoma($IdSintoma, $Sintoma){
 
-				$Ssql="UPDATE botica.Ve_ExpertoSintoma SET Ve_ExpertoSintoma.Sintoma='$Sintoma' WHERE Ve_ExpertoSintoma.IdSintoma = $IdSintoma";
+				$Ssql="UPDATE Ve_ExpertoSintoma SET Ve_ExpertoSintoma.Sintoma='$Sintoma' WHERE Ve_ExpertoSintoma.IdSintoma = $IdSintoma";
 				$res=ejecutarSQLCommand($Ssql);
 				if($res){
 					return $res;
@@ -416,7 +416,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
 		    function fn_modificarProveedor($idProveedor, $proveedor, $ruc, $direccion, $observacion)
 		    {
-		    	$Ssql = "UPDATE botica.Lo_Proveedor SET
+		    	$Ssql = "UPDATE Lo_Proveedor SET
 		    			Proveedor = '$proveedor',
 		    			Ruc = '$ruc',
 		    			Direccion = '$direccion',
@@ -427,7 +427,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    }
 
 		    function fn_guardarAlmacen($almacen){
-		    	$Ssql = "INSERT INTO botica.Lo_Almacen(Almacen, Anulado, FechaReg, UsuarioReg) VALUES ('$almacen', 0, now(), 'Jeam')";
+		    	$Ssql = "INSERT INTO Lo_Almacen(Almacen, Anulado, FechaReg, UsuarioReg) VALUES ('$almacen', 0, now(), 'Jeam')";
 		    	ejecutarSQLCommand($Ssql);
 		    }
 
@@ -460,7 +460,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 				function fn_GuardarCierre()
 				{
 					# code...
-					$Ssql = " UPDATE botica.Ve_DocVenta SET IdCierre=1 WHERE IdCierre IS NULL";
+					$Ssql = " UPDATE Ve_DocVenta SET IdCierre=1 WHERE IdCierre IS NULL";
 					ejecutarSQLCommand($Ssql);
 				}
 
@@ -472,7 +472,7 @@ function fn_actualizarRegistro($tabla, $campos, $where)
 		return false;
 	}
 
-	$Ssql = " UPDATE botica.$tabla SET";
+	$Ssql = " UPDATE $tabla SET";
 	foreach ($campos as $key => $value) {
 		$Ssql .= " " . $key . "=" . $value;
 

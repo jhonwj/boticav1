@@ -14,7 +14,7 @@ $Producto = json_decode($_GET["data"], true);
 }
 	$existe=fn_devolverProductoCompuestoSiExiste($productoCompuesto);
 	if($existe){
-	$Ssql = "DELETE FROM botica.Gen_ProductoCompuestoDet WHERE Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto=$idproductoCompuesto";
+	$Ssql = "DELETE FROM Gen_ProductoCompuestoDet WHERE Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto=$idproductoCompuesto";
 	if(!ejecutarSQLCommand($Ssql)){
 			foreach ($Producto as $key) {
 			fn_guardarProductoCompuestoDet($idproductoCompuesto ,$key[0]);
@@ -30,7 +30,7 @@ $Producto = json_decode($_GET["data"], true);
 		}
 	}else{
 		$res = fn_modificarProductoCompuesto($idproductoCompuesto,$productoCompuesto,1,"jeam");
-		$Ssql = "DELETE FROM botica.Gen_ProductoCompuestoDet WHERE Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto=$idproductoCompuesto";
+		$Ssql = "DELETE FROM Gen_ProductoCompuestoDet WHERE Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto=$idproductoCompuesto";
 		if(!ejecutarSQLCommand($Ssql)){
 			foreach ($Producto as $key) {
 			fn_guardarProductoCompuestoDet($idproductoCompuesto ,$key[0]);

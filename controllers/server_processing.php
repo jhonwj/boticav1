@@ -1,8 +1,8 @@
-<?php 
+<?php
 
 include_once '../models/DBManager.php';
 
-$Ssql="SELECT IdProductoMarca as ID, ProductoMarca, Anulado, FechaReg, UsuarioReg, FechaMod, UsuarioMod FROM botica.Gen_ProductoMarca";
+$Ssql="SELECT IdProductoMarca as ID, ProductoMarca, Anulado, FechaReg, UsuarioReg, FechaMod, UsuarioMod FROM Gen_ProductoMarca";
    $result = getSQLResultSet($Ssql);
 	//echo "<br/>SE GUARDO ($IdVideo22)!!!!!"
 
