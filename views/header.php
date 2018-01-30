@@ -1,23 +1,23 @@
 <?php
 define("SITE_URL", '/');
-define("Producto", SITE_URL . "views/gen_productoform.php");
-define("Forma_Farmaceutica", SITE_URL . "views/gen_productoformafarmaceuticaform.php");
-define("Medicion", SITE_URL . "views/gen_productomedicionform.php");
-define("Marca", SITE_URL . "views/gen_productomarcaform.php");
-define("Categoria", SITE_URL . "views/gen_productocategoriaform.php");
-define("Compuesto", SITE_URL . "views/gen_productocompuestoform.php");
-define("PuntoVenta", SITE_URL . "views/v_ventaform.php");
-define("Experto", SITE_URL . "views/v_expertoform.php");
-define("Inventario", SITE_URL . "views/lo_inventarioform.php");
+define("Producto", SITE_URL . "views/Gen_ProductoForm.php");
+define("Forma_Farmaceutica", SITE_URL . "views/Gen_ProductoFormaFarmaceuticaForm.php");
+define("Medicion", SITE_URL . "views/Gen_ProductoMedicionForm.php");
+define("Marca", SITE_URL . "views/Gen_ProductoMarcaForm.php");
+define("Categoria", SITE_URL . "views/Gen_ProductoCategoriaForm.php");
+define("Compuesto", SITE_URL . "views/Gen_ProductoCompuestoForm.php");
+define("PuntoVenta", SITE_URL . "views/V_VentaForm.php");
+define("Experto", SITE_URL . "views/V_ExpertoForm.php");
+define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
 define("Cierre", SITE_URL . "views/ve_cierreform.php");
 define("RegMovimiento", SITE_URL . "views/lo_regmovimiento.php");
 define("RegCompraContable", SITE_URL . "views/lo_regcompracontable.php");
-define("ReporteStock", SITE_URL . "views/lo_reportestockform.php");
+define("ReporteStock", SITE_URL . "views/Lo_ReporteStockForm.php");
 define("ReporteKardex", SITE_URL . "views/lo_kardexform.php");
 define("ReporteKardexValorizado", SITE_URL . "views/lo_kardexvalorizadoform.php");
 define("Login", SITE_URL . "index.php");
-define("CajaYBanco", SITE_URL . "views/frmcb_cajabanco.php");
+define("CajaYBanco", SITE_URL . "views/FrmCb_CajaBanco.php");
 define("Logout", SITE_URL . "controllers/logout.php");
 
  ?>

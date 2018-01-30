@@ -29,8 +29,8 @@ $(document).ready(function(e){
       dataType: "html",
       success: function(res){
         $("#Spiner_preload").addClass("hide");
-        //console.log(res);
         var respuesta = JSON.parse(res);
+        console.log(respuesta);
         var tablagenerado = "";
         $.each(respuesta, function(data, value){
           tablagenerado =tablagenerado  + "<tr><td>"+value.d1+"</td><td>"+value.d2+"</td><td>"+value.d3+"</td><td>"+value.d4+"</td><td>"+value.d5+"</td><td>"+value.d6+"</td><td>"+value.d7+"</td><td>"+value.d8+"</td><td>"+value.d9+"</td><td>"+value.d10+"</td><td>"+value.d11+"</td></tr>";

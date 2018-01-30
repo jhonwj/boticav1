@@ -22,7 +22,7 @@ $(document).ready(function(e){
     $("#Spiner_preload").removeClass("hide");
     $("#tableProductoI tbody tr").remove();
     var xhr = $.ajax({
-      url: "lo_listarstock.php",
+      url: "Lo_ListarStock.php",
       type: "get",
       data: {producto: $("#txtProducto").val(), fechaIni: $("#txtFechaIni").val(), fechaFin: $("#txtFechaFin").val(), Tipo: $("#Tipo").val()},
       dataType: "html",

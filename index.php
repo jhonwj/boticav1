@@ -147,7 +147,7 @@ body:before {
             res = $.parseJSON(res);
 
             if (res.isLogin) {
-                window.location = "/views/gen_productoform.php";
+                window.location = "/views/Gen_ProductoForm.php";
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){

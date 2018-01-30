@@ -4,7 +4,7 @@ header( 'Content-Type: text/html;charset=utf-8' );
 
 function ejecutarSQLCommand($commando){
 
-  $mysqli = new mysqli("localhost", "root", '', "botica");
+  $mysqli = new mysqli("localhost", "root", '', "neurofac_botica");
   // $mysqli = new mysqli("localhost", "neurofac_botica", '&TF{LW9m8U?I', "neurofac_botica");
   //$mysqli = new mysqli("localhost", "root", "", "botica");
 /* check connection */
@@ -43,9 +43,9 @@ return true;
 function getSQLResultSet($commando){
 
     // $link = mysql_connect("localhost", "root", "");
-    $mysqli = new mysqli("localhost", "root", '', 'botica');
+    $mysqli = new mysqli("localhost", "root", '', 'neurofac_botica');
     // $mysqli = new mysqli("localhost", "neurofac_botica", '&TF{LW9m8U?I', "neurofac_botica");
-    
+
     $mysqli->set_charset("utf8");
     // $acentos = mysql_query("SET NAMES 'utf8'");
 
