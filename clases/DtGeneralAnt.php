@@ -238,7 +238,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 				$Ssql="CALL SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario')";
 				$res=getSQLResultSet($Ssql);
 				$idDocVenta = "";
-				while ($row =mysql_fetch_row($res)) {
+				while ($row =mysqli_fetch_row($res)) {
 		 		$idDocVenta = $row[0];
 		 		//break;
 				}

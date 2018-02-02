@@ -10,7 +10,7 @@ try {
 
 									$Salto=20;
 									
-									while ($row =mysql_fetch_row($result)) {
+									while ($row =mysqli_fetch_row($result)) {
 											//$RutaImpresora=$row[20];
 											//echo "$RutaImpresora";
 										$RutaImpresora="Microsoft XPS Document Writer";
@@ -115,7 +115,7 @@ try {
 		                                    $criterio="Ve_DocVentaDet.IdDocVenta=$IdDocVenta";
 											$resultDet = fn_devolverDocVentaDet($criterio, "Gen_Producto.Producto desc");
 											$Total=0;
-											while ($rowDet =mysql_fetch_row($resultDet)) {
+											while ($rowDet =mysqli_fetch_row($resultDet)) {
 												$Cant = $rowDet[5];
 												$Precio = $rowDet[6];
 												$Tot = $rowDet[7];												

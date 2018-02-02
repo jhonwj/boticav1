@@ -27,7 +27,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
      <?php
      $criterio="Ve_DocVenta.IdDocVenta=$IdDocVenta";
      $result = fn_devolverDocVenta($criterio, "");
-     while ($row =mysql_fetch_row($result)) {
+     while ($row =mysqli_fetch_row($result)) {
      $IDocVentaNro = $row[12];
      $FechaHora=$row[13];
      $Cliente=$row[3];
@@ -55,7 +55,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
        <tbody>
          <?php $criterio="Ve_DocVentaDet.IdDocVenta=$IdDocVenta";
           $resultDet = fn_devolverDocVentaDet($criterio, "Gen_Producto.Producto desc");
-          while ($rowDet =mysql_fetch_row($resultDet)) {
+          while ($rowDet =mysqli_fetch_row($resultDet)) {
             $Cant = $rowDet[5];
             $Precio = $rowDet[6];
             $Tot = $rowDet[7];

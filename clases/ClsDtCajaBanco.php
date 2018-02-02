@@ -1,5 +1,5 @@
 <?php
-include("../models/DBManager.php");
+include_once("../models/DBManager.php");
 
 function fn_guardarCajaBanco($data) {
     $idTipo = $data['IdTipoCajaBanco'];

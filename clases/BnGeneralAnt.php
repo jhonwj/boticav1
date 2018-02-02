@@ -42,7 +42,7 @@
 		$result = fn_devolverProductoMarca($criterio, "");
 
 		$existe = false;
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = true;
 		 break;
 		}
@@ -144,7 +144,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$result = fn_devolverProductoCategoria($criterio, "");
 
 		$existe = false;
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = true;
 		 break;
 		}
@@ -177,7 +177,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$result = fn_devolverProductoMedicion($criterio, "");
 
 		$existe = false;
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = true;
 		 break;
 		}
@@ -210,7 +210,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$result = fn_devolverProductoFormaFarmaceutica($criterio, "");
 
 		$existe = false;
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = true;
 		 break;
 		}
@@ -244,7 +244,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$result = fn_devolverProductoCompuesto($criterio, "");
 
 		$existe = false;
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = true;
 		 break;
 		}
@@ -261,7 +261,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$result = getSQLResultSet($Ssql);
 
 		$existe = "NO";
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = $row[0];
 		 break;
 		}
@@ -329,7 +329,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$result = fn_devolverProductoCompuesto($criterio, "");
 
 		$existe = false;
-		while ($row =mysql_fetch_row($result)) {
+		while ($row =mysqli_fetch_row($result)) {
 		 $existe = true;
 		 break;
 		}
