@@ -98,6 +98,11 @@ table tbody tr:first-child td:empty {
 	display: none;
 }
 
+#tableDocAplicados td:empty{
+	display: block;
+}
+
+
 /* Large desktops and laptops */
 @media (min-width: 1200px) {
 

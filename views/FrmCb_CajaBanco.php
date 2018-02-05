@@ -21,6 +21,8 @@ include_once("../clases/helpers/Modal.php");
      $('#btnAdd').hide()
 
      $("#btnAdd").click(function(){
+       $('#gridDocAplicados').hide();
+       $('#txtFechaVen2').val($('#txtFechaVen').val())
        $("#modalFrmCb_CajaBancoNuevo").modal("show");
      });
 
@@ -120,8 +122,37 @@ include_once("../clases/helpers/Modal.php");
            $('#tableCliente tbody').on('click', 'tr', function () {
              //var data = $(this).children("td").eq(1).html();
              //console.log($(this).children("td").eq(1).html());
+             var idCliente = $(this).children("td").eq(0).html();
+             $('#gridDocAplicados').show();
+
+
              $("#txtCliente").val($(this).children("td").eq(1).text());
              $("#ModalCliente").modal("hide");
+
+             // Documentos aplicados ListarDocAplicados
+             $("#tableDocAplicados").DataTable().destroy();
+             $("#tableDocAplicados").DataTable({
+                 "bProcessing": true,
+                 //"sAjaxSource": "../controllers/server_processingCajaBancoDocAplicados.php",
+                 "ajax": {
+                   "url": "../controllers/server_processingCajaBancoDocAplicados.php",
+                   "data": function (d) {
+                     d.idCliente = idCliente;
+                   }
+                 },
+                 "bPaginate":true,
+                 "sPaginationType":"full_numbers",
+                 "iDisplayLength": 5,
+                 "aoColumns": [
+                   { mData: 'IdDocVenta' } ,
+                   { mData: 'FechaDoc' },
+                   { mData: 'FechaCredito' },
+                   { mData: 'Correlativo' },
+                   { mData: 'Total'},
+                   { mData: 'Aplicado' },
+                   { mData: 'Saldo' }
+                 ]
+               });
 
          });
      });
@@ -285,7 +316,7 @@ include_once("../clases/helpers/Modal.php");
            data: {
                IdTipoCajaBanco : $('#txtTipoOpeId').val(),
                IdCuenta: $('#txtTipoCuentaId').val(),
-               FechaDoc: $('#txtFechaVen').val(),
+               FechaDoc: $('#txtFechaVen2').val(),
                Concepto: $('#txtConcepto').val(),
                Importe: $('#txtImporte').val()
            },
@@ -371,7 +402,7 @@ include_once("../clases/helpers/Modal.php");
  </html>
 <!-- Nuevo Agregar -->
  <div id="modalFrmCb_CajaBancoNuevo" class="modal fade" role="dialog">
-   <div class="modal-dialog">
+   <div class="modal-dialog modal-lg ">
      <div class="modal-content">
        <div class="modal-header">Agregar Tipo Caja</div>
        <div class="modal-body">
@@ -419,6 +450,14 @@ include_once("../clases/helpers/Modal.php");
            <div class="row">
              <div class="col-lg-12">
                <div class="form-inline" style="margin-bottom:20px;">
+                 <label for="txtConcepto">Fecha de operación</label>
+                 <input type="date" class="form-control" id="txtFechaVen2" placeholder="">
+               </div>
+             </div>
+           </div>
+           <div class="row">
+             <div class="col-lg-12">
+               <div class="form-inline" style="margin-bottom:20px;">
                  <label for="txtConcepto">Concepto</label>
                  <input type="text" class="form-control" id="txtConcepto" placeholder="Concepto">
                </div>
@@ -432,12 +471,12 @@ include_once("../clases/helpers/Modal.php");
                </div>
              </div>
            </div>
-           <div class="row">
-             <div class="col-lg-6">
+           <div class="row" id="gridDocAplicados">
+             <div class="col-lg-9">
                <div class="panel panel-default">
                  <div class="panel-heading">Documentos Aplicados</div>
                  <div class="panel-body">
-                   <table class="table table-bordered table-striped table-responsive">
+                   <table class="table table-bordered table-striped table-responsive" id="tableDocAplicados">
                      <thead>
                        <th>ID</th>
                        <th>Fecha</th>
@@ -445,17 +484,8 @@ include_once("../clases/helpers/Modal.php");
                        <th>Correlativo</th>
                        <th>Total</th>
                        <th>Aplicado</th>
+                       <th>Saldo</th>
                      </thead>
-                     <tbody>
-                       <tr>
-                         <td>1</td>
-                         <td>2017-11-14</td>
-                         <td>2017-12-16</td>
-                         <td>F01-001</td>
-                         <td>20</td>
-                         <td>10</td>
-                       </tr>
-                     </tbody>
                    </table>
                  </div>
                </div>

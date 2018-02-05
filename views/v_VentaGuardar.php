@@ -18,6 +18,7 @@ if(isset($cabecerajson)){
 		$FechaCredito = $cabecerajson[5];
 	}
 	$res = "";
+	
 	$res = fn_guardarDocVenta("CAJA1", $cabecerajson[1], $cabecerajson[0], $cabecerajson[2], "jeam", $Escredito, $FechaCredito);
 	//echo '<script type="text/javascript">console.log("Datos incorrectos! NO'.$res.'");</script>';
 			foreach ($tablejson as $key) {

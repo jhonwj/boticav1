@@ -257,16 +257,13 @@ $("#mPMastercard").click(function(){
 
 $("#btnGuardarMetPago").click(function(){
 
-  $('#txtCredito').prop('checked', false);
-  $("#EsCreditoDiv").click();
-
   var cliente = $("#txtCliente").val();
   var tipoDoc = $("#txtTipoVenta").val();
   var almacen = $("#txtAlmacen").val();
   var serie = $("#txtSerie").val();
   var EsCredito = $("#txtCredito").is(":checked");
   var FechaCredito = $("#txtFechaCredito").val();
-CALL SbVe_GuardarDocVenta ('CAJA1', 'TICKET', 'Johnnattan Araujo', 'VENTA', '2018-02-02 18:25:02', 'jeam', 0, '')
+
   var cabecera = [];
 
   cabecera.push(cliente, tipoDoc, almacen, serie, EsCredito, FechaCredito);
@@ -305,6 +302,8 @@ CALL SbVe_GuardarDocVenta ('CAJA1', 'TICKET', 'Johnnattan Araujo', 'VENTA', '201
           $("#txtSubTot").val("");
           $("#txtTotalGen").val("");
           $("#ModalMetPago").modal("hide");
+          $('#txtCredito').prop('checked', false);
+          $("#EsCreditoDiv").click();
           window.location.href = "/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
           //window.print();
         }

@@ -238,7 +238,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 					//exit();
 				$fechaDoc=fn_devolverfechaActual();
 				$Ssql="CALL SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario', $EsCredito, '$fechaCredito')";
-				var_dump($Ssql);exit();
+				//var_dump($Ssql);exit();
 				$res=getSQLResultSet($Ssql);
 				$idDocVenta = "";
 				while ($row =mysqli_fetch_row($res)) {

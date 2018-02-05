@@ -7,4 +7,10 @@ function ListarCajaBanco($idCuenta, $fechaDoc)
     return getSQLResultSet($Ssql);
 }
 
+function ListarDocAplicados($idCliente)
+{
+  $Ssql = " call SbCb_ListarDocAplicados($idCliente);";
+  return getSQLResultSet($Ssql);
+}
+
 ?>
