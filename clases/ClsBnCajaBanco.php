@@ -13,4 +13,10 @@ function ListarDocAplicados($idCliente)
   return getSQLResultSet($Ssql);
 }
 
+function ListarDocAplicadoCajaBancoDet($idDocVenta)
+{
+  $Ssql = "SELECT Cb_CajaBanco.FechaDoc, Cb_CajaBancoDet.Importe From Cb_CajaBancoDet INNER JOIN Cb_CajaBanco ON Cb_CajaBancoDet.IdCajaBanco = Cb_CajaBanco.IdCajaBanco WHERE Cb_CajaBancoDet.Tipo='VE' And Cb_CajaBancoDet.IdDocDet=$idDocVenta";
+  return getSQLResultSet($Ssql);
+}
+
 ?>

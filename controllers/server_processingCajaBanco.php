@@ -21,12 +21,12 @@ switch ($method) {
         break;
 
     case 'POST':
-        if ($_POST['update']) {
+        if (isset($_POST['update'])) {
             // Actualizar caja y banco
 
 
             break;
-        } elseif ($_POST['delete']) {
+        } elseif (isset($_POST['delete'])) {
             // Eliminar caja y Banco
 
             $id = $_POST['id'];
@@ -43,7 +43,6 @@ switch ($method) {
             break;
         } else {
             // Insertar caja y banco
-
             $concepto = $_POST['Concepto'];
 
             $cajaBanco = fn_guardarCajaBanco($_POST);

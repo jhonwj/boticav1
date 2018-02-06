@@ -146,12 +146,31 @@ include_once("../clases/helpers/Modal.php");
                  "aoColumns": [
                    { mData: 'IdDocVenta' } ,
                    { mData: 'FechaDoc' },
-                   { mData: 'FechaCredito' },
+                   { mData: 'FechaCredito', "defaultContent": "--" },
                    { mData: 'Correlativo' },
                    { mData: 'Total'},
                    { mData: 'Aplicado' },
-                   { mData: 'Saldo' }
-                 ]
+                   { mData: 'Saldo' },
+                   { mRender: function ( data, type, full ) {
+                     return '<button \
+                        type="button"  \
+                        class="btn btn-success" \
+                        data-toggle="modal"  \
+                        data-iddocventa="' + full.IdDocVenta + '" \
+                        data-fechadoc="' + full.FechaDoc + '" \
+                        data-fechacredito="' + full.FechaCredito + '" \
+                        data-correlativo="' + full.Correlativo + '" \
+                        data-total="' + full.Total + '" \
+                        data-aplicado="' + full.Aplicado + '" \
+                        data-saldo="' + full.Saldo + '" \
+                        data-target="#ModalAplicarCajaBanco">Aplicar</button>';
+                   }}
+                 ],
+                 "rowCallback": function(row, data, index) {
+                     $(row).click(function() {
+                       console.log(row)
+                     })
+                  }
                });
 
          });
@@ -308,8 +327,22 @@ include_once("../clases/helpers/Modal.php");
               }
          });
    }
-
+   function asignarAplicadoDocVenta(idDocDet, importe) {
+     $('#importeAplicar').val('')
+     window.aplicadoDocVenta = window.aplicadoDocVenta || []
+     window.aplicadoDocVenta.push({idDocDet: idDocDet, importe: importe})
+     //window.aplicadoDocVenta[idDocDet] = importe
+   }
    function guardarCajaBanco() {
+      if (!$('#txtConcepto').val()) {
+        alert('falta llenar el campo: concepto')
+        return;
+      }
+      if (!$('#txtImporte').val()) {
+        alert('falta llenar el campo: Importe')
+        return;
+      }
+
        $.ajax({
            url: '../controllers/server_processingCajaBanco.php',
            type: 'post',
@@ -318,10 +351,12 @@ include_once("../clases/helpers/Modal.php");
                IdCuenta: $('#txtTipoCuentaId').val(),
                FechaDoc: $('#txtFechaVen2').val(),
                Concepto: $('#txtConcepto').val(),
-               Importe: $('#txtImporte').val()
+               Importe: $('#txtImporte').val(),
+               AplicadoDocVenta: window.aplicadoDocVenta
            },
            dataType: 'json',
            success: function(respuesta){
+             console.log(respuesta)
                if (respuesta.success) {
                    $("#tableCajaBanco").DataTable().ajax.reload();
                    $.notify({
@@ -345,6 +380,7 @@ include_once("../clases/helpers/Modal.php");
                alert("Error: " + errorThrown);
            }
        });
+
    }
  </script>
  <body>
@@ -485,6 +521,7 @@ include_once("../clases/helpers/Modal.php");
                        <th>Total</th>
                        <th>Aplicado</th>
                        <th>Saldo</th>
+                       <th>Acciones</th>
                      </thead>
                    </table>
                  </div>
@@ -693,5 +730,11 @@ Modal::render('ModalEliminar', [
     'id' => 'modalEliminarCajaBanco',
     'controller' => 'server_processingCajaBanco',
     'reload' => '#tableCajaBanco'
+]);
+
+Modal::render('ModalAplicarCajaBanco', [
+    'id' => 'ModalAplicarCajaBanco',
+    'controller' => 'server_processingCajaBanco',
+    'reload' => '#tableDocAplicados'
 ]);
 ?>

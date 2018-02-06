@@ -69,6 +69,11 @@ function getSQLResultSet($commando){
         return null;
         exit();
     }
+
+    if ($mysqli->insert_id) {
+      return $mysqli->insert_id;
+    }
+
     mysqli_close($mysqli);
     return $result;
 }
