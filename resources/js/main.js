@@ -153,3 +153,79 @@ function exportarPDF(obj) {
     });
 
 }
+
+function asignarMaximoAplicado(el){
+  var max = parseFloat($(el).attr('max'))
+  if ($(el).val() > max ) {
+    alert('El importe no puede ser mayor al saldo pendiente')
+    $(el).val(max)
+  }
+
+  if ((parseFloat($(el).val()) + sumatoriaSaldoAplicado()) > (parseFloat($('#txtImporte').val()) || 0)) {
+    alert('El importe no puede ser mayor a la sumatoria de los importes aplicados')
+    $(el).val(parseFloat($('#txtImporte').val()) - sumatoriaSaldoAplicado())
+  }
+}
+
+function sumatoriaSaldoAplicado () {
+  var sumatoria = 0
+  if (window.aplicadoDocVenta && window.aplicadoDocVenta.length) {
+    window.aplicadoDocVenta.map(function(el){
+      sumatoria += parseFloat(el.importe)
+    })
+  }
+  return sumatoria
+}
+
+
+function verificarImporte(e) {
+  console.log(e)
+  if (!$('#txtImporte').val()) {
+    alert('Debe establecer el importe antes de Aplicar')
+    $('#ModalAplicarCajaBanco').modal('hide');
+
+  } else {
+    //$('#ModalAplicarCajaBanco').modal('show');
+  }
+}
+
+function consultarDNIRUC(numero, type, callback) {
+  var asd = $.ajax({
+    url: "../controllers/server_consultarDNIRUC.php?type=" + type + "&numero=" + numero,
+    type: 'GET',
+    success: function(respuesta){
+        if (respuesta.success) {
+            $.notify({
+                icon: 'fa fa-check',
+                message: 'Se llenarán los datos....'
+            }, {
+                type: 'success'
+            });
+            if (type == 'DNI') {
+              console.log(callback)
+              callback({
+                nombres: respuesta.result.Paterno + " " + respuesta.result.Materno + " " + respuesta.result.Nombre
+              })
+            }else if (type == 'RUC') {
+              callback(respuesta.result)
+            } else {
+              return false
+            }
+        } else {
+            $.notify({
+                icon: 'fa fa-exclamation',
+                message: respuesta.error
+            }, {
+                type: 'danger'
+            });
+        }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert("Status: " + textStatus);
+        alert("Error: " + errorThrown);
+          console.log(asd)
+    }
+  })
+
+
+}

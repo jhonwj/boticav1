@@ -146,7 +146,7 @@ include_once("../clases/helpers/Modal.php");
                  "aoColumns": [
                    { mData: 'IdDocVenta' } ,
                    { mData: 'FechaDoc' },
-                   { mData: 'FechaCredito', "defaultContent": "--" },
+                   { mData: 'FechaCredito' },
                    { mData: 'Correlativo' },
                    { mData: 'Total'},
                    { mData: 'Aplicado' },
@@ -154,6 +154,7 @@ include_once("../clases/helpers/Modal.php");
                    { mRender: function ( data, type, full ) {
                      return '<button \
                         type="button"  \
+                        onclick="verificarImporte(event)" \
                         class="btn btn-success" \
                         data-toggle="modal"  \
                         data-iddocventa="' + full.IdDocVenta + '" \
@@ -168,7 +169,7 @@ include_once("../clases/helpers/Modal.php");
                  ],
                  "rowCallback": function(row, data, index) {
                      $(row).click(function() {
-                       console.log(row)
+                       //console.log(row)
                      })
                   }
                });
@@ -327,12 +328,26 @@ include_once("../clases/helpers/Modal.php");
               }
          });
    }
-   function asignarAplicadoDocVenta(idDocDet, importe) {
+   function asignarAplicadoDocVenta(docAplicado) {
      $('#importeAplicar').val('')
      window.aplicadoDocVenta = window.aplicadoDocVenta || []
-     window.aplicadoDocVenta.push({idDocDet: idDocDet, importe: importe})
-     //window.aplicadoDocVenta[idDocDet] = importe
+     window.aplicadoDocVenta.push(docAplicado)
+     var tr = $('<tr class=""></tr>')
+     tr.append('<td>' + docAplicado.idDocDet + '</td>')
+     tr.append('<td>' + docAplicado.fechaDoc + '</td>')
+     tr.append('<td>' + docAplicado.fechaCredito + '</td>')
+     tr.append('<td>' + docAplicado.correlativo + '</td>')
+     tr.append('<td>' + docAplicado.saldo + '</td>')
+     tr.append('<td>' + docAplicado.importe + '</td>')
+     tr.append('<td>' + (parseFloat(docAplicado.saldo) - parseFloat(docAplicado.importe)) + '</td>')
+     $('#tableDocAplicadosTmp tbody').append(tr)
    }
+
+   function limpiarTmpCajaBanco() {
+     $('#tableDocAplicadosTmp tbody tr').remove();
+     window.aplicadoDocVenta = []
+   }
+
    function guardarCajaBanco() {
       if (!$('#txtConcepto').val()) {
         alert('falta llenar el campo: concepto')
@@ -510,7 +525,7 @@ include_once("../clases/helpers/Modal.php");
            <div class="row" id="gridDocAplicados">
              <div class="col-lg-9">
                <div class="panel panel-default">
-                 <div class="panel-heading">Documentos Aplicados</div>
+                 <div class="panel-heading">Documentos a aplicar</div>
                  <div class="panel-body">
                    <table class="table table-bordered table-striped table-responsive" id="tableDocAplicados">
                      <thead>
@@ -526,13 +541,32 @@ include_once("../clases/helpers/Modal.php");
                    </table>
                  </div>
                </div>
+               <div class="panel panel-default">
+                 <div class="panel-heading">Documentos Aplicados</div>
+                 <div class="panel-body">
+                   <table class="table table-bordered table-striped table-responsive" id="tableDocAplicadosTmp">
+                     <thead>
+                       <th>ID</th>
+                       <th>Fecha</th>
+                       <th>FechaVen</th>
+                       <th>Correlativo</th>
+                       <th>Saldo</th>
+                       <th>Aplicado</th>
+                       <th>Saldo Fin</th>
+                     </thead>
+                     <tbody>
+
+                     </tbody>
+                   </table>
+                 </div>
+               </div>
              </div>
            </div>
          </div>
        </div>
        <div class="modal-footer">
          <button type="button" class="btn btn-success" name="button" onclick="guardarCajaBanco()">Guardar</button>
-         <button type="button" class="btn btn-danger" name="button" data-dismiss="modal">Cancelar</button>
+         <button type="button" class="btn btn-danger" name="button" data-dismiss="modal" onclick="limpiarTmpCajaBanco()">Cancelar</button>
        </div>
      </div>
    </div>

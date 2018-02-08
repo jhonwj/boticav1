@@ -39,14 +39,21 @@
        <div class="col-lg-12">
          <div class="form-inline" style="margin-bottom:20px;">
            <label for="txtConcepto">Importe a Aplicar: </label>
-           <input type="text" class="form-control" id="importeAplicar" placeholder="">
+           <input min="0" type="number" class="form-control" id="importeAplicar" placeholder="" onkeyup="asignarMaximoAplicado(this)" >
           </div>
         </div>
       </div>
 		</div>
 		<div class="modal-footer">
-            <button type="button" class="btn btn-success" onclick="asignarAplicadoDocVenta($('.iddocventa').text(), $('#importeAplicar').val())" data-dismiss="modal">Guardar</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-success" onclick="asignarAplicadoDocVenta({
+				idDocDet: $('.iddocventa').text(),
+				importe: $('#importeAplicar').val(),
+				fechaDoc: $('.fechadoc').text(),
+				fechaCredito: $('.fechacredito').text(),
+				correlativo: $('.correlativo').text(),
+				saldo: $('.row-cajabanco td:last-child').last().text() || $('.saldo').text()
+			})" data-dismiss="modal" id="btnAplicar">Aplicar</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
 		</div>
 	</div>
 	</div>
@@ -59,9 +66,15 @@
         $(idModal).on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
             var row = button.parents('tr').first()
-            row = row.clone()
-            row.find('td').last().remove()
 
+						$('#btnAplicar').on('click', function (){
+							button.attr('disabled', true),
+							row.addClass('danger')
+							console.log(row)
+						})
+
+						//rowClone = row.clone()
+            //*rowClone.find('td').last().remove()
             $('.row-cajabanco').remove()
 
             var iddocventa = button.data('iddocventa')
@@ -87,7 +100,9 @@
             modal.find('.total').text(total)
             //modal.find('.aplicado').text(aplicado)
             modal.find('.aplicado').text('00.00')
-            modal.find('.saldo').text(saldo)
+            modal.find('.saldo').text(total)
+						modal.find('#importeAplicar').val(saldo)
+						modal.find('#importeAplicar').attr('max', saldo)
 
             $.ajax({
     					url: '../controllers/server_processingCajaBancoDetDocAplicado.php',
@@ -124,6 +139,11 @@
 
         })
 
-
+				$(idModal).on('hidden.bs.modal', function (e) {
+				  $('#btnAplicar').off('click')
+				})
     })
 </script>
+
+<style>
+</style>

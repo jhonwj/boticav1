@@ -95,11 +95,11 @@
 	z-index: 1060!important;
 }
 table tbody tr:first-child td:empty {
-	display: none;
+	/*display: none;*/
 }
 
 #tableDocAplicados td:empty{
-	display: block;
+	/*display: block;*/
 }
 
 

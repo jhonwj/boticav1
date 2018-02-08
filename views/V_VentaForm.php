@@ -860,14 +860,40 @@ function fn_SumarProd(){
       <div class="modal-body">
         <div>
           <form id="formAddCliente">
+
+            <div>
+              <label>DNI/RUC</label>
+              <div class="input-group">
+                <input type="text" id="txtDniAddId" name="txtDniAdd" class="form-control">
+                <span class="input-group-btn">
+                  <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="button">
+                    Consulta DNI/RUC <span class="caret"></span>
+                  </button>
+                     <ul class="dropdown-menu">
+                      <li><a href="#" onclick="consultarDNIRUC(
+                        $('#txtDniAddId').val(), 'DNI',
+                        function(cliente) {
+                          $('#txtClienteAddId').val(cliente.nombres)
+                        }
+                      )">Consulta por DNI</a></li>
+                      <li><a href="#" onclick="consultarDNIRUC(
+                        $('#txtDniAddId').val(), 'RUC',
+                        function(cliente) {
+                          $('#txtClienteAddId').val(cliente.RazonSocial)
+                          $('#txtTelefonoAddId').val(cliente.Telefono)
+                          $('#txtDireccionAddId').val(cliente.Direccion)
+                        }
+                      )">Consulta por RUC </a></li>
+                    </ul>
+                </span>
+              </div>
+            </div>
+
             <div class="input-group">
               <label>Nombres</label>
               <input type="text" id="txtClienteAddId" name="txtClienteAdd" class="form-control">
             </div>
-            <div class="input-group">
-              <label>DNI/RUC</label>
-              <input type="text" id="txtDniAddId" name="txtDniAdd" class="form-control">
-            </div>
+
             <div class="input-group">
               <label>Direccion</label>
               <!-- <input type="text" id="txtDireccionAddId" name="txtDireccionAdd" class="form-control"> -->
