@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-02-2018 a las 23:32:06
+-- Tiempo de generación: 09-02-2018 a las 23:54:16
 -- Versión del servidor: 5.7.14
 -- Versión de PHP: 5.6.25
 
@@ -24,9 +24,9 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbCb_ListarCajaBanco` (IN `var_IdCuenta` INT, IN `var_FechaDoc` DATETIME)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbCb_ListarCajaBanco` (IN `var_IdCuenta` INT, IN `var_FechaDoc` DATETIME)  BEGIN
 
-	SELECT 
+	SELECT
 
 	CB.IdCajaBanco,
 
@@ -50,7 +50,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbCb_ListarCajaBanco` (IN `var_IdCuenta` 
 
     FROM Cb_CajaBanco as CB
 
-    INNER JOIN Cb_TipoCajaBanco as TCB 
+    INNER JOIN Cb_TipoCajaBanco as TCB
 
     ON CB.IdTipoCajaBanco = TCB.IdTipoCajaBanco
     WHERE CB.IdCuenta = var_IdCuenta AND CB.FechaDoc = var_FechaDoc
@@ -59,7 +59,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbCb_ListarCajaBanco` (IN `var_IdCuenta` 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbCb_ListarCuenta` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbCb_ListarCuenta` ()  BEGIN
 
 	SELECT IdCuenta, Cuenta, Anulado FROM Cb_Cuenta;
 
@@ -67,15 +67,96 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbCb_ListarCuenta` ()  BEGIN
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbCb_ListarTipoOpe` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbCb_ListarDocAplicados` (IN `var_IdCliente` INT)  BEGIN
+Select
+Ve_DocVenta.IdDocVenta,
+Ve_DocVenta.FechaDoc,
+Ve_DocVenta.FechaCredito,
+CONCAT(CASE WHEN Ve_DocVentaTipoDoc.CodSunat ='01' THEN
+	'F'
+ELSE
+	CASE WHEN Ve_DocVentaTipoDoc.CodSunat='03' THEN
+		'B'
+	ELSE
+		CASE WHEN Ve_DocVentaTipoDoc.CodSunat='12' THEN
+			'T'
+		ELSE
+			'OTRO'
+		END
+	END
+END,Ve_DocVenta.Serie,'-' , convert(Ve_DocVenta.Numero, char) )as Correlativo,
+Round(Sum(Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad),2) as Total,
+Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2) as Aplicado,
+Round(Sum(Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad),2) -
+Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2) as Saldo
+From Ve_DocVenta
+Inner Join Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
+Inner Join Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
+Where EsCredito=1 and Ve_DocVenta.IdCliente=var_IdCliente
+
+Group by
+Ve_DocVenta.IdDocVenta,
+Ve_DocVenta.FechaDoc,
+Ve_DocVenta.FechaCredito,
+Ve_DocVentaTipoDoc.CodSunat,
+Ve_DocVenta.Serie,
+Ve_DocVenta.Numero
+HAVING Round(Sum(Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad),2) -
+Round((SELECT IfNull((SElect Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2)>0
+Order by FechaDoc;
+
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbCb_ListarDocAplicadosProveedor` (IN `var_IdProveedor` INT)  BEGIN
+SELECT
+Lo_Movimiento.Hash as Id,
+Lo_Movimiento.MovimientoFecha as FechaDoc,
+Lo_Movimiento.FechaVenCredito as FechaCredito,
+CONCAT(CASE WHEN Lo_MovimientoTipo.CodSunat ='01' THEN
+	'F'
+ELSE
+	CASE WHEN Lo_MovimientoTipo.CodSunat='03' THEN
+		'B'
+	ELSE
+		CASE WHEN Lo_MovimientoTipo.CodSunat='12' THEN
+			'T'
+		ELSE
+			'OTRO'
+		END
+	END
+END,Lo_Movimiento.Serie,'-' , convert(Lo_Movimiento.Numero, char) )as Correlativo,
+Round(Sum(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) as Total,
+Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2) as Aplicado,
+Round(SUM(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) -
+Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2) as Saldo
+From Lo_Movimiento
+Inner Join Lo_MovimientoDetalle On Lo_Movimiento.Hash=Lo_MovimientoDetalle.hashMovimiento
+Inner Join Lo_MovimientoTipo On Lo_Movimiento.IdMovimientoTipo=Lo_MovimientoTipo.IdMovimientoTipo
+Where EsCredito=1 and Lo_Movimiento.IdProveedor=var_IdProveedor
+
+Group by
+Lo_Movimiento.Hash,
+Lo_Movimiento.MovimientoFecha,
+Lo_Movimiento.FechaVenCredito,
+Lo_MovimientoTipo.CodSunat,
+Lo_Movimiento.Serie,
+Lo_Movimiento.Numero
+HAVING Round(Sum(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) -
+Round((SELECT IfNull((Select Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2)>0
+Order by MovimientoFecha;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbCb_ListarTipoOpe` ()  BEGIN
 
 	SELECT IdTipoCajaBanco, TipoCajaBanco, Tipo FROM Cb_TipoCajaBanco;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloque` VARCHAR(255), IN `var_Porcentaje` VARCHAR(255), IN `var_PrecioXMayorIgual` BIT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloque` VARCHAR(255), IN `var_Porcentaje` VARCHAR(255), IN `var_PrecioXMayorIgual` BIT)  BEGIN
 
-			
+
 
 		DECLARE v_IdProducto Int;
 
@@ -87,21 +168,21 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloq
 
 		DECLARE v_PrecioVentaFinal FLOAT;
 
-		
+
 
 		DECLARE done INT DEFAULT FALSE;
 
-		
 
-		
 
-		
 
-		declare cur1 cursor for 
+
+
+
+		declare cur1 cursor for
 
 						Select IdProducto,PrecioCosto,PorcentajeUtilidad,Gen_Producto.PrecioContado
 
-						from Gen_Producto 
+						from Gen_Producto
 
 						Inner JOIN Gen_ProductoCategoria On Gen_Producto.IdProductoCategoria=Gen_ProductoCategoria.IdProductoCategoria
 
@@ -115,11 +196,10 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloq
 
 		declare continue handler for not found set done=1;
 
-    set done = 0;		
+    set done = 0;
 
     open cur1;
-
-    igmLoop: loop
+igmLoop: loop
 
         fetch cur1 into v_IdProducto,v_PrecioCosto,v_PorcentajeUtilidad,v_PrecioVenta;
 
@@ -127,9 +207,9 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloq
 
 							SET v_PrecioVentaFinal=v_PrecioCosto*(var_Porcentaje/100);
 
-							IF var_PrecioXMayorIgual=1 THEN								
+							IF var_PrecioXMayorIgual=1 THEN
 
-									UPDATE Gen_Producto 
+									UPDATE Gen_Producto
 
 									SET PorcentajeUtilidad=var_Porcentaje,
 
@@ -139,11 +219,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloq
 
 											StockMinimo=1
 
-									WHERE Gen_Producto.IdProducto=v_IdProducto;								
+									WHERE Gen_Producto.IdProducto=v_IdProducto;
 
-							ELSE								
+							ELSE
 
-									UPDATE Gen_Producto 
+									UPDATE Gen_Producto
 
 									SET
 
@@ -151,35 +231,35 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CambiarPrecioXBloque` (IN `var_Bloq
 
 											PrecioVenta=v_PrecioVentaFinal
 
-									WHERE Gen_Producto.IdProducto=v_IdProducto;								
+									WHERE Gen_Producto.IdProducto=v_IdProducto;
 
 							END IF;
 
-						
 
 
 
-              
 
-       
+
+
+
 
     end loop igmLoop;
 
-    close cur1;		
+    close cur1;
 
-		
 
-		
 
-		
 
-		
+
+
+
+
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_CompuestoGuardar` (IN `var_Compuesto` VARCHAR(255), IN `var_UsuarioReg` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_CompuestoGuardar` (IN `var_Compuesto` VARCHAR(255), IN `var_UsuarioReg` VARCHAR(255))  BEGIN
 SET @Hash2=(Select UNIX_TIMESTAMP());
-INSERT INTO Gen_ProductoCompuesto(Gen_ProductoCompuesto.ProductoCompuesto, Gen_ProductoCompuesto.Anulado, Gen_ProductoCompuesto.FechaReg, Gen_ProductoCompuesto.UsuarioReg, Gen_ProductoCompuesto.`Hash`) 
+INSERT INTO Gen_ProductoCompuesto(Gen_ProductoCompuesto.ProductoCompuesto, Gen_ProductoCompuesto.Anulado, Gen_ProductoCompuesto.FechaReg, Gen_ProductoCompuesto.UsuarioReg, Gen_ProductoCompuesto.`Hash`)
 	VALUES (
 		var_Compuesto,
 		0,
@@ -190,27 +270,27 @@ INSERT INTO Gen_ProductoCompuesto(Gen_ProductoCompuesto.ProductoCompuesto, Gen_P
 SELECT Gen_ProductoCompuesto.IdProductoCompuesto FROM Gen_ProductoCompuesto WHERE Gen_ProductoCompuesto.`Hash` = @Hash2;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_ListarProductoBloque` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_ListarProductoBloque` ()  BEGIN
 
 select IdBloque, Bloque, PorcentajeMin, PorcentajeMax from Gen_ProductoBloque;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_ListarProductoDet` (IN `var_Producto` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_ListarProductoDet` (IN `var_Producto` INT)  BEGIN
 SELECT Gen_Producto.IdProducto, Gen_Producto.Producto, Gen_ProductoDet.Cantidad FROM Gen_ProductoDet
 INNER JOIN Gen_Producto ON Gen_Producto.IdProducto = Gen_ProductoDet.IdProductoDet
  WHERE Gen_ProductoDet.IdProducto = var_Producto;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_ProductoCompuestoGuardar` (IN `var_Compuesto` INT, IN `var_Producto` INT)  BEGIN
-INSERT INTO Gen_ProductoCompuestoDet(Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto, Gen_ProductoCompuestoDet.Gen_Producto_IdProducto) 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_ProductoCompuestoGuardar` (IN `var_Compuesto` INT, IN `var_Producto` INT)  BEGIN
+INSERT INTO Gen_ProductoCompuestoDet(Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto, Gen_ProductoCompuestoDet.Gen_Producto_IdProducto)
 	VALUES (
 		var_Compuesto,
 		var_Producto
 );
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_ProductoDetGuardar` (IN `var_idProducto` INT, IN `var_idProductoDet` INT, IN `var_cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_ProductoDetGuardar` (IN `var_idProducto` INT, IN `var_idProductoDet` INT, IN `var_cantidad` FLOAT)  BEGIN
 
 INSERT INTO Gen_ProductoDet(Gen_ProductoDet.IdProducto, Gen_ProductoDet.IdProductoDet, Gen_ProductoDet.Cantidad)
 
@@ -218,7 +298,7 @@ VALUES (var_idProducto, var_idProductoDet, var_cantidad);
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbGen_ProductoGuardar` (IN `var_ProductoMarca` VARCHAR(255), IN `var_FormaFarmaceutica` VARCHAR(255), IN `var_Medicion` VARCHAR(255), IN `var_Categoria` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_ProductoDesc` TEXT, IN `var_ProductoDescCorto` VARCHAR(255), IN `var_Codigo` VARCHAR(255), IN `var_CodigoBarra` VARCHAR(255), IN `var_Dosis` VARCHAR(255), IN `var_PrecioContado` FLOAT, IN `var_PrecioPorMayor` FLOAT, IN `var_StockPorMayor` FLOAT, IN `var_ControlaStock` BIT, IN `var_StockPorMin` FLOAT, IN `var_Usuario` VARCHAR(255), IN `var_PrecioCosto` FLOAT, IN `var_VentaEstrategica` BIT, IN `var_PrecioUtilidad` FLOAT, IN `var_Bloque` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbGen_ProductoGuardar` (IN `var_ProductoMarca` VARCHAR(255), IN `var_FormaFarmaceutica` VARCHAR(255), IN `var_Medicion` VARCHAR(255), IN `var_Categoria` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_ProductoDesc` TEXT, IN `var_ProductoDescCorto` VARCHAR(255), IN `var_Codigo` VARCHAR(255), IN `var_CodigoBarra` VARCHAR(255), IN `var_Dosis` VARCHAR(255), IN `var_PrecioContado` FLOAT, IN `var_PrecioPorMayor` FLOAT, IN `var_StockPorMayor` FLOAT, IN `var_ControlaStock` BIT, IN `var_StockPorMin` FLOAT, IN `var_Usuario` VARCHAR(255), IN `var_PrecioCosto` FLOAT, IN `var_VentaEstrategica` BIT, IN `var_PrecioUtilidad` FLOAT, IN `var_Bloque` VARCHAR(255))  BEGIN
 
 
 
@@ -226,7 +306,7 @@ SET @Hash2=(Select UNIX_TIMESTAMP());
 
 
 
-INSERT INTO Gen_Producto(Gen_Producto.IdProductoMarca, Gen_Producto.IdProductoFormaFarmaceutica, Gen_Producto.IdProductoMedicion, Gen_Producto.IdProductoCategoria, 
+INSERT INTO Gen_Producto(Gen_Producto.IdProductoMarca, Gen_Producto.IdProductoFormaFarmaceutica, Gen_Producto.IdProductoMedicion, Gen_Producto.IdProductoCategoria,
 
 
 
@@ -234,7 +314,7 @@ INSERT INTO Gen_Producto(Gen_Producto.IdProductoMarca, Gen_Producto.IdProductoFo
 
 
 
-													Gen_Producto.precioContado,Gen_Producto.PrecioPorMayor,Gen_Producto.StockPorMayor, Gen_Producto.ControlaStock, Gen_Producto.StockMinimo, Gen_Producto.PrecioCosto, Gen_Producto.VentaEstrategica, Gen_Producto.PorcentajeUtilidad, Gen_Producto.IdBloque,Gen_Producto.Anulado, Gen_Producto.FechaReg, Gen_Producto.UsuarioReg, 
+													Gen_Producto.precioContado,Gen_Producto.PrecioPorMayor,Gen_Producto.StockPorMayor, Gen_Producto.ControlaStock, Gen_Producto.StockMinimo, Gen_Producto.PrecioCosto, Gen_Producto.VentaEstrategica, Gen_Producto.PorcentajeUtilidad, Gen_Producto.IdBloque,Gen_Producto.Anulado, Gen_Producto.FechaReg, Gen_Producto.UsuarioReg,
 
 
 
@@ -304,7 +384,7 @@ INSERT INTO Gen_Producto(Gen_Producto.IdProductoMarca, Gen_Producto.IdProductoFo
 
 							var_StockPorMin ,
 
-							
+
 
 							var_PrecioCosto,
 
@@ -314,7 +394,7 @@ INSERT INTO Gen_Producto(Gen_Producto.IdProductoMarca, Gen_Producto.IdProductoFo
 
 							 (SELECT PB.IdBloque FROM Gen_ProductoBloque AS PB WHERE PB.Bloque = var_Bloque),
 
-							
+
 
 							 0,
 
@@ -342,11 +422,11 @@ SELECT Gen_Producto.IdProducto FROM Gen_Producto WHERE Hash=@Hash2;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(255), IN `var_FechaIni` DATE, IN `var_FechaFin` DATE, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(255), IN `var_FechaIni` DATE, IN `var_FechaFin` DATE, IN `var_Tipo` INT)  BEGIN
 
 
 
-	
+
 
 
 
@@ -354,15 +434,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(2
 
 
 
-  `d1` varchar(255) DEFAULT ' ',   
+  `d1` varchar(255) DEFAULT ' ',
 
 
 
-  `d2` varchar(255) DEFAULT ' ',       
+  `d2` varchar(255) DEFAULT ' ',
 
 
 
-  `d3` varchar(255) DEFAULT ' ', 
+  `d3` varchar(255) DEFAULT ' ',
 
 
 
@@ -378,11 +458,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(2
 
 
 
-	
 
 
 
-	
+
+
 
 
 
@@ -414,11 +494,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(2
 
 
 
-	
 
 
 
-	
+
+
 
 
 
@@ -474,15 +554,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(2
 
 
 
-		
 
 
 
-		
 
 
 
-		
+
+
+
 
 
 
@@ -490,7 +570,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(2
 
 
 
-	
+
 
 
 
@@ -502,13 +582,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex` (IN `var_Producto` VARCHAR(2
 
 
 
-	
+
 
 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -544,7 +624,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
@@ -556,7 +636,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -568,7 +648,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END and Lo_MovimientoDetalle.IdProducto in 
+						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END and Lo_MovimientoDetalle.IdProducto in
 
 
 
@@ -608,7 +688,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-		
+
 
 
 
@@ -636,15 +716,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-							
 
 
 
-              
 
 
 
-							
+
+
+
 
 
 
@@ -688,11 +768,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -700,7 +780,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 
 
-    close cur1;	
+    close cur1;
 
 
 
@@ -714,7 +794,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS` (IN `var_P
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -750,7 +830,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
@@ -806,7 +886,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -834,7 +914,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-						
+
 
 
 
@@ -866,7 +946,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-		
+
 
 
 
@@ -894,15 +974,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-							
 
 
 
-              
 
 
 
-							
+
+
+
 
 
 
@@ -950,11 +1030,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -962,7 +1042,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 
 
-    close cur1;	
+    close cur1;
 
 
 
@@ -976,7 +1056,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoINGRESOS_Caja` (IN `
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoIniciar` (IN `Var_Producto` VARCHAR(255), IN `var_anno` INT, IN `Var_StockInical` FLOAT, IN `Var_PrecioInicial` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoIniciar` (IN `Var_Producto` VARCHAR(255), IN `var_anno` INT, IN `Var_StockInical` FLOAT, IN `Var_PrecioInicial` FLOAT)  BEGIN
 
 	DECLARE COSTO Float;
 
@@ -988,11 +1068,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoIniciar` (IN `Var_Pr
 
 	CREATE TABLE IF NOT EXISTS `tblKardexvalor` (
 
-  `d1` varchar(255) DEFAULT ' ',   
+  `d1` varchar(255) DEFAULT ' ',
 
-  `d2` varchar(255) DEFAULT ' ',       
+  `d2` varchar(255) DEFAULT ' ',
 
-  `d3` varchar(255) DEFAULT ' ', 
+  `d3` varchar(255) DEFAULT ' ',
 
 	`d4` varchar(255) DEFAULT ' ',
 
@@ -1000,9 +1080,9 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoIniciar` (IN `Var_Pr
 
 	`d6` varchar(255) DEFAULT ' ',
 
-	`d7` varchar(255) DEFAULT ' ',       
+	`d7` varchar(255) DEFAULT ' ',
 
-  `d8` varchar(255) DEFAULT ' ', 
+  `d8` varchar(255) DEFAULT ' ',
 
 	`d9` varchar(255) DEFAULT ' ',
 
@@ -1010,13 +1090,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoIniciar` (IN `Var_Pr
 
 	`d11` varchar(255) DEFAULT ' ');
 
-	Delete from tblKardexvalor; 
+	Delete from tblKardexvalor;
 
-	
 
-	
 
-	
+
+
+
 
 
 
@@ -1046,13 +1126,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoIniciar` (IN `Var_Pr
 
 	INSERT INTO tblKardexvalor (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11) VALUES ('2017-01-01','SALDO INICIAL',Var_StockInical,Var_PrecioInicial,COSTO,'','','',Var_StockInical,Var_PrecioInicial,COSTO);
 
-	
 
-	
+
+
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT)  BEGIN
 
 		DECLARE V1_Saldo Float;
 
@@ -1070,7 +1150,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (I
 
 		DECLARE done INT DEFAULT FALSE;
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 						SELECT CONCAT(Ve_DocVentaTipoDoc.TipoDoc,' ' , Ve_DocVenta.Serie ,'-',Ve_DocVenta.Numero) AS DocMovimiento,
 
@@ -1088,19 +1168,19 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (I
 
 							'0' as Total
 
-						FROM Ve_DocVenta 
+						FROM Ve_DocVenta
 
 						INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
 
 						INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVentaTipoDoc.IdTipoDoc=Ve_DocVenta.IdTipoDoc
 
-						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in 
+						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in
 
 						(SELECT Gen_ProductoDet.IdProducto FROM Gen_ProductoDet WHERE Gen_ProductoDet.IdProductoDet in (
 
 										SELECT Gen_Producto.IdProducto FROM Gen_Producto WHERE Gen_Producto.Producto=var_Producto ));
 
-						
+
 
 		declare continue handler for not found set done=1;
 
@@ -1116,7 +1196,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (I
 
 		SET V1_Total=Round(V1_Saldo*V1_Precio,2);
 
-		
+
 
     igmLoop: loop
 
@@ -1126,17 +1206,17 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (I
 
 							SET V1_Saldo=V1_Saldo-v_cantidad;
 
-							
+
 
 							SET V1_Total=Round(V1_Saldo*V1_Precio,2);
 
 							SET v_Total=Round(V1_Precio *v_cantidad,2);
 
-							
 
-              
 
-							
+
+
+
 
 							INSERT INTO tblKardexvalor (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11) VALUES (var_FechaSel,
 
@@ -1160,13 +1240,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (I
 
 																																											Round(V1_Total,2));
 
-              
 
-       
+
+
 
     end loop igmLoop;
 
-    close cur1;	
+    close cur1;
 
 		SET var_StockFinal=V1_Saldo;
 
@@ -1174,7 +1254,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_CAJA` (I
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT)  BEGIN
 
 		DECLARE V1_Saldo Float;
 
@@ -1192,23 +1272,23 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN
 
 		DECLARE done INT DEFAULT FALSE;
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 						SELECT CONCAT(Ve_DocVentaTipoDoc.TipoDoc,' ' , Ve_DocVenta.Serie ,'-',Ve_DocVenta.Numero) AS DocMovimiento,Ve_DocVentaDet.Cantidad ,
 
 						Ve_DocVentaDet.Precio,Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad
 
-						FROM Ve_DocVenta 
+						FROM Ve_DocVenta
 
 						Inner Join Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
 
 						INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVentaTipoDoc.IdTipoDoc=Ve_DocVenta.IdTipoDoc
 
-						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in 
+						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in
 
 						(SELECT Gen_Producto.IdProducto FROM Gen_Producto WHERE Gen_Producto.Producto=var_Producto);
 
-						
+
 
 		declare continue handler for not found set done=1;
 
@@ -1224,7 +1304,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN
 
 		SET V1_Total=Round(V1_Saldo*V1_Precio,2);
 
-		
+
 
     igmLoop: loop
 
@@ -1234,17 +1314,17 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN
 
 							SET V1_Saldo=V1_Saldo-v_cantidad;
 
-							
+
 
 							SET V1_Total=Round(V1_Saldo*V1_Precio,2);
 
 							SET v_Total=Round(V1_Precio *v_cantidad,2);
 
-							
 
-              
 
-							
+
+
+
 
 							INSERT INTO tblKardexvalor (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11) VALUES (var_FechaSel,
 
@@ -1268,13 +1348,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN
 
 																																											Round(V1_Total,2));
 
-              
 
-       
+
+
 
     end loop igmLoop;
 
-    close cur1;	
+    close cur1;
 
 		SET var_StockFinal=V1_Saldo;
 
@@ -1282,7 +1362,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalidaVenta_UND` (IN
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -1318,7 +1398,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
@@ -1374,7 +1454,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -1402,7 +1482,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-						
+
 
 
 
@@ -1434,7 +1514,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-		
+
 
 
 
@@ -1454,7 +1534,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-							
+
 
 
 
@@ -1466,15 +1546,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-							
 
 
 
-              
 
 
 
-							
+
+
+
 
 
 
@@ -1522,11 +1602,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -1534,7 +1614,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 
 
-    close cur1;	
+    close cur1;
 
 
 
@@ -1548,7 +1628,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_CAJA` (IN `va
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_StockInical` FLOAT, IN `var_PrecioInicial` FLOAT, OUT `var_StockFinal` FLOAT, OUT `var_PrecioFinal` FLOAT, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -1584,7 +1664,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
@@ -1596,7 +1676,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -1608,7 +1688,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END and Lo_MovimientoDetalle.IdProducto in 
+						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END and Lo_MovimientoDetalle.IdProducto in
 
 
 
@@ -1620,7 +1700,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-						
+
 
 
 
@@ -1652,7 +1732,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-		
+
 
 
 
@@ -1672,7 +1752,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-							
+
 
 
 
@@ -1684,15 +1764,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-							
 
 
 
-              
 
 
 
-							
+
+
+
 
 
 
@@ -1740,11 +1820,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -1752,7 +1832,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 
 
-    close cur1;	
+    close cur1;
 
 
 
@@ -1766,7 +1846,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_KardexValorizadoSalida_UND` (IN `var
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -1782,7 +1862,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Produc
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
@@ -1802,7 +1882,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Produc
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -1843,10 +1923,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Produc
 
 
     open cur1;
-
-
-
-    igmLoop: loop
+igmLoop: loop
 
 
 
@@ -1870,11 +1947,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Produc
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -1882,13 +1959,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosCAJA` (IN `var_Produc
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -1904,15 +1981,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Product
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
-						SELECT CONCAT(Lo_MovimientoTipo.TipoMovimiento,' ' , Lo_Movimiento.Serie ,'-',Lo_Movimiento.Numero) AS DocMovimiento,Lo_MovimientoDetalle.Cantidad  
+						SELECT CONCAT(Lo_MovimientoTipo.TipoMovimiento,' ' , Lo_Movimiento.Serie ,'-',Lo_Movimiento.Numero) AS DocMovimiento,Lo_MovimientoDetalle.Cantidad
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -1924,7 +2001,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Product
 
 
 
-						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END  and Lo_MovimientoDetalle.IdProducto in 
+						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END  and Lo_MovimientoDetalle.IdProducto in
 
 
 
@@ -1949,10 +2026,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Product
 
 
     open cur1;
-
-
-
-    igmLoop: loop
+igmLoop: loop
 
 
 
@@ -1976,11 +2050,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Product
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -1988,13 +2062,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_IngresosUND` (IN `var_Product
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -2010,7 +2084,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
@@ -2030,7 +2104,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -2071,10 +2145,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto
 
 
     open cur1;
-
-
-
-    igmLoop: loop
+igmLoop: loop
 
 
 
@@ -2098,11 +2169,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -2110,13 +2181,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaCAJA` (IN `var_Producto
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE, IN `var_Tipo` INT)  BEGIN
 
 
 
@@ -2132,15 +2203,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto`
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
-						SELECT CONCAT(Lo_MovimientoTipo.TipoMovimiento,' ' , Lo_Movimiento.Serie ,'-',Lo_Movimiento.Numero) AS DocMovimiento,Lo_MovimientoDetalle.Cantidad  
+						SELECT CONCAT(Lo_MovimientoTipo.TipoMovimiento,' ' , Lo_Movimiento.Serie ,'-',Lo_Movimiento.Numero) AS DocMovimiento,Lo_MovimientoDetalle.Cantidad
 
 
 
-						FROM Lo_Movimiento 
+						FROM Lo_Movimiento
 
 
 
@@ -2152,7 +2223,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto`
 
 
 
-						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END and Lo_MovimientoDetalle.IdProducto in 
+						WHERE CASE WHEN var_Tipo=0 THEN Lo_Movimiento.MovimientoFecha=var_FechaSel ELSE Lo_Movimiento.FechaStock=var_FechaSel END and Lo_MovimientoDetalle.IdProducto in
 
 
 
@@ -2177,10 +2248,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto`
 
 
     open cur1;
-
-
-
-    igmLoop: loop
+igmLoop: loop
 
 
 
@@ -2204,11 +2272,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto`
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -2216,13 +2284,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaUND` (IN `var_Producto`
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaCAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex_SalidaVentaCAJA` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE)  BEGIN
 
 		DECLARE v_cantidad  FLOAT;
 
@@ -2230,7 +2298,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaCAJA` (IN `var_Pro
 
 		DECLARE done INT DEFAULT FALSE;
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 						SELECT CONCAT(Ve_DocVentaTipoDoc.TipoDoc,' ' , Ve_DocVenta.Serie ,'-',Ve_DocVenta.Numero) AS DocMovimiento,
 
@@ -2240,13 +2308,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaCAJA` (IN `var_Pro
 
 										SELECT Gen_Producto.IdProducto FROM Gen_Producto WHERE Gen_Producto.Producto=var_Producto ) and Gen_ProductoDet.IdProducto=Ve_DocVentaDet.IdProducto LIMIT 1 )
 
-						FROM Ve_DocVenta 
+						FROM Ve_DocVenta
 
 						INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
 
 						INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVentaTipoDoc.IdTipoDoc=Ve_DocVenta.IdTipoDoc
 
-						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in 
+						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in
 
 						(SELECT Gen_ProductoDet.IdProducto FROM Gen_ProductoDet WHERE Gen_ProductoDet.IdProductoDet in (
 
@@ -2257,8 +2325,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaCAJA` (IN `var_Pro
     set done = 0;
 
     open cur1;
-
-    igmLoop: loop
+igmLoop: loop
 
         fetch cur1 into v_doc,v_cantidad;
 
@@ -2270,17 +2337,17 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaCAJA` (IN `var_Pro
 
               INSERT INTO tblKardex (d1,d2,d3,d4,d5) VALUES (var_FechaSel,v_doc,'',v_cantidad,@SALDO);
 
-              
 
-       
+
+
 
     end loop igmLoop;
 
-    close cur1;		
+    close cur1;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Producto` VARCHAR(255), IN `var_FechaSel` DATE)  BEGIN
 
 
 
@@ -2296,15 +2363,15 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Prod
 
 
 
-		declare cur1 cursor for 
+		declare cur1 cursor for
 
 
 
-						SELECT CONCAT(Ve_DocVentaTipoDoc.TipoDoc,' ' , Ve_DocVenta.Serie ,'-',Ve_DocVenta.Numero) AS DocMovimiento,Ve_DocVentaDet.Cantidad  
+						SELECT CONCAT(Ve_DocVentaTipoDoc.TipoDoc,' ' , Ve_DocVenta.Serie ,'-',Ve_DocVenta.Numero) AS DocMovimiento,Ve_DocVentaDet.Cantidad
 
 
 
-						FROM Ve_DocVenta 
+						FROM Ve_DocVenta
 
 
 
@@ -2316,7 +2383,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Prod
 
 
 
-						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in 
+						WHERE convert(Ve_DocVenta.FechaDoc,date)=var_FechaSel and Ve_DocVentaDet.IdProducto in
 
 
 
@@ -2337,10 +2404,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Prod
 
 
     open cur1;
-
-
-
-    igmLoop: loop
+igmLoop: loop
 
 
 
@@ -2364,11 +2428,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Prod
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -2376,31 +2440,31 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Kardex_SalidaVentaUND` (IN `var_Prod
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_ListarAlmacen` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_ListarAlmacen` ()  BEGIN
 SELECT * FROM Lo_Almacen;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_ListarMovimiento` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_ListarMovimiento` ()  BEGIN
 SELECT IdMovimientoTipo, TipoMovimiento, Tipo, VaRegCompra, CodSunat FROM Lo_MovimientoTipo;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_ListarProveedor` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_ListarProveedor` ()  BEGIN
 SELECT * FROM Lo_Proveedor;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_MovimientoAnular` (IN `var_Hash` VARCHAR(255), IN `var_Anular` BIT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoAnular` (IN `var_Hash` VARCHAR(255), IN `var_Anular` BIT)  BEGIN
 
 		UPDATE Lo_Movimiento Set Lo_Movimiento.Anulado=var_Anular Where Lo_Movimiento.`Hash`=var_Hash;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_MovimientoDetGuardar` (IN `var_Hash` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_Cantidad` FLOAT, IN `var_TieneIgv` BIT, IN `var_Precio` FLOAT, IN `var_ISC` FLOAT, IN `var_FLETE` FLOAT, IN `var_IdLote` INT, IN `var_FechaVen` DATE)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoDetGuardar` (IN `var_Hash` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_Cantidad` FLOAT, IN `var_TieneIgv` BIT, IN `var_Precio` FLOAT, IN `var_ISC` FLOAT, IN `var_FLETE` FLOAT, IN `var_IdLote` INT, IN `var_FechaVen` DATE)  BEGIN
 
 
 
@@ -2466,7 +2530,7 @@ var_FLETE ,
 
 var_IdLote ,
 
-var_FechaVen 
+var_FechaVen
 
 
 
@@ -2480,7 +2544,7 @@ var_FechaVen
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_MovimientoEliminar` (IN `var_Hash` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoEliminar` (IN `var_Hash` VARCHAR(255))  BEGIN
 
 		DELETE FROM Lo_MovimientoDetalle WHERE Lo_MovimientoDetalle.hashMovimiento=var_Hash;
 
@@ -2488,7 +2552,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_MovimientoEliminar` (IN `var_Hash` V
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_MovimientoGuardar` (IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT, IN `var_Fecha` DATETIME, IN `var_AlmacenOrigen` INT, IN `var_AlmacenDestino` INT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255), IN `var_FechaStock` DATE, IN `var_Percepcion` FLOAT, IN `var_EsCredito` BIT, IN `fechaCredito` DATE, IN `var_FechaPeriodoT` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoGuardar` (IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT, IN `var_Fecha` DATETIME, IN `var_AlmacenOrigen` INT, IN `var_AlmacenDestino` INT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255), IN `var_FechaStock` DATE, IN `var_Percepcion` FLOAT, IN `var_EsCredito` BIT, IN `fechaCredito` DATE, IN `var_FechaPeriodoT` INT)  BEGIN
 
 
 
@@ -2588,7 +2652,7 @@ var_FechaPeriodoT
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_ProveedorGuardar` (IN `var_Proveedor` VARCHAR(255), IN `var_Ruc` VARCHAR(255), IN `var_Direccion` TEXT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_ProveedorGuardar` (IN `var_Proveedor` VARCHAR(255), IN `var_Ruc` VARCHAR(255), IN `var_Direccion` TEXT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255))  BEGIN
 INSERT INTO Lo_Proveedor(Proveedor, Ruc, Direccion, Observacion, Anulado, FechaReg, UsuarioReg)
 VALUES(
 var_Proveedor,
@@ -2601,7 +2665,7 @@ var_Usuario
 );
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegCompraContable` (IN `var_RegVenta` BIT, IN `var_PeriodoT` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_RegCompraContable` (IN `var_RegVenta` BIT, IN `var_PeriodoT` INT)  BEGIN
 
 
 
@@ -2645,7 +2709,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegCompraContable` (IN `var_RegVenta
 
 
 
-	ELSE	
+	ELSE
 
 
 
@@ -2665,7 +2729,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegCompraContable` (IN `var_RegVenta
 
 
 
-	ELSE	
+	ELSE
 
 
 
@@ -2693,7 +2757,7 @@ Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio,2)) as SUBTO
 
 
 
-FROM 
+FROM
 
 
 
@@ -2733,7 +2797,7 @@ END) as IGV
 
 
 
-FROM 
+FROM
 
 
 
@@ -2777,7 +2841,7 @@ END) as TOTAL
 
 
 
-FROM 
+FROM
 
 
 
@@ -2815,15 +2879,15 @@ CASE WHEN ISNULL(Lo_Movimiento.Percepcion)=1 THEN 0 ELSE Lo_Movimiento.Percepcio
 
 
 
-	
 
 
 
-FROM 
+
+FROM
 
 
 
-	Lo_Movimiento	
+	Lo_Movimiento
 
 
 
@@ -2835,11 +2899,11 @@ FROM
 
 
 
-WHERE 
+WHERE
 
 
 
-	Lo_MovimientoTipo.VaRegCompra=var_RegVenta and Lo_Movimiento.FechaPeriodoTributario = var_PeriodoT 
+	Lo_MovimientoTipo.VaRegCompra=var_RegVenta and Lo_Movimiento.FechaPeriodoTributario = var_PeriodoT
 
 
 
@@ -2849,7 +2913,7 @@ ORDER BY Lo_MovimientoTipo.Tipo,Lo_Movimiento.IdProveedor ,Lo_Movimiento.Serie,L
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegMovimiento` (IN `var_RegVenta` BIT, IN `var_FechaIni` DATE, IN `var_FechaFin` DATE)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_RegMovimiento` (IN `var_RegVenta` BIT, IN `var_FechaIni` DATE, IN `var_FechaFin` DATE)  BEGIN
 
 
 
@@ -2878,7 +2942,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegMovimiento` (IN `var_RegVenta` BI
 
 
 	Lo_Movimiento.Numero,
-    
+
 	Lo_Movimiento.FechaPeriodoTributario,
 
 
@@ -2895,7 +2959,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegMovimiento` (IN `var_RegVenta` BI
 
 
 
-	ELSE	
+	ELSE
 
 
 
@@ -2915,7 +2979,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_RegMovimiento` (IN `var_RegVenta` BI
 
 
 
-	ELSE	
+	ELSE
 
 
 
@@ -2943,7 +3007,7 @@ Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio,2)) as SUBTO
 
 
 
-FROM 
+FROM
 
 
 
@@ -2983,7 +3047,7 @@ END) as IGV
 
 
 
-FROM 
+FROM
 
 
 
@@ -3003,7 +3067,7 @@ Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio,2)) +
 
 
 
- Sum(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.ISC)=1 THEN  0 ELSE Lo_MovimientoDetalle.ISC END,2)) 
+ Sum(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.ISC)=1 THEN  0 ELSE Lo_MovimientoDetalle.ISC END,2))
 
 
 
@@ -3039,7 +3103,7 @@ END) as TOTAL
 
 
 
-FROM 
+FROM
 
 
 
@@ -3077,15 +3141,15 @@ CASE WHEN ISNULL(Lo_Movimiento.Percepcion)=1 THEN 0 ELSE Lo_Movimiento.Percepcio
 
 
 
-	
 
 
 
-FROM 
+
+FROM
 
 
 
-	Lo_Movimiento	
+	Lo_Movimiento
 
 
 
@@ -3097,7 +3161,7 @@ FROM
 
 
 
-WHERE 
+WHERE
 
 
 
@@ -3113,7 +3177,7 @@ ORDER BY Lo_Movimiento.MovimientoFecha DESC;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255))  BEGIN
 
 
 
@@ -3149,27 +3213,27 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 
 
-		
 
 
 
-		
 
 
 
-		
 
 
 
-		declare cur1 cursor for 
 
 
 
-						Select IdProducto,Gen_ProductoMarca.ProductoMarca,Gen_ProductoCategoria.ProductoCategoria,Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Producto,0 as Stock 
+		declare cur1 cursor for
 
 
 
-						from Gen_Producto 
+						Select IdProducto,Gen_ProductoMarca.ProductoMarca,Gen_ProductoCategoria.ProductoCategoria,Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Producto,0 as Stock
+
+
+
+						from Gen_Producto
 
 
 
@@ -3210,10 +3274,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 
     open cur1;
-
-
-
-    igmLoop: loop
+igmLoop: loop
 
 
 
@@ -3225,7 +3286,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 
 
-							CALL SbLo_StockIngresoUnd (var_Almacen,v_Producto,@Fecha,@IngresoUnd);		
+							CALL SbLo_StockIngresoUnd (var_Almacen,v_Producto,@Fecha,@IngresoUnd);
 
 
 
@@ -3233,7 +3294,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 
 
-							
+
 
 
 
@@ -3277,11 +3338,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 
 
-              
 
 
 
-       
+
+
 
 
 
@@ -3289,11 +3350,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
-		
+
 
 
 
@@ -3323,13 +3384,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_Stock` (IN `var_Almacen` VARCHAR(255
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockAnt` (IN `var_Producto` VARCHAR(255), IN `var_FechaIni` DATE)  BEGIN
-	Set @StockAnt=(SELECT 
-	
-	
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockAnt` (IN `var_Producto` VARCHAR(255), IN `var_FechaIni` DATE)  BEGIN
+	Set @StockAnt=(SELECT
+
+
 		CASE WHEN Gen_Producto.ControlaStock=TRUE THEN
 
-		((SELECT IFNULL((SELECT 
+		((SELECT IFNULL((SELECT
 
 				SUM(Lo_MovimientoDetalle.Cantidad)
 
@@ -3341,7 +3402,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockAnt` (IN `var_Producto` VARCHAR
 
 				INNER JOIN Lo_MovimientoTipo On Lo_MovimientoTipo.IdMovimientoTipo=Lo_Movimiento.IdMovimientoTipo
 
-			
+
 			WHERE
 
 				Lo_MovimientoDetalle.IdProducto=Gen_Producto.IdProducto
@@ -3350,34 +3411,34 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockAnt` (IN `var_Producto` VARCHAR
 				AND Lo_Movimiento.MovimientoFecha<var_FechaIni
 				AND Lo_Movimiento.Anulado=false),0)) +
 
-		
+
 
 			(SELECT IFNULL((Select Sum(Lo_MovimientoDetalle.Cantidad)*
 
-				(SELECT Gen_ProductoDet.Cantidad 
+				(SELECT Gen_ProductoDet.Cantidad
 
-					FROM Gen_ProductoDet 
+					FROM Gen_ProductoDet
 
 					WHERE Gen_ProductoDet.IdProducto=Lo_MovimientoDetalle.IdProducto and Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto)
 
 			From Lo_Movimiento
 
-			INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento 
+			INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
 			where Lo_MovimientoDetalle.IdProducto In
 
 					(Select Gen_ProductoDet.IdProducto FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto)
 
-			and Lo_Movimiento.Anulado=0 
+			and Lo_Movimiento.Anulado=0
 			AND Lo_Movimiento.IdAlmacenDestino>0
 			AND Lo_Movimiento.MovimientoFecha<var_FechaIni
 			),0)) ) -
 
-		
 
-				
 
-		((SELECT IFNULL((SELECT 
+
+
+		((SELECT IFNULL((SELECT
 
 				SUM(Lo_MovimientoDetalle.Cantidad)
 
@@ -3398,29 +3459,29 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockAnt` (IN `var_Producto` VARCHAR
 
 				AND Lo_Movimiento.Anulado=false),0)) +
 
-		
+
 
 			(SELECT IFNULL((Select Sum(Lo_MovimientoDetalle.Cantidad)*
 
-				(SELECT Gen_ProductoDet.Cantidad 
+				(SELECT Gen_ProductoDet.Cantidad
 
-					FROM Gen_ProductoDet 
+					FROM Gen_ProductoDet
 
 					WHERE Gen_ProductoDet.IdProducto=Lo_MovimientoDetalle.IdProducto and Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto)
 
 			From Lo_Movimiento
 
-			INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento 
+			INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
 			where Lo_MovimientoDetalle.IdProducto In
 
 					(Select Gen_ProductoDet.IdProducto FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto)
 
-			and Lo_Movimiento.Anulado=0 
+			and Lo_Movimiento.Anulado=0
 			AND Lo_Movimiento.IdAlmacenOrigen>0
 			AND Lo_Movimiento.MovimientoFecha<var_FechaIni),0)) +
 
-	
+
 
 			(SELECT IFNULL((SELECT
 
@@ -3430,65 +3491,65 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockAnt` (IN `var_Producto` VARCHAR
 
 			INNER JOIN Ve_DocVenta On Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
 
-			WHERE 
+			WHERE
 			Ve_DocVenta.FechaDoc<var_FechaIni
 
 			AND Ve_DocVentaDet.IdProducto=Gen_Producto.IdProducto),0)) +
 
-					(SELECT IFNULL((Select 
+					(SELECT IFNULL((Select
 
 				Sum(Ve_DocVentaDet.Cantidad*
 
 				(Select Cantidad From Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto and Gen_ProductoDet.IdProducto=Ve_DocVentaDet.IdProducto))
 
-			From 
+			From
 
-				Ve_DocVentaDet 
+				Ve_DocVentaDet
 
 			INNER JOIN Ve_DocVenta On Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
 
 			WHERE Ve_DocVenta.FechaDoc<var_FechaIni and
 
-				Ve_DocVentaDet.IdProducto in 
+				Ve_DocVentaDet.IdProducto in
 
-				(Select IdProducto From Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto)),0))) 
+				(Select IdProducto From Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet=Gen_Producto.IdProducto)),0)))
 
 			ELSE '-' END as STOCK
 
 
-	FROM 
+	FROM
 		Gen_Producto
-		INNER JOIN Gen_ProductoCategoria On Gen_ProductoCategoria.IdProductoCategoria=Gen_Producto.IdProductoCategoria 
-	WHERE 
-		Gen_Producto.Anulado=false 
+		INNER JOIN Gen_ProductoCategoria On Gen_ProductoCategoria.IdProductoCategoria=Gen_Producto.IdProductoCategoria
+	WHERE
+		Gen_Producto.Anulado=false
 		AND Gen_Producto.ControlaStock=TRUE
 		AND Gen_Producto.Producto=var_Producto
-	ORDER BY 
+	ORDER BY
 		Gen_ProductoCategoria.ProductoCategoria,Gen_Producto.Producto);
 
 
 	INSERT INTO tblKardex (d2,d5) VALUES ('SALDO ANTERIOR',@StockAnt);
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockDocVentaCaja` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockDocVentaCaja` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select IFNULL((Select 
 
-											Sum(Ve_DocVentaDet.Cantidad*IFNULL((SELECT Gen_ProductoDet.Cantidad FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet= @IdProducto and Gen_ProductoDet.IdProducto=Ve_DocVentaDet.IdProducto ),0)) 
+		Set @Cantidad=(Select IFNULL((Select
 
-									FROM Ve_DocVenta 
+											Sum(Ve_DocVentaDet.Cantidad*IFNULL((SELECT Gen_ProductoDet.Cantidad FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet= @IdProducto and Gen_ProductoDet.IdProducto=Ve_DocVentaDet.IdProducto ),0))
+
+									FROM Ve_DocVenta
 
 									INNER JOIN Ve_DocVentaDet On Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
 
-									WHERE 
+									WHERE
 
-										Ve_DocVenta.IdAlmacen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Ve_DocVenta.IdAlmacen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
                            '%'))
 
@@ -3502,33 +3563,33 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockDocVentaCaja` (IN `var_Almacen`
 
 		SET var_Cantidad=@Cantidad;
 
-		
+
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockDocVentaUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockDocVentaUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select IFNULL((Select 
 
-											Sum(Ve_DocVentaDet.Cantidad) 
+		Set @Cantidad=(Select IFNULL((Select
 
-									FROM Ve_DocVenta 
+											Sum(Ve_DocVentaDet.Cantidad)
+
+									FROM Ve_DocVenta
 
 									INNER JOIN Ve_DocVentaDet On Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
 
-									WHERE 
+									WHERE
 
-										Ve_DocVenta.IdAlmacen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Ve_DocVenta.IdAlmacen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
                            '%'))
 
-										and Ve_DocVentaDet.IdProducto =@IdProducto 
+										and Ve_DocVentaDet.IdProducto =@IdProducto
 
 										and Ve_DocVenta.Anulado=0
 
@@ -3540,25 +3601,25 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockDocVentaUnd` (IN `var_Almacen` 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockIngresoCaja` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockIngresoCaja` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select IFNULL((Select 
 
-											Sum(Lo_MovimientoDetalle.Cantidad*IFNULL((SELECT Gen_ProductoDet.Cantidad FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet= @IdProducto and Gen_ProductoDet.IdProducto=Lo_MovimientoDetalle.IdProducto ),0)) 
+		Set @Cantidad=(Select IFNULL((Select
 
-									FROM Lo_Movimiento 
+											Sum(Lo_MovimientoDetalle.Cantidad*IFNULL((SELECT Gen_ProductoDet.Cantidad FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet= @IdProducto and Gen_ProductoDet.IdProducto=Lo_MovimientoDetalle.IdProducto ),0))
+
+									FROM Lo_Movimiento
 
 									INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
-									WHERE 
+									WHERE
 
-										Lo_Movimiento.IdAlmacenDestino in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Lo_Movimiento.IdAlmacenDestino in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
                            '%'))
 
@@ -3576,31 +3637,31 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockIngresoCaja` (IN `var_Almacen` 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockIngresosUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockIngresosUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE)  BEGIN
 
 		set @Fecha=DATE_ADD(var_Fecha, INTERVAL 1 DAY);
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select 
 
-											Sum(Lo_MovimientoDetalle.Cantidad) 
+		Set @Cantidad=(Select
 
-									FROM Lo_Movimiento 
+											Sum(Lo_MovimientoDetalle.Cantidad)
+
+									FROM Lo_Movimiento
 
 									INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
-									WHERE 
+									WHERE
 
-										Lo_Movimiento.IdAlmacenDestino in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Lo_Movimiento.IdAlmacenDestino in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
-                           '%')) 
+                           '%'))
 
-										and Lo_MovimientoDetalle.IdProducto=@IdProducto 
+										and Lo_MovimientoDetalle.IdProducto=@IdProducto
 
 										and Lo_Movimiento.Anulado=0
 
@@ -3610,29 +3671,29 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockIngresosUnd` (IN `var_Almacen` 
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockIngresoUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockIngresoUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select IFNULL((Select 
 
-											Sum(Lo_MovimientoDetalle.Cantidad) 
+		Set @Cantidad=(Select IFNULL((Select
 
-									FROM Lo_Movimiento 
+											Sum(Lo_MovimientoDetalle.Cantidad)
+
+									FROM Lo_Movimiento
 
 									INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
-									WHERE 
+									WHERE
 
-										Lo_Movimiento.IdAlmacenDestino in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Lo_Movimiento.IdAlmacenDestino in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
                            '%'))
 
-										and Lo_MovimientoDetalle.IdProducto=@IdProducto 
+										and Lo_MovimientoDetalle.IdProducto=@IdProducto
 
 										and Lo_Movimiento.Anulado=0
 
@@ -3644,25 +3705,25 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockIngresoUnd` (IN `var_Almacen` V
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockSalidaCaja` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockSalidaCaja` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select IFNULL((Select 
 
-											Sum(Lo_MovimientoDetalle.Cantidad*IFNULL((SELECT Gen_ProductoDet.Cantidad FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet= @IdProducto and Gen_ProductoDet.IdProducto=Lo_MovimientoDetalle.IdProducto ),0)) 
+		Set @Cantidad=(Select IFNULL((Select
 
-									FROM Lo_Movimiento 
+											Sum(Lo_MovimientoDetalle.Cantidad*IFNULL((SELECT Gen_ProductoDet.Cantidad FROM Gen_ProductoDet Where Gen_ProductoDet.IdProductoDet= @IdProducto and Gen_ProductoDet.IdProducto=Lo_MovimientoDetalle.IdProducto ),0))
+
+									FROM Lo_Movimiento
 
 									INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
-									WHERE 
+									WHERE
 
-										Lo_Movimiento.IdAlmacenOrigen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Lo_Movimiento.IdAlmacenOrigen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
                            '%'))
 
@@ -3680,29 +3741,29 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockSalidaCaja` (IN `var_Almacen` V
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockSalidaUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockSalidaUnd` (IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255), IN `var_Fecha` DATE, OUT `var_Cantidad` FLOAT)  BEGIN
 
 		Set @IdProducto=(SELECT IdProducto From Gen_Producto Where Gen_Producto.Producto=Var_Producto);
 
-		
 
-		Set @Cantidad=(Select IFNULL((Select 
 
-											Sum(Lo_MovimientoDetalle.Cantidad) 
+		Set @Cantidad=(Select IFNULL((Select
 
-									FROM Lo_Movimiento 
+											Sum(Lo_MovimientoDetalle.Cantidad)
+
+									FROM Lo_Movimiento
 
 									INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
 
-									WHERE 
+									WHERE
 
-										Lo_Movimiento.IdAlmacenOrigen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%', 
+										Lo_Movimiento.IdAlmacenOrigen in (SELECT IdAlmacen From Lo_Almacen Where Almacen LIKE CONCAT('%',
 
-                           var_Almacen, 
+                           var_Almacen,
 
                            '%'))
 
-										and Lo_MovimientoDetalle.IdProducto=@IdProducto 
+										and Lo_MovimientoDetalle.IdProducto=@IdProducto
 
 										and Lo_Movimiento.Anulado=0
 
@@ -3716,11 +3777,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockSalidaUnd` (IN `var_Almacen` VA
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` VARCHAR(255), IN `Var_StockInical` FLOAT, IN `Var_PrecioInicial` FLOAT, IN `var_anno` INT, IN `var_Tipo` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` VARCHAR(255), IN `Var_StockInical` FLOAT, IN `Var_PrecioInicial` FLOAT, IN `var_anno` INT, IN `var_Tipo` INT)  BEGIN
 
 
 
-	
+
 
 
 
@@ -3744,11 +3805,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-		
 
 
 
-		declare cur1 cursor for 
+
+		declare cur1 cursor for
 
 
 
@@ -3756,7 +3817,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-						FROM 
+						FROM
 
 
 
@@ -3772,7 +3833,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-						UNION 
+						UNION
 
 
 
@@ -3824,7 +3885,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-				
+
 
 
 
@@ -3852,11 +3913,6 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-				
-
-
-
-				
 
 
 
@@ -3864,11 +3920,16 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-              
 
 
 
-       
+
+
+
+
+
+
+
 
 
 
@@ -3876,19 +3937,19 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 
 
-    close cur1;		
+    close cur1;
 
 
 
-	
 
 
 
-	
 
 
 
- 
+
+
+
 
 
 
@@ -3906,7 +3967,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbLo_StockValoriado` (IN `Var_Producto` V
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbProductoModificar` (IN `var_IdProducto` INT, IN `var_ProductoMarca` VARCHAR(255), IN `var_ProductoFormaFarmaceutica` VARCHAR(255), IN `var_ProductoMedicion` VARCHAR(255), IN `var_ProductoCategoria` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_ProductoDesc` TEXT, IN `var_ProductoDescCorto` VARCHAR(255), IN `var_CodigoBarra` VARCHAR(255), IN `var_Codigo` VARCHAR(255), IN `var_Dosis` VARCHAR(255), IN `var_PrecioContado` FLOAT, IN `var_PrecioXMayor` FLOAT, IN `var_StockXMayor` FLOAT, IN `var_ControlStock` BIT(1), IN `var_StockMinimo` FLOAT, IN `var_Usuario` VARCHAR(255), IN `var_PrecioCosto` FLOAT, IN `var_VentaEstrategica` BIT, IN `var_PrecioUtilidad` FLOAT, IN `var_Bloque` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbProductoModificar` (IN `var_IdProducto` INT, IN `var_ProductoMarca` VARCHAR(255), IN `var_ProductoFormaFarmaceutica` VARCHAR(255), IN `var_ProductoMedicion` VARCHAR(255), IN `var_ProductoCategoria` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_ProductoDesc` TEXT, IN `var_ProductoDescCorto` VARCHAR(255), IN `var_CodigoBarra` VARCHAR(255), IN `var_Codigo` VARCHAR(255), IN `var_Dosis` VARCHAR(255), IN `var_PrecioContado` FLOAT, IN `var_PrecioXMayor` FLOAT, IN `var_StockXMayor` FLOAT, IN `var_ControlStock` BIT(1), IN `var_StockMinimo` FLOAT, IN `var_Usuario` VARCHAR(255), IN `var_PrecioCosto` FLOAT, IN `var_VentaEstrategica` BIT, IN `var_PrecioUtilidad` FLOAT, IN `var_Bloque` VARCHAR(255))  BEGIN
 
 
 
@@ -3980,7 +4041,7 @@ SET
 
 		StockMinimo = var_StockMinimo,
 
-		
+
 
 		PrecioCosto = var_PrecioCosto,
 
@@ -4024,9 +4085,9 @@ WHERE
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbSeg_ListarUsuarioPerfil` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbSeg_ListarUsuarioPerfil` ()  BEGIN
 
-	
+
 
 SELECT
 
@@ -4042,7 +4103,7 @@ INNER JOIN Seg_UsuarioPerfil ON Seg_Usuario.IdUsuarioPerfil = Seg_UsuarioPerfil.
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_BuscarProductoXCompuesto` (IN `var_CriterioBuscar` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_BuscarProductoXCompuesto` (IN `var_CriterioBuscar` VARCHAR(255))  BEGIN
 SELECT
 Gen_Producto.IdProducto,
 Gen_ProductoMarca.ProductoMarca,
@@ -4069,7 +4130,7 @@ INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_Produ
 WHERE Gen_ProductoCompuesto.ProductoCompuesto like CONCAT('%', var_CriterioBuscar, '%');
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_BuscarTratamiento` (IN `var_Diagnostico` VARCHAR(255), IN `var_Edad` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_BuscarTratamiento` (IN `var_Diagnostico` VARCHAR(255), IN `var_Edad` INT)  BEGIN
 
 
 
@@ -4127,7 +4188,7 @@ Ve_ExpertoDiagnostico.Diagnostico = var_Diagnostico AND Ve_ExpertoDiagnostico.Ed
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_DocVentaAnular` (IN `var_IdDocVenta` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_DocVentaAnular` (IN `var_IdDocVenta` INT)  BEGIN
 
 
 
@@ -4137,7 +4198,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_DocVentaAnular` (IN `var_IdDocVenta`
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_DocVentaEliminar` (IN `var_IdDocVenta` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_DocVentaEliminar` (IN `var_IdDocVenta` INT)  BEGIN
 
 		DELETE FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta=var_IdDocVenta;
 
@@ -4145,7 +4206,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_DocVentaEliminar` (IN `var_IdDocVent
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoDiagnosticoBuscar` (IN `var_CriterioEdadBuscar` INT, IN `var_CriterioBuscar` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoDiagnosticoBuscar` (IN `var_CriterioEdadBuscar` INT, IN `var_CriterioBuscar` VARCHAR(255))  BEGIN
 SELECT
 Ve_ExpertoDiagnostico.IdDiagnostico,
 Ve_ExpertoDiagnostico.Diagnostico,
@@ -4157,13 +4218,13 @@ Ve_ExpertoDiagnostico.FechaMod,
 Ve_ExpertoDiagnostico.UsuarioMod
 FROM
 Ve_ExpertoDiagnostico
-WHERE Ve_ExpertoDiagnostico.Diagnostico like CONCAT('%', var_CriterioBuscar, '%') and Ve_ExpertoDiagnostico.Edad<var_CriterioEdadBuscar 
+WHERE Ve_ExpertoDiagnostico.Diagnostico like CONCAT('%', var_CriterioBuscar, '%') and Ve_ExpertoDiagnostico.Edad<var_CriterioEdadBuscar
 Order by Ve_ExpertoDiagnostico.Edad LIMIT 1;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoDiagnosticoGuardar` (IN `var_Diagnostico` VARCHAR(255), IN `var_Problema` TEXT, IN `var_Edad` INT, IN `var_Obs` TEXT, IN `var_UsuarioReg` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoDiagnosticoGuardar` (IN `var_Diagnostico` VARCHAR(255), IN `var_Problema` TEXT, IN `var_Edad` INT, IN `var_Obs` TEXT, IN `var_UsuarioReg` VARCHAR(255))  BEGIN
 SET @Hash2=(Select UNIX_TIMESTAMP());
-INSERT INTO Ve_ExpertoDiagnostico(Ve_ExpertoDiagnostico.Diagnostico, Ve_ExpertoDiagnostico.Problema, Ve_ExpertoDiagnostico.Edad, Ve_ExpertoDiagnostico.Observacion, Ve_ExpertoDiagnostico.FechaReg, Ve_ExpertoDiagnostico.UsuarioReg, Ve_ExpertoDiagnostico.Hash) 
+INSERT INTO Ve_ExpertoDiagnostico(Ve_ExpertoDiagnostico.Diagnostico, Ve_ExpertoDiagnostico.Problema, Ve_ExpertoDiagnostico.Edad, Ve_ExpertoDiagnostico.Observacion, Ve_ExpertoDiagnostico.FechaReg, Ve_ExpertoDiagnostico.UsuarioReg, Ve_ExpertoDiagnostico.Hash)
 	VALUES (
 		var_Diagnostico,
 		var_Problema,
@@ -4176,7 +4237,7 @@ INSERT INTO Ve_ExpertoDiagnostico(Ve_ExpertoDiagnostico.Diagnostico, Ve_ExpertoD
 SELECT Ve_ExpertoDiagnostico.IdDiagnostico FROM Ve_ExpertoDiagnostico WHERE Ve_ExpertoDiagnostico.Hash = @Hash2;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoDiagnosticoModificar` (IN `var_IdDiagnostico` INT, IN `var_Diagnostico` VARCHAR(255), IN `var_Problema` TEXT, IN `var_Edad` INT, IN `var_Obs` TEXT, IN `var_Usuario` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoDiagnosticoModificar` (IN `var_IdDiagnostico` INT, IN `var_Diagnostico` VARCHAR(255), IN `var_Problema` TEXT, IN `var_Edad` INT, IN `var_Obs` TEXT, IN `var_Usuario` VARCHAR(255))  BEGIN
 
 
 
@@ -4186,7 +4247,7 @@ Ve_ExpertoDiagnostico.Diagnostico = var_Diagnostico,
 
 Ve_ExpertoDiagnostico.Problema = var_Problema,
 
-Ve_ExpertoDiagnostico.Edad = var_Edad, 
+Ve_ExpertoDiagnostico.Edad = var_Edad,
 
 Ve_ExpertoDiagnostico.Observacion = var_Obs,
 
@@ -4200,16 +4261,16 @@ WHERE Ve_ExpertoDiagnostico.IdDiagnostico = var_IdDiagnostico;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoDiagnosticoSintomaDet` (IN `var_Diagnostico` INT, IN `var_Sintoma` INT, IN `var_UsuarioReg` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoDiagnosticoSintomaDet` (IN `var_Diagnostico` INT, IN `var_Sintoma` INT, IN `var_UsuarioReg` VARCHAR(255))  BEGIN
 INSERT INTO Ve_ExpertoDiagnosticoSintomaDet(Ve_ExpertoDiagnosticoSintomaDet.IdDiagnostico, Ve_ExpertoDiagnosticoSintomaDet.IdSintoma, Ve_ExpertoDiagnosticoSintomaDet.Fechareg, Ve_ExpertoDiagnosticoSintomaDet.UsuarioReg)
 	VALUES (
-	var_Diagnostico, 
-	var_Sintoma, 
-	NOW(), 
+	var_Diagnostico,
+	var_Sintoma,
+	NOW(),
 	var_UsuarioReg);
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoDiagnosticoXSintomaBuscar` (IN `var_EdadBuscar` INT, IN `var_CriterioSintomaBuscar` TEXT, IN `var_Numero` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoDiagnosticoXSintomaBuscar` (IN `var_EdadBuscar` INT, IN `var_CriterioSintomaBuscar` TEXT, IN `var_Numero` INT)  BEGIN
 
 
 
@@ -4221,7 +4282,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoDiagnosticoXSintomaBuscar` (I
 
 
 
-set @Ssql:=CONCAT('SELECT 
+set @Ssql:=CONCAT('SELECT
 
 
 
@@ -4263,7 +4324,7 @@ INNER JOIN Ve_ExpertoSintoma ON Ve_ExpertoDiagnosticoSintomaDet.IdSintoma=Ve_Exp
 
  WHERE Ve_ExpertoDiagnostico.Edad >=',var_EdadBuscar,' and Ve_ExpertoSintoma.Sintoma in (',var_CriterioSintomaBuscar,')
 
-GROUP BY 
+GROUP BY
 
 Ve_ExpertoDiagnostico.IdDiagnostico,
 
@@ -4303,7 +4364,7 @@ EXECUTE myquery;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoSintomaBuscar` (IN `var_CriterioBuscar` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoSintomaBuscar` (IN `var_CriterioBuscar` VARCHAR(255))  BEGIN
 
 set @criterio:=CONCAT("'%", var_CriterioBuscar, "%'");
 
@@ -4327,12 +4388,12 @@ EXECUTE myquery;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ExpertoTratamientoActualizarD` (IN `var_Tratamiento` INT, IN `var_Diagnostico` INT)  BEGIN
-UPDATE Ve_ExpertoTratamiento SET Ve_ExpertoTratamiento.IdDiagnostico = var_Diagnostico 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ExpertoTratamientoActualizarD` (IN `var_Tratamiento` INT, IN `var_Diagnostico` INT)  BEGIN
+UPDATE Ve_ExpertoTratamiento SET Ve_ExpertoTratamiento.IdDiagnostico = var_Diagnostico
 	WHERE Ve_ExpertoTratamiento.IdTratamiento = var_Tratamiento;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_GuardarDocVenta` (IN `var_PuntoVenta` VARCHAR(255), IN `var_TipoDocVenta` VARCHAR(255), IN `var_Cliente` VARCHAR(255), IN `var_Almacen` VARCHAR(255), IN `var_FechaDoc` DATETIME, IN `var_Usuario` VARCHAR(255), IN `var_Credito` BIT, IN `var_FechaCredito` DATETIME)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_GuardarDocVenta` (IN `var_PuntoVenta` VARCHAR(255), IN `var_TipoDocVenta` VARCHAR(255), IN `var_Cliente` VARCHAR(255), IN `var_Almacen` VARCHAR(255), IN `var_FechaDoc` DATETIME, IN `var_Usuario` VARCHAR(255), IN `var_Credito` BIT, IN `var_FechaCredito` DATETIME)  BEGIN
 
 
 
@@ -4386,17 +4447,17 @@ Select IdDocVenta From Ve_DocVenta Where Hash=@Hash2;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_GuardarDocVentaDet` (IN `var_IdDocVenta` INT, IN `var_IdProducto` INT, IN `var_Cant` FLOAT, IN `var_Precio` FLOAT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_GuardarDocVentaDet` (IN `var_IdDocVenta` INT, IN `var_IdProducto` INT, IN `var_Cant` FLOAT, IN `var_Precio` FLOAT)  BEGIN
 
 INSERT INTO Ve_DocVentaDet (IdDocVenta,IdProducto,Cantidad,Precio)
-VALUES 
+VALUES
 				(var_IdDocVenta,
 				var_IdProducto,
 				var_Cant,
 				var_Precio);
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_GuardarMetodoPagoDet` (IN `var_IdDocVenta` INTEGER, IN `var_MetodoPago` VARCHAR(255), IN `var_Importe` FLOAT, IN `var_NroTarjeta` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_GuardarMetodoPagoDet` (IN `var_IdDocVenta` INTEGER, IN `var_MetodoPago` VARCHAR(255), IN `var_Importe` FLOAT, IN `var_NroTarjeta` VARCHAR(255))  BEGIN
 
 INSERT INTO Ve_DocVentaMetodoPagoDet (IdDocVenta,IdMetodoPago,Importe,NroTarjeta)
 VALUES (
@@ -4406,7 +4467,7 @@ VALUES (
 				var_NroTarjeta);
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_GuardarTratamiento` (IN `var_IdTratamiento` INT, IN `var_Diagnostico` VARCHAR(255), IN `var_Compuesto` VARCHAR(255), IN `var_Observacion` VARCHAR(255), IN `var_TomaXDia` INT, IN `var_NroDia` INT, IN `var_DiasXPeso` FLOAT, IN `var_CantSol` FLOAT, IN `var_Usuario` VARCHAR(255), IN `var_UnidadXPeso` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_GuardarTratamiento` (IN `var_IdTratamiento` INT, IN `var_Diagnostico` VARCHAR(255), IN `var_Compuesto` VARCHAR(255), IN `var_Observacion` VARCHAR(255), IN `var_TomaXDia` INT, IN `var_NroDia` INT, IN `var_DiasXPeso` FLOAT, IN `var_CantSol` FLOAT, IN `var_Usuario` VARCHAR(255), IN `var_UnidadXPeso` VARCHAR(255))  BEGIN
 
 
 
@@ -4414,7 +4475,7 @@ SET @Hash2=(Select UNIX_TIMESTAMP());
 
 
 
-IF var_IdTratamiento=0 THEN 
+IF var_IdTratamiento=0 THEN
 
 
 
@@ -4446,13 +4507,13 @@ ELSE
 
 
 
-	UPDATE Ve_ExpertoTratamiento 
+	UPDATE Ve_ExpertoTratamiento
 
 
 
-	Set 
+	Set
 
-			
+
 
 
 
@@ -4494,7 +4555,7 @@ Ve_ExpertoTratamiento.UnidadDosisXPeso
 
 
 
-From Ve_ExpertoTratamiento 
+From Ve_ExpertoTratamiento
 
 
 
@@ -4508,7 +4569,7 @@ Where Ve_ExpertoTratamiento.Hash=@Hash2;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ListarCierre` ()  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ListarCierre` ()  BEGIN
 
 SELECT
 
@@ -4534,7 +4595,7 @@ WHERE Ve_DocVenta.IdCierre IS NULL;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ListarCompuestoXDiagnostico` (IN `var_Diagnostico` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ListarCompuestoXDiagnostico` (IN `var_Diagnostico` INT)  BEGIN
 
 SELECT
 
@@ -4558,7 +4619,7 @@ Ve_ExpertoDiagnosticoSintomaDet.IdDiagnostico = `var_Diagnostico` ;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ListarCompuestoXProducto` (IN `var_IdProducto` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ListarCompuestoXProducto` (IN `var_IdProducto` INT)  BEGIN
 SELECT Gen_ProductoCompuesto.IdProductoCompuesto, Gen_ProductoCompuesto.ProductoCompuesto
 FROM Gen_ProductoCompuesto
 INNER JOIN Gen_ProductoCompuestoDet ON  Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto = Gen_ProductoCompuesto.IdProductoCompuesto
@@ -4566,7 +4627,7 @@ INNER JOIN Gen_Producto ON Gen_Producto.IdProducto = Gen_ProductoCompuestoDet.Ge
 WHERE Gen_Producto.IdProducto = var_IdProducto;
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ListarProductoXCompuesto` (IN `var_IdProductoCompuesto` INT, IN `var_ProductoCompuesto` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ListarProductoXCompuesto` (IN `var_IdProductoCompuesto` INT, IN `var_ProductoCompuesto` VARCHAR(255))  BEGIN
 
 IF var_ProductoCompuesto='00000' THEN
 
@@ -4602,7 +4663,7 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ProductoSeleccionar` (IN `var_Almacen` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_ProductoSeleccionar` (IN `var_Almacen` VARCHAR(255))  BEGIN
 
 
 
@@ -4610,7 +4671,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_ProductoSeleccionar` (IN `var_Almace
 
 
 
-	SELECT 
+	SELECT
 
 
 
@@ -4674,15 +4735,6 @@ Gen_Producto.VentaEstrategica
 
 
 
-	
-
-
-
-
-
-
-
-		
 
 
 
@@ -4694,7 +4746,6 @@ Gen_Producto.VentaEstrategica
 
 
 
-				
 
 
 
@@ -4702,7 +4753,17 @@ Gen_Producto.VentaEstrategica
 
 
 
-	FROM 
+
+
+
+
+
+
+
+
+
+
+	FROM
 
 
 
@@ -4718,7 +4779,7 @@ Gen_Producto.VentaEstrategica
 
 
 
-		INNER JOIN Gen_ProductoCategoria On Gen_ProductoCategoria.IdProductoCategoria=Gen_Producto.IdProductoCategoria 
+		INNER JOIN Gen_ProductoCategoria On Gen_ProductoCategoria.IdProductoCategoria=Gen_Producto.IdProductoCategoria
 
 
 
@@ -4742,7 +4803,7 @@ Gen_Producto.VentaEstrategica
 
 
 
-	WHERE 
+	WHERE
 
 
 
@@ -4750,7 +4811,7 @@ Gen_Producto.VentaEstrategica
 
 
 
-		Gen_Producto.Anulado=false 		
+		Gen_Producto.Anulado=false
 
 
 
@@ -4758,7 +4819,7 @@ Gen_Producto.VentaEstrategica
 
 
 
-	ORDER BY 
+	ORDER BY
 
 
 
@@ -4776,11 +4837,11 @@ Gen_Producto.VentaEstrategica
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_RegDocVenta` (IN `var_RegVenta` BIT, IN `var_FechaIni` DATE, IN `var_FechaFin` DATE)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_RegDocVenta` (IN `var_RegVenta` BIT, IN `var_FechaIni` DATE, IN `var_FechaFin` DATE)  BEGIN
 
 
 
-		SELECT  
+		SELECT
 
 
 
@@ -4838,7 +4899,7 @@ FROM
 
 
 
-WHERE 
+WHERE
 
 
 
@@ -4854,7 +4915,7 @@ ORDER BY  Ve_DocVenta.Fechadoc DESC;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `SbVe_VentasXFechasXUsuario` (IN `var_FechaDocIni` DATETIME, IN `var_FechaDocFin` DATETIME, IN `var_Usuario` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbVe_VentasXFechasXUsuario` (IN `var_FechaDocIni` DATETIME, IN `var_FechaDocFin` DATETIME, IN `var_Usuario` VARCHAR(255))  BEGIN
 SELECT
 	Ve_DocVenta.FechaDoc,
 	Ve_DocVentaPuntoVenta.PuntoVenta,
@@ -4883,7 +4944,7 @@ SELECT
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_BuscarDeudor` (IN `Deudor` VARCHAR(255), IN `TipoDeudor` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sb_BuscarDeudor` (IN `Deudor` VARCHAR(255), IN `TipoDeudor` INT)  BEGIN
 
 
 
@@ -4891,11 +4952,11 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_BuscarDeudor` (IN `Deudor` VARCHAR(255
 
 
 
-		SELECT DISTINCT Ve_DocVenta.idDocVenta as Serie, FechaDoc, FechaCredito, Numero, 
+		SELECT DISTINCT Ve_DocVenta.idDocVenta as Serie, FechaDoc, FechaCredito, Numero,
 
 		(SELECT SUM(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio)FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta= Ve_DocVenta.idDocVenta) as Total,
 
-	(Select IFNULL((Select  sum(Cb_CajaBancoDet.Importe) from Cb_CajaBancoDet WHERE Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)) as Cancelado 
+	(Select IFNULL((Select  sum(Cb_CajaBancoDet.Importe) from Cb_CajaBancoDet WHERE Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)) as Cancelado
 
 
 
@@ -4931,13 +4992,13 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_BuscarDeudor` (IN `Deudor` VARCHAR(255
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_ListarProductoInv` ()  begin
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sb_ListarProductoInv` ()  begin
 
 select * from Gen_Producto where ControlaStock = 1 and Anulado = 0;
 
 end$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_ListarProductosRegMov` (IN `var_idMov` VARCHAR(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sb_ListarProductosRegMov` (IN `var_idMov` VARCHAR(255))  BEGIN
 
 
 
@@ -4971,7 +5032,7 @@ CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_ListarProductosRegMov` (IN `var_idMov`
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_ListarProductosRegVenta` (IN `var_DocVenta` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sb_ListarProductosRegVenta` (IN `var_DocVenta` INT)  BEGIN
 
 
 
@@ -5007,7 +5068,7 @@ INNER JOIN Gen_ProductoMarca ON Gen_ProductoMarca.IdProductoMarca = Gen_Producto
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_ListarTratamientoXDiagnostico` (IN `var_diagnostico` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sb_ListarTratamientoXDiagnostico` (IN `var_diagnostico` INT)  BEGIN
 
 Select Ve_ExpertoTratamiento.IdTratamiento,
 
@@ -5033,7 +5094,7 @@ Ve_ExpertoTratamiento.UnidadDosisXPeso
 
 
 
-From Ve_ExpertoTratamiento 
+From Ve_ExpertoTratamiento
 
 
 
@@ -5045,9 +5106,9 @@ where Ve_ExpertoTratamiento.IdDiagnostico = var_diagnostico;
 
 END$$
 
-CREATE DEFINER=`botica`@`%` PROCEDURE `Sb_VerificarMovimiento` (IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sb_VerificarMovimiento` (IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT)  BEGIN
 
-	SELECT IFNULL((SELECT COUNT(*) FROM Lo_Movimiento 
+	SELECT IFNULL((SELECT COUNT(*) FROM Lo_Movimiento
 
 	INNER JOIN Lo_MovimientoTipo ON Lo_MovimientoTipo.IdMovimientoTipo = Lo_Movimiento.IdMovimientoTipo
 
@@ -5090,11 +5151,13 @@ CREATE TABLE `Cb_CajaBanco` (
 --
 
 INSERT INTO `Cb_CajaBanco` (`IdCajaBanco`, `IdTipoCajaBanco`, `IdCuenta`, `FechaDoc`, `Concepto`, `Importe`, `Anulado`, `UsuarioReg`, `FechaReg`, `UsuarioMod`, `FechaMod`) VALUES
-(16, 2, 1, '2018-01-11 00:00:00', 'sdfsdf', 250, NULL, NULL, NULL, NULL, NULL),
+(16, 2, 1, '2018-01-08 00:00:00', 'sdfsdf', 250, NULL, NULL, NULL, NULL, NULL),
 (17, 1, 1, '2018-01-11 00:00:00', 'sdfsdf', 250, NULL, NULL, NULL, NULL, NULL),
 (20, 2, 1, '2018-01-11 00:00:00', 'algo', 10000, NULL, NULL, NULL, NULL, NULL),
 (21, 1, 1, '2018-01-11 00:00:00', 'bbbb', 10, NULL, NULL, NULL, NULL, NULL),
-(24, 2, 2, '2018-01-10 00:00:00', 'recibo', 498, NULL, NULL, NULL, NULL, NULL);
+(24, 2, 2, '2018-01-10 00:00:00', 'recibo', 498, NULL, NULL, NULL, NULL, NULL),
+(25, 2, 2, '2018-02-06 00:00:00', '', 20, NULL, NULL, NULL, NULL, NULL),
+(26, 2, 2, '2018-02-08 00:00:00', 'pago vario', 10, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -5109,6 +5172,15 @@ CREATE TABLE `Cb_CajaBancoDet` (
   `Hash` varchar(255) COLLATE utf8mb4_spanish_ci DEFAULT NULL,
   `Tipo` varchar(45) COLLATE utf8mb4_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `Cb_CajaBancoDet`
+--
+
+INSERT INTO `Cb_CajaBancoDet` (`IdCajaBanco`, `IdDocDet`, `Importe`, `Hash`, `Tipo`) VALUES
+(25, 147, 5, NULL, 'VE'),
+(25, 148, 15, NULL, 'VE'),
+(26, 148, 10, NULL, 'VE');
 
 -- --------------------------------------------------------
 
@@ -11667,8 +11739,8 @@ CREATE TABLE `prodstock` (
 --
 
 INSERT INTO `prodstock` (`IdProducto`, `ProductoMarca`, `ProductoCategoria`, `FormaFarmaceutica`, `Producto`, `Stock`) VALUES
-(22, 'ROEMMERS', 'MEDICAMENTO', 'INYECCION', 'AB-AMOXIDAL 1000 MG. CAJA X 1 DOSIS', 106),
-(23, 'MEDIFARMA', 'MEDICAMENTO', 'INYECCION', 'AB-BRONCOL NF 1200 MG. CAJA X 1 DOSIS', 0),
+(22, 'ROEMMERS', 'MEDICAMENTO', 'INYECCION', 'AB-AMOXIDAL 1000 MG. CAJA X 1 DOSIS', 101),
+(23, 'MEDIFARMA', 'MEDICAMENTO', 'INYECCION', 'AB-BRONCOL NF 1200 MG. CAJA X 1 DOSIS', -3),
 (25, 'MEDIFARMA', 'MEDICAMENTO', 'INYECCION', 'AB-BRONCOL NF 600 MG.CAJA X 1 DOSIS', -7),
 (26, 'MEDIFARMA', 'MEDICAMENTO', 'INYECCION', 'AB-BRONCOL NF 300 MG. CAJA X 1 DOSIS.', 0),
 (27, 'OQ PHARMA', 'MEDICAMENTO', 'SUSPENCION', 'ACICLAV 250 MG + 62.5 MG / 5 ML. FCO X 60 ML.', -3),
@@ -13792,7 +13864,10 @@ INSERT INTO `Ve_DocVenta` (`idDocVenta`, `IdDocVentaPuntoVenta`, `IdCliente`, `I
 (142, 1, 0, 3, 1, '001', 55, '2018-01-06 16:03:04', b'0', '2018-01-06 16:03:04', 'jeam', NULL, NULL, '1515279784', NULL, b'1', '2018-01-31 00:00:00'),
 (143, 1, 0, 3, 1, '001', 56, '2018-01-09 14:26:53', b'0', '2018-01-09 14:26:53', 'jeam', NULL, NULL, '1515533213', NULL, b'0', '0000-00-00 00:00:00'),
 (144, 1, 0, 3, 1, '001', 57, '2018-01-11 15:24:45', b'0', '2018-01-11 15:24:45', 'jeam', NULL, NULL, '1515709485', NULL, b'0', '0000-00-00 00:00:00'),
-(145, 1, 1, 1, 1, '001', 58, '2018-01-12 09:09:33', b'0', '2018-01-12 09:09:33', 'jeam', NULL, NULL, '1515773373', NULL, b'0', '0000-00-00 00:00:00');
+(145, 1, 1, 1, 1, '001', 58, '2018-01-12 09:09:33', b'0', '2018-01-12 09:09:33', 'jeam', NULL, NULL, '1515773373', NULL, b'0', '0000-00-00 00:00:00'),
+(146, 1, 1, 3, 1, '001', 59, '2018-02-05 09:20:30', b'0', '2018-02-05 09:20:30', 'jeam', NULL, NULL, '1517840430', NULL, b'1', '2018-02-05 00:00:00'),
+(147, 1, 1, 3, 1, '001', 60, '2018-02-05 14:17:08', b'0', '2018-02-05 14:17:08', 'jeam', NULL, NULL, '1517858228', NULL, b'1', '2018-02-11 00:00:00'),
+(148, 1, 1, 1, 1, '001', 61, '2018-02-05 14:19:55', b'0', '2018-02-05 14:19:55', 'jeam', NULL, NULL, '1517858395', NULL, b'1', '2018-02-20 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -13944,7 +14019,10 @@ INSERT INTO `Ve_DocVentaDet` (`IdDocVentaDet`, `IdDocVenta`, `IdProducto`, `Cant
 (251, 142, 27, 2, 35),
 (252, 143, 718, 1, 19.5),
 (253, 144, 718, 1, 19.5),
-(254, 145, 32, 2, 1.5);
+(254, 145, 32, 2, 1.5),
+(255, 146, 22, 2, 18.5),
+(256, 147, 22, 3, 18.5),
+(257, 148, 23, 3, 25);
 
 -- --------------------------------------------------------
 
@@ -14142,7 +14220,10 @@ INSERT INTO `Ve_DocVentaMetodoPagoDet` (`IdDocVenta`, `IdMetodoPago`, `Importe`,
 (142, 1, 70.00, ''),
 (143, 1, 19.50, ''),
 (144, 1, 19.50, ''),
-(145, 2, 3.00, '');
+(145, 2, 3.00, ''),
+(146, 1, 37.00, ''),
+(147, 1, 55.50, ''),
+(148, 2, 75.00, '');
 
 -- --------------------------------------------------------
 
@@ -14790,7 +14871,7 @@ ALTER TABLE `Cb_CajaBanco`
 -- Indices de la tabla `Cb_CajaBancoDet`
 --
 ALTER TABLE `Cb_CajaBancoDet`
-  ADD PRIMARY KEY (`IdDocDet`,`IdCajaBanco`),
+  ADD PRIMARY KEY (`IdDocDet`,`IdCajaBanco`,`Tipo`),
   ADD KEY `fk1` (`IdCajaBanco`);
 
 --
@@ -15038,12 +15119,12 @@ ALTER TABLE `Ve_PreOrden`
 -- AUTO_INCREMENT de la tabla `Cb_CajaBanco`
 --
 ALTER TABLE `Cb_CajaBanco`
-  MODIFY `IdCajaBanco` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `IdCajaBanco` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 --
 -- AUTO_INCREMENT de la tabla `Cb_CajaBancoDet`
 --
 ALTER TABLE `Cb_CajaBancoDet`
-  MODIFY `IdCajaBanco` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdCajaBanco` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 --
 -- AUTO_INCREMENT de la tabla `Cb_Cuenta`
 --
@@ -15123,7 +15204,7 @@ ALTER TABLE `Seg_UsuarioPerfil`
 -- AUTO_INCREMENT de la tabla `Ve_DocVenta`
 --
 ALTER TABLE `Ve_DocVenta`
-  MODIFY `idDocVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
+  MODIFY `idDocVenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=149;
 --
 -- AUTO_INCREMENT de la tabla `Ve_DocVentaCliente`
 --
@@ -15133,7 +15214,7 @@ ALTER TABLE `Ve_DocVentaCliente`
 -- AUTO_INCREMENT de la tabla `Ve_DocVentaDet`
 --
 ALTER TABLE `Ve_DocVentaDet`
-  MODIFY `IdDocVentaDet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=255;
+  MODIFY `IdDocVentaDet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=258;
 --
 -- AUTO_INCREMENT de la tabla `Ve_DocVentaMetodoPago`
 --
