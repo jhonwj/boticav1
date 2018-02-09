@@ -164,13 +164,36 @@ include_once("../clases/helpers/Modal.php");
                         data-total="' + full.Total + '" \
                         data-aplicado="' + full.Aplicado + '" \
                         data-saldo="' + full.Saldo + '" \
-                        data-target="#ModalAplicarCajaBanco">Aplicar</button>';
+                        >Aplicar</button>';
                    }}
                  ],
                  "rowCallback": function(row, data, index) {
-                     $(row).click(function() {
-                       //console.log(row)
-                     })
+                    /*var sumTotal = parseFloat($('.sumatoriaTotalDAA').text()) || 0
+                    var sumAplicado = parseFloat($('.sumatoriaAplicadoDAA').text()) || 0
+                    var sumSaldo = parseFloat($('.sumatoriaSaldoDAA').text()) || 0
+
+                    sumTotal += parseFloat(data.Total)
+                    sumAplicado += parseFloat(data.Aplicado)
+                    sumSaldo += parseFloat(data.Saldo)
+
+                    $('.sumatoriaTotalDAA').text(sumTotal)
+                    $('.sumatoriaAplicadoDAA').text(sumAplicado)
+                    $('.sumatoriaSaldoDAA').text(sumSaldo)*/
+                  },
+                  "footerCallback": function(row, data, start, end, display) {
+                    if (data.length) {
+                      var sumTotal = 0
+                      var sumAplicado = 0
+                      var sumSaldo = 0
+                      $.each(data, function(index, value) {
+                        sumTotal +=  parseFloat(value.Total)
+                        sumAplicado += parseFloat(value.Aplicado)
+                        sumSaldo += parseFloat(value.Saldo)
+                      })
+                      $('.sumatoriaTotalDAA').text(sumTotal)
+                      $('.sumatoriaAplicadoDAA').text(sumAplicado)
+                      $('.sumatoriaSaldoDAA').text(sumSaldo)
+                    }
                   }
                });
 
@@ -200,7 +223,70 @@ include_once("../clases/helpers/Modal.php");
          $("#tableProveedor tbody").on("click", "tr", function(){
            $("#txtProveedor").val($(this).children("td").eq(1).text());
            $("#modalProveedor").modal("hide");
-           });
+           $('#gridDocAplicados').show()
+
+
+
+           // Documentos aplicados ListarDocAplicadosProveedor
+           var idProveedor = $(this).children("td").eq(0).html();
+           $("#tableDocAplicados").DataTable().destroy();
+           $("#tableDocAplicados").DataTable({
+               "bProcessing": true,
+               //"sAjaxSource": "../controllers/server_processingCajaBancoDocAplicados.php",
+               "ajax": {
+                 "url": "../controllers/server_processingCajaBancoDocAplicadosProveedor.php",
+                 "data": function (d) {
+                   d.idProveedor = idProveedor;
+                 }
+               },
+               "bPaginate":true,
+               "sPaginationType":"full_numbers",
+               "iDisplayLength": 5,
+               "aoColumns": [
+                 { mData: 'Id' } ,
+                 { mData: 'FechaDoc' },
+                 { mData: 'FechaCredito' },
+                 { mData: 'Correlativo' },
+                 { mData: 'Total'},
+                 { mData: 'Aplicado' },
+                 { mData: 'Saldo' },
+                 { mRender: function ( data, type, full ) {
+                   return '<button \
+                      type="button"  \
+                      onclick="verificarImporte(event)" \
+                      class="btn btn-success" \
+                      data-toggle="modal"  \
+                      data-hash="' + full.Id + '" \
+                      data-fechadoc="' + full.FechaDoc + '" \
+                      data-fechacredito="' + full.FechaCredito + '" \
+                      data-correlativo="' + full.Correlativo + '" \
+                      data-total="' + full.Total + '" \
+                      data-aplicado="' + full.Aplicado + '" \
+                      data-saldo="' + full.Saldo + '" \
+                      >Aplicar</button>';
+                 }}
+               ],
+               "rowCallback": function(row, data, index) {
+                  //console.log(index)
+
+                },
+                "footerCallback": function(row, data, start, end, display) {
+                  if (data.length) {
+                    var sumTotal = 0
+                    var sumAplicado = 0
+                    var sumSaldo = 0
+                    $.each(data, function(index, value) {
+                      sumTotal +=  parseFloat(value.Total)
+                      sumAplicado += parseFloat(value.Aplicado)
+                      sumSaldo += parseFloat(value.Saldo)
+                    })
+                    $('.sumatoriaTotalDAA').text(sumTotal)
+                    $('.sumatoriaAplicadoDAA').text(sumAplicado)
+                    $('.sumatoriaSaldoDAA').text(sumSaldo)
+                  }
+                }
+             });
+         });
    }
    function listarCuenta(){
      $("#tableCuenta").DataTable().destroy();
@@ -341,10 +427,19 @@ include_once("../clases/helpers/Modal.php");
      tr.append('<td>' + docAplicado.importe + '</td>')
      tr.append('<td>' + (parseFloat(docAplicado.saldo) - parseFloat(docAplicado.importe)) + '</td>')
      $('#tableDocAplicadosTmp tbody').append(tr)
+
+     var sumSaldoDA = sumatoriaSaldoDA()
+     var sumAplicadoDA = sumatoriaSaldoAplicado()
+     $('#tableDocAplicadosTmp tfoot .sumatoriaSaldoDA').text(sumSaldoDA)
+     $('#tableDocAplicadosTmp tfoot .sumatoriaAplicadoDA').text(sumAplicadoDA)
+     $('#tableDocAplicadosTmp tfoot .sumatoriaSaldoFinDA').text(sumSaldoDA - sumAplicadoDA)
    }
 
    function limpiarTmpCajaBanco() {
      $('#tableDocAplicadosTmp tbody tr').remove();
+     $('#tableDocAplicadosTmp .sumatoriaSaldoDA').remove();
+     $('#tableDocAplicadosTmp .sumatoriaAplicadoDA').remove();
+     $('#tableDocAplicadosTmp .sumatoriaSaldoFinDA').remove();
      window.aplicadoDocVenta = []
    }
 
@@ -538,6 +633,17 @@ include_once("../clases/helpers/Modal.php");
                        <th>Saldo</th>
                        <th>Acciones</th>
                      </thead>
+                     <tfoot>
+                       <tr>
+                         <td colspan="4">
+                           Sumatoria
+                         </td>
+                         <td class="sumatoriaTotalDAA" style="font-weight:bold"></td>
+                         <td class="sumatoriaAplicadoDAA" style="font-weight:bold"></td>
+                         <td class="sumatoriaSaldoDAA" style="font-weight:bold"></td>
+                         <td></td>
+                       </tr>
+                     </tfoot>
                    </table>
                  </div>
                </div>
@@ -557,6 +663,14 @@ include_once("../clases/helpers/Modal.php");
                      <tbody>
 
                      </tbody>
+                     <tfoot>
+                       <tr>
+                         <td colspan="4">Sumatoria</td>
+                         <td class="sumatoriaSaldoDA" style="font-weight: bold"></td>
+                         <td class="sumatoriaAplicadoDA" style="font-weight: bold"></td>
+                         <td class="sumatoriaSaldoFinDA" style="font-weight: bold"></td>
+                       </tr>
+                     </tfoot>
                    </table>
                  </div>
                </div>

@@ -39,7 +39,7 @@
        <div class="col-lg-12">
          <div class="form-inline" style="margin-bottom:20px;">
            <label for="txtConcepto">Importe a Aplicar: </label>
-           <input min="0" type="number" class="form-control" id="importeAplicar" placeholder="" onkeyup="asignarMaximoAplicado(this)" >
+           <input min="0" type="number" class="form-control" id="importeAplicar" placeholder="" onkeyup="asignarMaximoAplicado(this)" onmouseup="asignarMaximoAplicado(this)" >
           </div>
         </div>
       </div>
@@ -63,8 +63,13 @@
     $(document).ready(function () {
         var idModal = '#<?php echo $args["id"] ?>'
 
+				$(idModal).on('shown.bs.modal', function() {
+					$('#importeAplicar').mouseup()
+				})
+
         $(idModal).on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget)
+						//var button = $(event.relatedTarget)
+            var button = $(window.buttonAplicar)
             var row = button.parents('tr').first()
 
 						$('#btnAplicar').on('click', function (){
@@ -77,6 +82,7 @@
             //*rowClone.find('td').last().remove()
             $('.row-cajabanco').remove()
 
+						var hash = button.data('hash')
             var iddocventa = button.data('iddocventa')
             var fechadoc = button.data('fechadoc')
             var fechacredito = button.data('fechacredito')
@@ -88,6 +94,14 @@
 
             //modal.find('.modal-body table:first-child tbody').empty()
             //modal.find('.modal-body table tbody').append(row)
+						var url = '../controllers/server_processingCajaBancoDetDocAplicado.php'
+						var data = { idDocVenta : iddocventa }
+
+						if (hash) {
+							url = '../controllers/server_processingCajaBancoDetDocAplicadoProveedor.php'
+							iddocventa = hash
+							data = { hash: hash }
+						}
 
       			//modal.find('#btnEliminar').data('idrow', idrow)
       			modal.find('#btnEliminar').data('title', iddocventa)
@@ -105,9 +119,9 @@
 						modal.find('#importeAplicar').attr('max', saldo)
 
             $.ajax({
-    					url: '../controllers/server_processingCajaBancoDetDocAplicado.php',
+    					url: url,
     					type: 'get',
-    					data: { idDocVenta : iddocventa },
+    					data: data,
     					dataType: 'json',
     					success: function(respuesta){
                 var data = respuesta.aaData;

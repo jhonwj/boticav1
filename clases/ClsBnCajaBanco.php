@@ -19,4 +19,15 @@ function ListarDocAplicadoCajaBancoDet($idDocVenta)
   return getSQLResultSet($Ssql);
 }
 
+function ListarDocAplicadosProveedor($idProveedor)
+{
+  $Ssql = " call SbCb_ListarDocAplicadosProveedor($idProveedor);";
+  return getSQLResultSet($Ssql);
+}
+
+function ListarDocAplicadoCajaBancoDetProveedor($hash)
+{
+  $Ssql = "SELECT Cb_CajaBanco.FechaDoc, Cb_CajaBancoDet.Importe From Cb_CajaBancoDet INNER JOIN Cb_CajaBanco ON Cb_CajaBancoDet.IdCajaBanco = Cb_CajaBanco.IdCajaBanco WHERE Cb_CajaBancoDet.Tipo='MO' And Cb_CajaBancoDet.Hash=$hash";
+  return getSQLResultSet($Ssql);
+}
 ?>

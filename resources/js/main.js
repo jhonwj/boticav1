@@ -162,7 +162,7 @@ function asignarMaximoAplicado(el){
   }
 
   if ((parseFloat($(el).val()) + sumatoriaSaldoAplicado()) > (parseFloat($('#txtImporte').val()) || 0)) {
-    alert('El importe no puede ser mayor a la sumatoria de los importes aplicados')
+    alert('La sumatoria de los importes a aplicar no puede ser mayor al importe general')
     $(el).val(parseFloat($('#txtImporte').val()) - sumatoriaSaldoAplicado())
   }
 }
@@ -177,15 +177,22 @@ function sumatoriaSaldoAplicado () {
   return sumatoria
 }
 
+function sumatoriaSaldoDA () {
+  var sumatoria = 0
+  if (window.aplicadoDocVenta && window.aplicadoDocVenta.length) {
+    window.aplicadoDocVenta.map(function(el){
+      sumatoria += parseFloat(el.saldo)
+    })
+  }
+  return sumatoria
+}
 
 function verificarImporte(e) {
-  console.log(e)
   if (!$('#txtImporte').val()) {
     alert('Debe establecer el importe antes de Aplicar')
-    $('#ModalAplicarCajaBanco').modal('hide');
-
   } else {
-    //$('#ModalAplicarCajaBanco').modal('show');
+    window.buttonAplicar = e.target
+    $('#ModalAplicarCajaBanco').modal('show');
   }
 }
 
