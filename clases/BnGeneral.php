@@ -1,6 +1,6 @@
 <?php
 
-	include_once($_SERVER["DOCUMENT_ROOT"] . "models/DBManager.php");
+	include_once($_SERVER["DOCUMENT_ROOT"] . "/models/DBManager.php");
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){
 		$textoFinal=$Texto;
