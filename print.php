@@ -1,5 +1,5 @@
 <?php
-include($_SERVER["DOCUMENT_ROOT"] . "clases/BnGeneral.php");
+include($_SERVER["DOCUMENT_ROOT"] . "/clases/BnGeneral.php");
 $IdDocVenta=$_GET['IdDocVenta'];
  ?>
  <html>
