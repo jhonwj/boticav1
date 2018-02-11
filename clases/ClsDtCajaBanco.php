@@ -7,6 +7,7 @@ function fn_guardarCajaBanco($data) {
     $fechaDoc = $data['FechaDoc'];
     $concepto = $data['Concepto'];
     $importe = $data['Importe'];
+    $tipo = $data['TipoCajaBanco'];
     $aplicadoDocVenta = $data['AplicadoDocVenta'];
 
     $Ssql = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe) VALUES ($idTipo, $idCuenta, '$fechaDoc', '$concepto', $importe)";
@@ -14,8 +15,13 @@ function fn_guardarCajaBanco($data) {
 
     if ($idCajaBanco) {
       foreach ($aplicadoDocVenta as $key => $value) {
-        $Ssql = "INSERT INTO Cb_CajaBancoDet (IdCajaBanco, IdDocDet, Importe, Tipo) VALUES($idCajaBanco, " . $value['idDocDet'] . ", " . $value['importe'] . ", 'VE')";
-        getSQLResultSet($Ssql);
+        if ($tipo == 1) {
+            $Ssql = "INSERT INTO Cb_CajaBancoDet (IdCajaBanco, IdDocDet, Importe, Hash, Tipo) VALUES($idCajaBanco, " . $value['idDocDet'] . ", " . $value['importe'] . ", " . $value['idDocDet'] . ", 'MO')";
+            getSQLResultSet($Ssql);
+        } else {
+            $Ssql = "INSERT INTO Cb_CajaBancoDet (IdCajaBanco, IdDocDet, Importe, Tipo) VALUES($idCajaBanco, " . $value['idDocDet'] . ", " . $value['importe'] . ", 'VE')";
+            getSQLResultSet($Ssql);
+        }
       }
     }
     return $idCajaBanco;

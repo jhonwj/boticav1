@@ -291,7 +291,7 @@ $("#btnGuardarMetPago").click(function(){
   var myJson3 = JSON.stringify(tablaMetodoPago);
 
   var xhr = $.ajax({
-    url: 'v_ventaguardar.php',
+    url: 'v_VentaGuardar.php',
     type: 'post',
     data: {data : myJson2, data2 : myJson, data3 : myJson3},
     dataType: 'html',
@@ -302,9 +302,8 @@ $("#btnGuardarMetPago").click(function(){
           $("#txtSubTot").val("");
           $("#txtTotalGen").val("");
           $("#ModalMetPago").modal("hide");
-          $('#txtCredito').prop('checked', false);
-          $("#EsCreditoDiv").click();
-          window.location.href = "/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
+          //window.location.href = "/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
+          window.location.href = "/print.php?IdDocVenta="+respuesta;
           //window.print();
         }
         else{

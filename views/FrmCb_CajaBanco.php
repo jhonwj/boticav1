@@ -342,6 +342,7 @@ include_once("../clases/helpers/Modal.php");
                        $("#txtTipoOpe").val(data.TipoCajaBanco);
                        $("#txtTipoOpeId").val(data.IdTipoCajaBanco);
                        if (data.Tipo == "1") {
+                           window.tipoCajaBanco = 1
                            $("#txtCliente").prop("disabled", true);
                            $("#txtCliente").val("");
                            $("#btnCliente").prop("disabled", true);
@@ -351,6 +352,7 @@ include_once("../clases/helpers/Modal.php");
                            $("#btnProveedor").prop("disabled", false);
                            $("#btnEstadoCuentaP").prop("disabled", false);
                        }else {
+                           window.tipoCajaBanco = 0
                            $("#txtCliente").prop("disabled", false);
                            $("#btnCliente").prop("disabled", false);
                            $("#btnEstadoCuentaC").prop("disabled", false);
@@ -437,10 +439,12 @@ include_once("../clases/helpers/Modal.php");
 
    function limpiarTmpCajaBanco() {
      $('#tableDocAplicadosTmp tbody tr').remove();
-     $('#tableDocAplicadosTmp .sumatoriaSaldoDA').remove();
-     $('#tableDocAplicadosTmp .sumatoriaAplicadoDA').remove();
-     $('#tableDocAplicadosTmp .sumatoriaSaldoFinDA').remove();
+     $('#tableDocAplicadosTmp .sumatoriaSaldoDA').text('');
+     $('#tableDocAplicadosTmp .sumatoriaAplicadoDA').text('');
+     $('#tableDocAplicadosTmp .sumatoriaSaldoFinDA').text('');
      window.aplicadoDocVenta = []
+
+     $('#txtProveedor').val('')
    }
 
    function guardarCajaBanco() {
@@ -452,8 +456,12 @@ include_once("../clases/helpers/Modal.php");
         alert('falta llenar el campo: Importe')
         return;
       }
+      if (sumatoriaSaldoAplicado() > $('#txtImporte').val()) {
+        alert('La sumatoria de los importes a aplicar no puede ser mayor al importe general')
+        return;
+      }
 
-       $.ajax({
+       var asd = $.ajax({
            url: '../controllers/server_processingCajaBanco.php',
            type: 'post',
            data: {
@@ -462,11 +470,11 @@ include_once("../clases/helpers/Modal.php");
                FechaDoc: $('#txtFechaVen2').val(),
                Concepto: $('#txtConcepto').val(),
                Importe: $('#txtImporte').val(),
-               AplicadoDocVenta: window.aplicadoDocVenta
+               AplicadoDocVenta: window.aplicadoDocVenta,
+               TipoCajaBanco: window.tipoCajaBanco || 0
            },
            dataType: 'json',
            success: function(respuesta){
-             console.log(respuesta)
                if (respuesta.success) {
                    $("#tableCajaBanco").DataTable().ajax.reload();
                    $.notify({
@@ -475,6 +483,7 @@ include_once("../clases/helpers/Modal.php");
                    }, {
                        type: 'success'
                    });
+                   limpiarTmpCajaBanco()
                } else {
                    $.notify({
                        icon: 'fa fa-exclamation',
@@ -490,6 +499,7 @@ include_once("../clases/helpers/Modal.php");
                alert("Error: " + errorThrown);
            }
        });
+       console.log(asd)
 
    }
  </script>

@@ -1,6 +1,6 @@
 <?php
 
-	include_once("../models/DBManager.php");
+	include_once($_SERVER["DOCUMENT_ROOT"] . "models/DBManager.php");
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){
 		$textoFinal=$Texto;
@@ -571,7 +571,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	// VentaForm obtener Lote y fecha de vencimiento proximos a vencer
 	function ListarLoteFechaVencimiento()
 	{
-		$Ssql = "SELECT * FROM lo_movimientodetalle group by IdProducto ORDER BY FechaVen ASC;";
+		$Ssql = "SELECT * FROM Lo_MovimientoDetalle group by IdProducto ORDER BY FechaVen ASC;";
 		return getSQLResultSet($Ssql);
 	}
 
