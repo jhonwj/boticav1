@@ -12,13 +12,13 @@ if(isset($cabecerajson)){
 	//echo '<script type="text/javascript">console.log("Datos incorrectos! SI'.$tablejson[0].$tablejson[1].$tablejson[2].$tablejson[3].'");</script>';
 	//echo "-".$tablejson[0]."-".$tablejson[1]."-".$tablejson[2]."-".$tablejson[3]."-".;
 	$Escredito = 0;
-	$FechaCredito = "";
+	$FechaCredito = null;
 	if ($cabecerajson[4]) {
 		$Escredito = 1;
 		$FechaCredito = $cabecerajson[5];
 	}
 	$res = "";
-	
+  //var_dump($FechaCredito);exit();
 	$res = fn_guardarDocVenta("CAJA1", $cabecerajson[1], $cabecerajson[0], $cabecerajson[2], "jeam", $Escredito, $FechaCredito);
 	//echo '<script type="text/javascript">console.log("Datos incorrectos! NO'.$res.'");</script>';
 			foreach ($tablejson as $key) {

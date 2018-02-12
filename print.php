@@ -8,7 +8,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
          function WriteToFile()
          {
              var txt = new ActiveXObject("Scripting.FileSystemObject");
-             var s = txt.CreateTextFile("\\\\USER01\\Tiketera", true);
+             var s = txt.CreateTextFile("\\\\JMEDRANO\\BIXOLON", true);
              s.WriteLine(FnCentrar('BOTICA'));
              s.WriteLine(FnCentrar('PREVENVAC S.A.C'));
              <?php

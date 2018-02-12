@@ -234,10 +234,14 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    }
 
 		    function fn_guardarDocVenta($puntoVenta, $tipoDoc, $cliente, $almacen, $usuario, $EsCredito, $fechaCredito){
-				//	echo $fechaCredito;
-					//exit();
+
 				$fechaDoc=fn_devolverfechaActual();
-				$Ssql="CALL SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario', $EsCredito, '$fechaCredito')";
+
+				if(!$fechaCredito) {
+					$Ssql="CALL SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario', $EsCredito, NULL)";
+				} else {
+					$Ssql="CALL SbVe_GuardarDocVenta ('$puntoVenta', '$tipoDoc', '$cliente', '$almacen', '$fechaDoc', '$usuario', $EsCredito, '$fechaCredito')";
+				}
 				//var_dump($Ssql);exit();
 				$res=getSQLResultSet($Ssql);
 				$idDocVenta = "";
