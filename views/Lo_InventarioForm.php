@@ -183,7 +183,7 @@ calcularFlete();
 			var dateNull = 0;
 			$("#tableProductoI tbody tr").each(function(){
 					if ($(this).children("td").eq(11+4).find("input[type='date']").val() == "") {
-						alert("Por favor ingrese la fecha de vencimiento del prodcuto : " + $(this).children("td").eq(1+4).text() );
+						alert("Por favor ingrese la fecha de vencimiento del producto : " + $(this).children("td").eq(1+4).text() );
 						dateNull++;
 						return false;
 					}
@@ -836,7 +836,7 @@ function calcularFlete() {
 </div>
 
  <div class="modal fade" id="modalProductoDet" role="dialog">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title"> Productos </h4>

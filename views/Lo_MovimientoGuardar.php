@@ -14,7 +14,7 @@ $fecha = $movimiento[0][11];
 $EsCredito =1;
 if(!$movimiento[0][10]){
 	$EsCredito = 0;
-	$fecha = "0000-00-00";
+	$fecha = null;
 }
 $VerificarMovimiento = VerificarMovimiento($movimiento[0][0], $movimiento[0][1], $movimiento[0][2], $movimiento[0][3]);
 $row = mysqli_fetch_array($VerificarMovimiento);

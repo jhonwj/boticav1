@@ -437,7 +437,12 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    }
 
 		    function fn_guardarMovimiento($tipoMovimiento, $proveedor, $serie, $numero, $fecha, $almacenOrigen, $almacenDestino, $obs, $fechaStock, $percepcion, $EsCredito, $fechaCredito, $periodoTributario){
-		    	$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito,'$fechaCredito', $periodoTributario)";
+
+					if (!$fechaCredito) {
+						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, NULL , $periodoTributario)";
+					}else {
+						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito,$fechaCredito , $periodoTributario)";
+					}
 					//echo $Ssql;
 					// exit();
 					$result = getSQLResultSet($Ssql);
