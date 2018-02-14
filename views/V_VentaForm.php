@@ -650,22 +650,32 @@ function fn_SumarProd(){
 </div>
 
  <div class="row">
-  <div class="col-xs-2 col-md-2">
+  <div class="col-xs-4 col-md-2 col-md-offset-6">
   	<div class="form-group">
     <div class="input-group" style="margin-bottom:20px;">
       <span class="input-group-addon">Sub.</span>
       <input id="txtSubTot" readonly type="text" class="form-control" value="0.00">
     </div>
+    </div>
+  </div>
+  <div class="col-xs-4 col-md-2">
+  	<div class="form-group">
  		<div class="input-group" style="margin-bottom:20px;">
       <span class="input-group-addon">IGV.</span>
  			<input id="txtIGV" type="text" readonly class="form-control" value="0.00">
  		</div>
+    </div>
+  </div>
+<div class="col-xs-4 col-md-2">
+  <div class="form-group">
  		<div class="input-group" style="margin-bottom:20px;">
       <span class="input-group-addon">Total.</span>
  			<input id="txtTotalGen" readonly type="text" class="form-control" value="0.00">
  		</div>
- 	</div>
+    </div>
   </div>
+
+
 </div>
 
 <div class="pull-right">

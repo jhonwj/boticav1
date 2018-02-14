@@ -64,7 +64,7 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
   $('#periodoTributario').data('idMov', idMov)
 
    var xhr = $.ajax({
-    url: '../controllers/serverProcessingProductosRegMov.php',
+    url: '../controllers/serverprocessingProductosRegMov.php',
     type: 'get',
     data:  {"idMov" : idMov},
     dataType: 'html',

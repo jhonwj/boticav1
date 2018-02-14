@@ -8,9 +8,10 @@ $IdDocVenta=$_GET['IdDocVenta'];
          function WriteToFile()
          {
              var txt = new ActiveXObject("Scripting.FileSystemObject");
-             var s = txt.CreateTextFile("\\\\JMEDRANO\\BIXOLON", true);
+             var s = txt.CreateTextFile("\\\\JMEDRANO\\ticket", true);
              s.WriteLine(FnCentrar('BOTICA'));
-             s.WriteLine(FnCentrar('PREVENVAC S.A.C'));
+             s.WriteLine(FnCentrar('BOTICA DELMAN S.A.C'));
+             s.WriteLine(FnCentrar('RUC: 20393999544'));
              <?php
              $criterio="Ve_DocVenta.IdDocVenta=$IdDocVenta";
              $result = fn_devolverDocVenta($criterio, "");
@@ -61,7 +62,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
               <?php } ?>
              s.WriteLine	(String.fromCharCode(29) + "V" + String.fromCharCode(66) + String.fromCharCode(0));
              s.Close();
-             window.location.href="/v_ventaform.php";
+             window.location.href="/V_VentaForm.php";
           }
 
           function FnCentrar(VbText){

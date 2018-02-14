@@ -60,7 +60,7 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
     $("#tableProducto tbody tr").remove();
   var idMov = $(this).children("td").eq(0).html();
    var xhr = $.ajax({
-    url: '../controllers/serverProcessingProductosRegMov.php',
+    url: '../controllers/serverprocessingProductosRegMov.php',
     type: 'get',
     data:  {"idMov" : idMov},
     dataType: 'html',

@@ -721,19 +721,15 @@ function calcularFlete() {
   <br>
   <hr>
   <div class="row">
-    <div class="col-md-2 pull-right">
+    <div class="col-md-2">
       <label class="">SubTotal.</label>
       <input type="text" readonly value="0" class="form-control" id="txtSubTotal">
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md-2 pull-right">
+    <div class="col-md-2">
       <label class="">ISC.</label>
       <input type="text" readonly value="0" class="form-control" id="txtISC">
     </div>
-  </div>
-	<div class="row">
-    <div class="col-md-2 pull-right">
+    <div class="col-md-2">
       <label class="">IGV.</label>
       <input type="text" readonly value="0" class="form-control" id="txtIGV">
     </div>
