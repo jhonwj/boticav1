@@ -61,6 +61,31 @@
   </script>
   <body>
     <?php include_once("header.php"); ?>
+
+    <button type="button" class="btn btn-success" id="btnReporteExcelCierre" name="button">ReporteExcel</button>
+    <div class="panel panel-success" style="margin-bottom:0">
+      <div class="panel-heading">
+        <div class="panel-body">
+          <table id="tableCierreDetalle" class="table table-striped table-bordered">
+            <tr>
+              <td>Salida S/.</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Credito</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Contado</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn btn-success" id="btnReporteExcelCierreDetalle" name="button">ReporteExcelDet</button><br /><br />
+
+
       <button type="button" id="btnCierre" class="btn btn-success" name="button">Cierre de caja</button>
       <br>
       <div class="panel panel-success">
@@ -85,28 +110,7 @@
           </table>
         </div>
       </div>
-      <button type="button" class="btn btn-success" id="btnReporteExcelCierre" name="button">ReporteExcel</button>
-      <div class="panel panel-success">
-        <div class="panel-heading">
-          <div class="panel-body">
-            <table id="tableCierreDetalle" class="table table-striped table-bordered">
-              <tr>
-                <td>Salida S/.</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Credito</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Contado</td>
-                <td></td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-      <button type="button" class="btn btn-success" id="btnReporteExcelCierreDetalle" name="button">ReporteExcelDet</button>
+
 
     <?php include_once("footer.php"); ?>
   </body>
