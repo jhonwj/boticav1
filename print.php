@@ -62,7 +62,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
               <?php } ?>
              s.WriteLine	(String.fromCharCode(29) + "V" + String.fromCharCode(66) + String.fromCharCode(0));
              s.Close();
-             window.location.href="/V_VentaForm.php";
+             window.location.href="/views/V_VentaForm.php";
           }
 
           function FnCentrar(VbText){

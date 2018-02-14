@@ -19,7 +19,7 @@
 <?php
  session_start();
 if (!isset($_SESSION['user'])) {
-    header('Location: /');
+    header('Location: ' . 'http://' . $_SERVER['HTTP_HOST']);
     die();
 }
 ?>
