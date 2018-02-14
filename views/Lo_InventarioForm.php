@@ -616,6 +616,13 @@ function calcularFlete() {
       <div class="col-md-4 form-group">
         <label class=""> Numero :  </label>
         <input type="text" id="txtNumero"  class="form-control" style="width:195px;">
+				<div>
+					<label class=""> TIPO MOVIMIENTO  </label>
+					<div class="form-inline">
+					<input type="text" id="txtTipoMovimiento" readonly class="form-control" style="width:195px;">
+					<button type="button" id="btnTipoMovimiento" class="btn btn-success" ><i class="fa fa-search-plus"></i></button>
+					</div>
+				</div>
       </div>
       <div class="col-md-4 form-group">
         <label class=""> Fecha Contable :  </label>
@@ -632,11 +639,7 @@ function calcularFlete() {
 		</div> -->
 		<div class="row">
 			<div class="col-md-6 form-group">
-				<label class=""> TIPO MOVIMIENTO  </label>
-				<div class="form-inline">
-				<input type="text" id="txtTipoMovimiento" readonly class="form-control" style="width:195px;">
-				<button type="button" id="btnTipoMovimiento" class="btn btn-success" ><i class="fa fa-search-plus"></i></button>
-				</div>
+
 			</div>
 		</div>
 		<div class="row">
@@ -649,7 +652,7 @@ function calcularFlete() {
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-6 iform-group">
+			<div class="col-md-4 iform-group">
 				<label class=""> Almacen Destino </label>
 				<div class="form-inline">
           <input type="hidden" id="txtAlmacenDestinoTemp">
@@ -657,9 +660,7 @@ function calcularFlete() {
 				<button type="button" id="btnAlmacenDestino" class="btn btn-success" ><i class="fa fa-search-plus"></i></button>
 				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-5 form-group">
+			<div class="col-md-4 form-group">
 				<label class=""> Almacen Origen </label>
 				<div class="form-inline">
           <input type="hidden" id="txtAlmacenOrigenTemp">
@@ -721,7 +722,7 @@ function calcularFlete() {
   <br>
   <hr>
   <div class="row">
-    <div class="col-md-2">
+    <div class="col-md-2 col-md-offset-2">
       <label class="">SubTotal.</label>
       <input type="text" readonly value="0" class="form-control" id="txtSubTotal">
     </div>
@@ -733,29 +734,27 @@ function calcularFlete() {
       <label class="">IGV.</label>
       <input type="text" readonly value="0" class="form-control" id="txtIGV">
     </div>
-  </div>
-	<div class="row">
-    <div class="col-md-2 pull-right">
+    <div class="col-md-2">
       <label class="">FLETE.</label>
       <input type="text" value="0" class="form-control" id="txtFlete">
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md-2 pull-right">
+    <div class="col-md-2">
       <label class="">Total.</label>
       <input type="text" readonly  value="0" class="form-control" id="txtTotal">
-    </div>
-  </div>
-	<div class="row">
-    <div class="col-md-2 pull-right">
-      <label class="">Percepcion.</label>
+			<label class="">Percepcion.</label>
       <input type="number" value="0" class="form-control" id="txtPercepcion">
+			<label class="">Total c/ Percepcion</label>
+      <input type="number" value="0" class="form-control" id="txtPercepcionTotal">
     </div>
   </div>
 	<div class="row">
     <div class="col-md-2 pull-right">
-      <label class="">Total c/ Percepcion</label>
-      <input type="number" value="0" class="form-control" id="txtPercepcionTotal">
+
+    </div>
+  </div>
+	<div class="row">
+    <div class="col-md-2 pull-right">
+
     </div>
   </div>
 	<br>

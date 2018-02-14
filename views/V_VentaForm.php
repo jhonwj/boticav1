@@ -899,7 +899,7 @@ function fn_SumarProd(){
             </div>
 
             <div class="input-group">
-              <label>Nombres</label>
+              <label>Nombre o Razón Social</label>
               <input type="text" id="txtClienteAddId" name="txtClienteAdd" class="form-control">
             </div>
 
