@@ -360,7 +360,7 @@ $("#formAddCliente").submit(function(e){
   e.preventDefault();
 
   var xhr = $.ajax({
-    url : "v_clienteguardar.php",
+    url : "V_ClienteGuardar.php",
     type: "post",
     data: {data : clienteToJson},
     dataType : "html",
