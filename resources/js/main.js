@@ -154,6 +154,20 @@ function exportarPDF(obj) {
 
 }
 
+function exportarTXT(table) {
+  var txt = ''
+  table.find('tbody tr').each(function(index, tr) {
+    $(tr).find('td').each(function(index, td) {
+      if ($(td).text()) {
+        txt += $(td).text() + '|'
+      }
+    })
+    txt += '\r\n'
+  })
+  var blob = new Blob([txt], {type: "text/plain;charset=utf-8"});
+  saveAs(blob, table.attr('id'));
+}
+
 function asignarMaximoAplicado(el){
   var max = parseFloat($(el).attr('max'))
   if ($(el).val() > max ) {

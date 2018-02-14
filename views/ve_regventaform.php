@@ -96,7 +96,11 @@ function EliminarRegVenta(docVenta){
 
 <body>
 <?php include("header.php"); ?>
- <button id="btnExcel" class="btn btn-success fab2"><i class="fa fa-file-excel-o"></i></button>
+<div class="fab2">
+	<button id="" class="btn btn-success" onclick="exportarTXT($('#tableRegVenta'))"><i class="fa fa-file"></i>.txt</button>
+	<button id="btnExcel" class="btn btn-success"><i class="fa fa-file-excel-o"></i>.xls</button>
+</div>
+
 <div class="bt-panel">
 	<div class="container center_div" >
 		<div class="row">
