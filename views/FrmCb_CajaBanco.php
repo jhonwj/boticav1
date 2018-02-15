@@ -445,6 +445,9 @@ include_once("../clases/helpers/Modal.php");
      window.aplicadoDocVenta = []
 
      $('#txtProveedor').val('')
+     $('#txtCliente').val('')
+     $('#txtConcepto').val('')
+     $('#txtImporte').val('')
    }
 
    function guardarCajaBanco() {
@@ -483,7 +486,7 @@ include_once("../clases/helpers/Modal.php");
                    }, {
                        type: 'success'
                    });
-                   limpiarTmpCajaBanco()
+                   exportarCajaBancoClientePDF(limpiarTmpCajaBanco)
                } else {
                    $.notify({
                        icon: 'fa fa-exclamation',

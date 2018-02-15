@@ -75,7 +75,6 @@
 						$('#btnAplicar').on('click', function (){
 							button.attr('disabled', true),
 							row.addClass('danger')
-							console.log(row)
 						})
 
 						//rowClone = row.clone()

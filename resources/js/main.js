@@ -108,6 +108,60 @@ function exportarProforma(obj) {
     });
 }
 
+function renderHeaderPDF(doc, imgData) {
+  doc.addImage(imgData, 'JPEG', 40, 30, 55, 60);
+  doc.setFontSize(14);
+  doc.setTextColor(100);
+  //var text = doc.splitTextToSize('Boticas Delman', 580);
+  doc.text('BOTICAS DELMAN', 237, 45);
+  doc.setFontSize(11);
+  doc.text('ES GARANTIA DE SALUD', 235, 60);
+
+  doc.setFontSize(10);
+  doc.text('Consultorios para la salud', 240, 75);
+  doc.text('Jr. Arica N° 150 frente a la plaza menor de Aguaytia', 180, 85);
+
+  return doc
+}
+
+function exportarCajaBancoClientePDF(fn) {
+  var doc = new jsPDF('p', 'pt');
+  var table = $("#tableDocAplicadosTmp");
+  table = table.clone()
+  table.find('td[colspan=4]').parent().prepend('<td></td><td></td><td></td>')
+
+  var header = $("<table></table>");
+  header.append('<tbody></tbody>')
+  header.find('tbody').append('<tr><td></td><td></td><td></td><td></td></tr>')
+  header.find('tbody').append('<tr><td>Cliente: </td><td>' + $('#txtCliente').val() + '</td><td>Fecha de operación: </td><td>' + $('#txtFechaVen2').val() + '</td></tr>')
+  header.find('tbody').append('<tr><td>Concepto: </td><td>' + $('#txtConcepto').val() + '</td><td>Importe: </td><td>' + $('#txtImporte').val() + '</td></tr>')
+
+  table = doc.autoTableHtmlToJson(table[0]);
+  header = doc.autoTableHtmlToJson(header[0]);
+
+  getDataUri('../resources/images/delman.jpg', function(dataUri) {
+      var imgData = dataUri
+
+      doc.autoTable(header.columns, header.data, {
+          theme: 'plain',
+          margin: {top: 100},
+          headerStyles: {fillColor: false},
+          bodyStyles: {fillColor: false}
+      });
+
+      doc.autoTable(table.columns, table.data, {
+          margin: {top: 60},
+          startY: 200,
+          tableLineColor: 200,
+      });
+
+      doc = renderHeaderPDF(doc, imgData)
+
+      doc.save("PagoCliente.pdf");
+      fn()
+  });
+}
+
 function exportarPDF(obj) {
     var doc = new jsPDF('p', 'pt');
     var table = document.getElementById("tableModalProforma");
@@ -135,21 +189,9 @@ function exportarPDF(obj) {
             tableLineColor: 200,
         });
 
-        doc.addImage(imgData, 'JPEG', 40, 30, 55, 60);
-        doc.setFontSize(14);
-        doc.setTextColor(100);
-        //var text = doc.splitTextToSize('Boticas Delman', 580);
-        doc.text('BOTICAS DELMAN', 237, 45);
-        doc.setFontSize(11);
-        doc.text('ES GARANTIA DE SALUD', 235, 60);
+        doc = renderHeaderPDF(doc, imgData)
 
-        doc.setFontSize(10);
-        doc.text('Consultorios para la salud', 240, 75);
-        doc.text('Jr. Arica N° 150 frente a la plaza menor de Aguaytia', 180, 85);
-
-
-
-        doc.save("table.pdf");
+        doc.save("proforma.pdf");
     });
 
 }
@@ -165,7 +207,7 @@ function exportarTXT(table) {
     txt += '\r\n'
   })
   var blob = new Blob([txt], {type: "text/plain;charset=utf-8"});
-  saveAs(blob, table.attr('id'));
+  saveAs(blob, table.attr('id') + '.txt');
 }
 
 function asignarMaximoAplicado(el){
