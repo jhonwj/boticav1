@@ -139,7 +139,7 @@ include_once("../clases/BnGeneral.php");
 
     $("#btnGuardarCompuesto").click(function(){
             var xhr = $.ajax({
-        url: "gen_productocompuestoguardar.php",
+        url: "Gen_ProductoCompuestoGuardar.php",
         type: "get",
         //data: {"productocompuesto":$("#CompuestoProducto").val()},
         data: {"idproductocompuesto":"", "productocompuesto":$("#CompuestoProducto").val() ,data : JSON.stringify([])},

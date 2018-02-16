@@ -60,7 +60,7 @@
 		$("#btnCompuestoSave").click(function(){
 			//var compuesto = $("#txtCompuestoS").val();
 			var xhr = $.ajax({
-				url: "gen_productocompuestoguardar.php",
+				url: "Gen_ProductoCompuestoGuardar.php",
 				type: "get",
 				data: {"productocompuestoExperto" : $("#txtCompuestoS").val(), "usuario" : "jeam"},
 				dataType: "html",
@@ -117,7 +117,7 @@
 				$("#txtObs").val(), parseFloat($("#txtTomasDia").val()), parseInt($("#txtNroDia").val()), parseFloat($("#txtDosisXPeso").val()), parseFloat($("#txtCantSol").val()), $("#txtUnidadDosisXPeso").val());
 			console.log(JSON.stringify(arr));
 			var xhr = $.ajax({
-				url: "v_expertotratamientoguardar.php",
+				url: "V_ExpertoTratamientoGuardar.php",
 				type: "post",
 				data: {data : JSON.stringify(arr)},
 				dataType: "json",
@@ -168,6 +168,7 @@
 				data: {data : JSON.stringify(arr), data2 : JSON.stringify(arrTableTratamiento), data3 : JSON.stringify(arrTableSintoma)},
 				dataType: "html",
 				success: function(respuesta){
+					console.log(respuesta)
 					alert("Diagnostico guardado");
 					$("#modalDiagnostico").modal("hide");
 					ListarDiagnostico();
@@ -476,7 +477,7 @@ function verificarTablaDiagnostico(){
 	console.log(JSON.stringify(arr));
 
    var timer = $.ajax({
-    url: 'v_expertosintomabuscard.php',
+    url: 'V_ExpertoSintomaBuscarD.php',
     type: 'post',
     data: {data : JSON.stringify(arr)},
 		// cache: false,

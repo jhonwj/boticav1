@@ -44,7 +44,7 @@
 		$("#btnCompuestoSave").click(function(){
 			//var compuesto = $("#txtCompuestoS").val();
 			var xhr = $.ajax({
-				url: "gen_productocompuestoguardar.php",
+				url: "Gen_ProductoCompuestoGuardar.php",
 				type: "get",
 				data: {"productocompuestoExperto" : $("#txtCompuestoS").val(), "usuario" : "jeam"},
 				dataType: "html",
@@ -87,7 +87,7 @@
 				$("#txtObs").val(), parseFloat($("#txtTomasDia").val()), parseInt($("#txtNroDia").val()));
 			console.log(JSON.stringify(arr));
 			var xhr = $.ajax({
-				url: "v_expertotratamientoguardar.php",
+				url: "V_ExpertoTratamientoGuardar.php",
 				type: "post",
 				data: {data : JSON.stringify(arr)},
 				dataType: "html",
@@ -324,7 +324,7 @@ function verificarTablaDiagnostico(){
 	arr.push(parseInt($("#txtEdad").val()), criterioFinal);
 	$("#tableDiagnostico tbody").empty();
   var xhr = $.ajax({
-    url: 'v_expertosintomabuscard.php',
+    url: 'V_ExpertoSintomaBuscarD.php',
     type: 'post',
     data: {data : JSON.stringify(arr)},
     dataType: 'html',
