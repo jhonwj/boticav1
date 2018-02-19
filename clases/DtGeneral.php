@@ -490,8 +490,9 @@ function fn_actualizarRegistro($tabla, $campos, $where)
 	        $Ssql .= ",";
 	    }
 	}
-
-	$Ssql .= " WHERE $where[0] $where[1] $where[2]";
+	if ($where) {
+		$Ssql .= " WHERE $where[0] $where[1] $where[2]";
+	}
 
 	return getSQLResultSet($Ssql);
 }

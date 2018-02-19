@@ -581,4 +581,9 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function fn_devolverListaProductosPorBloque($bloque, $porcentaje) {
+		$Ssql = " call Sb_ListaDeProductosXBloque('$bloque', $porcentaje);";
+		return getSQLResultSet($Ssql);
+	}
+
  ?>
