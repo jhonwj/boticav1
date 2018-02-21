@@ -483,12 +483,15 @@ function fn_actualizarRegistro($tabla, $campos, $where)
 	}
 
 	$Ssql = " UPDATE $tabla SET";
+	$counter = 1;
 	foreach ($campos as $key => $value) {
 		$Ssql .= " " . $key . "=" . $value;
 
-		if ($value !== end($campos)) {
-	        $Ssql .= ",";
-	    }
+		if ($counter !== count($campos)) {
+      $Ssql .= ",";
+    }
+
+		$counter += 1;
 	}
 	if ($where) {
 		$Ssql .= " WHERE $where[0] $where[1] $where[2]";

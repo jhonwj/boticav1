@@ -38,8 +38,9 @@ include_once("../clases/helpers/Modal.php");
       var xhr = $.ajax({
         url: "../controllers/server_processingProductosPorBloque.php",
         type: "post",
+        dataType: 'json',
         data: {
-          nuevosProductos: window.nuevosProductos,
+          nuevosProductos:  JSON.stringify(window.nuevosProductos),
           mensaje: {
               'success': 'Se actualizaron los productos correctamente',
               'Error': 'No se han podido actualizar los productos'
@@ -47,7 +48,6 @@ include_once("../clases/helpers/Modal.php");
         },
         success: function(respuesta){
           if (respuesta.success) {
-              $("#tableCajaBanco").DataTable().ajax.reload();
               $.notify({
                   icon: 'fa fa-check',
                   message: respuesta.success
@@ -62,16 +62,19 @@ include_once("../clases/helpers/Modal.php");
                   type: 'danger'
               });
           }
+          $('#guardarNuevosProductos').attr('disabled', false)
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            alert("Status: " + textStatus); alert("Error: " + errorThrown);
-          }
+          $('#guardarNuevosProductos').attr('disabled', false)
+
+          alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        }
       });
-      //console.log(xhr);
+      console.log(xhr);
     }
 
     function ListarProductosGenerados() {
-      console.log("../controllers/server_processingProductosPorBloque.php?bloque=" + $('#ProductoBloque').val() + "&porcentaje=" + $('#PorcentajeNuevo').val());
+      $("#tableProducto").DataTable().destroy();
       $("#tableProducto").DataTable({
         "bProcessing": true,
         //"responsive" : true,
@@ -93,12 +96,26 @@ include_once("../clases/helpers/Modal.php");
         ],
         "drawCallback": function( settings ) {
             var api = this.api();
-            window.nuevosProductos = api.rows().data()
+            var data = api.rows().data();
+            var newData = [];
+
+            for (var i = 0; i < data.length; i++) {
+              newData[i] = data[i]
+            }
+
+            window.nuevosProductos = newData
         }
       });
     }
 
     $('#guardarNuevosProductos').click(function() {
+      $.notify({
+          icon: 'fa fa-exclamation',
+          message: 'Espere un momento por favor...'
+      }, {
+          type: 'info'
+      });
+      $('#guardarNuevosProductos').attr('disabled', true)
       guardarNuevosProductos()
     })
 

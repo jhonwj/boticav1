@@ -31,9 +31,9 @@ include_once '../clases/BnGeneral.php';
          break;
 
      case 'POST':
-         if ($_POST['update']) {
+         if (isset($_POST['update'])) {
              // Actualizar caja y banco
-             
+
              $mensaje = $_POST['mensaje'];
 
              $result = [];
@@ -47,7 +47,7 @@ include_once '../clases/BnGeneral.php';
              echo json_encode($result);
 
              break;
-         } elseif ($_POST['delete']) {
+         } elseif (isset($_POST['delete'])) {
              // Eliminar caja y Banco
 
              /*$id = $_POST['id'];
@@ -63,19 +63,31 @@ include_once '../clases/BnGeneral.php';
 
              break;
          } else {
-             // Insertar caja y banco
+            $mensaje = $_POST['mensaje'];
+            $nuevosProductos = json_decode($_POST['nuevosProductos'], true);
 
-             /*$concepto = $_POST['Concepto'];
+            $result = [];
+            foreach ($nuevosProductos as $key => $value) {
+              $idProducto = $value['IdProducto'];
+              $precioCosto = $value['PrecioCosto'];
+              $porcentajeUtilidad = $value['PorcentajeNuevo'];
+              $precioContado = $value['PrecioVentaNuevo'];
+              if ($idProducto) {
+                if(fn_actualizarRegistro('Gen_Producto', [
+                  'PrecioCosto' => "$precioCosto",
+                  'PorcentajeUtilidad' => $porcentajeUtilidad,
+                  'PrecioContado' => $precioContado
+                ], ['IdProducto', '=', $idProducto])) {
+                  $result['success'] = 'Se actualizaron los precios';
+                } else {
+                  $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo';
+                }
+              }
+            }
 
-             $cajaBanco = fn_guardarCajaBanco($_POST);
-             if ($cajaBanco) {
-                 $result['success'] = 'Registro ' . $concepto . ' Insertado correctamente';
-             } else {
-                 $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo más tarde';
-             }
-             echo json_encode($result);9*/
+            echo json_encode($result);
 
-             break;
+            break;
          }
 
      default:
