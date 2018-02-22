@@ -500,4 +500,24 @@ function fn_actualizarRegistro($tabla, $campos, $where)
 	return getSQLResultSet($Ssql);
 }
 
+
+/* PREORDEN */
+function fn_guardarPreOrden($idCliente, $productos) {
+	$Ssql="INSERT INTO Ve_PreOrden(IdCliente, FechaReg) VALUES($idCliente,	 now())";
+	$idPreOrden = getSQLResultSet($Ssql);
+
+	if ($idPreOrden) {
+		foreach ($productos as $key => $value) {
+		 	$idProducto = $value['IdProducto'];
+			$cantidad = $value['Cantidad'];
+
+			$Ssql="INSERT INTO Ve_PreOrdenDet(IdPreOrden, IdProducto, Cantidad) VALUES($idPreOrden, $idProducto, $cantidad)";
+
+			getSQLResultSet($Ssql);
+		}
+	}
+
+	return $idPreOrden;
+}
+
  ?>

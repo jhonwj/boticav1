@@ -152,19 +152,60 @@ $("#FechaVen").hide();
 //Guardar Venta
 
 $("#btnSave").click(function(event) {
+
+  if (!$('#txtCliente').val().length) {
+    alert('Seleccione un cliente')
+    return;
+  }
+
   if($("#tablePuntoVentaDet tbody tr").length>0){
-      $("#txtTotalPagar").val($("#txtTotalGen").val());
-      $("#ModalMetPago").modal({backdrop: false});
-  }else{
+      // $("#txtTotalPagar").val($("#txtTotalGen").val());
+      // $("#ModalMetPago").modal({backdrop: false});
+      var productos = [];
+
+      $('#tablePuntoVentaDet tbody tr').each(function() {
+        var idProducto = $(this).find('td').eq(0).text();
+        var cantidadProducto = $(this).find('td').eq(2).text();
+        productos.push({
+          'IdProducto': idProducto,
+          'Cantidad': cantidadProducto
+        })
+      })
+
+      var xhr = $.ajax({
+        url: '/controllers/server_processingPreOrden.php',
+        type: 'post',
+        data: {idCliente : $('#txtClienteID').val(), productos : JSON.stringify(productos)},
+        dataType: 'json',
+        success: function(respuesta){
+          if (respuesta.success) {
+              $.notify({
+                  icon: 'fa fa-check',
+                  message: respuesta.success
+              }, {
+                  type: 'success'
+              });
+          } else {
+              $.notify({
+                  icon: 'fa fa-exclamation',
+                  message: respuesta.error
+              }, {
+                  type: 'danger'
+              });
+          }
+
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        }
+      });
+      console.log(xhr);
+
+  }else {
     alert("Registra al menos un producto");
   }
 }); //click
 
-$("#ModalMetPago").on("hidden.bs.modal", function(){
-  $("#tableMetodoPago tbody").html("");
-  $("#txtTotalPagar").val("");
-  $("#txtCambio").val("");
-});
 
   $("#txtPrecio").keyup(function(){
     $("#txtTotal").val(parseFloat($("#txtCantidad").val()*$(this).val()).toFixed(2));
@@ -255,67 +296,6 @@ $("#mPMastercard").click(function(){
 
 });
 
-$("#btnGuardarMetPago").click(function(){
-
-  var cliente = $("#txtCliente").val();
-  var tipoDoc = $("#txtTipoVenta").val();
-  var almacen = $("#txtAlmacen").val();
-  var serie = $("#txtSerie").val();
-  var EsCredito = $("#txtCredito").is(":checked");
-  var FechaCredito = $("#txtFechaCredito").val();
-
-  var cabecera = [];
-
-  cabecera.push(cliente, tipoDoc, almacen, serie, EsCredito, FechaCredito);
-
-  var myJson2 = JSON.stringify(cabecera);
-
-  var tablaVenta = [];
-  var fila = 0;
-
-    $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
-    tablaVenta.push([$(this).find('td').eq(0).html(),$(this).find('td').eq(1).html(),$(this).find('td').eq(2).html(), $(this).find('td').eq(3).html(),
-    $(this).find('td').eq(4).html()]);
-
-    fila = parseInt(fila) + 1;
-  });
-
-  var myJson = JSON.stringify(tablaVenta);
-
-  var tablaMetodoPago = [];
-
-  $("#tableMetodoPago tbody tr").each(function(){
-    tablaMetodoPago.push([$(this).find('td').eq(0).html(), $(this).find('td').eq(1).html(), $(this).find('td').eq(2).html()]);
-  });
-
-  var myJson3 = JSON.stringify(tablaMetodoPago);
-
-  var xhr = $.ajax({
-    url: 'v_VentaGuardar.php',
-    type: 'post',
-    data: {data : myJson2, data2 : myJson, data3 : myJson3},
-    dataType: 'html',
-    success: function(respuesta){
-        if(respuesta){
-          //alert("Se envio Satisfactoriamente"+respuesta);
-          $("#tablePuntoVentaDet tbody").empty();
-          $("#txtSubTot").val("");
-          $("#txtTotalGen").val("");
-          $("#ModalMetPago").modal("hide");
-          //window.location.href = "/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
-          window.location.href = "/print.php?IdDocVenta="+respuesta;
-          //window.print();
-        }
-        else{
-          alert("¡Error en el envio!");
-        }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-        alert("Status: " + textStatus); alert("Error: " + errorThrown);
-    }
-      });
-  console.log(xhr);
-});
 
 $("#btnCliente").click(function(){
   $("#ModalCliente").modal({backdrop: false});
@@ -344,6 +324,7 @@ $("#btnCliente").click(function(){
         //var data = $(this).children("td").eq(1).html();
         //console.log($(this).children("td").eq(1).html());
         $("#txtCliente").val($(this).children("td").eq(1).html());
+        $("#txtClienteID").val($(this).children("td").eq(0).html());
         $("#ModalCliente").modal("hide");
 
     });
@@ -543,39 +524,6 @@ function fn_SumarProd(){
     $("#txtTotalGen").val(Total.toFixed(2));
 }
 
-function cargarPreOrden(row) {
-  $("#txtCliente").val(row.Cliente);
-  $("#tablePuntoVentaDet tbody tr").remove();
-
-
-  $("#tempId").val($(this).children("td").eq(0).text());
-  $("#tempProducto").val($(this).children("td").eq(1).text());
-  $("#tempLote").val($(this).children("td").eq(11).text());
-  $("#tempFechaVen").val($(this).children("td").eq(12).text());
-  $("#txtPrecio").val($(this).children("td").eq(2).text());
-
-  $.each(JSON.parse(row.Productos), function(index, value) {
-      var fila = "<tr><td class='idProd'>"+value.IdProducto+"</td><td class='nombreProducto'>"+value.Producto+"</td><td>"+value.Cantidad+ "</td><td>" +value.Precio+ "</td><td>"+parseFloat(value.Precio)*parseFloat(value.Cantidad)+"</td><td class='nombreProducto'>"+ ((value.Lote === null)?'':value.Lote) + "</td><td class='nombreProducto'>"+ ((value.FechaVen === null)?'':value.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
-      $("#tablePuntoVentaDet tbody").append(fila);
-
-  })
-  var Total = 0;
-  $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
-    //console.log($(this).find('td').eq(4).html());
-    var Tot = $(this).find('td').eq(4).html();
-    Total = parseFloat(Total) + parseFloat(Tot);
-    //console.log(Total;
-  });
-  //console.log(Total);
-  // console.log(Total.toFixed(2));
-  $("#txtSubTot").val(Total.toFixed(2));
-  $("#txtTotalGen").val(Total.toFixed(2));
-
-
-  $("#modalPreOrden").modal("hide");
-
-
-}
 
 </script>
 
@@ -586,12 +534,7 @@ function cargarPreOrden(row) {
 <div class="" style="margin-left:10px; margin-right:10px;">
   <div class="row">
     <div class="col-xs-6 col-md-3">
-      <div class="input-group" style="margin-bottom:20px;">
-        <input type="text" class="form-control" id="txtTipoVenta" placeholder="">
-        <span class="input-group-btn">
-          <button id="btnTipoVenta" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
-        </span>
-      </div>
+
     </div>
     <div class="col-xs-6 col-md-3">
       <div class="input-group" style="">
@@ -599,7 +542,7 @@ function cargarPreOrden(row) {
         <span class="input-group-btn">
           <button id="btnAlmacen" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
         </span>
-      </div>
+      </div><br />
     </div>
     <div class="col-xs-6 col-md-6">
       <div class="pull-right">
@@ -628,7 +571,8 @@ function cargarPreOrden(row) {
     <div class="row">
       <div class="col-xs-6">
         <div class="input-group" style="margin-bottom:20px;">
-  				<input type="text" id="txtCliente" class="form-control" value="-">
+          <input type="hidden" id="txtClienteID" class="form-control" value="">
+  				<input type="text" id="txtCliente" class="form-control" value="">
   				<span class="input-group-btn">
   					<button id="btnCliente" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
   				</span>
@@ -672,14 +616,6 @@ function cargarPreOrden(row) {
 
 
 <div class="row">
-  <div class="col-xs-12">
-    <div class="checkbox" id="EsCreditoDiv">
-      <label for=""><input type="checkbox" id="txtCredito" name="" value=""> Credito</label>
-      <div class="" id="FechaVen">
-          <input type="date" name="" id="txtFechaCredito" value="<?php echo date('Y-m-d'); ?>" >
-      </div>
-    </div>
-  </div>
 </div>
 
  <div class="row">
@@ -712,9 +648,7 @@ function cargarPreOrden(row) {
 </div>
 
 <div class="pull-right">
-  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>
-  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalProformaVenta"><i class="fa fa-file-pdf-o fa-lg"></i>Crear Proforma</button>
-  <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-money fa-lg"></i>   Efectuar pago</button>
+  <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-save fa-lg"></i>  Guardar PreOrden</button>
   <button id="btnClean" type="button" class="btn btn-warning" name="button"><i class="fa fa-eraser fa-lg"></i>Limpiar</button>
 </div>
 
@@ -961,72 +895,9 @@ function cargarPreOrden(row) {
   </div>
  </div>
 
-<!-- MetPago -->
- <div class="modal fade" id="ModalMetPago" role="dialog">
-   <div class="modal-dialog">
-     <div class="modal-content">
-       <div class="modal-header">
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-               <h4 class="modal-title">Elegir Metodo de pago</h4>
-       </div>
-       <div class="modal-body">
-         <div class="">
-           <div class="row">
-             <?php
-                $result = fn_devolverMetPago();
-                while ($row = mysqli_fetch_array($result)) {
-                  echo '<div class="col-md-4">';
-                  echo '<button id="mP'.$row["MetodoPago"].'" class="btn btn-info btn-lg">'.$row["MetodoPago"]."</button>";
-                  echo "</div>";
-                }
-              ?>
-           </div>
-           <hr>
-           <div class="input-group" style="margin-bottom:20px;">
-              <span class="input-group-addon">S/.</span>
-              <input id="txtTotalPagar" readonly type="text" class="form-control" value="0.00">
-            </div>
-           <hr>
-           <br>
-           <div class="panel panel-default" style="overflow-y:auto;">
-           <div class="panel-heading">Productos Seleccionados</div>
-          <!-- Table -->
-          <table id="tableMetodoPago" class="table table-striped table-bordered">
-           <thead>
-              <th>Metodo de pago</th>
-              <th>Descripcion</th>
-              <th>Soles S/.</th>
-           </thead>
-            <tbody>
 
-            </tbody>
-           </table>
-          </div>
-          <hr>
-            <div class="input-group" style="margin-bottom:20px;">
-              <span class="input-group-addon">Total S/.</span>
-              <input id="txtTotalPago" readonly type="text" class="form-control" value="0.00">
-            </div>
-            <div class="input-group" style="margin-bottom:20px;">
-              <span class="input-group-addon">Cambio S/.</span>
-              <input id="txtCambio" readonly type="text" class="form-control" value="0.00">
-            </div>
-         </div>
-       </div>
-       <div class="modal-footer">
-         <button type="button" id="btnGuardarMetPago" class="btn btn-success" name="button"><i class="fa fa-print"></i>  Imprimir pago</button>
-         <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i>  Cancelar</button>
-       </div>
-     </div>
-   </div>
-  </div>
   <!-- MODAL CREAR PROFORMA -->
   <?php
-  Modal::render('ModalPreOrden', [
-      'id' => 'modalPreOrden',
-      'controller' => 'server_processingPreOrden'
-  ]);
-
   Modal::render('ModalProforma', [
       'id' => 'modalProformaVenta',
       'controller' => 'server_processingCajaBanco',

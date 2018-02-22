@@ -34,17 +34,15 @@ include_once '../clases/BnGeneral.php';
          if (isset($_POST['update'])) {
              // Actualizar caja y banco
 
-             $mensaje = $_POST['mensaje'];
+            /* $mensaje = $_POST['mensaje'];
 
              $result = [];
-             var_dump($_POST);
-             exit();
              if (fn_actualizarRegistro($tabla, $campos, $where)) {
                  $result['success'] = $mensaje['success'];
              } else {
                  $result['error'] = $mensaje['error'];
              }
-             echo json_encode($result);
+             echo json_encode($result);*/
 
              break;
          } elseif (isset($_POST['delete'])) {

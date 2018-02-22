@@ -7,6 +7,7 @@ define("Marca", SITE_URL . "views/Gen_ProductoMarcaForm.php");
 define("Categoria", SITE_URL . "views/Gen_ProductoCategoriaForm.php");
 define("Compuesto", SITE_URL . "views/Gen_ProductoCompuestoForm.php");
 define("PuntoVenta", SITE_URL . "views/V_VentaForm.php");
+define("PreOrden", SITE_URL . "views/V_PreOrden.php");
 define("Experto", SITE_URL . "views/V_ExpertoForm.php");
 define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
@@ -53,6 +54,7 @@ define("Logout", SITE_URL . "controllers/logout.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
+          <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>

@@ -586,4 +586,9 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+/* Pre orden */
+	function  fn_listarPreOrden() {
+		$Ssql = " call SbVe_ListarPreOrden();";
+		return getSQLResultSet($Ssql);
+	}
  ?>
