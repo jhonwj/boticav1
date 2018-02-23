@@ -599,6 +599,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 			FROM Ve_PreOrdenDet AS POD INNER JOIN Gen_Producto AS PRO ON POD.IdProducto = PRO.IdProducto
 			WHERE POD.IdPreOrden = $idPreOrden";
 		return getSQLResultSet($Ssql);
-
 	}
+
+	function fn_listarReporteUtilidadBruta($fechaIni, $fechaFin){
+		$Ssql = " call SbVe_ReporteUtilidadBruta('$fechaIni', '$fechaFin');";
+		return getSQLResultSet($Ssql);
+	}
+
  ?>

@@ -13,6 +13,7 @@ define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
 define("Cierre", SITE_URL . "views/ve_cierreform.php");
 define("CambioPrecioBloque", SITE_URL . "views/ve_cambiopreciobloque.php");
+define("ReporteUtilidadBruta", SITE_URL . "views/ve_reporteUtilidadBruta.php");
 define("RegMovimiento", SITE_URL . "views/lo_regmovimiento.php");
 define("RegCompraContable", SITE_URL . "views/lo_regcompracontable.php");
 define("ReporteStock", SITE_URL . "views/Lo_ReporteStockForm.php");
@@ -54,11 +55,14 @@ define("Logout", SITE_URL . "controllers/logout.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
-          <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
+          <!--<li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
           <li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>
+          <li role="separator" class="divider"></li>
+          <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->
+
         </ul>
       </li>
       <li><a href="<?php echo Experto; ?>">Sistema Experto</a></li>
