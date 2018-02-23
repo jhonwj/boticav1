@@ -6,6 +6,17 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
+        if (isset($_GET['idPreOrden'])) {
+          $result = fn_listarProductosPreOrden($_GET['idPreOrden']);
+          $data = array();
+          while ($rows = mysqli_fetch_assoc($result)) {
+              $data[] = $rows;
+          }
+
+          echo json_encode($data);
+          break;
+        }
+
         $result = fn_listarPreOrden();
         $data = array();
         while ($rows = mysqli_fetch_assoc($result)) {

@@ -366,53 +366,59 @@ $("#formAddCliente").submit(function(e){
     dataType : "html",
     success : function(respuesta){
       if(respuesta == "a"){
-      $("#ModalClienteAñadir").modal("hide");
-      $("#tableCliente").DataTable().destroy();
-      $("#tableCliente tbody").empty();
-      var table4 = $("#tableCliente").DataTable({
-      "bProcessing": true,
-      "sAjaxSource": "../controllers/server_processingCliente.php",
-      "bPaginate":true,
-      "sPaginationType":"full_numbers",
-      "iDisplayLength": 5,
-      "aoColumns": [
-      { mData: 'IdCliente' } ,
-      { mData: 'Cliente' },
-      { mData: 'DniRuc' },
-      { mRender : function(data, type, row){
-        return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
-      }},
-      { mData: 'Direccion', "sClass": "idProd" },
-      { mData: 'Telefono', "sClass": "idProd"},
-      { mData: 'Email', "sClass": "idProd" },
-      ]
-    });
-    //$("#ModalCliente").modal("show");
-  }else if (respuesta == "m") {
-    $("#txtCliente").val("");
-    $("#ModalClienteAñadir").modal("hide");
-    $("#tableCliente").DataTable().destroy();
-    $("#tableCliente tbody").empty();
-    var table4 = $("#tableCliente").DataTable({
-    "bProcessing": true,
-    "sAjaxSource": "../controllers/server_processingCliente.php",
-    "bPaginate":true,
-    "sPaginationType":"full_numbers",
-    "iDisplayLength": 5,
-    "aoColumns": [
-    { mData: 'IdCliente' } ,
-    { mData: 'Cliente' },
-    { mData: 'DniRuc' },
-    { mRender : function(data, type, row){
-      return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
-    }},
-    { mData: 'Direccion', "sClass": "idProd" },
-    { mData: 'Telefono', "sClass": "idProd"},
-    { mData: 'Email', "sClass": "idProd" },
-    ]
-  });
-  $("#ModalCliente").modal("show");
-  }
+          $("#ModalClienteAñadir").modal("hide");
+          $("#tableCliente").DataTable().destroy();
+          $("#tableCliente tbody").empty();
+          var table4 = $("#tableCliente").DataTable({
+          "bProcessing": true,
+          "sAjaxSource": "../controllers/server_processingCliente.php",
+          "bPaginate":true,
+          "sPaginationType":"full_numbers",
+          "iDisplayLength": 5,
+          "aoColumns": [
+          { mData: 'IdCliente' } ,
+          { mData: 'Cliente' },
+          { mData: 'DniRuc' },
+          { mRender : function(data, type, row){
+            return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+          }},
+          { mData: 'Direccion', "sClass": "idProd" },
+          { mData: 'Telefono', "sClass": "idProd"},
+          { mData: 'Email', "sClass": "idProd" },
+          ]
+        });
+        //$("#ModalCliente").modal("show");
+      }else if (respuesta == "m") {
+          $("#txtCliente").val("");
+          $("#ModalClienteAñadir").modal("hide");
+          $("#tableCliente").DataTable().destroy();
+          $("#tableCliente tbody").empty();
+          var table4 = $("#tableCliente").DataTable({
+            "bProcessing": true,
+            "sAjaxSource": "../controllers/server_processingCliente.php",
+            "bPaginate":true,
+            "sPaginationType":"full_numbers",
+            "iDisplayLength": 5,
+            "aoColumns": [
+            { mData: 'IdCliente' } ,
+            { mData: 'Cliente' },
+            { mData: 'DniRuc' },
+            { mRender : function(data, type, row){
+              return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+            }},
+            { mData: 'Direccion', "sClass": "idProd" },
+            { mData: 'Telefono', "sClass": "idProd"},
+            { mData: 'Email', "sClass": "idProd" },
+            ]
+          });
+        $("#ModalCliente").modal("show");
+      }
+
+      $('#txtDniAddId').val('')
+      $('#txtClienteAddId').val('')
+      $('#txtDireccionAddId').val('')
+      $('#txtTelefonoAddId').val('')
+      $('#txtEmailAddId').val()
     },
   });
 
@@ -544,35 +550,40 @@ function fn_SumarProd(){
 }
 
 function cargarPreOrden(row) {
+
+  var xhr = $.ajax({
+    url: '../controllers/server_processingPreOrden.php?idPreOrden=' + row.IdPreOrden,
+    dataType: 'json',
+    success: function(respuesta){
+       row.Productos = respuesta
+
+       $.each(row.Productos, function(index, value) {
+           var fila = "<tr><td class='idProd'>"+value.IdProducto+"</td><td class='nombreProducto'>"+value.Producto+"</td><td>"+value.Cantidad+ "</td><td>" +value.Precio+ "</td><td>"+parseFloat(value.Precio)*parseFloat(value.Cantidad)+"</td><td class='nombreProducto'>"+ ((value.Lote === null)?'':value.Lote) + "</td><td class='nombreProducto'>"+ ((value.FechaVen === null)?'':value.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
+           $("#tablePuntoVentaDet tbody").append(fila);
+
+       })
+       var Total = 0;
+       $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
+         //console.log($(this).find('td').eq(4).html());
+         var Tot = $(this).find('td').eq(4).html();
+         Total = parseFloat(Total) + parseFloat(Tot);
+         //console.log(Total;
+       });
+       $("#txtSubTot").val(Total.toFixed(2));
+       $("#txtTotalGen").val(Total.toFixed(2));
+
+       $("#modalPreOrden").modal("hide");
+
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+    }
+  });
+
   $("#txtCliente").val(row.Cliente);
   $("#tablePuntoVentaDet tbody tr").remove();
 
 
-  $("#tempId").val($(this).children("td").eq(0).text());
-  $("#tempProducto").val($(this).children("td").eq(1).text());
-  $("#tempLote").val($(this).children("td").eq(11).text());
-  $("#tempFechaVen").val($(this).children("td").eq(12).text());
-  $("#txtPrecio").val($(this).children("td").eq(2).text());
-
-  $.each(JSON.parse(row.Productos), function(index, value) {
-      var fila = "<tr><td class='idProd'>"+value.IdProducto+"</td><td class='nombreProducto'>"+value.Producto+"</td><td>"+value.Cantidad+ "</td><td>" +value.Precio+ "</td><td>"+parseFloat(value.Precio)*parseFloat(value.Cantidad)+"</td><td class='nombreProducto'>"+ ((value.Lote === null)?'':value.Lote) + "</td><td class='nombreProducto'>"+ ((value.FechaVen === null)?'':value.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
-      $("#tablePuntoVentaDet tbody").append(fila);
-
-  })
-  var Total = 0;
-  $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
-    //console.log($(this).find('td').eq(4).html());
-    var Tot = $(this).find('td').eq(4).html();
-    Total = parseFloat(Total) + parseFloat(Tot);
-    //console.log(Total;
-  });
-  //console.log(Total);
-  // console.log(Total.toFixed(2));
-  $("#txtSubTot").val(Total.toFixed(2));
-  $("#txtTotalGen").val(Total.toFixed(2));
-
-
-  $("#modalPreOrden").modal("hide");
 
 
 }

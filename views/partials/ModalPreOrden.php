@@ -75,7 +75,7 @@
 
 						var table = '<table class="table">';
 						table += '<thead><tr><th></th><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Total</th></tr></thead>'
-						var productos = JSON.parse(d.Productos)
+						var productos = d.Productos
 						productos.forEach(function (el, index, array) {
 							table += '<tr>' +
 								'<td></td>' +
@@ -93,17 +93,31 @@
 			    $(idModal + ' tbody').on('click', 'td.details-control button', function () {
 			        var tr = $(this).closest('tr');
 			        var row = tablePreOrden.row( tr );
+							var data = row.data();
 
-			        if ( row.child.isShown() ) {
-			            // This row is already open - close it
-			            row.child.hide();
-			            tr.removeClass('shown');
-			        }
-			        else {
-			            // Open this row
-			            row.child( format(row.data()) ).show();
-			            tr.addClass('shown');
-			        }
+							var xhr = $.ajax({
+						    url: '../controllers/server_processingPreOrden.php?idPreOrden=' + data.IdPreOrden,
+						    dataType: 'json',
+						    success: function(respuesta){
+									 data.Productos = respuesta
+									 if ( row.child.isShown() ) {
+											 // This row is already open - close it
+											 row.child.hide();
+											 tr.removeClass('shown');
+									 }
+									 else {
+											 // Open this row
+											 row.child( format(data) ).show();
+											 tr.addClass('shown');
+									 }
+
+						    },
+						    error: function(XMLHttpRequest, textStatus, errorThrown) {
+						        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+						    }
+						  });
+
+
 			    });
 
         })
