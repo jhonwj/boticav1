@@ -296,7 +296,16 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 
 		    }
 
-		    function fn_guardarCliente($cliente, $dni, $direccion, $telefono, $email, $usuario){
+		    function fn_guardarCliente($dni, $cliente, $direccion, $telefono, $email, $usuario){
+
+					$Ssql = "SELECT IdCliente FROM Ve_DocVentaCliente WHERE DniRuc='$dni' OR Cliente='$cliente'";
+					$res = getSQLResultSet($Ssql);
+					$res = $res->fetch_row();
+
+					if ($res) {
+						$idCliente = $res[0];
+						return fn_modificarCliente($idCliente, $cliente, $dni, $direccion, $telefono, $email, $usuario);
+					}
 
 				$Ssql="INSERT INTO Ve_DocVentaCliente(Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.Telefono, Ve_DocVentaCliente.Email, Ve_DocVentaCliente.Anulado, Ve_DocVentaCliente.FechaReg,Ve_DocVentaCliente.UsuarioReg)
 						VALUES(
@@ -309,9 +318,9 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 							 now(),
 							'$usuario'
 							)";
-				$res=ejecutarSQLCommand($Ssql);
-				if(!$res){
-					return $res;
+				$res=getSQLResultSet($Ssql);
+				if($res){
+					return 'a';
 				}else{
 					return false;
 				}
@@ -334,9 +343,9 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 					";
 					//echo $Ssql;
 					//exit();
-					$res=ejecutarSQLCommand($Ssql);
-				if(!$res){
-					return $res;
+					$res=getSQLResultSet($Ssql);
+				if($res){
+					return 'm';
 				}else{
 					return false;
 
