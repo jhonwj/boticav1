@@ -194,7 +194,7 @@ calcularFlete();
 				var Movimiento = [];
 	      Movimiento.push([$("#txtTipoMovimiento").val(), $("#txtProveedor").val(), $("#txtSerie").val(), $("#txtNumero").val(), $("#txtFecha").val(), $("#txtAlmacenOrigenTemp").val(), $("#txtAlmacenDestinoTemp").val(), $("#txtObservacion").val(),
 													$("#txtFechaStock").val(), $("#txtPercepcion").val(), $("#txtCredito").is(":checked"), $("#txtFechaCredito").val(), $("#txtPeriodoT").val(), parseFloat($('#txtTipoCambio').val()).toFixed(2), $('#txtMoneda').val()]);
-concole.log(Movimiento)
+
 	      console.log(JSON.stringify(Movimiento));
 	      var arrTableProductos = [];
 	      $("#tableProductoI tbody").each(function(){
@@ -656,14 +656,14 @@ function calcularFlete() {
 			<div class="col-md-4 form-group">
 				<label>Moneda</label>
 				<div class="form-inline">
-					<input type="text" id="txtMoneda" class="form-control">
+					<input type="text" id="txtMoneda" class="form-control" value="PEN">
 					<button type="button" id="btnMoneda" class="btn btn-success"  data-toggle="modal" data-target="#modalMoneda"><i class="fa fa-search-plus"></i></button>
 				</div>
 			</div>
 			<div class="col-md-4 form-group">
 				<label>Tipo de Cambio</label>
 				<div class="form-inline">
-					<input type="text" id="txtTipoCambio" class="form-control">
+					<input type="text" id="txtTipoCambio" class="form-control" value="1">
 					</div>
 			</div>
 		</div>
