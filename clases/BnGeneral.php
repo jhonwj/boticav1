@@ -339,7 +339,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
     }*/
 
     function fn_devolverTipoDocVenta($criterio, $orden){
-    	$Ssql="SELECT IdTipoDoc, TipoDoc, VaRegVenta, CodSunat FROM Ve_DocVentaTipoDoc";
+    	$Ssql="SELECT IdTipoDoc, TipoDoc, VaRegVenta, CodSunat, TieneIgv FROM Ve_DocVentaTipoDoc";
 		//echo $Ssql;
 		if (!empty($criterio)) {
 			$Ssql= $Ssql." WHERE ".$criterio;
@@ -606,4 +606,9 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+
+	function fn_devolverPuntoVentaSerie($idPuntoVenta, $idTipoDoc) {
+		$Ssql = " SELECT * FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
+		return getSQLResultSet($Ssql);
+	}
  ?>

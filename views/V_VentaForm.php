@@ -28,7 +28,12 @@ include_once("../clases/helpers/Modal.php");
     .data()
     .each( function ( value, index ) {
         if(value == "TICKET"){
+          var id = table2.column(0).data()[index];
+          var igv = table2.column(2).data()[index];
+          $('#txtTipoVenta').attr('data-id', id)
+          $('#txtTipoVenta').attr('data-igv', igv)
         	$("#txtTipoVenta").val(value);
+          obtenerSerie(1, id)
         }
     } );
 
@@ -60,7 +65,22 @@ $("#FechaVen").hide();
     $('#tableTipoDocVenta tbody').on('click', 'tr', function () {
         var data = table2.row( this ).data();
         $("#txtTipoVenta").val(data[1]);
+        $('#txtTipoVenta').attr('data-igv', data[2])
         $("#ModalBuscarTipoVenta").modal("hide");
+
+        // data[2] = IGV
+        var total = parseFloat($('#txtTotalGen').val()).toFixed(2)
+        if (data[2] == 1) {
+          var subtotal = (total / 1.18).toFixed(2)
+          $('#txtSubTot').val(subtotal)
+          $('#txtIGV').val((total - subtotal).toFixed(2))
+        } else {
+          $('#txtSubTot').val(total)
+          $('#txtIGV').val('0.00')
+        }
+
+        // cargar serie correcta
+        obtenerSerie(1, data[0])
 
     });
         $('#tableAlmacen tbody').on('click', 'tr', function () {
@@ -139,8 +159,17 @@ $("#FechaVen").hide();
         });
         //console.log(Total);
        // console.log(Total.toFixed(2));
+       if ($('#txtTipoVenta').attr('data-igv') == 1) {
+        var subtotal = (Total.toFixed(2)/1.18).toFixed(2);
+
+        $("#txtSubTot").val(subtotal);
+        $('#txtIGV').val((Total.toFixed(2) - subtotal).toFixed(2))
+       } else {
         $("#txtSubTot").val(Total.toFixed(2));
-        $("#txtTotalGen").val(Total.toFixed(2));
+       }
+      
+       $("#txtTotalGen").val(Total.toFixed(2));
+        
 
 
     $("#ModalBuscarProductoDet").modal("hide");
@@ -428,6 +457,19 @@ $("#formAddCliente").submit(function(e){
 
 } );
 
+function obtenerSerie(idPuntoVenta, idTipoDoc) {
+  $.ajax({
+    url: '../controllers/server_processingPuntoVentaDet.php?idPuntoVenta=' + idPuntoVenta + '&idTipoDoc=' + idTipoDoc,
+    dataType: 'json',
+    success: function(respuesta){
+       $('#txtSerie').val(respuesta['Serie'])
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+    }
+  });
+}
+
 function EliminarMetPago(id) {
   $("#tableMetodoPago tbody").find("."+id).remove();
   check();
@@ -598,7 +640,7 @@ function cargarPreOrden(row) {
   <div class="row">
     <div class="col-xs-6 col-md-3">
       <div class="input-group" style="margin-bottom:20px;">
-        <input type="text" class="form-control" id="txtTipoVenta" placeholder="">
+        <input type="text" class="form-control" id="txtTipoVenta" placeholder="" >
         <span class="input-group-btn">
           <button id="btnTipoVenta" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
         </span>
@@ -624,11 +666,12 @@ function cargarPreOrden(row) {
 
       <div class="pull-right">
         <?php
-            $result = fn_devolverPuntodeVenta("", "");
+            /*$result = fn_devolverPuntodeVenta("", "");
             while ($row = mysqli_fetch_array($result)) {
             echo '<input type="text" id="txtSerie" class="form-control puntoVentaActual" readonly placeholder="fecha" value="'.$row[2].'">';
-            }
+            }*/
           ?>
+          <input type="text" id="txtSerie" class="form-control puntoVentaActual" readonly value="">
       </div>
     </div>
   </div>
@@ -723,7 +766,7 @@ function cargarPreOrden(row) {
 </div>
 
 <div class="pull-right">
-  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>
+  <!--<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>-->
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalProformaVenta"><i class="fa fa-file-pdf-o fa-lg"></i>Crear Proforma</button>
   <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-money fa-lg"></i>   Efectuar pago</button>
   <button id="btnClean" type="button" class="btn btn-warning" name="button"><i class="fa fa-eraser fa-lg"></i>Limpiar</button>
@@ -810,14 +853,15 @@ function cargarPreOrden(row) {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title">Añadi Producto</h4>
+              <h4 class="modal-title">Tipo Venta</h4>
       </div>
       <div class="modal-body">
         <div class="sTableTipoDocVenta">
           <table id="tableTipoDocVenta" class="table table-striped table-bordered">
             <thead>
-             <th class="idProd">ID</th>
+             <th class="idProd" style="display: table-cell;">ID</th>
              <th>Producto</th>
+             <th>Tiene IGV</th>
             </thead>
               <tbody>
                 <?php
@@ -826,7 +870,8 @@ function cargarPreOrden(row) {
                     	if ($row["TipoDoc"]) {
                     		echo '<tr>';
                      		echo '<td class="idTipoDoc">'.$row["IdTipoDoc"]."</td>";
-                     		echo "<td>".$row["TipoDoc"]."</td>";
+                        echo "<td>".$row["TipoDoc"]."</td>";
+                     		echo "<td>".$row["TieneIgv"]."</td>";
                      		echo "</tr>";
                     	}
                      }
