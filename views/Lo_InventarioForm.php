@@ -1,4 +1,6 @@
-<?php  ?>
+<?php
+include_once("../clases/helpers/Modal.php");
+?>
 
 <html>
 <head>
@@ -191,7 +193,8 @@ calcularFlete();
 			if (dateNull==0) {
 				var Movimiento = [];
 	      Movimiento.push([$("#txtTipoMovimiento").val(), $("#txtProveedor").val(), $("#txtSerie").val(), $("#txtNumero").val(), $("#txtFecha").val(), $("#txtAlmacenOrigenTemp").val(), $("#txtAlmacenDestinoTemp").val(), $("#txtObservacion").val(),
-													$("#txtFechaStock").val(), $("#txtPercepcion").val(), $("#txtCredito").is(":checked"), $("#txtFechaCredito").val(), $("#txtPeriodoT").val()]);
+													$("#txtFechaStock").val(), $("#txtPercepcion").val(), $("#txtCredito").is(":checked"), $("#txtFechaCredito").val(), $("#txtPeriodoT").val(), parseFloat($('#txtTipoCambio').val()).toFixed(2), $('#txtMoneda').val()]);
+concole.log(Movimiento)
 	      console.log(JSON.stringify(Movimiento));
 	      var arrTableProductos = [];
 	      $("#tableProductoI tbody").each(function(){
@@ -643,12 +646,25 @@ function calcularFlete() {
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-5 form-group">
+			<div class="col-md-4 form-group">
 				<label class=""> Proveedor </label>
 				<div class="form-inline">
 				<input type="text" id="txtProveedor" readonly class="form-control">
 				<button type="button" id="btnProveedor" class="btn btn-success" ><i class="fa fa-search-plus"></i></button>
 				</div>
+			</div>
+			<div class="col-md-4 form-group">
+				<label>Moneda</label>
+				<div class="form-inline">
+					<input type="text" id="txtMoneda" class="form-control">
+					<button type="button" id="btnMoneda" class="btn btn-success"  data-toggle="modal" data-target="#modalMoneda"><i class="fa fa-search-plus"></i></button>
+				</div>
+			</div>
+			<div class="col-md-4 form-group">
+				<label>Tipo de Cambio</label>
+				<div class="form-inline">
+					<input type="text" id="txtTipoCambio" class="form-control">
+					</div>
 			</div>
 		</div>
 		<div class="row">
@@ -959,5 +975,12 @@ function calcularFlete() {
     </div>
   </div>
 </div>
+
+
+<?php
+Modal::render('ModalMoneda', [
+		'id' => 'modalMoneda'
+]);
+?>
 
 </html>

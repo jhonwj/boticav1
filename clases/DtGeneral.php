@@ -445,12 +445,11 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    	ejecutarSQLCommand($Ssql);
 		    }
 
-		    function fn_guardarMovimiento($tipoMovimiento, $proveedor, $serie, $numero, $fecha, $almacenOrigen, $almacenDestino, $obs, $fechaStock, $percepcion, $EsCredito, $fechaCredito, $periodoTributario){
-
+		    function fn_guardarMovimiento($tipoMovimiento, $proveedor, $serie, $numero, $fecha, $almacenOrigen, $almacenDestino, $obs, $fechaStock, $percepcion, $EsCredito, $fechaCredito, $periodoTributario, $tipoCambio, $moneda){
 					if (!$fechaCredito) {
-						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, NULL , $periodoTributario)";
+						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, NULL , $periodoTributario, $tipoCambio, '$moneda')";
 					}else {
-						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, '$fechaCredito' , $periodoTributario)";
+						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, '$fechaCredito' , $periodoTributario, $tipoCambio, '$moneda')";
 					}
 					//echo $Ssql;
 					// exit();

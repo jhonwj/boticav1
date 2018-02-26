@@ -21,7 +21,7 @@ $row = mysqli_fetch_array($VerificarMovimiento);
 if ($row[0]>=1) {
 	echo "E";
 }else{
-	$result = fn_guardarMovimiento($movimiento[0][0], $movimiento[0][1], $movimiento[0][2], $movimiento[0][3], $movimiento[0][4], $movimiento[0][5], $movimiento[0][6], $movimiento[0][7], $movimiento[0][8], $movimiento[0][9], $EsCredito, $fecha,  $movimiento[0][12]);
+	$result = fn_guardarMovimiento($movimiento[0][0], $movimiento[0][1], $movimiento[0][2], $movimiento[0][3], $movimiento[0][4], $movimiento[0][5], $movimiento[0][6], $movimiento[0][7], $movimiento[0][8], $movimiento[0][9], $EsCredito, $fecha,  $movimiento[0][12], floatval($movimiento[0][13]), $movimiento[0][14]);
 	foreach ($producto as $key) {
 		$tieneIgv = 0;
 		if ($key[4]) {

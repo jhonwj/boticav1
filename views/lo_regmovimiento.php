@@ -20,12 +20,15 @@ $(document).ready(function(e){
         var respuesta = JSON.parse(res);
         var tableBody = "";
         $.each(respuesta, function(data, value){
+          console.log(data)
+          console.log(value)
           tableBody = tableBody + "<tr data-periodo='"+value.FechaPeriodoTributario+"'><td>"+value.IdMovimiento+"</td><td>"+value.MovimientoFecha+"</td><td>"+value.IdMovimientoTipo+"</td><td>"+value.TipoMovimiento+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.Proveedor+
           "</td><td>"+value.SUBTOTAL+
           "</td><td>"+value.ISC+
           "</td><td>"+value.IGV+
           "</td><td>"+value.FLETE+
           "</td><td>"+value.Percepcion+
+          "</td><td>"+(value.Moneda || '')+
           "</td><td>"+parseFloat(value.TOTAL).toFixed(2)+
           "</td><td><a class='btn' onclick='EliminarRegMov("+ value.IdMovimiento +");'><i class='fa fa-trash'></i></a></td></tr>" ;
         });
@@ -33,17 +36,30 @@ $(document).ready(function(e){
         var subtotal = 0;
         var igv = 0;
         var total = 0;
+        var subtotalUSD = 0;
+        var igvUSD = 0;
+        var totalUSD = 0;
+
         $("#tableRegMov tbody").each(function(){
           $("#tableRegMov tbody tr").each(function(){
-            subtotal +=  parseFloat($(this).children("td").eq(7).text());
-            igv +=  parseFloat($(this).children("td").eq(9).text());
-            total +=  parseFloat($(this).children("td").eq(12).text());
+            if ($(this).children("td").eq(12).text() == 'USD') {
+              subtotalUSD +=  parseFloat($(this).children("td").eq(7).text());
+              igvUSD +=  parseFloat($(this).children("td").eq(9).text());
+              totalUSD +=  parseFloat($(this).children("td").eq(13).text());
+            } else {
+              subtotal +=  parseFloat($(this).children("td").eq(7).text());
+              igv +=  parseFloat($(this).children("td").eq(9).text());
+              total +=  parseFloat($(this).children("td").eq(13).text());
+            }
           });
         });
-        console.log(total);
         $("#txtSubTotal").val(subtotal);
         $("#txtIGV").val(igv);
         $("#txtTotal").val(total.toFixed(2));
+
+        $("#txtSubTotalUSD").val(subtotalUSD);
+        $("#txtIGVUSD").val(igvUSD);
+        $("#txtTotalUSD").val(totalUSD.toFixed(2));
       },
       error: function(err){
         alert(err);
@@ -198,6 +214,7 @@ function SumarTotalIgvSub(){
         <th>IGV</th>
         <th>FLETE</th>
         <th>PERCEPCION</th>
+        <th>MONEDA</th>
         <th>Total</th>
       </thead>
       <tbody></tbody>
@@ -207,20 +224,32 @@ function SumarTotalIgvSub(){
 <div class="">
   <div class="row">
     <div class="col-md-2 pull-right">
-      <label class="">SubTotal.</label>
+      <label class="">SubTotal (PEN)</label>
       <input type="text" value="0" class="form-control" id="txtSubTotal">
     </div>
-  </div>
-  <div class="row">
     <div class="col-md-2 pull-right">
-      <label class="">IGV.</label>
-      <input type="text" value="0" class="form-control" id="txtIGV">
+      <label class="">SubTotal (USD)</label>
+      <input type="text" value="0" class="form-control" id="txtSubTotalUSD">
     </div>
   </div>
   <div class="row">
     <div class="col-md-2 pull-right">
-      <label class="">Total.</label>
+      <label class="">IGV (PEN)</label>
+      <input type="text" value="0" class="form-control" id="txtIGV">
+    </div>
+    <div class="col-md-2 pull-right">
+      <label class="">IGV (USD)</label>
+      <input type="text" value="0" class="form-control" id="txtIGVUSD">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-2 pull-right">
+      <label class="">Total (PEN)</label>
       <input type="text" value="0" class="form-control" id="txtTotal">
+    </div>
+    <div class="col-md-2 pull-right">
+      <label class="">Total (USD)</label>
+      <input type="text" value="0" class="form-control" id="txtTotalUSD">
     </div>
   </div>
 </div>

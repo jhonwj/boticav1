@@ -611,4 +611,9 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$Ssql = " SELECT * FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
 		return getSQLResultSet($Ssql);
 	}
+
+	function fn_devolverMonedas() {
+		$Ssql = " SELECT * FROM Gen_Moneda";
+		return getSQLResultSet($Ssql);
+	}
  ?>
