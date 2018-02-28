@@ -167,9 +167,9 @@ $("#FechaVen").hide();
        } else {
         $("#txtSubTot").val(Total.toFixed(2));
        }
-      
+
        $("#txtTotalGen").val(Total.toFixed(2));
-        
+
 
 
     $("#ModalBuscarProductoDet").modal("hide");
@@ -332,7 +332,7 @@ $("#btnGuardarMetPago").click(function(){
           $("#txtTotalGen").val("");
           $("#ModalMetPago").modal("hide");
           //window.location.href = "/views/ve_buscarimpresora.php?IdDocVenta="+respuesta;
-          window.location.href = "/print.php?IdDocVenta="+respuesta;
+          window.location.href = "/imprimir/index.php?IdDocVenta="+respuesta;
           //window.print();
         }
         else{

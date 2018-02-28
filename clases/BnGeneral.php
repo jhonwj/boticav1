@@ -89,7 +89,9 @@ Ve_DocVenta.UsuarioReg,
 Ve_DocVenta.FechaMod,
 Ve_DocVenta.UsuarioMod,
 Ve_DocVentaPuntoVenta.SerieImpresora,
-Ve_DocVentaPuntoVenta.RutaImpresora
+Ve_DocVentaPuntoVenta.RutaImpresora,
+Ve_DocVentaTipoDoc.CodSunat,
+Ve_DocVentaTipoDoc.TieneIgv
 FROM
 Ve_DocVenta
 INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta

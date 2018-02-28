@@ -8,7 +8,7 @@ $IdDocVenta=$_GET['IdDocVenta'];
          function WriteToFile()
          {
              var txt = new ActiveXObject("Scripting.FileSystemObject");
-             var s = txt.CreateTextFile("\\\\JMEDRANO\\ticket", true);
+             var s = txt.CreateTextFile("\\\\192.168.0.20\\epson300", true);
              s.WriteLine(FnCentrar('BOTICA'));
              s.WriteLine(FnCentrar('BOTICA DELMAN S.A.C'));
              s.WriteLine(FnCentrar('RUC: 20393999544'));
