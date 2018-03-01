@@ -18,8 +18,8 @@ $meses = array(
   '12' =>'Diciembre'
 );
 $lastAnio = substr(date("Y", $emision), -1);
-$cliente = strtoupper($docVenta['Cliente']);
-$direccion = strtoupper($docVenta['Direccion']);
+$cliente = mb_strimwidth(strtoupper($docVenta['Cliente']), 0, 40, '...');
+$direccion = mb_strimwidth(strtoupper($docVenta['Direccion']), 0, 40,'...');
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = 6;
@@ -38,7 +38,7 @@ $igv = 0;
   .container {
     margin-top: 7.2em;
     width: 900px;
-    margin-left: 20px;
+    margin-left: 14px;
     /*border: 1px solid red;*/
   }
   td {
@@ -144,7 +144,7 @@ $igv = 0;
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
             <td class="detalle">
-              <span><?php echo $producto['Producto'] ?></span>
+              <span><?php echo mb_strimwidth($producto['Producto'], 0, 38, '...') ?></span>
             </td>
             <td class="precio">
               <span><?php echo $producto['Precio'] ?></span>
