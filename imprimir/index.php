@@ -19,16 +19,24 @@ if (isset($_GET['IdDocVenta'])) {
   } elseif ($docVenta['CodSunat'] == 01) {
     include_once('factura.php');
   }
+?>
 
-}
-
-
- ?>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     //window.print()
 
+    <?php
+      if (isset($_GET['redirect'])) {
+        echo 'window.print();';
+        echo 'window.location.href="' . $_GET['redirect'] . '";';
+      } else {
+        echo 'window.print();';
+        echo 'window.location.href="/views/V_VentaForm.php";';
+      }
+    ?>
     //window.location.href="/views/V_VentaForm.php";
 
   })
 </script>
+
+<?php } ?>

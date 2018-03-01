@@ -13,6 +13,7 @@ define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
 define("Cierre", SITE_URL . "views/ve_cierreform.php");
 define("CambioPrecioBloque", SITE_URL . "views/ve_cambiopreciobloque.php");
+define("Reimpresion", SITE_URL . "views/ve_reimpresionDocumentos.php");
 define("ReporteUtilidadBruta", SITE_URL . "views/ve_reporteUtilidadBruta.php");
 define("RegMovimiento", SITE_URL . "views/lo_regmovimiento.php");
 define("RegCompraContable", SITE_URL . "views/lo_regcompracontable.php");
@@ -61,6 +62,7 @@ define("Logout", SITE_URL . "controllers/logout.php");
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
           <li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>
           <li role="separator" class="divider"></li>
+          <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
           <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->
 
         </ul>
