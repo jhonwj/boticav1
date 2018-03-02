@@ -37,7 +37,7 @@ $(document).ready(function(e){
 		$("#tableProducto tbody tr").remove();
 	var iddoceventa = $(this).children("td").eq(0).html();
    var xhr = $.ajax({
-    url: '../controllers/serverProcessingProductosRegVenta.php',
+    url: '../controllers/serverprocessingProductosRegVenta.php',
     type: 'get',
     data:  {"idDocVenta" : iddoceventa},
     dataType: 'html',
