@@ -1,6 +1,7 @@
 <?php
 session_start();
-if (!isset($_SESSION['user'])) {
+
+if (!isset($_SESSION['user']) && !isset($_POST['nameUser'])) {
   ?>
   <script>
     window.location.href = "/"

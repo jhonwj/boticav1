@@ -584,6 +584,14 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function obtenerPermisos($idUsuarioPerfil) {
+		$Ssql = "SELECT Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioPerfil, Seg_UsuarioModulo.UsuarioModulo, Seg_UsuarioModulo_has_UsuarioPerfil.Lectura, Seg_UsuarioModulo_has_UsuarioPerfil.Escritura
+			FROM Seg_UsuarioModulo_has_UsuarioPerfil
+			INNER JOIN Seg_UsuarioModulo ON Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioModulo = Seg_UsuarioModulo.IdUsuarioModulo
+			WHERE Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioPerfil = 1";
+		return getSQLResultSet($Ssql);
+	}
+
 	function fn_devolverListaProductosPorBloque($bloque, $porcentaje) {
 		$Ssql = " call Sb_ListaDeProductosXBloque('$bloque', $porcentaje);";
 		return getSQLResultSet($Ssql);

@@ -286,9 +286,11 @@ function consultarDNIRUC(numero, type, callback) {
     error: function(XMLHttpRequest, textStatus, errorThrown) {
         alert("Status: " + textStatus);
         alert("Error: " + errorThrown);
-          console.log(asd)
     }
   })
-
-
 }
+
+/* PREFILTER AJAX JQUERY */
+$.ajaxPrefilter(function(options, _, jqXHR) {
+  console.log(options)
+});

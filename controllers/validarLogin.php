@@ -1,6 +1,5 @@
 <?php
-	session_start();
-
+	//session_start();
 	include_once '../clases/BnGeneral.php';
 
 	$Usuario = $_POST["nameUser"];
@@ -9,12 +8,17 @@
 	$isLogin = isLogin($Usuario, $Password);
 
 	if ($isLogin) {
-		$isLogin = mysqli_fetch_all($isLogin);
+		$isLogin = mysqli_fetch_assoc($isLogin);
 		if (empty($isLogin)) {
 			$isLogin =  false;
 		} else {
-			$isLogin = true;
+			$permisos = obtenerPermisos($isLogin['IdUsuarioPerfil']);
+			$permisos = mysqli_fetch_all($permisos, MYSQLI_ASSOC);
+
+			echo json_encode($permisos);
+			exit();
 			$_SESSION['user'] = $Usuario;
+			$isLogin = true;
 		}
 	}
 

@@ -155,6 +155,7 @@ body:before {
         }
       });
       e.preventDefault();
+      console.log(xhr)
     });
   });
 

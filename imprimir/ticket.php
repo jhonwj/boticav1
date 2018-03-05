@@ -1,4 +1,6 @@
 <?php
+include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
+
 //var_dump($docVenta);
 $emision = strtotime($docVenta['FechaDoc']);
 $day = date("d", $emision);
