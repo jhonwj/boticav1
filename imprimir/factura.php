@@ -1,4 +1,6 @@
 <?php
+include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
+
 //var_dump($docVenta);
 $emision = strtotime($docVenta['FechaDoc']);
 $day = date("d", $emision);
@@ -22,7 +24,7 @@ $cliente = mb_strimwidth(strtoupper($docVenta['Cliente']), 0, 50, '...');
 $direccion = mb_strimwidth(strtoupper($docVenta['Direccion']), 0, 50, '...');
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
-$limitProducto = 7;
+$limitProducto = $docVenta['LimiteItems'];
 
 $subtotal = 0;
 $total = 0;
@@ -107,6 +109,25 @@ $igv = 0;
   .productos .pTotal span {
     margin-left: 10px;
   }
+
+  .footer {
+    width: 890px;
+    float: left;
+    margin-top: 5px;
+  }
+  .footer .son {
+    margin-left: 80px;
+  }
+  .footer .user, .footer .fecha {
+    margin-left: 230px;
+  }
+  .footer .small {
+    display: block;
+    font-size: 13px;
+  }
+  .footer .small:first-child {
+    margin-top: 20px;
+  }
 </style>
 <div class="container">
   <div class="emision">
@@ -183,6 +204,21 @@ $igv = 0;
      ?>
     </table>
   </div>
+
+  <table class="footer">
+    <tr>
+      <td>
+        <span class="son"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'NUEVOS SOLES',true, 'asd')); ?></span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="small fecha"><?php echo $docVenta['FechaDoc'] ?></span>
+        <span class="small user"><?php echo strtoupper($_SESSION['user']); ?></span>
+      </td>
+    </tr>
+  </table>
+
   <table class="totales">
     <tr>
       <td>

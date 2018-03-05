@@ -1,5 +1,5 @@
 <?php
-var_dump($docVenta);
+//var_dump($docVenta);
 $emision = strtotime($docVenta['FechaDoc']);
 $day = date("d", $emision);
 $mes = date("m", $emision);
@@ -22,7 +22,8 @@ $cliente = strtoupper($docVenta['Cliente']);
 $direccion = strtoupper($docVenta['Direccion']);
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
-$docVentaNro = $docVenta['Numero'];
+$limitProducto = $docVenta['LimiteItems'];
+$docVentaNro = str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
 $fechaDoc = $docVenta['FechaDoc'];
 $serieMaq = $docVenta['SerieImpresora'];
 
@@ -31,183 +32,131 @@ $total = 0;
 $igv = 0;
 ?>
 <style>
-  body {
-    font-size: 22px;
-    margin: 0;
+  * {
+    font-size: 13px;
     font-family: sans-serif;
-
+  }
+  body {
+    display: block;
+    margin: 8px;
+  }
+  td,
+  th,
+  tr,
+  table {
+    border-top: 1px solid black;
+    border-collapse: collapse;
   }
   .container {
-    margin-top: 7.5em;
-    width: 400px;
-    margin-left: 20px;
-    border: 1px solid red;
+    width: 100%;
+    max-width: 100%;
   }
+
   .center {
     text-align: center;
   }
   .separar {
-    padding: .2em;
+    margin: 8px 0;
     border-top: 1px dashed #000;
-    border-bottom: 1px dashed #000;
+
   }
   td {
     line-height: 1.48em;
     font-size: 1em;
-    border: 1px solid black;
   }
-  .emision {
-    width: 690px;
+  td, th {
+    padding: 0 6px;
   }
-  .dia {
-    margin-left: 220px;
-  }
-  .mes {
-    width: 300px;
-  }
-  .mes span {
-    margin-left: 10px;
-  }
-  .anio {
-    width: 50px;
-
-  }
-  .anio span {
-    margin-left: 10px;
-  }
-  .cliente {
-    margin-left: 200px;
-  }
-  .ruc {
-    width: 320px;
-  }
-  .ruc span {
-    margin-left: 60px;
-  }
-  .totales {
-    float: right;
-    width: 310px;
-  }
-  .totales span {
-    margin-left: 140px;
-  }
-
-  /* Estilos para productos */
-  .productos {
-  /*  height: 8em;*/
-  }
-  .productos {
-    padding-top: 1em;
-    box-sizing: border-box;
-  }
-  .productos .cantidad {
-    width: 70px;
+  td.cantidad {
     text-align: center;
   }
-  .productos .detalle span{
-    margin-left: 20px;
+  .text-right {
+    text-align: right;
   }
-  .productos .precio {
-    width: 100px;
-  }
-  .productos .pTotal {
-    width: 174px;
-  }
-  .productos .pTotal span {
-    margin-left: 10px;
+  .small {
+    font-size: 11px;
   }
 </style>
 <div class="container">
+  <!--<div class="center">
+    <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
+  </div>-->
   <div class="center">BOTICA</div>
   <div class="center">BOTICA DELMAN S.A.C</div>
   <div class="center">RUC: 20393999544 </div>
-  <div class="center">TICKET Nro: <?php echo $docVentaNro; ?></div>
-  <div class="center">FECHA HORA: <?php echo $fechaDoc; ?></div>
-  <div class="center">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
+  <br />
+  <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
+  <div class="">FECHA: <?php echo $fechaDoc; ?></div>
+  <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
+
   <div class="separar"></div>
+  <div>SR(ES) : <?php echo $cliente ?></div>
+  <div>RUC/DNI : <?php echo $dniRuc; ?></div>
+  <div>DIR : <?php echo $direccion; ?></div>
 
-  <div class="emision">
-    <table width="100%">
-      <tr>
-        <td>
-          <span class="dia"><?php echo $day ?></span>
-        </td>
-        <td class="mes">
-          <span><?php echo  strtoupper($meses[$mes]) ?></span>
-        </td>
-        <td class="anio">
-          <span ><?php echo $lastAnio; ?></span>
-        </td>
-      </tr>
-    </table>
-  </div>
-  <table width="100%">
-    <tr>
-      <td>
-        <span class="cliente"><?php echo $cliente; ?></span>
-      </td>
-      <td class="ruc">
-        <span><?php echo $dniRuc; ?></span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <span class="cliente"><?php echo $direccion; ?></span>
-      </td>
-      <td class="ruc">
+  <br />
 
-      </td>
-    </tr>
-  </table>
   <div class="productos">
     <table width="100%">
-      <?php
-      $filas = 0;
-      foreach ($productos as $key => $producto) { ?>
+      <thead>
+        <tr>
+          <th class="cantidad">CANT</th>
+          <th class="producto">PRODUCTO</th>
+          <!--<th class="unitario">P/U</th>-->
+          <th class="precio text-right">TOT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        $filas = 0;
+        foreach ($productos as $key => $producto) { ?>
           <tr>
             <td class="cantidad">
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
-            <td class="detalle">
+            <td class="producto">
               <span><?php echo $producto['Producto'] ?></span>
             </td>
-            <td class="precio">
-              <span><?php echo $producto['Precio'] ?></span>
-            </td>
-            <td class="pTotal">
-              <span><?php echo $producto['TOTAL'] ?></span>
+            <!--<td class="precio">
+              <span>S/.<?php echo $producto['Precio'] ?></span>
+            </td>-->
+            <td class="text-right">
+              <span>S/.<?php echo $producto['TOTAL'] ?></span>
             </td>
           </tr>
-      <?php
-      $filas += 1;
-        $total += floatval($producto['TOTAL']);
-      }
+          <?php
+          $filas += 1;
+          $total += floatval($producto['TOTAL']);
+        }
 
-      if ($tieneIgv) {
-        $subtotal = $total / 1.18;
-        $igv = $total - $subtotal;
-      } else {
-        $igv = '0.00';
-        $subtotal = $total;
-      }
-     ?>
+        if ($tieneIgv) {
+          $subtotal = $total / 1.18;
+          $igv = $total - $subtotal;
+        } else {
+          $igv = '0.00';
+          $subtotal = $total;
+        }
+        ?>
+        <tr>
+          <td></td>
+          <td class="text-right">SUBTOTAL</td>
+          <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="text-right">IGV</td>
+          <td class="text-right">S/.<?php echo number_format($igv, 2); ?></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="text-right"><strong>TOTAL</strong></td>
+          <td class="text-right">S/.<?php echo number_format($total, 2); ?></td>
+        </tr>
+      </tbody>
     </table>
   </div>
-  <table class="totales">
-    <tr>
-      <td>
-        <span><?php echo number_format($subtotal, 2); ?></span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <span><?php echo number_format($igv, 2); ?></span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <span><?php echo number_format($total, 2); ?></span>
-      </td>
-    </tr>
-  </table>
+  <br />
+  <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONIA</div>
+  <div class="center small">PARA SER CONSUMIDOS EN LA MISMA</div>
+
 </div>

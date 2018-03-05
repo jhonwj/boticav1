@@ -1,3 +1,5 @@
+<?php include_once('validateUser.php'); ?>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../resources/font-awesome/css/font-awesome.css">
@@ -14,17 +16,3 @@
 <script src="../resources/js/jspdf.min.js"></script>
 <script src="../resources/js/jspdf.plugin.autotable.js"></script>
 <script src="../resources/js/FileSaver.js"></script>
-
-
-<?php
- session_start();
-if (!isset($_SESSION['user'])) {
-  ?>
-  <script>
-    window.location.href = "/"
-  </script>
-  <?php
-    //header('Location: ' . 'http://' . $_SERVER['HTTP_HOST']);
-    exit();
-}
-?>

@@ -91,7 +91,8 @@ Ve_DocVenta.UsuarioMod,
 Ve_DocVentaPuntoVenta.SerieImpresora,
 Ve_DocVentaPuntoVenta.RutaImpresora,
 Ve_DocVentaTipoDoc.CodSunat,
-Ve_DocVentaTipoDoc.TieneIgv
+Ve_DocVentaTipoDoc.TieneIgv,
+Ve_DocVentaTipoDoc.LimiteItems
 FROM
 Ve_DocVenta
 INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
@@ -341,7 +342,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
     }*/
 
     function fn_devolverTipoDocVenta($criterio, $orden){
-    	$Ssql="SELECT IdTipoDoc, TipoDoc, VaRegVenta, CodSunat, TieneIgv FROM Ve_DocVentaTipoDoc";
+    	$Ssql="SELECT IdTipoDoc, TipoDoc, VaRegVenta, CodSunat, TieneIgv, LimiteItems FROM Ve_DocVentaTipoDoc";
 		//echo $Ssql;
 		if (!empty($criterio)) {
 			$Ssql= $Ssql." WHERE ".$criterio;

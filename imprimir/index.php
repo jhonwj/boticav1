@@ -1,4 +1,5 @@
 <?php
+include_once('../views/validateUser.php');
 include_once($_SERVER["DOCUMENT_ROOT"] . "/clases/BnGeneral.php");
 
 if (isset($_GET['IdDocVenta'])) {
@@ -27,11 +28,11 @@ if (isset($_GET['IdDocVenta'])) {
 
     <?php
       if (isset($_GET['redirect'])) {
-        echo 'window.print();';
-        echo 'window.location.href="' . $_GET['redirect'] . '";';
+        //echo 'window.print();';
+        //echo 'window.location.href="' . $_GET['redirect'] . '";';
       } else {
-        echo 'window.print();';
-        echo 'window.location.href="/views/V_VentaForm.php";';
+        //echo 'window.print();';
+        //echo 'window.location.href="/views/V_VentaForm.php";';
       }
     ?>
     //window.location.href="/views/V_VentaForm.php";

@@ -30,9 +30,12 @@ include_once("../clases/helpers/Modal.php");
         if(value == "TICKET"){
           var id = table2.column(0).data()[index];
           var igv = table2.column(2).data()[index];
+          var limite = table2.column(3).data()[index];
           $('#txtTipoVenta').attr('data-id', id)
           $('#txtTipoVenta').attr('data-igv', igv)
-        	$("#txtTipoVenta").val(value);
+          $("#txtTipoVenta").attr('data-limite', limite);
+          $("#txtTipoVenta").val(value);
+
           obtenerSerie(1, id)
         }
     } );
@@ -66,6 +69,7 @@ $("#FechaVen").hide();
         var data = table2.row( this ).data();
         $("#txtTipoVenta").val(data[1]);
         $('#txtTipoVenta').attr('data-igv', data[2])
+        $('#txtTipoVenta').attr('data-limite', data[3])
         $("#ModalBuscarTipoVenta").modal("hide");
 
         // data[2] = IGV
@@ -124,7 +128,11 @@ $("#FechaVen").hide();
 
   $("#btnTotal").click(function(event) {
                     var Encontrado = 0;
-
+        var limiteItems = $('#txtTipoVenta').attr('data-limite');
+        if ($("#tablePuntoVentaDet tbody tr").length >= limiteItems && limiteItems != 0 ) {
+          alert('Ya se ha seleccionado el máximo de productos permitidos para el tipo de documento')
+          return;
+        }
         $("#tablePuntoVentaDet tbody").each(function(index, el) {
                   /*  $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
                     var producto = $(this).find('.nombreProducto').text();
@@ -862,6 +870,7 @@ function cargarPreOrden(row) {
              <th class="idProd" style="display: table-cell;">ID</th>
              <th>Producto</th>
              <th>Tiene IGV</th>
+             <th>Limite Productos</th>
             </thead>
               <tbody>
                 <?php
@@ -871,7 +880,8 @@ function cargarPreOrden(row) {
                     		echo '<tr>';
                      		echo '<td class="idTipoDoc">'.$row["IdTipoDoc"]."</td>";
                         echo "<td>".$row["TipoDoc"]."</td>";
-                     		echo "<td>".$row["TieneIgv"]."</td>";
+                        echo "<td>".$row["TieneIgv"]."</td>";
+                     		echo "<td>".$row["LimiteItems"]."</td>";
                      		echo "</tr>";
                     	}
                      }

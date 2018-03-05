@@ -22,7 +22,7 @@ $cliente = mb_strimwidth(strtoupper($docVenta['Cliente']), 0, 40, '...');
 $direccion = mb_strimwidth(strtoupper($docVenta['Direccion']), 0, 40,'...');
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
-$limitProducto = 6;
+$limitProducto = $docVenta['LimiteItems'];
 
 $subtotal = 0;
 $total = 0;
@@ -114,6 +114,18 @@ $igv = 0;
   .productos .pTotal span {
     margin-left: 10px;
   }
+  .footer {
+    width: 750px;
+    float: left;
+  }
+  .footer .small {
+    display: block;
+    font-size: 13px;
+  }
+  .footer .user {
+    margin-top: 20px;
+    margin-left: 20px;
+  }
 </style>
 <div class="container">
   <table width="100%">
@@ -175,6 +187,19 @@ $igv = 0;
      ?>
     </table>
   </div>
+
+  <table class="footer">
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="small user"><?php echo strtoupper($_SESSION['user']); ?></td>
+      </tr>
+  </table>
+
   <table class="totales">
     <!--<tr>
       <td>
