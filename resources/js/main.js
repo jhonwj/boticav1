@@ -292,5 +292,17 @@ function consultarDNIRUC(numero, type, callback) {
 
 /* PREFILTER AJAX JQUERY */
 $.ajaxPrefilter(function(options, _, jqXHR) {
-  console.log(options)
+  console.log(options);
+  if (String(options.type).toLowerCase() == 'post') {
+    if (sessionStorage.getItem('Escritura') == '0') {
+      $.notify({
+          icon: 'fa fa-exclamation',
+          message: 'Usted no tiene permisos de Escritura'
+      }, {
+          type: 'danger'
+      });
+      jqXHR.abort();
+    }
+  }
+  console.log(options.type)
 });

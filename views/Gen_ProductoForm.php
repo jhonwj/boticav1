@@ -35,7 +35,7 @@ include_once("../clases/BnGeneral.php");
       });
       console.log(JSON.stringify($(this).serializeArray()) + " - " + JSON.stringify(arrTableCompuestos) + " - " + JSON.stringify(arrTableProductoDet));
       var xhr = $.ajax({
-        url: "Gen_ProductoGuardar.php",
+        url: "../controllers/server_processingProductoGuardar.php",
         type: "post",
         data: {data : JSON.stringify(arrTableCompuestos), data2 : JSON.stringify($(this).serializeArray()), data3 : JSON.stringify(arrTableProductoDet)},
         dataType: "html",

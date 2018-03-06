@@ -23,6 +23,8 @@ define("ReporteKardexValorizado", SITE_URL . "views/lo_kardexvalorizadoform.php"
 define("Login", SITE_URL . "index.php");
 define("CajaYBanco", SITE_URL . "views/FrmCb_CajaBanco.php");
 define("Logout", SITE_URL . "controllers/logout.php");
+define("Usuarios", SITE_URL . "views/Seg_UsuarioForm.php");
+define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
 
  ?>
 
@@ -89,6 +91,14 @@ define("Logout", SITE_URL . "controllers/logout.php");
       </li>
       <li class="dropdown">
         <a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Seguridad
+        <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="<?php echo Usuarios; ?>" >Usuarios</a></li>
+          <li><a href="<?php echo Roles; ?>">Roles</a></li>
+        </ul>
       </li>
       <li class="dropdown">
         <a href="<?php echo Logout; ?>"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>

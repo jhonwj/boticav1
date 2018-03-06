@@ -1,5 +1,5 @@
 <?php
-
+include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 //include("../models/DBManager.php");
 //include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 include_once("../clases/BnGeneral.php");
@@ -360,7 +360,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    	/*echo $Ssql;
 		    	exit();*/
 		    	ejecutarSQLCommand($Ssql);
-		    
+
 		    }
 
 		    function fn_guardarAlmacen($almacen){
@@ -377,7 +377,7 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    	}
 		    	return $hash;
 		    }
-		    
+
 			function fn_guardarMovimientoDet($hash, $producto, $cantidad, $precio, $tieneIgv){
 		    	$Ssql = "CALL SbLo_MovimientoDetGuardar('$hash', '$producto', $cantidad, $tieneIgv, $precio)";
 		    	ejecutarSQLCommand($Ssql);

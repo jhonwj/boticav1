@@ -1,4 +1,3 @@
-<?php include_once('validateUser.php'); ?>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,3 +15,9 @@
 <script src="../resources/js/jspdf.min.js"></script>
 <script src="../resources/js/jspdf.plugin.autotable.js"></script>
 <script src="../resources/js/FileSaver.js"></script>
+
+
+
+
+
+<?php include_once('validateUser.php'); ?>

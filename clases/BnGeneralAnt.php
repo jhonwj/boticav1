@@ -1,5 +1,5 @@
 <?php
-
+	include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 	include_once("../models/DBManager.php");
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){

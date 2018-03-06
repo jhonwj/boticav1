@@ -1,5 +1,5 @@
 <?php
-
+	include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 	include_once($_SERVER["DOCUMENT_ROOT"] . "/models/DBManager.php");
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){
@@ -578,19 +578,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
-	function isLogin($user = '', $pass = '')
-	{
-		$Ssql = "SELECT * FROM Seg_Usuario WHERE Usuario='$user' AND Password='$pass'";
-		return getSQLResultSet($Ssql);
-	}
 
-	function obtenerPermisos($idUsuarioPerfil) {
-		$Ssql = "SELECT Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioPerfil, Seg_UsuarioModulo.UsuarioModulo, Seg_UsuarioModulo_has_UsuarioPerfil.Lectura, Seg_UsuarioModulo_has_UsuarioPerfil.Escritura
-			FROM Seg_UsuarioModulo_has_UsuarioPerfil
-			INNER JOIN Seg_UsuarioModulo ON Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioModulo = Seg_UsuarioModulo.IdUsuarioModulo
-			WHERE Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioPerfil = 1";
-		return getSQLResultSet($Ssql);
-	}
 
 	function fn_devolverListaProductosPorBloque($bloque, $porcentaje) {
 		$Ssql = " call Sb_ListaDeProductosXBloque('$bloque', $porcentaje);";
@@ -637,4 +625,6 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 			ORDER BY DV.FechaDoc DESC";
 		return getSQLResultSet($Ssql);
 	}
+
+
  ?>

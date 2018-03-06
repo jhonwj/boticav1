@@ -145,9 +145,8 @@ body:before {
         dataType: "html",
         success: function(res){
             res = $.parseJSON(res);
-
             if (res.isLogin) {
-                window.location = "/views/Gen_ProductoForm.php";
+              window.location = "/views/Gen_ProductoForm.php";
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -155,7 +154,6 @@ body:before {
         }
       });
       e.preventDefault();
-      console.log(xhr)
     });
   });
 

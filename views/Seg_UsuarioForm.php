@@ -1,4 +1,3 @@
-<?php  ?>
 <html>
 <head>
 	<title>Seguridad | Perfil</title>
@@ -51,8 +50,10 @@ function ListarUsuario(){
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
             "aoColumns": [
-            { mData: 'NombreUser' } ,
-            { mData: 'Perfil' }
+            { mData: 'Usuario' } ,
+						{ mData: 'NombreUsuario' },
+						{ mData: 'FechaReg' },
+            { mData: 'Anulado' }
             ]
 	});
 }
@@ -66,8 +67,11 @@ function ListarUsuarioPerfil(){
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
             "aoColumns": [
-            { mData: 'NombreUser' } ,
-            { mData: 'Perfil' }
+            { mData: 'Usuario' } ,
+            { mData: 'UsuarioPerfil' },
+						{ mRender : function(data, type, row){
+              return "<a onclick='EditarBloque("+ row.UsuarioPerfil +");' class='btn'><i class='fa fa-pencil'></i></a>"
+            }}
             ]
 	});
 }
@@ -81,8 +85,12 @@ function ListarPerfil(){
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
             "aoColumns": [
-            { mData: 'NombreUser' } ,
-            { mData: 'Perfil' }
+            { mData: 'UsuarioPerfil' } ,
+						{ mData: 'FechaReg' },
+            { mData: 'Anulado' },
+						{ mRender : function(data, type, row){
+              return "<a onclick='EditarBloque("+ row.UsuarioPerfil +");' class='btn'><i class='fa fa-pencil'></i></a>"
+            }}
             ]
 	});
 }
@@ -97,6 +105,7 @@ function ListarPerfil(){
 					<thead>
 						<th>Usuario</th>
 						<th>Perfil</th>
+						<th>Acciones</th>
 					</thead>
 				</table>
 		</div>
@@ -146,10 +155,7 @@ function ListarPerfil(){
 						<th>Usuario</th>
 						<th>NombreUsuario</th>
 						<th>FechaReg</th>
-						<th>UsuarioReg</th>
-						<th>FechaMod</th>
-						<th>UsuarioMod</th>
-						<th>Estado</th>
+						<th>Anulado</th>
 					</thead>
 				</table>
 			</div>
@@ -168,7 +174,7 @@ function ListarPerfil(){
 				<form class="form">
 					<div class="form-group">
 						<label for="Usuario">Usuario</label>
-						<input type="text" name="usuario" id="Usuario" class="form-control">
+						<input type="text" name="usuario" class="form-control">
 					</div>
 					<div class="form-group">
 						<label for="Password">Password</label>
@@ -199,10 +205,8 @@ function ListarPerfil(){
 					<thead>
 						<th>Perfil</th>
 						<th>FechaReg</th>
-						<th>UsuarioReg</th>
-						<th>FechaMod</th>
-						<th>UsuarioMod</th>
-						<th>Estado</th>
+						<th>Anulado</th>
+						<th>Acciones</th>
 					</thead>
 				</table>
 			</div>
