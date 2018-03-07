@@ -294,7 +294,7 @@ function consultarDNIRUC(numero, type, callback) {
 $.ajaxPrefilter(function(options, _, jqXHR) {
   console.log(options);
   if (String(options.type).toLowerCase() == 'post') {
-    if (sessionStorage.getItem('Escritura') == '0') {
+    if (sessionStorage.getItem('Escritura') == '0' && sessionStorage.getItem('User') != 'admin') {
       $.notify({
           icon: 'fa fa-exclamation',
           message: 'Usted no tiene permisos de Escritura'

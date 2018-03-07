@@ -24,7 +24,8 @@ if ($permiso) {
   ?>
   <script>
     sessionStorage.clear();
-    sessionStorage.setItem('Escritura', <?php echo json_encode($permiso['Escritura']); ?>)
+    sessionStorage.setItem('User', "<?php echo $_SESSION['user'] ?>");
+    sessionStorage.setItem('Escritura', <?php echo json_encode($permiso['Escritura']); ?>);
   </script>
   <?php
 
@@ -33,7 +34,7 @@ if ($permiso) {
   $parent = explode("/", $_SERVER['PHP_SELF']);
   $parent = $parent[1];
 
-  if ($parent != 'controllers') {
+  if ($parent != 'controllers' && $_SESSION['user'] != 'admin') {
     include_once('error/noAcceso.php');
     exit();
   }
