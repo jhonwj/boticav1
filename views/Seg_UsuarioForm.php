@@ -80,20 +80,54 @@ $(document).ready(function(){
 		console.log(xhr)
 	})
 
+
+	$('#btnGuardarPerfilModulo').click(function(){
+		//var
+		$('#tableLecturaEscritura input[type="checkbox"]').each(function(key, value) {
+			console.log($(value).is(':checked'))
+		})
+	})
+
 });
 
 function ListarModulos() {
 	$("#tableModulos").DataTable().destroy();
 	$("#tableModulos").DataTable({
 			"bProcessing": true,
-						"sAjaxSource": "../controllers/server_processingUsuarioModulo.php",
-						"bPaginate":true,
-						"sPaginationType":"full_numbers",
-						"iDisplayLength": 5,
-						"aoColumns": [
-						{ mData: 'IdUsuarioModulo' } ,
-						{ mData: 'UsuarioModulo' }
-						]
+			"sAjaxSource": "../controllers/server_processingUsuarioModulo.php",
+			"bPaginate":true,
+			"sPaginationType":"full_numbers",
+			"iDisplayLength": 5,
+			"aoColumns": [
+				{ mData: 'IdUsuarioModulo' } ,
+				{ mData: 'UsuarioModulo' }
+			],
+			"rowCallback": function(row, data, index){
+					$(row).on('click', function() {
+						var existe = false;
+						$('#tableLecturaEscritura tbody tr td:first-child').each(function(key, value) {
+							if($(value).text() == data.UsuarioModulo) {
+								alert('ya selecciono este módulo')
+								existe = true;
+								return;
+							}
+						})
+
+						if (existe) {
+							return;
+						}
+
+						var tr = $('<tr></tr>');
+						tr.append('<td>' + data.UsuarioModulo + '</td>')
+						tr.append('<td><input type="checkbox" data-idModulo="' + data.IdUsuarioModulo + '" /></td>')
+						tr.append('<td><input type="checkbox" /></td>')
+						tr.hide()
+						$('#tableLecturaEscritura tbody').append(tr)
+						tr.show('slow')
+
+						$('#modalListarModulo').modal('hide');
+					})
+			}
 	});
 }
 
@@ -322,7 +356,7 @@ function EditarPerfil(idUsuarioPerfil, event) {
 					<div class="panel panel-success">
 						<div class="panel-heading">Modulo</div>
 						<div class="panel-body">
-							<table class="table table-bordered">
+							<table class="table table-bordered" id="tableLecturaEscritura">
 								<thead>
 									<th>Modulo</th>
 									<th>Lectura</th>
