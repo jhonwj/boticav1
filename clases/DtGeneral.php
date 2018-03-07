@@ -529,4 +529,16 @@ function fn_guardarPreOrden($idCliente, $productos) {
 	return $idPreOrden;
 }
 
+function fn_guardarUsuario($params) {
+	$Ssql = "INSERT INTO Seg_Usuario(Usuario, IdUsuarioPerfil, Password, NombreUsuario) VALUES('{$params['Usuario']}', {$params['IdUsuarioPerfil']}, '{$params['Password']}', '{$params['NombreUsuario']}' )";
+	$idUsuario = getSQLResultSet($Ssql);
+	return $idUsuario;
+}
+
+function fn_guardarUsuarioModulo($params) {
+	$Ssql = "INSERT INTO Seg_UsuarioModulo(UsuarioModulo) VALUES('{$params['UsuarioMoulo']}')";
+	$idUsuario = getSQLResultSet($Ssql);
+	return $idUsuario;
+}
+
  ?>

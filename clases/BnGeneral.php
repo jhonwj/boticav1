@@ -542,6 +542,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function ListarUsuarioModulo() {
+		$Ssql = " SELECT * FROM Seg_UsuarioModulo";
+		return getSQLResultSet($Ssql);
+	}
+
 	function ListarPerfil()
 	{
 		$Ssql = " SELECT * FROM Seg_UsuarioPerfil";

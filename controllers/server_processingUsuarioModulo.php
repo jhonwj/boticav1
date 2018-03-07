@@ -7,7 +7,7 @@ include_once '../clases/DtGeneral.php';
 
  switch ($method) {
      case 'GET':
-			 	$result = ListarUsuario();
+			 	$result = ListarUsuarioModulo();
 				$data = array();
 				while ($rows = mysqli_fetch_assoc($result)) {
 				 $data[] = $rows;
@@ -45,11 +45,8 @@ include_once '../clases/DtGeneral.php';
              break;
          } else {
              // Insertar usuario
-						 $usuario = $_POST['Usuario'];
-						 $password = $_POST['Password'];
-             $nombreUsuario = $_POST['NombreUsuario'];
 
-             $usuario = fn_guardarUsuario($_POST);
+             $usuario = fn_guardarUsuarioModulo($_POST);
              if ($usuario) {
                  $result['success'] = 'Se añadio un nuevo usuario';
              } else {
