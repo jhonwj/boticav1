@@ -80,7 +80,7 @@ include_once("../clases/BnGeneral.php");
               <h4 class="modal-title">Añadir Laboratorio</h4>
       </div>
       <div class="modal-body">
-        <form id="modal-form" action="Gen_ProductoMarcaGuardar.php" method="get">
+        <form id="modal-form" action="../controllers/Gen_ProductoMarcaGuardar.php" method="get">
                <input type="hidden" class="form-control" id="IdProducto"  name="idproductomarca">
             <div class="form-group">
                <label for="MarcaProducto">Laboratorio</label>

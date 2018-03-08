@@ -185,8 +185,8 @@ include_once("../clases/BnGeneral.php");
 
     $("#btnGuardarMarca").click(function(){
       var xhr = $.ajax({
-          url: "gen_productomarcaguardar.php",
-          type: "get",
+          url: "../controllers/Gen_ProductoMarcaGuardar.php",
+          type: "post",
           //data: {"productocompuesto":$("#CompuestoProducto").val()},
           data: {"idproductomarca": "","productomarca": $("#NuevaMarcaProducto").val()},
           dataType: "html",

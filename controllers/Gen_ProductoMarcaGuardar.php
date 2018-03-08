@@ -3,9 +3,9 @@ include_once("../clases/DtGeneral.php");
 include_once("../clases/BnGeneral.php");
 include_once("header.php");
 header( 'Content-Type: text/html;charset=utf-8' );
-$productoMarca=$_GET['productomarca'];
-$usuario=$_GET['usuario'];
-$idproductoMarca=$_GET['idproductomarca'];
+$productoMarca=$_POST['productomarca'];
+$usuario=$_POST['usuario'];
+$idproductoMarca=$_POST['idproductomarca'];
 
 /*if (empty($productoMarca) || empty($usuario)) {
 	echo '<script type="text/javascript">alert("Datos incorrectos!");</script>';
