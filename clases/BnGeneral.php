@@ -533,8 +533,19 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function ListarUsuarioPerfil()
 	{
-		$Ssql = " call SbSeg_ListarUsuarioPerfil();";
+		$Ssql = " SELECT Seg_Usuario.Usuario, Seg_UsuarioPerfil.UsuarioPerfil, Seg_Usuario.IdUsuarioPerfil, Seg_Usuario.Password, Seg_Usuario.NombreUsuario
+			FROM Seg_Usuario
+			INNER JOIN Seg_UsuarioPerfil ON Seg_Usuario.IdUsuarioPerfil = Seg_UsuarioPerfil.IdUsuarioPerfil;";
 		return getSQLResultSet($Ssql);
+	}
+
+	function ListarUsuarioPerfilModulo($idUsuarioPerfil)
+	{
+		$Ssql = " SELECT Seg_UsuarioModulo.IdUsuarioModulo, Seg_UsuarioModulo.UsuarioModulo, Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioPerfil, Seg_UsuarioModulo_has_UsuarioPerfil.Lectura, Seg_UsuarioModulo_has_UsuarioPerfil.Escritura FROM Seg_UsuarioModulo_has_UsuarioPerfil
+			INNER JOIN Seg_UsuarioModulo ON Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioModulo = Seg_UsuarioModulo.IdUsuarioModulo
+			WHERE Seg_UsuarioModulo_has_UsuarioPerfil.IdUsuarioPerfil = $idUsuarioPerfil";
+			return getSQLResultSet($Ssql);
+
 	}
 	function ListarUsuario()
 	{

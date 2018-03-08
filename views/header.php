@@ -97,7 +97,6 @@ define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="<?php echo Usuarios; ?>" >Usuarios</a></li>
-          <li><a href="<?php echo Roles; ?>">Roles</a></li>
         </ul>
       </li>
       <li class="dropdown">

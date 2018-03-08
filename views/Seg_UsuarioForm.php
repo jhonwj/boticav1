@@ -28,6 +28,8 @@ $(document).ready(function(){
 	});
 
 	$("#btnNuevoPerfil").click(function(){
+		$('#NuevoPerfil').val('');
+		$('#tableLecturaEscritura tbody tr').remove()
 		$("#modalNuevoPerfil").modal("show");
 	});
 
@@ -69,7 +71,22 @@ $(document).ready(function(){
 			},
 			dataType: "json",
 			success: function(respuesta){
-				console.log(respuesta)
+				if (respuesta.success) {
+						$.notify({
+								icon: 'fa fa-check',
+								message: respuesta.success
+						}, {
+								type: 'success'
+						});
+
+				} else {
+						$.notify({
+								icon: 'fa fa-exclamation',
+								message: respuesta.error
+						}, {
+								type: 'danger'
+						});
+				}
 				$("#nuevo").modal("hide");
 				ListarUsuarioPerfil();
 			},
@@ -81,13 +98,114 @@ $(document).ready(function(){
 	})
 
 
-	$('#btnGuardarPerfilModulo').click(function(){
-		//var
-		$('#tableLecturaEscritura input[type="checkbox"]').each(function(key, value) {
-			console.log($(value).is(':checked'))
+	$('#btnGuardarPerfilModulo').click(function() {
+		var modulos = [];
+
+		if (!$('#NuevoPerfil').val()) {
+			alert('Ingrese un perfil')
+			return;
+		}
+		$('#tableLecturaEscritura tbody tr').each(function(key, value) {
+			var chkLectura = $(value).find('input[type="checkbox"].lectura').first();
+			var chkEscritura = $(value).find('input[type="checkbox"].escritura').first();
+
+			modulos.push({
+				'IdUsuarioModulo': chkLectura.attr('data-idmodulo'),
+				'Lectura': chkLectura.is(':checked') ? 1 : 0,
+				'Escritura': chkEscritura.is(':checked') ? 1 : 0,
+			})
 		})
+
+		var xhr = $.ajax({
+			url: "../controllers/server_processingUsuarioPerfil.php",
+			type: "post",
+			data: {
+				//IdUsuarioPerfil: $('#IdUsuarioPerfil').val() || 0,
+				UsuarioPerfil : $('#NuevoPerfil').val().toLowerCase(),
+				Modulos : JSON.stringify(modulos)
+			},
+			dataType: "json",
+			success: function(respuesta){
+				if (respuesta.success) {
+						$.notify({
+								icon: 'fa fa-check',
+								message: respuesta.success
+						}, {
+								type: 'success'
+						});
+
+				} else {
+						$.notify({
+								icon: 'fa fa-exclamation',
+								message: respuesta.error
+						}, {
+								type: 'danger'
+						});
+				}
+				$("#modalNuevoPerfil").modal("hide");
+
+				ListarPerfil();
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("Status: " + textStatus); alert("Error: " + errorThrown);
+			}
+		});
+		console.log(xhr)
 	})
 
+	$('#btnNuevoModulo').click(function() {
+		$('#modalNuevoModulo').modal('show');
+	})
+
+	$('#btnNuevoModuloGuardar').click(function() {
+		if (!$('#txtNuevoModulo').val()) {
+			alert('Debe establecer un nombre de módulo');
+			return;
+		}
+
+		var xhr = $.ajax({
+			url: "../controllers/server_processingUsuarioModulo.php",
+			type: "post",
+			data: {
+				UsuarioModulo : $('#txtNuevoModulo').val()
+			},
+			dataType: "json",
+			success: function(respuesta){
+				if (respuesta.success) {
+						$.notify({
+								icon: 'fa fa-check',
+								message: respuesta.success
+						}, {
+								type: 'success'
+						});
+
+				} else {
+						$.notify({
+								icon: 'fa fa-exclamation',
+								message: respuesta.error
+						}, {
+								type: 'danger'
+						});
+				}
+				$("#modalNuevoModulo").modal("hide");
+
+				ListarModulos();
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("Status: " + textStatus); alert("Error: " + errorThrown);
+			}
+		});
+		console.log(xhr)
+	})
+
+
+	$('#nuevo').on('hide.bs.modal', function(e) {
+		$('#IdUsuarioPerfil').val('')
+		$('#Perfil').val('')
+		$('#NombreUsuario').val('')
+		$('#Password').val('')
+		$('#Usuario').val('')
+	})
 });
 
 function ListarModulos() {
@@ -119,8 +237,8 @@ function ListarModulos() {
 
 						var tr = $('<tr></tr>');
 						tr.append('<td>' + data.UsuarioModulo + '</td>')
-						tr.append('<td><input type="checkbox" data-idModulo="' + data.IdUsuarioModulo + '" /></td>')
-						tr.append('<td><input type="checkbox" /></td>')
+						tr.append('<td><input class="lectura" type="checkbox" data-idModulo="' + data.IdUsuarioModulo + '" /></td>')
+						tr.append('<td><input class="escritura" type="checkbox" /></td>')
 						tr.hide()
 						$('#tableLecturaEscritura tbody').append(tr)
 						tr.show('slow')
@@ -160,10 +278,20 @@ function ListarUsuarioPerfil(){
             { mData: 'Usuario' } ,
             { mData: 'UsuarioPerfil' },
 						{ mRender : function(data, type, row){
-              return "<a onclick='EditarBloque("+ row.UsuarioPerfil +");' class='btn'><i class='fa fa-pencil'></i></a>"
+            	return "<a onclick='EditarUsuario("+ JSON.stringify(row) +");' class='btn'><i class='fa fa-pencil'></i></a>"
             }}
             ]
 	});
+}
+
+function EditarUsuario(user) {
+	$('#nuevo').modal('show');
+	$('#Usuario').val(user.Usuario)
+	$('#Password').val(user.Password)
+
+	$('#NombreUsuario').val(user.NombreUsuario)
+	$('#IdUsuarioPerfil').val(user.IdUsuarioPerfil)
+	$('#Perfil').val(user.UsuarioPerfil)
 }
 
 function ListarPerfil(){
@@ -179,7 +307,7 @@ function ListarPerfil(){
 				{ mData: 'FechaReg' },
         { mData: 'Anulado' },
 				{ mRender : function(data, type, row){
-          return "<a onclick='EditarPerfil("+ row.IdUsuarioPerfil +", event);' class='btn'><i class='fa fa-pencil'></i></a>"
+          return "<a onclick='EditarPerfil("+ JSON.stringify({idUsuarioPerfil: row.IdUsuarioPerfil, usuarioPerfil: row.UsuarioPerfil })+ ", event);' class='btn'><i class='fa fa-pencil'></i></a>"
         }}
       ],
 			"rowCallback": function(row, data, index){
@@ -193,9 +321,34 @@ function ListarPerfil(){
 	});
 }
 
-function EditarPerfil(idUsuarioPerfil, event) {
+function EditarPerfil(perfil,  event) {
 	event.stopPropagation()
+	$('#modalNuevoPerfil').modal('show');
+	$('#NuevoPerfil').val(perfil.usuarioPerfil)
 
+	var xhr = $.ajax({
+		url: "../controllers/server_processingUsuarioPerfil.php",
+		type: "get",
+		data: {
+			IdUsuarioPerfil : perfil.idUsuarioPerfil,
+		},
+		dataType: "json",
+		success: function(respuesta){
+			$('#tableLecturaEscritura tbody tr').remove()
+			$.each(respuesta, function(index, modulo) {
+				var tr = $('<tr></tr>');
+				tr.append('<td>' + modulo.UsuarioModulo + '</td>');
+				console.log(modulo.Lectura)
+				tr.append('<td><input type="checkbox" class="lectura" data-idmodulo="' + modulo.IdUsuarioModulo + '" ' + (modulo.Lectura == 1 ? 'checked' : '') + ' /></td>');
+				tr.append('<td><input type="checkbox" class="escritura" data-idmodulo="' + modulo.IdUsuarioModulo + '" ' + (modulo.Escritura == 1 ? 'checked' : '') + ' /></td>');
+				$('#tableLecturaEscritura tbody').append(tr);
+			})
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			alert("Status: " + textStatus); alert("Error: " + errorThrown);
+		}
+	});
+	console.log(xhr)
 }
 </script>
 <body>
@@ -340,6 +493,7 @@ function EditarPerfil(idUsuarioPerfil, event) {
 					<div class="col s12 form-group">
 						<label for="NuevoPerfil">Perfil</label>
 						<div class="form-inline">
+							<input type="hidden" class="form-control" id="IdUsuarioPerfil" >
 							<input type="text" class="form-control" id="NuevoPerfil">
 							<!--<button type="button" class="btn btn-success" id="btnNuevoPerfilModulo"><i class="fa fa-search-plus"></i></button>-->
 						</div>
@@ -413,6 +567,24 @@ function EditarPerfil(idUsuarioPerfil, event) {
 						</th>
 					</thead>
 				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" id="btnNuevoModulo" class="btn btn-success"><i class="fa fa-save"></i> Nuevo Mòdulo</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="modalNuevoModulo" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">Nuevo Módulo</div>
+			<div class="modal-body">
+				<input type="text" id="txtNuevoModulo" />
+			</div>
+			<div class="modal-footer">
+				<button type="button" id="btnNuevoModuloGuardar" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
 			</div>
 		</div>
 	</div>

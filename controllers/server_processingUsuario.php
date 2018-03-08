@@ -51,7 +51,7 @@ include_once '../clases/DtGeneral.php';
 
              $usuario = fn_guardarUsuario($_POST);
              if ($usuario) {
-                 $result['success'] = 'Se añadio un nuevo usuario';
+                 $result['success'] = 'Se añadió o actualizó un nuevo usuario ';
              } else {
                  $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo más tarde';
              }

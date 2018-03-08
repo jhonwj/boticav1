@@ -530,15 +530,39 @@ function fn_guardarPreOrden($idCliente, $productos) {
 }
 
 function fn_guardarUsuario($params) {
-	$Ssql = "INSERT INTO Seg_Usuario(Usuario, IdUsuarioPerfil, Password, NombreUsuario) VALUES('{$params['Usuario']}', {$params['IdUsuarioPerfil']}, '{$params['Password']}', '{$params['NombreUsuario']}' )";
+	$Ssql = "INSERT INTO Seg_Usuario(Usuario, IdUsuarioPerfil, Password, NombreUsuario) VALUES('{$params['Usuario']}', {$params['IdUsuarioPerfil']}, '{$params['Password']}', '{$params['NombreUsuario']}' )
+	ON DUPLICATE KEY UPDATE IdUsuarioPerfil={$params['IdUsuarioPerfil']},
+	Password=IF(Password IS NULL, Password, '{$params['Password']}'),
+	NombreUsuario='{$params['NombreUsuario']}'";
 	$idUsuario = getSQLResultSet($Ssql);
 	return $idUsuario;
 }
 
 function fn_guardarUsuarioModulo($params) {
-	$Ssql = "INSERT INTO Seg_UsuarioModulo(UsuarioModulo) VALUES('{$params['UsuarioMoulo']}')";
+	$Ssql = "INSERT INTO Seg_UsuarioModulo(UsuarioModulo) VALUES('{$params['UsuarioModulo']}')
+	ON DUPLICATE KEY UPDATE UsuarioModulo = '{$params['UsuarioModulo']}'";
 	$idUsuario = getSQLResultSet($Ssql);
 	return $idUsuario;
+}
+
+function fn_guardarUsuarioPerfilModulo($params) {
+	$idUsuarioPerfilModulo = false;
+
+	$Ssql = "INSERT INTO Seg_UsuarioPerfil(UsuarioPerfil, FechaReg) VALUES('{$params['UsuarioPerfil']}', now())
+	 ON DUPLICATE KEY UPDATE UsuarioPerfil='{$params['UsuarioPerfil']}', FechaMod=now()";
+	$idUsuarioPerfil = getSQLResultSet($Ssql);
+
+
+	$modulos = json_decode($params['Modulos'], true);
+	foreach ($modulos as $key => $value) {
+
+		$Ssql = "INSERT INTO Seg_UsuarioModulo_has_UsuarioPerfil(IdUsuarioModulo, IdUsuarioPerfil, Lectura, Escritura)
+		 VALUES({$value['IdUsuarioModulo']}, $idUsuarioPerfil, {$value['Lectura']}, {$value['Escritura']})
+		 ON DUPLICATE KEY UPDATE Lectura={$value['Lectura']}, Escritura={$value['Escritura']}";
+		$idUsuarioPerfilModulo = getSQLResultSet($Ssql);
+	}
+
+	return $idUsuarioPerfilModulo || $idUsuarioPerfil;
 }
 
  ?>

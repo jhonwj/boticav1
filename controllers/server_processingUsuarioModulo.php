@@ -44,11 +44,11 @@ include_once '../clases/DtGeneral.php';
 
              break;
          } else {
-             // Insertar usuario
+             // Insertar modulo
 
              $usuario = fn_guardarUsuarioModulo($_POST);
              if ($usuario) {
-                 $result['success'] = 'Se añadio un nuevo usuario';
+                 $result['success'] = 'Se añadio un nuevo Módulo';
              } else {
                  $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo más tarde';
              }
