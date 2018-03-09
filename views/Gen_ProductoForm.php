@@ -34,6 +34,7 @@ include_once("../clases/BnGeneral.php");
         });
       });
       console.log(JSON.stringify($(this).serializeArray()) + " - " + JSON.stringify(arrTableCompuestos) + " - " + JSON.stringify(arrTableProductoDet));
+
       var xhr = $.ajax({
         url: "../controllers/server_processingProductoGuardar.php",
         type: "post",
@@ -203,7 +204,7 @@ include_once("../clases/BnGeneral.php");
 
     $("#btnGuardarForma").click(function(){
       var xhr = $.ajax({
-          url: "gen_productoformafarmaceuticaguardar.php",
+          url: "../controllers/Gen_ProductoFormaFarmaceuticaGuardar.php",
           type: "get",
           //data: {"productocompuesto":$("#CompuestoProducto").val()},
           data: {"idproductoformafarmaceutica": "","productoformafarmaceutica": $("#NuevaFormaProducto").val()},
@@ -221,7 +222,7 @@ include_once("../clases/BnGeneral.php");
 
     $("#btnGuardarMedicion").click(function(){
       var xhr = $.ajax({
-          url: "gen_productomedicionguardar.php",
+          url: "../controllers/Gen_ProductoMedicionGuardar.php",
           type: "get",
           //data: {"productocompuesto":$("#CompuestoProducto").val()},
           data: {"idproductomedicion": "","productomedicion": $("#NuevaMedicionProducto").val()},
@@ -240,7 +241,7 @@ include_once("../clases/BnGeneral.php");
 
     $("#btnGuardarCategoria").click(function(){
       var xhr = $.ajax({
-          url: "gen_productocategoriaguardar.php",
+          url: "../controllers/Gen_ProductoCategoriaGuardar.php",
           type: "get",
           //data: {"productocompuesto":$("#CompuestoProducto").val()},
           //data: {"idproductomarca": $("#NuevaMarcaProducto").val()},
@@ -260,7 +261,7 @@ include_once("../clases/BnGeneral.php");
 
     $("#btnGuardarBloque").click(function(){
       var xhr = $.ajax({
-          url: "gen_productobloqueguardar.php",
+          url: "../controllers/gen_productobloqueguardar.php",
           type: "get",
           data: {"idproductobloque": $("#idproductobloque").val(),"productobloque": $("#NuevaBloqueProducto").val(), "porcentajeMin": $("#porcMin").val(), "procentajeMax": $("#porcMax").val()},
           dataType: "html",

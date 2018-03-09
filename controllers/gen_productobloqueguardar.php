@@ -6,7 +6,7 @@ header( 'Content-Type: text/html;charset=utf-8' );
 $productoBloque=$_GET['productobloque'];
 $porcentajeMin=$_GET['porcentajeMin'];
 $porcentajeMax=$_GET['procentajeMax'];
-$usuario=$_GET['usuario'];
+//$usuario=$_GET['usuario'];
 $idproductoBloque=$_GET['idproductobloque'];
 
 /*if (empty($productoCategoria) || empty($usuario)) {

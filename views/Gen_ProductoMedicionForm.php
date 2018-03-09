@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once("../clases/BnGeneral.php");
 
  ?>
@@ -10,10 +10,10 @@ include_once("../clases/BnGeneral.php");
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
-	
+
 	$(document).ready(function() {
     ListarMedicion();
-     
+
     $('#tableProductoMedicion tbody').on('click', 'tr', function () {
         $("#IdProducto").val($(this).children("td").eq(0).html());
         $("#IdProducto").attr("readonly", true);
@@ -83,7 +83,7 @@ include_once("../clases/BnGeneral.php");
           		<h4 class="modal-title">Añadir Medicion de Producto</h4>
  			</div>
  			<div class="modal-body">
- 				<form id="modal-form" action="Gen_ProductoMedicionGuardar.php" method="get">
+ 				<form id="modal-form" action="../controllers/Gen_ProductoMedicionGuardar.php" method="get">
                <input type="hidden" class="form-control" id="IdProducto"  name="idproductomedicion">
   					<div class="form-group">
    						 <label for="MedicionProducto">Medicion del producto</label>

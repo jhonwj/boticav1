@@ -1,4 +1,4 @@
-<?php 
+<?php
 include("../clases/BnGeneral.php");
 
  ?>
@@ -10,7 +10,7 @@ include("../clases/BnGeneral.php");
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
-  
+
   $(document).ready(function() {
      ListarFormaFarmaceutica();
     $('#tableProductoFormaFarmaceutica tbody').on('click', 'tr', function () {
@@ -25,7 +25,7 @@ include("../clases/BnGeneral.php");
           }else{
             $("#Anulado").prop("checked", false);
           }
-        
+
         $("#nuevo").modal("show");
     } );
 
@@ -91,18 +91,18 @@ include("../clases/BnGeneral.php");
               <h4 class="modal-title">Añadir Forma Farmaceutica de Producto</h4>
       </div>
       <div class="modal-body">
-        <form id="modal-form" action="Gen_ProductoFormaFarmaceuticaGuardar.php" method="get">
+        <form id="modal-form" action="../controllers/Gen_ProductoFormaFarmaceuticaGuardar.php" method="get">
                <input type="hidden" class="form-control" id="IdProducto"  name="idproductoformafarmaceutica">
             <div class="form-group">
                <label for="FormaFarmaceuticaProducto">Forma Farmaceutica del Producto</label>
                <input type="text" class="form-control" id="FormaFarmaceuticaProducto"  name="productoformafarmaceutica" placeholder="Forma Farmaceutica del Producto">
-               <div><input  type="checkbox" id="Anulado" name="anulado"><b>Anulado</b></div>  
+               <div><input  type="checkbox" id="Anulado" name="anulado"><b>Anulado</b></div>
             </div>
             <input type="hidden" name="usuario" value="Jeam">
       </div>
       <div class="modal-footer">
 
-        
+
         <button type="submit" class="btn btn-success enviar"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
       </form>

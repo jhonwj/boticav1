@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once("../clases/BnGeneral.php");
 
 //include_once("masterPage.php");
@@ -12,7 +12,7 @@ include_once("../clases/BnGeneral.php");
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
-	
+
 	$(document).ready(function() {
     //var table = $('#tableProductoCategoria').DataTable();
      ListarCategoria();
@@ -88,7 +88,7 @@ include_once("../clases/BnGeneral.php");
           		<h4 class="modal-title">Añadir Categoria de Producto</h4>
  			</div>
  			<div class="modal-body">
- 				<form id="modal-form" action="Gen_ProductoCategoriaGuardar.php" method="get">
+ 				<form id="modal-form" action="../controllers/Gen_ProductoCategoriaGuardar.php" method="get">
                <input type="hidden" class="form-control" id="IdProducto"  name="idproductocategoria">
   					<div class="form-group">
    						 <label for="CategoriaProducto">Categoria del Producto</label>
