@@ -258,8 +258,9 @@ function AgregarAlmacen(almacen1){
 function ListarProductosDet(){
           $("#tableProductoDetListar").DataTable().destroy();
           var table4 = $("#tableProductoDetListar").DataTable({
+            "serverSide": true,
             "bProcessing": true,
-            "sAjaxSource": "../controllers/server_processingProducto.php",
+            "sAjaxSource": "../controllers/server_processingProducto.php?serverSide=1",
             "bPaginate":true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,

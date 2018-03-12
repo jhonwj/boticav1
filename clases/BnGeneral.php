@@ -1,6 +1,7 @@
 <?php
 	include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 	include_once($_SERVER["DOCUMENT_ROOT"] . "/models/DBManager.php");
+
 	//include 'http://sistemasjeam.com/prevenvac/models/DBManager.php';
 	function fn_devolverImpresionCentrar($Texto){
 		$textoFinal=$Texto;
@@ -487,10 +488,28 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
-	function ListarReporteStock($almacen, $producto)
+	function ListarReporteStock($almacen, $producto, $serverSide = false)
 	{
-		$Ssql = "CALL SbLo_Stock('$almacen', '$producto');";
-		return getSQLResultSet($Ssql);
+		if ($serverSide) {
+			$Ssql = "Select prodstock.IdProducto as numero, ProductoMarca as marca,ProductoCategoria as categoria,FormaFarmaceutica as formafarmaceutica, prodstock.Producto as Producto,Stock as stock ,
+			Gen_Producto.PrecioContado,	Gen_Producto.PrecioPorMayor, Gen_Producto.StockPorMayor, Gen_Producto.Codigo, Gen_Producto.VentaEstrategica, Gen_ProductoMedicion.ProductoMedicion, Gen_Producto.CodigoBarra
+			from prodstock
+			INNER JOIN Gen_Producto ON Gen_Producto.IdProducto = prodstock.IdProducto
+			INNER JOIN Gen_ProductoMedicion ON Gen_ProductoMedicion.IdProductoMedicion = Gen_Producto.IdProductoMedicion";
+
+			$serverSideQuery = generateDatatableServerSideQuery(
+				'prodstock.IdProducto',
+				array('prodstock.IdProducto', 'ProductoMarca', 'ProductoCategoria', 'FormaFarmaceutica', 'prodstock.Producto', 'Stock', 
+					'Gen_Producto.PrecioContado', 'Gen_Producto.PrecioPorMayor', 'Gen_Producto.StockPorMayor', 'Gen_Producto.Codigo', 'Gen_Producto.VentaEstrategica', 'Gen_ProductoMedicion.ProductoMedicion', 'Gen_Producto.CodigoBarra'),
+				'prodstock',	
+				$Ssql
+			);
+
+			return $serverSideQuery;
+		} else {
+			$Ssql = "CALL SbLo_Stock('$almacen', '$producto');";
+			return getSQLResultSet($Ssql);
+		}
 	}
 
 	function ListarProductoInv(){
@@ -689,23 +708,26 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	}
 
 	function ejecutarStockCursor($almacen, $producto) {
-		$Ssql = " call SbLo_Stock_Cursor('$almacen', $producto);";
+		$Ssql = " call SbLo_Stock_Cursor('$almacen', '$producto');";
 		return getSQLResultSet($Ssql);
 	}
 
 	/* SERVER SIDE DATATABLE */
 	function datatableStringLimit() {
+		$mysqli = getMysqliLink();
+		
 		$sLimit = "";
 		if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
 		{
-			$sLimit = "LIMIT ".mysql_real_escape_string( $_GET['iDisplayStart'] ).", ".
-				mysql_real_escape_string( $_GET['iDisplayLength'] );
+			$sLimit = "LIMIT ".$mysqli->real_escape_string( $_GET['iDisplayStart'] ).", ".
+				$mysqli->real_escape_string( $_GET['iDisplayLength'] );
 		}
 
 		return $sLimit;
 	}
 
 	function datatableStringOrder($aColumns) {
+		$mysqli = getMysqliLink();
 
 		if ( isset( $_GET['iSortCol_0'] ) )
 		{
@@ -715,7 +737,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 				if ( $_GET[ 'bSortable_'.intval($_GET['iSortCol_'.$i]) ] == "true" )
 				{
 					$sOrder .= $aColumns[ intval( $_GET['iSortCol_'.$i] ) ]."
-						".mysql_real_escape_string( $_GET['sSortDir_'.$i] ) .", ";
+						".$mysqli->real_escape_string( $_GET['sSortDir_'.$i] ) .", ";
 				}
 			}
 			
@@ -728,14 +750,15 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		}
 	}
 
-	function datatableStringSearch() {
+	function datatableStringSearch($aColumns) {
+		$mysqli = getMysqliLink();		
 		$sWhere = "";
-		if ( $_GET['sSearch'] != "" )
+		if ( isset($_GET['sSearch']) && $_GET['sSearch'] != "" )
 		{
 			$sWhere = "WHERE (";
 			for ( $i=0 ; $i<count($aColumns) ; $i++ )
 			{
-				$sWhere .= $aColumns[$i]." LIKE '%".mysql_real_escape_string( $_GET['sSearch'] )."%' OR ";
+				$sWhere .= $aColumns[$i]." LIKE '%".$mysqli->real_escape_string( $_GET['sSearch'] )."%' OR ";
 			}
 			$sWhere = substr_replace( $sWhere, "", -3 );
 			$sWhere .= ')';
@@ -744,7 +767,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	}
 
 	function generateDatatableServerSideQuery($sIndexColumn, $aColumns, $sTable, $sql) {
-		$sWhere = datatableStringSearch();
+		$sWhere = datatableStringSearch($aColumns);
 		$sOrder = datatableStringOrder($aColumns);
 		$sLimit = datatableStringLimit();
 

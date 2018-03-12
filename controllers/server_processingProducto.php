@@ -9,7 +9,7 @@
 		while ($rows = mysqli_fetch_assoc($result['aaData'])) {
 			$data[] = $rows;
 		}
-//var_dump($result);exit();
+
 		$results = array(
 			"sEcho" => intval($_GET['sEcho']),
 			"iTotalRecords" => $result['iTotalRecords'],

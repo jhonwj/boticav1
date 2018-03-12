@@ -78,5 +78,13 @@ function getSQLResultSet($commando){
     return $result;
 }
 
+function getMysqliLink() {
+    $mysqli = new mysqli("localhost", "root", '', 'neurofac_botica');
+    $mysqli->set_charset("utf8");
+    if (!$mysqli) {
+        die('Error de conexion ' . $mysqli->error );
+    }
+    return $mysqli;
+}
 
 ?>

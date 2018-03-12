@@ -349,8 +349,9 @@ include_once("../clases/BnGeneral.php");
   function ListarProductosDet(){
           $("#tableProductoDetListar").DataTable().destroy();
           var table4 = $("#tableProductoDetListar").DataTable({
+            "serverSide": true,
             "bProcessing": true,
-            "sAjaxSource": "../controllers/server_processingProducto.php",
+            "sAjaxSource": "../controllers/server_processingProducto.php?serverSide=1",
             "bPaginate":true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
@@ -567,7 +568,7 @@ function ListarProductos(){
             "sAjaxSource": "../controllers/server_processingProducto.php?serverSide=1",
             "bPaginate":true,
             "sPaginationType":"full_numbers",
-            "iDisplayLength": 5,
+            "iDisplayLength": 10,
             //"bAutoWidth": false,
             //"autoWidth" : false,
             //"bFilter": false,

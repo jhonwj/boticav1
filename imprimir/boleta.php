@@ -125,7 +125,7 @@ $igv = 0;
     font-size: 13px;
   }
   .footer .user {
-    margin-top: 20px;
+    margin-top: 10px;
     margin-left: 20px;
   }
 </style>

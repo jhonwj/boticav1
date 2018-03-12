@@ -16,6 +16,25 @@ include_once("../clases/helpers/Modal.php");
 
 	$(document).ready(function(){
 
+    // ejecutar cursor- cargar stock
+    $.ajax({
+      url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=VENTA',
+      type: 'get',
+      dataType: 'json',
+      success: function(respuesta){
+          if(respuesta.success){
+            window.isLoadStock = true
+          }
+          else{
+            window.isLoadStock = false
+          }
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+          window.isLoadStock = false
+          //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+      }
+    });
+
     //$(".sTableProducto").doubleScroll();
 
     var table2 = $("#tableTipoDocVenta").DataTable();
@@ -62,8 +81,18 @@ $("#FechaVen").hide();
 
 //producto
     $("#btnProducto").off("click").click(function(event) {
+      if ($('#txtCliente').val() == '-') {
+        alert('Seleccione un cliente');
+        return;
+      }
+
+      if (!window.isLoadStock) {
         ListarProducto($("#txtAlmacen").val());
-       $("#ModalBuscarProducto").modal("show");
+      } else {
+        ListarProducto($("#txtAlmacen").val(), true);
+      }
+      $("#ModalBuscarProducto").modal("show");
+        
     });
     $('#tableTipoDocVenta tbody').on('click', 'tr', function () {
         var data = table2.row( this ).data();
@@ -87,12 +116,32 @@ $("#FechaVen").hide();
         obtenerSerie(1, data[0])
 
     });
-        $('#tableAlmacen tbody').on('click', 'tr', function () {
+    
+    $('#tableAlmacen tbody').on('click', 'tr', function () {
         var data = table3.row( this ).data();
         $("#txtAlmacen").val(data[1]);
         $("#ModalAlmacen").modal("hide");
 
+        // Ejecutar cursor - carga stock
+        $.ajax({
+          url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + data[1],
+          type: 'get',
+          dataType: 'json',
+          success: function(respuesta){
+              if(respuesta.success){
+                window.isLoadStock = true
+              }
+              else{
+                window.isLoadStock = false
+              }
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) {
+              window.isLoadStock = false
+              //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+          }
+        });
     });
+    
     $('.spinner .btn:first-of-type').on('click', function() {
     $('.spinner input').val( parseInt($('.spinner input').val(), 10) + 1);
     if ($('.spinner input').val()<="1") {$("#btnCaretDown").prop("disabled", true); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));} else{$("#btnCaretDown").prop("disabled", false); $("#txtTotal").val((($("#txtPrecio").val())*$('.spinner input').val()).toFixed(2));};
@@ -499,40 +548,52 @@ function EditarCliente(idCliente) {
   $("#ModalClienteAñadir").modal("show");
 }
 
-function ListarProducto(almacen){
+function ListarProducto(almacen, serverSide = false){
+  if (serverSide) {
+    serverSide = true;
+    ajaxSource = "../controllers/server_processingReporteStock.php?serverSide=1&almacen=" + almacen;
+  } else {
+    serverSide = false;
+    ajaxSource = "../controllers/server_processingReporteStock.php?almacen=" + almacen;
+  }
       $("#tableProducto").DataTable().destroy();
           var table4 = $("#tableProducto").DataTable({
+            "serverSide": serverSide,
             "bProcessing": true,
             "bPaginate":true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
-            "ajax":{
-              "url": "../controllers/server_processingReporteStock.php",
+            "sAjaxSource": ajaxSource,
+            /*"ajax":{
+              "url": "../controllers/server_processingReporteStock.php?serverSide=1",
               "type": "get",
               "data": {
                 "almacen" : almacen
               }
-            },
+            },*/
             "aoColumns": [
-            { mData: 'numero', sClass: "idProd" } ,
-            { mData: 'Producto' } ,
-            { mData: 'PrecioContado' },
-            { mData: 'PrecioPorMayor' },
-            { mData: 'StockPorMayor' },
-            { mData: 'formafarmaceutica' },
-            { mData: 'marca' },
-            { mData: 'Codigo' },
-            { mData: 'ProductoMedicion' },
-            { mData: 'stock' },
-            /*{ mRender: function ( data, type, row ) {
-               return '';
-            } }*/
-            { mData: 'VentaEstrategica' },
-            { mData: 'IdLote' },
-            { mData: 'FechaVen' }
-            ]
+              { mData: 'numero', sClass: "idProd" } ,
+              { mData: 'Producto' } ,
+              { mData: 'PrecioContado' },
+              { mData: 'PrecioPorMayor' },
+              { mData: 'StockPorMayor' },
+              { mData: 'formafarmaceutica' },
+              { mData: 'marca' },
+              { mData: 'Codigo' },
+              { mData: 'ProductoMedicion' },
+              { mData: 'stock' },
+              /*{ mRender: function ( data, type, row ) {
+                return '';
+              } }*/
+              { mData: 'VentaEstrategica' },
+              { mData: 'IdLote' },
+              { mData: 'FechaVen' }
+            ],
+            "initComplete": function( settings, json ) {
+              window.isLoadStock = true;
+            }
         });
-        console.log(table4)
+        
       $('#tableProducto tbody').off("click").on('click', 'tr', function () {
         var id = $(this).children("td").eq(0).text();
         $("#txtPrecio").prop("readonly", true);

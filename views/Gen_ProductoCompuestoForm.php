@@ -106,8 +106,9 @@ function TablaCompuesto(){
 function ListarProducto(){
   $("#tableProductosAdd").DataTable().destroy();
       var table4 = $("#tableProductosAdd").DataTable({
+            "serverSide": true,
             "bProcessing": true,
-            "sAjaxSource": "../controllers/server_processingProducto.php",
+            "sAjaxSource": "../controllers/server_processingProducto.php?serverSide=1",
             "bPaginate":true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,

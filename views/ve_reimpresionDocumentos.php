@@ -30,8 +30,9 @@ include_once("../clases/helpers/Modal.php");
           { mData: 'Cliente' },
           { mData: 'Total' },
           { mRender : function(data, type, row){
-            return "<a href='/imprimir/index.php?IdDocVenta=" + row.idDocVenta + "&redirect=/views/ve_reimpresionDocumentos.php' class='btn btn-success'>" + row.TipoDoc + "</a>"
-          }}
+            return "<a href='/imprimir/index.php?IdDocVenta=" + row.idDocVenta + "&redirect=/views/ve_reimpresionDocumentos.php' class='btn btn-success'><i class='fa fa-print'></i> " + row.TipoDoc + "</a> " +
+            "<a href='/imprimir/index.php?IdDocVenta=" + row.idDocVenta + "&preview=1' target='_blank' class='btn btn-success'><i class='fa fa-search'></i></a>"
+          }, width: 180}
         ]
       });
 
