@@ -1,0 +1,94 @@
+DELIMITER $$
+CREATE PROCEDURE `SbLo_Stock_Cursor`(IN `var_Almacen` VARCHAR(255), IN `Var_Producto` VARCHAR(255))
+BEGIN
+	DECLARE var_Fecha DATE;
+	DECLARE v_IdProducto Int;
+	DECLARE v_Marca varchar(255);
+	DECLARE v_Categoria varchar(255);
+	DECLARE v_FormaFarmaceutica varchar(255);
+	DECLARE v_cantidad  FLOAT;
+	declare v_Producto varchar(100);
+	DECLARE done INT DEFAULT FALSE;
+	declare cur1 cursor for
+		Select IdProducto,Gen_ProductoMarca.ProductoMarca,Gen_ProductoCategoria.ProductoCategoria,Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Producto,0 as Stock
+		from Gen_Producto
+		Inner JOIN Gen_ProductoCategoria On Gen_Producto.IdProductoCategoria=Gen_ProductoCategoria.IdProductoCategoria
+		Inner Join Gen_ProductoMarca On Gen_ProductoMarca.IdProductoMarca=Gen_Producto.IdProductoMarca
+		Inner Join Gen_ProductoFormaFarmaceutica On Gen_ProductoFormaFarmaceutica.IdProductoFormaFarmaceutica=Gen_Producto.IdProductoFormaFarmaceutica
+		where Producto LIKE CONCAT('%',Var_Producto,'%') and Gen_Producto.ControlaStock=1;
+	declare continue handler for not found set done=1;
+
+	SET var_Fecha=(Select CURDATE());
+	SET @Fecha=DATE_ADD(var_Fecha, INTERVAL 1 DAY);
+	set done = 0;
+	delete from prodstock;
+    open cur1;
+
+igmLoop: loop
+
+
+
+        fetch cur1 into v_IdProducto,v_Marca,v_Categoria,v_FormaFarmaceutica,v_Producto,v_cantidad;
+
+
+
+        if done = 1 then leave igmLoop; end if;
+
+
+
+		CALL SbLo_StockIngresoUnd (var_Almacen,v_Producto,@Fecha,@IngresoUnd);
+
+
+
+		CALL SbLo_StockSalidaUnd (var_Almacen,v_Producto,@Fecha,@SalidaUnd);
+
+
+
+
+
+
+
+		CALL SbLo_StockIngresoCaja (var_Almacen,v_Producto,@Fecha,@IngresoCaja);
+
+
+
+		CALL SbLo_StockSalidaCaja (var_Almacen,v_Producto,@Fecha,@SalidaCaja);
+
+
+
+
+
+
+
+		CALL SbLo_StockDocVentaUnd (var_Almacen,v_Producto,@Fecha,@DocVentaUnd);
+
+
+
+		CALL SbLo_StockDocVentaCaja (var_Almacen,v_Producto,@Fecha,@DocVentaCaja);
+
+
+
+		Set @Ingresos=@IngresoUnd+@IngresoCaja;
+
+
+
+	Set @Salidas=@SalidaCaja+@SalidaUnd+@DocVentaUnd+@DocVentaCaja;
+
+
+
+	Set @Stock=@Ingresos-@Salidas;
+
+
+
+	Insert into prodstock (IdProducto,ProductoMarca,ProductoCategoria,FormaFarmaceutica,Producto,Stock) values (v_IdProducto,v_Marca,v_Categoria,v_FormaFarmaceutica, v_Producto,@Stock);
+
+    end loop igmLoop;
+
+
+
+    close cur1;
+
+
+
+END$$
+DELIMITER ;

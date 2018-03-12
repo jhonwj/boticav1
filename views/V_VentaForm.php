@@ -532,6 +532,7 @@ function ListarProducto(almacen){
             { mData: 'FechaVen' }
             ]
         });
+        console.log(table4)
       $('#tableProducto tbody').off("click").on('click', 'tr', function () {
         var id = $(this).children("td").eq(0).text();
         $("#txtPrecio").prop("readonly", true);

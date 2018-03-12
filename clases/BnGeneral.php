@@ -273,10 +273,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
     }
 
-       //////////////////////////////////////////////////////////////////////////////////
-    function fn_devolverProducto($criterio, $orden){
+    //////////////////////////////////////////////////////////////////////////////////
+    function fn_devolverProducto($criterio, $orden, $serverSide = false){
 
 		$Ssql="SELECT
+					SQL_CALC_FOUND_ROWS
 					Gen_Producto.IdProducto,
 					Gen_Producto.IdProductoMarca,
 					Gen_ProductoMarca.ProductoMarca,
@@ -315,9 +316,54 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 					INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
 					LEFT JOIN Gen_ProductoBloque ON Gen_Producto.IdBloque = Gen_ProductoBloque.IdBloque";
 		//echo $Ssql;
-		if (!empty($criterio)) {
-			$Ssql= $Ssql." WHERE ".$criterio;
+		if ($serverSide) {
+			
+			$serverSideQuery = generateDatatableServerSideQuery(
+				'Gen_Producto.IdProducto',
+				array(
+					'Gen_Producto.IdProducto',
+					'Gen_Producto.IdProductoMarca',
+					'Gen_ProductoMarca.ProductoMarca',
+					'Gen_Producto.IdProductoFormaFarmaceutica',
+					'Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica',
+					'Gen_Producto.IdProductoMedicion',
+					'Gen_ProductoMedicion.ProductoMedicion',
+					'Gen_Producto.IdProductoCategoria',
+					'Gen_ProductoCategoria.ProductoCategoria',
+					'Gen_Producto.Producto',
+					'Gen_Producto.ProductoDesc',
+					'Gen_Producto.ProductoDescCorto',
+					'Gen_Producto.CodigoBarra',
+					'Gen_Producto.Codigo',
+					'Gen_Producto.Dosis',
+					'Gen_Producto.PrecioContado',
+					'Gen_Producto.PrecioPorMayor',
+					'Gen_Producto.StockPorMayor',
+					'Gen_Producto.StockMinimo',
+					'Gen_Producto.ControlaStock',
+					'Gen_Producto.Anulado',
+					'Gen_Producto.FechaReg',
+					'Gen_Producto.UsuarioReg',
+					'Gen_Producto.FechaMod',
+					'Gen_Producto.UsuarioMod',
+					'Gen_Producto.Dosis',
+					'Gen_ProductoBloque.Bloque',
+					'Gen_Producto.VentaEstrategica',
+					'Gen_Producto.PrecioCosto',
+					'Gen_Producto.PorcentajeUtilidad'),
+					'Gen_Producto',
+					$Ssql
+			);
+			return $serverSideQuery;
+			
+		}else {
+			if (!empty($criterio)) {
+				$Ssql= $Ssql." WHERE ".$criterio;
+			}
 		}
+		
+		
+
 		//echo $Ssql;
 		return getSQLResultSet($Ssql);
 		//echo "<br/>SE GUARDO ($IdVideo22)!!!!!";
@@ -642,5 +688,107 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function ejecutarStockCursor($almacen, $producto) {
+		$Ssql = " call SbLo_Stock_Cursor('$almacen', $producto);";
+		return getSQLResultSet($Ssql);
+	}
 
+	/* SERVER SIDE DATATABLE */
+	function datatableStringLimit() {
+		$sLimit = "";
+		if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
+		{
+			$sLimit = "LIMIT ".mysql_real_escape_string( $_GET['iDisplayStart'] ).", ".
+				mysql_real_escape_string( $_GET['iDisplayLength'] );
+		}
+
+		return $sLimit;
+	}
+
+	function datatableStringOrder($aColumns) {
+
+		if ( isset( $_GET['iSortCol_0'] ) )
+		{
+			$sOrder = "ORDER BY  ";
+			for ( $i=0 ; $i<intval( $_GET['iSortingCols'] ) ; $i++ )
+			{
+				if ( $_GET[ 'bSortable_'.intval($_GET['iSortCol_'.$i]) ] == "true" )
+				{
+					$sOrder .= $aColumns[ intval( $_GET['iSortCol_'.$i] ) ]."
+						".mysql_real_escape_string( $_GET['sSortDir_'.$i] ) .", ";
+				}
+			}
+			
+			$sOrder = substr_replace( $sOrder, "", -2 );
+			if ( $sOrder == "ORDER BY" )
+			{
+				$sOrder = "";
+			}
+			return $sOrder;
+		}
+	}
+
+	function datatableStringSearch() {
+		$sWhere = "";
+		if ( $_GET['sSearch'] != "" )
+		{
+			$sWhere = "WHERE (";
+			for ( $i=0 ; $i<count($aColumns) ; $i++ )
+			{
+				$sWhere .= $aColumns[$i]." LIKE '%".mysql_real_escape_string( $_GET['sSearch'] )."%' OR ";
+			}
+			$sWhere = substr_replace( $sWhere, "", -3 );
+			$sWhere .= ')';
+		}
+		return $sWhere;
+	}
+
+	function generateDatatableServerSideQuery($sIndexColumn, $aColumns, $sTable, $sql) {
+		$sWhere = datatableStringSearch();
+		$sOrder = datatableStringOrder($aColumns);
+		$sLimit = datatableStringLimit();
+
+		/* Individual column filtering */
+		for ( $i=0 ; $i<count($aColumns) ; $i++ )
+		{
+			if ( isset($_GET['bSearchable_'.$i]) && $_GET['sSearch_'.$i] != '' )
+			{
+				if ( $sWhere == "" )
+				{
+					$sWhere = "WHERE ";
+				}
+				else
+				{
+					$sWhere .= " AND ";
+				}
+				$sWhere .= $aColumns[$i]." LIKE '%".mysql_real_escape_string($_GET['sSearch_'.$i])."%' ";
+			}
+		}
+
+		$Ssql =  $sql . "
+			$sWhere 
+			$sOrder 
+			$sLimit";
+		
+		$result = getSQLResultSet($Ssql);
+		$sQuery = " SELECT FOUND_ROWS()";
+		$rResultFilterTotal = getSQLResultSet($sQuery);
+		$aResultFilterTotal = mysqli_fetch_array($rResultFilterTotal);
+		$iFilteredTotal = $aResultFilterTotal[0];
+		//var_dump($aResultFilterTotal);exit();
+
+		$sQuery = "
+			SELECT COUNT(".$sIndexColumn.")
+			FROM   $sTable
+		";
+		$rResultTotal = getSQLResultSet($sQuery);
+		$aResultTotal = mysqli_fetch_array($rResultTotal);
+		$iTotal = $aResultTotal[0];
+			
+		return array(
+			'aaData' => $result,
+			'iTotalRecords' => $iTotal,
+			'iTotalDisplayRecords' => $iFilteredTotal
+		);
+	}
  ?>
