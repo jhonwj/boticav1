@@ -12,7 +12,7 @@ $(document).ready(function(e){
   $("#btnGenerar").click(function(e){
     $("#tableRegMov tbody").empty();
     var xhr = $.ajax({
-      url: "listarRegMov.php",
+      url: "../controllers/listarRegMov.php",
       type: "get",
       data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked")},
       dataType: "html",

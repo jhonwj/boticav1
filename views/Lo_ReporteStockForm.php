@@ -35,7 +35,7 @@ $(document).ready(function(e){
         $("#tableProducto").DataTable().draw();
         } );
     $("#btnReportar").click(function(e){
-    window.location="reporteexcel2.php?almacen="+$("#txtAlmacen").val();
+    window.location="../controllers/reporteExcel2.php?almacen="+$("#txtAlmacen").val();
     });
 });
 function listarProveedor(almacen){

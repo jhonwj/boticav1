@@ -16,9 +16,11 @@ include_once("../clases/helpers/Modal.php");
 
 	$(document).ready(function(){
 
+    var almacenDefault = 'VENTA';
+
     // ejecutar cursor- cargar stock
     $.ajax({
-      url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=VENTA',
+      url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + almacenDefault,
       type: 'get',
       dataType: 'json',
       success: function(respuesta){
@@ -63,7 +65,7 @@ include_once("../clases/helpers/Modal.php");
     .column( 1 )
     .data()
     .each( function ( value, index ) {
-        if(value == "VENTA"){
+        if(value == almacenDefault){
         	$("#txtAlmacen").val(value);
         }
     } );
@@ -377,7 +379,7 @@ $("#btnGuardarMetPago").click(function(){
   var myJson3 = JSON.stringify(tablaMetodoPago);
 
   var xhr = $.ajax({
-    url: 'v_VentaGuardar.php',
+    url: '../controllers/v_VentaGuardar.php',
     type: 'post',
     data: {data : myJson2, data2 : myJson, data3 : myJson3},
     dataType: 'html',
