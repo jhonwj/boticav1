@@ -16,26 +16,7 @@ include_once("../clases/helpers/Modal.php");
 
 	$(document).ready(function(){
 
-    var almacenDefault = 'VENTA';
-
-    // ejecutar cursor- cargar stock
-    $.ajax({
-      url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + almacenDefault,
-      type: 'get',
-      dataType: 'json',
-      success: function(respuesta){
-          if(respuesta.success){
-            window.isLoadStock = true
-          }
-          else{
-            window.isLoadStock = false
-          }
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-          window.isLoadStock = false
-          //alert("Status: " + textStatus); alert("Error: " + errorThrown);
-      }
-    });
+    var almacenDefault = 'PRINCIPAL';
 
     //$(".sTableProducto").doubleScroll();
 
@@ -65,8 +46,10 @@ include_once("../clases/helpers/Modal.php");
     .column( 1 )
     .data()
     .each( function ( value, index ) {
-        if(value == almacenDefault){
-        	$("#txtAlmacen").val(value);
+        if(index == 0) {
+          almacenDefault = value
+          $("#txtAlmacen").val(value);
+          console.log(almacenDefault)
         }
     } );
 
@@ -78,6 +61,27 @@ include_once("../clases/helpers/Modal.php");
         	$("#txtCliente").val(value);
         }
     } );*/
+
+
+      // ejecutar cursor- cargar stock
+      $.ajax({
+        url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + almacenDefault,
+        type: 'get',
+        dataType: 'json',
+        success: function(respuesta){
+            if(respuesta.success){
+              window.isLoadStock = true
+            }
+            else{
+              window.isLoadStock = false
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            window.isLoadStock = false
+            //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        }
+      });
+
 
 $("#FechaVen").hide();
 
@@ -124,6 +128,7 @@ $("#FechaVen").hide();
         $("#txtAlmacen").val(data[1]);
         $("#ModalAlmacen").modal("hide");
 
+        window.isLoadStock = false;
         // Ejecutar cursor - carga stock
         $.ajax({
           url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + data[1],
