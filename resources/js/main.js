@@ -109,8 +109,10 @@ function exportarProforma(obj) {
 }
 
 function renderHeaderPDF(doc, imgData) {
-  doc.addImage(imgData, 'JPEG', 40, 30, 55, 60);
-  doc.setFontSize(14);
+  var width = doc.internal.pageSize.width;    
+
+  doc.addImage(imgData, 'JPEG', 0, 30, width, 60);
+  /*doc.setFontSize(14);
   doc.setTextColor(100);
   //var text = doc.splitTextToSize('Boticas Delman', 580);
   doc.text('BOTICAS DELMAN', 237, 45);
@@ -119,7 +121,7 @@ function renderHeaderPDF(doc, imgData) {
 
   doc.setFontSize(10);
   doc.text('Consultorios para la salud', 240, 75);
-  doc.text('Jr. Arica N° 150 frente a la plaza menor de Aguaytia', 180, 85);
+  doc.text('Jr. Arica N° 150 frente a la plaza menor de Aguaytia', 180, 85);*/
 
   return doc
 }
@@ -139,7 +141,7 @@ function exportarCajaBancoClientePDF(fn) {
   table = doc.autoTableHtmlToJson(table[0]);
   header = doc.autoTableHtmlToJson(header[0]);
 
-  getDataUri('../resources/images/delman.jpg', function(dataUri) {
+  getDataUri('../resources/images/botica-header.jpg', function(dataUri) {
       var imgData = dataUri
 
       doc.autoTable(header.columns, header.data, {
@@ -173,7 +175,7 @@ function exportarPDF(obj) {
     table = doc.autoTableHtmlToJson(table);
     header = doc.autoTableHtmlToJson(header[0]);
 
-    getDataUri('../resources/images/delman.jpg', function(dataUri) {
+    getDataUri('../resources/images/botica-header.jpg', function(dataUri) {
         var imgData = dataUri
 
         doc.autoTable(header.columns, header.data, {
