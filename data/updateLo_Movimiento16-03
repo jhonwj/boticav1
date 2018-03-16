@@ -1,0 +1,25 @@
+ALTER TABLE Lo_Movimiento ADD PartidaDist varchar(255);
+ALTER TABLE Lo_Movimiento ADD PartidaProv varchar(255);
+ALTER TABLE Lo_Movimiento ADD PartidaDpto varchar(255);
+
+ALTER TABLE Lo_Movimiento ADD LlegadaDist varchar(255);
+ALTER TABLE Lo_Movimiento ADD LlegadaProv varchar(255);
+ALTER TABLE Lo_Movimiento ADD LlegadaDpto varchar(255);
+
+ALTER TABLE Lo_Movimiento ADD DestinatarioRazonSocial varchar(255);
+ALTER TABLE Lo_Movimiento ADD DestinatarioRUC varchar(255);
+
+ALTER TABLE Lo_Movimiento ADD TransporteNumPlaca varchar(255);
+ALTER TABLE Lo_Movimiento ADD TransporteNumContrato varchar(255);
+ALTER TABLE Lo_Movimiento ADD TransporteNumLicencia varchar(255);
+ALTER TABLE Lo_Movimiento ADD TransporteRazonSocial varchar(255);
+ALTER TABLE Lo_Movimiento ADD TransporteRUC varchar(255);
+
+ALTER TABLE Lo_Movimiento ADD IdDocVenta INT(11);
+
+
+
+ALTER TABLE `Lo_Movimiento` 
+CHANGE COLUMN `IdDocVenta` `IdDocVenta` INT(11) NOT NULL ,
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`IdMovimientoTipo`, `IdProveedor`, `Serie`, `Numero`, `IdDocVenta`);

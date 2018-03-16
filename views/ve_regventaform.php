@@ -11,7 +11,7 @@ $(document).ready(function(e){
 	$("#btnGenerar").click(function(e){
 		$("#tableRegVenta tbody").empty();
 		var xhr = $.ajax({
-			url: "listarRegVenta.php",
+			url: "../controllers/listarRegVenta.php",
 			type: "get",
 			data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked")},
 			dataType: "html",

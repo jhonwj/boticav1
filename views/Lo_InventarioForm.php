@@ -618,15 +618,17 @@ function calcularFlete() {
 				</div>
 			</div>
       <div class="col-md-4 form-group">
-        <label class=""> Numero :  </label>
-        <input type="text" id="txtNumero"  class="form-control" style="width:195px;">
-				<div>
+        <div>
 					<label class=""> TIPO MOVIMIENTO  </label>
 					<div class="form-inline">
 					<input type="text" id="txtTipoMovimiento" readonly class="form-control" style="width:195px;">
 					<button type="button" id="btnTipoMovimiento" class="btn btn-success" ><i class="fa fa-search-plus"></i></button>
 					</div>
 				</div>
+        
+        <label class=""> Numero :  </label>
+        <input type="text" id="txtNumero"  class="form-control" style="width:195px;">
+				
       </div>
       <div class="col-md-4 form-group">
         <label class=""> Fecha Contable :  </label>
@@ -685,15 +687,14 @@ function calcularFlete() {
 				<button type="button" id="btnAlmacenOrigen" class="btn btn-success" ><i class="fa fa-search-plus"></i></button>
 				</div>
 			</div>
-		</div>
-    <div class="row">
-      <div class="col-md-5 form-group">
+      <div class="col-md-4 form-group">
         <label class=""> Observacion </label>
-          <textarea class="form-control" style="width:250px;" rows="5" id="txtObservacion"></textarea>
+        <textarea class="form-control" style="width:250px;" rows="2" id="txtObservacion"></textarea>
       </div>
-    </div>
+		</div>
+    
 		<div class="row">
-		  <div class="col-xs-12 form-group">
+		  <div class="col-md-4 form-group">
 		    <div class="checkbox" id="EsCreditoDiv">
 		      <label for=""><input type="checkbox" id="txtCredito" name="" value=""> Credito</label>
 		    </div>
@@ -701,7 +702,77 @@ function calcularFlete() {
 					<input type="date" name="" id="txtFechaCredito" value="<?php echo date('Y-m-d'); ?>">
 				</div>
 		  </div>
+      <div class="col-md-4 form-group">
+				<label>Buscar Factura</label>
+				<div class="form-inline">
+					<input type="text" id="txtFactura" class="form-control">
+					<button type="button" id="btnFactura" class="btn btn-success"  data-toggle="modal" data-target="#modalFactura"><i class="fa fa-search-plus"></i></button>
+				</div>
+			</div>
 		</div>
+    <hr/>
+    <div class="row">
+      <h4 class="text-center">Datos para la guia de remisión</h2>
+      <br>
+      <div class="col-md-3 form-group">
+        <div id="PartidaDist">
+          <label class=""> Punto de partida (Dist)</label>
+          <input type="text" name="" id="txtPartidaDist" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="PartidaProv">
+          <label class=""> Punto de partida (Prov) </label>
+          <input type="text" name="" id="txtPartidaProv" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="PartidaDpto">
+          <label class=""> Punto de partida (Dpto) </label>
+          <input type="text" name="" id="txtPartidaDpto" class="form-control" value="" style="width:195px;">
+        </div>
+      </div>
+      <div class="col-md-3 form-group">
+        <div id="LlegadaDist">
+          <label class=""> Punto de llegada (Dist)</label>
+          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="LlegadaDist">
+          <label class=""> Punto de llegada (Prov) </label>
+          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="LlegadaDist">
+          <label class=""> Punto de llegada (Dpto) </label>
+          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:195px;">
+        </div>
+      </div>
+      <div class="col-md-3 form-group">
+        <div id="DestinatarioRazonSocial">
+          <label class=""> Destinatario - Razón Social</label>
+          <input type="text" name="" id="txtDestinatarioRazonSocial" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="DestinatarioRUC">
+          <label class=""> Destinatario RUC </label>
+          <input type="text" name="" id="txtDestinatarioRUC" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="TrasladoMotivo">
+          <label class=""> Motivo del traslado </label>
+          <textarea name="" id="txtTrasladoMotivo" class="form-control" value="" rows="2" style="width:195px;"> </textarea>
+        </div>
+      </div>
+      <div class="col-md-3 form-group">
+        <div id="TransporteNumPlaca">
+          <label>N° de placa</label>
+          <input type="text" name="" id="txtTransporteNumPlaca" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="TransporteNumContrato">
+          <label>N° de contrato de Inscripción</label>
+          <input type="text" name="" id="txtTransporteNumContrato" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="TransporteNumLicencia">
+          <label>N° de licencia del conductor</label>
+          <input type="text" name="" id="txtTransporteNumLicencia" class="form-control" value="" style="width:195px;">
+        </div>
+      </div>
+
+
+    </div>
 		</div>
 		<br>
 		<hr>
@@ -976,6 +1047,44 @@ function calcularFlete() {
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="modalFactura" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"> Seleccionar Factura </h4>
+      </div>
+      <div class="modal-body">
+        <div class="">
+          <div class="row">
+            <div class="col-md-4 form-group">
+              <label>Fecha Inicio</label>
+              <input type="date" id="fechaIni" class="form-control">
+            </div>
+            <div class="col-md-4 form-group">
+              <label>Fecha Final</label>
+              <input type="date" id="fechaFinal" class="form-control">
+              <div class="checkbox">
+                  <label><input id="declarado" type="checkbox">Declarado</label>
+              </div>
+            </div>
+            <div class="col-md-4 form-group">
+              <button class="btn btn-success" id="btnBuscarFactura">Buscar Factura</button>
+            </div>
+          </div>
+          <div class="row">
+          addslashes
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+       <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar <i class="fa fa-close"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 
 <?php
