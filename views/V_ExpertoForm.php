@@ -306,11 +306,13 @@ function agregarProducto(){
 		var precio = "";
 		var compuesto = $("#tempCompuesto").val();
 	$("#tableProductosAdd tbody").off("click").on("click", "tr", function(e){
+		idProducto = $(this).children("td").eq(0).html();
 		producto = $(this).children("td").eq(1).html();
 		precio = $(this).children("td").eq(2).html();
 		$("#tableTratamientoPreO tbody").each(function(e){
 		$("#tableTratamientoPreO tbody tr").each(function(e){
 			if (compuesto == $(this).children("td").eq(0).html()) {
+				$(this).attr('data-idProducto', idProducto);
 				$(this).children("td").eq(2).html(producto);
 				$(this).children("td").eq(3).html(precio);
 				console.log($(this).children("td").eq(0).html() + " - " + producto);
@@ -829,6 +831,193 @@ function SeleccionarSintoma(){
 });
 }
 
+
+$(document).ready(function(){
+	$("#btnCliente").click(function(){
+	$("#ModalCliente").modal({backdrop: false});
+		$("#tableCliente").DataTable().destroy();
+		$("#tableCliente tbody").empty();
+		var table4 = $("#tableCliente").DataTable({
+		"bProcessing": true,
+		"sAjaxSource": "../controllers/server_processingCliente.php",
+		"bPaginate":true,
+		"sPaginationType":"full_numbers",
+		"iDisplayLength": 5,
+		"aoColumns": [
+		{ mData: 'IdCliente' } ,
+		{ mData: 'Cliente' },
+		{ mData: 'DniRuc' },
+		{ mRender : function(data, type, row){
+			return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+		}},
+		{ mData: 'Direccion', "sClass": "idProd" },
+		{ mData: 'Telefono', "sClass": "idProd"},
+		{ mData: 'Email', "sClass": "idProd" },
+
+		]
+		});
+		$('#tableCliente tbody').on('click', 'tr', function () {
+			//var data = $(this).children("td").eq(1).html();
+			//console.log($(this).children("td").eq(1).html());
+			$("#txtCliente").val($(this).children("td").eq(1).html());
+			$("#txtClienteID").val($(this).children("td").eq(0).html());
+			$("#ModalCliente").modal("hide");
+
+		});
+	});
+
+	$('#btnPreOrden').click(function () {
+		$('#modalPreOrden').modal('show');
+	})
+
+	$("#btnModalCliente").click(function(){
+		$("#formAddCliente")[0].reset();
+		$("#ModalClienteAñadir").modal("show");
+	});
+
+	$("#formAddCliente").submit(function(e){
+  var clienteToJson = JSON.stringify($(this).serializeArray());
+  console.log(JSON.stringify($(this).serializeArray()));
+  e.preventDefault();
+
+  var xhr = $.ajax({
+    url : "../controllers/V_ClienteGuardar.php",
+    type: "post",
+    data: {data : clienteToJson},
+    dataType : "html",
+    success : function(respuesta){
+      if(respuesta == "a"){
+		$("#ModalClienteAñadir").modal("hide");
+		$("#tableCliente").DataTable().destroy();
+		$("#tableCliente tbody").empty();
+		var table4 = $("#tableCliente").DataTable({
+		"bProcessing": true,
+		"sAjaxSource": "../controllers/server_processingCliente.php",
+		"bPaginate":true,
+		"sPaginationType":"full_numbers",
+		"iDisplayLength": 5,
+		"aoColumns": [
+		{ mData: 'IdCliente' } ,
+		{ mData: 'Cliente' },
+		{ mData: 'DniRuc' },
+		{ mRender : function(data, type, row){
+			return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+		}},
+		{ mData: 'Direccion', "sClass": "idProd" },
+		{ mData: 'Telefono', "sClass": "idProd"},
+		{ mData: 'Email', "sClass": "idProd" },
+		]
+		});
+		//$("#ModalCliente").modal("show");
+	}else if (respuesta == "m") {
+		$("#txtCliente").val("");
+		$("#ModalClienteAñadir").modal("hide");
+		$("#tableCliente").DataTable().destroy();
+		$("#tableCliente tbody").empty();
+		var table4 = $("#tableCliente").DataTable({
+		"bProcessing": true,
+		"sAjaxSource": "../controllers/server_processingCliente.php",
+		"bPaginate":true,
+		"sPaginationType":"full_numbers",
+		"iDisplayLength": 5,
+		"aoColumns": [
+		{ mData: 'IdCliente' } ,
+		{ mData: 'Cliente' },
+		{ mData: 'DniRuc' },
+		{ mRender : function(data, type, row){
+		return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+		}},
+		{ mData: 'Direccion', "sClass": "idProd" },
+		{ mData: 'Telefono', "sClass": "idProd"},
+		{ mData: 'Email', "sClass": "idProd" },
+		]
+	});
+	$("#ModalCliente").modal("show");
+	}
+		},
+	});
+
+	console.log(xhr);
+	});
+
+
+	//Guardar Pre Orden
+
+	$("#guardarPreOrden").click(function(event) {
+		if (!$('#txtClienteID').val().length) {
+			alert('Seleccione un cliente')
+			return;
+		}
+
+		if($("#tableTratamientoPreO tbody tr").length>0){
+			// $("#txtTotalPagar").val($("#txtTotalGen").val());
+			// $("#ModalMetPago").modal({backdrop: false});
+			var productos = [];
+
+			$('#tableTratamientoPreO tbody tr').each(function() {
+				if($(this).attr('data-idProducto')) {
+					var idProducto = $(this).attr('data-idproducto');
+					var cantidadProducto = $(this).find('td').eq(1).text();
+					productos.push({
+						'IdProducto': idProducto,
+						'Cantidad': cantidadProducto
+					})
+				}
+			})
+
+			var xhr = $.ajax({
+			url: '/controllers/server_processingPreOrden.php',
+			type: 'post',
+			data: {idCliente : $('#txtClienteID').val(), productos : JSON.stringify(productos)},
+			dataType: 'json',
+			success: function(respuesta){
+				if (respuesta.success) {
+					$.notify({
+						icon: 'fa fa-check',
+						message: respuesta.success
+					}, {
+						type: 'success'
+					});
+				} else {
+					$.notify({
+						icon: 'fa fa-exclamation',
+						message: respuesta.error
+					}, {
+						type: 'danger'
+					});
+				}
+
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("Status: " + textStatus); alert("Error: " + errorThrown);
+			}
+			});
+			console.log(xhr);
+
+		}else {
+		alert("Registra al menos un producto");
+		}
+	});
+
+	
+})
+function EditarCliente(idCliente) {
+	//console.log("se hizo click" + idCliente);
+	$("#tableCliente tbody tr").each(function(e){
+		if (idCliente == $(this).children("td").eq(0).text()) {
+		//console.log($(this).children("td").eq(0).text());
+		$("#txtClienteAddId").val($(this).children("td").eq(1).text());
+		$("#txtDniAddId").val($(this).children("td").eq(2).text());
+		$("#txtDireccionAddId").val($(this).children("td").eq(4).text());
+		$("#txtTelefonoAddId").val($(this).children("td").eq(5).text());
+		$("#txtEmailAddId").val($(this).children("td").eq(6).text());
+		$("#txtIdClienteAdd").val($(this).children("td").eq(0).text());
+		}
+	});
+	$("#ModalClienteAñadir").modal("show");
+}
+
+
 </script>
 <body>
 	<?php include("header.php"); ?>
@@ -1211,7 +1400,7 @@ function SeleccionarSintoma(){
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" id="btnCompuestoSave" class="btn btn-primary" >Pre Orden</button>
+				<button type="button" id="btnPreOrden" class="btn btn-primary" >Pre Orden</button>
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
 			</div>
 		</div>
@@ -1242,6 +1431,132 @@ function SeleccionarSintoma(){
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="modalPreOrden" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"> Seleccione Cliente </h4>
+      </div>
+      <div class="modal-body">
+		<div class="input-group" style="margin-bottom:20px;">
+			<input type="hidden" id="txtClienteID" class="form-control">
+			<input type="text" id="txtCliente" class="form-control" value="">
+			<span class="input-group-btn">
+				<button id="btnCliente" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
+			</span>
+  		</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="guardarPreOrden">Guardar Pre Orden <i class="fa fa-save"></i></button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar <i class="fa fa-close"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+ <!-- CLIENTE -->
+ <div class="modal fade" id="ModalCliente" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">CLIENTE</h4>
+      </div>
+      <div class="modal-body">
+        <div class="sTableCliente">
+          <table id="tableCliente" class="table table-striped table-bordered">
+            <thead>
+              <th>#</th>
+              <th>Cliente</th>
+              <th>DNI / RUC</th>
+              <th>Editar</th>
+              <th style="display:none">Direccion</th>
+              <th style="display:none">Telefono</th>
+              <th style="display:none">Email</th>
+            </thead>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btnModalCliente" class="btn btn-success">Añadir</button>
+        <button type="button" data-dismiss="modal" class="btn btn-danger">Close</button>
+      </div>
+    </div>
+  </div>
+ </div>
+
+
+
+ <!-- AÑADIR CLIENTE -->
+ <div class="modal fade" id="ModalClienteAñadir" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Añadir Cliente</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <form id="formAddCliente">
+
+            <div>
+              <label>DNI/RUC</label>
+              <div class="input-group">
+                <input type="text" id="txtDniAddId" name="txtDniAdd" class="form-control">
+                <span class="input-group-btn">
+                  <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="button">
+                    Consulta DNI/RUC <span class="caret"></span>
+                  </button>
+                     <ul class="dropdown-menu">
+                      <li><a href="#" onclick="consultarDNIRUC(
+                        $('#txtDniAddId').val(), 'DNI',
+                        function(cliente) {
+                          $('#txtClienteAddId').val(cliente.nombres)
+                        }
+                      )">Consulta por DNI</a></li>
+                      <li><a href="#" onclick="consultarDNIRUC(
+                        $('#txtDniAddId').val(), 'RUC',
+                        function(cliente) {
+                          $('#txtClienteAddId').val(cliente.RazonSocial)
+                          $('#txtTelefonoAddId').val(cliente.Telefono)
+                          $('#txtDireccionAddId').val(cliente.Direccion)
+                        }
+                      )">Consulta por RUC </a></li>
+                    </ul>
+                </span>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Nombre o Razón Social</label>
+              <input type="text" id="txtClienteAddId" name="txtClienteAdd" class="form-control">
+            </div>
+
+            <div class="input-group">
+              <label>Direccion</label>
+              <!-- <input type="text" id="txtDireccionAddId" name="txtDireccionAdd" class="form-control"> -->
+              <textarea name="txtDireccionAdd" class="form-control" id="txtDireccionAddId" rows="3" cols="40"></textarea>
+            </div>
+            <div class="input-group">
+              <label>Telefono</label>
+              <input type="text" id="txtTelefonoAddId" name="txtTelefonoAdd" class="form-control">
+            </div>
+            <div class="input-group">
+              <label>Email</label>
+              <input type="text" id="txtEmailAddId" name="txtEmailAdd" class="form-control">
+            </div>
+            <input type="hidden" id="txtIdClienteAdd" name="txtIdClienteAddName" value="">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <input type="submit" id="btnAddCliente" class="btn btn-success" value="Añadir" >
+      </div>
+      </form>
+    </div>
+  </div>
+ </div>
 
 <?php include("footer.php"); ?>
 </body>

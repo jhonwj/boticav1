@@ -1,0 +1,14 @@
+DELIMITER //
+CREATE PROCEDURE `SbVe_ListarPreOrden`()
+BEGIN
+SELECT po.IdPreOrden, cl.DniRuc, cl.Cliente,
+    SUM(pod.Cantidad) as Cantidad,
+    SUM(PRO.PrecioContado * pod.Cantidad) AS Total,
+    po.FechaReg 
+FROM Ve_PreOrden AS po 
+INNER JOIN Ve_DocVentaCliente AS cl ON po.IdCliente = cl.IdCliente
+INNER JOIN Ve_PreOrdenDet AS pod ON po.IdPreOrden = pod.IdPreOrden
+INNER JOIN Gen_Producto AS PRO ON pod.IdProducto = PRO.IdProducto
+GROUP BY cl.DniRuc
+ORDER BY po.FechaReg DESC;
+END

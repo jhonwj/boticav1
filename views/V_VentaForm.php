@@ -443,7 +443,7 @@ $("#btnCliente").click(function(){
 });
 
 $("#btnModalCliente").click(function(){
-  //$("#formAddCliente").reset();
+  $("#formAddCliente")[0].reset();
   $("#ModalClienteAñadir").modal("show");
 });
 
@@ -453,7 +453,7 @@ $("#formAddCliente").submit(function(e){
   e.preventDefault();
 
   var xhr = $.ajax({
-    url : "V_ClienteGuardar.php",
+    url : "../controllers/V_ClienteGuardar.php",
     type: "post",
     data: {data : clienteToJson},
     dataType : "html",
@@ -843,7 +843,7 @@ function cargarPreOrden(row) {
 </div>
 
 <div class="pull-right">
-  <!--<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>-->
+  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalProformaVenta"><i class="fa fa-file-pdf-o fa-lg"></i>Crear Proforma</button>
   <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-money fa-lg"></i>   Efectuar pago</button>
   <button id="btnClean" type="button" class="btn btn-warning" name="button"><i class="fa fa-eraser fa-lg"></i>Limpiar</button>

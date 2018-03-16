@@ -673,7 +673,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	}
 
 	function fn_listarProductosPreOrden($idPreOrden) {
-		$Ssql = "SELECT PRO.Producto, POD.Cantidad, PRO.PrecioContado AS Precio,
+		$Ssql = "SELECT PRO.IdProducto, PRO.Producto, POD.Cantidad, PRO.PrecioContado AS Precio,
 			(SELECT MD.IdLote FROM Lo_MovimientoDetalle as MD WHERE MD.IdProducto=PRO.IdProducto group by IdProducto ORDER BY FechaVen ASC) AS Lote,
 			(SELECT MD.FechaVen FROM Lo_MovimientoDetalle as MD WHERE MD.IdProducto=PRO.IdProducto group by IdProducto ORDER BY FechaVen ASC) AS FechaVen
 			FROM Ve_PreOrdenDet AS POD INNER JOIN Gen_Producto AS PRO ON POD.IdProducto = PRO.IdProducto

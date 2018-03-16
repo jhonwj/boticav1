@@ -58,7 +58,7 @@ define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
-          <!--<li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>-->
+          <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>

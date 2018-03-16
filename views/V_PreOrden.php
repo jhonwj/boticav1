@@ -36,8 +36,10 @@ include_once("../clases/helpers/Modal.php");
     .column( 1 )
     .data()
     .each( function ( value, index ) {
-        if(value == "VENTA"){
-        	$("#txtAlmacen").val(value);
+       if(index == 0) {
+          almacenDefault = value
+          $("#txtAlmacen").val(value);
+          console.log(almacenDefault)
         }
     } );
 
@@ -50,11 +52,39 @@ include_once("../clases/helpers/Modal.php");
         }
     } );*/
 
+    // ejecutar cursor- cargar stock
+    $.ajax({
+        url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + almacenDefault,
+        type: 'get',
+        dataType: 'json',
+        success: function(respuesta){
+            if(respuesta.success){
+              window.isLoadStock = true
+            }
+            else{
+              window.isLoadStock = false
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            window.isLoadStock = false
+            //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        }
+      });
+
 $("#FechaVen").hide();
 
 //producto
     $("#btnProducto").off("click").click(function(event) {
-        ListarProducto($("#txtAlmacen").val());
+        if (!$('#txtCliente').val()) {
+          alert('Seleccione un cliente');
+          return;
+        }
+
+        if (!window.isLoadStock) {
+          ListarProducto($("#txtAlmacen").val());
+        } else {
+          ListarProducto($("#txtAlmacen").val(), true);
+        }
        $("#ModalBuscarProducto").modal("show");
     });
     $('#tableTipoDocVenta tbody').on('click', 'tr', function () {
@@ -331,7 +361,7 @@ $("#btnCliente").click(function(){
 });
 
 $("#btnModalCliente").click(function(){
-  //$("#formAddCliente").reset();
+  $("#formAddCliente")[0].reset();
   $("#ModalClienteAñadir").modal("show");
 });
 
@@ -341,7 +371,7 @@ $("#formAddCliente").submit(function(e){
   e.preventDefault();
 
   var xhr = $.ajax({
-    url : "V_ClienteGuardar.php",
+    url : "../controllers/V_ClienteGuardar.php",
     type: "post",
     data: {data : clienteToJson},
     dataType : "html",
@@ -424,20 +454,29 @@ function EditarCliente(idCliente) {
   $("#ModalClienteAñadir").modal("show");
 }
 
-function ListarProducto(almacen){
+function ListarProducto(almacen, serverSide = false){
+  if (serverSide) {
+    serverSide = true;
+    ajaxSource = "../controllers/server_processingReporteStock.php?serverSide=1&almacen=" + almacen;
+  } else {
+    serverSide = false;
+    ajaxSource = "../controllers/server_processingReporteStock.php?almacen=" + almacen;
+  }
       $("#tableProducto").DataTable().destroy();
           var table4 = $("#tableProducto").DataTable({
+            "serverSide": serverSide,
             "bProcessing": true,
             "bPaginate":true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
-            "ajax":{
+            "sAjaxSource": ajaxSource,
+            /*"ajax":{
               "url": "../controllers/server_processingReporteStock.php",
               "type": "get",
               "data": {
                 "almacen" : almacen
               }
-            },
+            },*/
             "aoColumns": [
             { mData: 'numero', sClass: "idProd" } ,
             { mData: 'Producto' } ,
