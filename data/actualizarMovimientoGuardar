@@ -1,0 +1,62 @@
+
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoGuardar`(IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT, IN `var_Fecha` DATETIME, IN `var_AlmacenOrigen` INT, IN `var_AlmacenDestino` INT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255), IN `var_FechaStock` DATE, IN `var_Percepcion` FLOAT, IN `var_EsCredito` BIT, IN `fechaCredito` DATE, IN `var_FechaPeriodoT` INT, IN `var_TipoCambio` FLOAT, IN `var_Moneda` VARCHAR(255), 
+IN `var_PartidaDist` VARCHAR(255), IN `var_PartidaProv` VARCHAR(255), IN `var_PartidaDpto` VARCHAR(255), IN `var_LlegadaDist` VARCHAR(255), IN `var_LlegadaProv` VARCHAR(255), IN `var_LlegadaDpto` VARCHAR(255), IN `var_DestinatarioRazonSocial` VARCHAR(255), IN `var_DestinatarioRUC` VARCHAR(255), IN `var_TransporteNumPlaca` VARCHAR(255),
+IN `var_TransporteNumContrato` VARCHAR(255), IN `var_TransporteNumLicencia` VARCHAR(255), IN `var_TransporteRazonSocial` VARCHAR(255), IN `var_TransporteRUC` VARCHAR(255), IN `var_IdDocVenta` INT )
+BEGIN
+	SET @Hash2=(SELECT UNIX_TIMESTAMP());
+	INSERT INTO Lo_Movimiento(Lo_Movimiento.IdMovimientoTipo, Lo_Movimiento.IdProveedor, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Movimiento.MovimientoFecha, Lo_Movimiento.IdAlmacenOrigen, Lo_Movimiento.IdAlmacenDestino, Lo_Movimiento.Observacion, Lo_Movimiento.Anulado, Lo_Movimiento.FechaReg, Lo_Movimiento.UsuarioReg, Lo_Movimiento.`Hash`, Lo_Movimiento.FechaStock, Lo_Movimiento.Percepcion, Lo_Movimiento.EsCredito, Lo_Movimiento.FechaVenCredito, Lo_Movimiento.FechaPeriodoTributario, Lo_Movimiento.TipoCambio, Lo_Movimiento.Moneda,
+    Lo_Movimiento.PartidaDist, Lo_Movimiento.PartidaProv, Lo_Movimiento.PartidaDpto, Lo_Movimiento.LlegadaDist, Lo_Movimiento.LlegadaProv, Lo_Movimiento.LlegadaDpto, Lo_Movimiento.DestinatarioRazonSocial, Lo_Movimiento.DestinatarioRUC, Lo_Movimiento.TransporteNumPlaca, 
+    Lo_Movimiento.TransporteNumPlaca, Lo_Movimiento.TransporteNumLicencia, Lo_Movimiento.TransporteRazonSocial, Lo_Movimiento.TransporteRUC, Lo_Movimiento.IdDocVenta)
+	VALUES(
+		(SELECT IdMovimientoTipo FROM Lo_MovimientoTipo WHERE TipoMovimiento = var_MovimientoTipo),
+		(SELECT IdProveedor FROM Lo_Proveedor WHERE Proveedor = var_Proveedor),
+		var_Serie,
+		var_Numero,
+		var_Fecha,
+		var_AlmacenOrigen,
+		var_AlmacenDestino,
+		var_Observacion,
+		0,
+		now(),
+		var_Usuario,
+		@Hash2,
+		var_FechaStock,
+		var_Percepcion,
+		var_EsCredito ,
+		fechaCredito ,
+		var_FechaPeriodoT,
+		var_TipoCambio,
+		var_Moneda,
+        var_PartidaDist,
+        var_PartidaProv,
+        var_PartidaDpto,
+        var_LlegadaDist,
+        var_LlegadaProv,
+        var_LlegadaDpto,
+        var_DestinatarioRazonSocial,
+        var_DestinatarioRUC,
+        var_TransporteNumPlaca,
+        var_TransporteNumContrato,
+        var_TransporteNumLicencia,
+        var_TransporteRazonSocial,
+        var_TransporteRUC,
+        var_IdDocVenta
+		
+	);
+
+
+
+
+
+
+
+	SELECT Lo_Movimiento.`Hash` FROM Lo_Movimiento WHERE Lo_Movimiento.`Hash` = @Hash2;
+
+
+
+
+
+
+
+END

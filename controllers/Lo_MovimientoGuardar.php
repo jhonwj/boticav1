@@ -6,6 +6,8 @@ header( 'Content-Type: text/html;charset=utf-8' );
 $movimiento = json_decode($_POST["movimiento"], true);
 $producto = json_decode($_POST["producto"], true);
 
+$remision = json_decode($_POST["remision"], true);
+var_dump($remision);exit();
 //if (empty($producto[0]["value"])) {
 // echo $movimiento[0][0];
 // exit();
@@ -21,7 +23,8 @@ $row = mysqli_fetch_array($VerificarMovimiento);
 if ($row[0]>=1) {
 	echo "E";
 }else{
-	$result = fn_guardarMovimiento($movimiento[0][0], $movimiento[0][1], $movimiento[0][2], $movimiento[0][3], $movimiento[0][4], $movimiento[0][5], $movimiento[0][6], $movimiento[0][7], $movimiento[0][8], $movimiento[0][9], $EsCredito, $fecha,  $movimiento[0][12], floatval($movimiento[0][13]), $movimiento[0][14]);
+	$result = fn_guardarMovimiento($movimiento[0][0], $movimiento[0][1], $movimiento[0][2], $movimiento[0][3], $movimiento[0][4], $movimiento[0][5], $movimiento[0][6], $movimiento[0][7], $movimiento[0][8], $movimiento[0][9], $EsCredito, $fecha,  $movimiento[0][12], floatval($movimiento[0][13]), $movimiento[0][14], $remision['PartidaDist'], $remision['PartidaProv'], $remision['PartidaDpto'], $remision['LlegadaDist'], $remision['LlegadaProv'], $remision['LlegadaDpto'], $remision['DestinatarioRazonSocial'], $remision['DestinatarioRUC'], $remision['TransporteNumPlaca'], $remision['TransporteNumContrato'], $remision['TransporteNumLicencia'], $remision['TransporteRazonSocial'], $remision['TransporteRUC'], $remision['IdDocVenta'] );
+	
 	foreach ($producto as $key) {
 		$tieneIgv = 0;
 		if ($key[4]) {

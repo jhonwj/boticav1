@@ -204,11 +204,29 @@ calcularFlete();
 						 													$(this).children("td").eq(11+4).find("input[type='date']").val()])
 	        });
 	      });
+
+        var remision = {
+          'PartidaDist': $('#txtPartidaDist').val(),
+          'PartidaProv': $('#txtPartidaProv').val(),
+          'PartidaDpto': $('#txtPartidaDpto').val(),
+          'LlegadaDist': $('#txtLlegadaDist').val(),
+          'LlegadaProv': $('#txtLlegadaProv').val(),
+          'LlegadaDpto': $('#txtLlegadaDpto').val(),
+          'DestinatarioRazonSocial': $('#txtDestinatarioRazonSocial').val(),
+          'DestinatarioRUC': $('#txtDestinatarioRUC').val(),
+          'TransporteNumPlaca': $('#txtTransporteNumPlaca').val(),
+          'TransporteNumContrato': $('#txtTransporteNumContrato').val(),
+          'TransporteNumLicencia': $('#txtTransporteNumLicencia').val(),
+          'TransporteRazonSocial': $('#txtTransporteRazonSocial').val(),
+          'TransporteRUC': $('#txtTransporteRUC').val(),
+          'IdDocVenta': $('#txtFactura').attr('data-iddocventa') || 0
+        }
+
 	      console.log(JSON.stringify(arrTableProductos));
 	        var xhr = $.ajax({
-	          url: "Lo_MovimientoGuardar.php",
+	          url: "../controllers/Lo_MovimientoGuardar.php",
 	          type: 'post',
-	          data : {movimiento:JSON.stringify(Movimiento), producto:JSON.stringify(arrTableProductos)},
+	          data : {movimiento:JSON.stringify(Movimiento), producto:JSON.stringify(arrTableProductos), remision:JSON.stringify(remision)},
 	          dataType : "html",
 	          success: function(res){
 	            if (res == "E") {
@@ -229,6 +247,63 @@ calcularFlete();
 			}
 			});
 
+
+// buscar docVenta
+$('#btnBuscarFactura').click(function() {
+  $("#tableFactura").DataTable().destroy();
+  
+  $("#tableFactura").DataTable({
+			"bProcessing": true,
+			"sAjaxSource": "../controllers/listarRegVenta.php?codSunat=01&datatable=1&fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked"),
+			"bPaginate":true,
+			"sPaginationType":"full_numbers",
+			"iDisplayLength": 5,
+			"aoColumns": [
+				{ mData: 'idDocVenta' } ,
+				{ mData: 'Serie' } ,
+				{ mData: 'Numero' },
+				{ mData: 'TipoDoc' }
+			],
+			"rowCallback": function(row, data, index){
+        $(row).on('click', function() {
+          console.log(data)
+          var xhr = $.ajax({
+            url: '../controllers/serverprocessingProductosRegVenta.php',
+            type: 'get',
+            data:  {"idDocVenta" : data.idDocVenta},
+            dataType: 'html',
+            success: function(respuesta){
+                var response = JSON.parse(respuesta);
+                $('#tableProductoI tbody tr').remove();
+                $('#txtFactura').val(data.Serie + '-' + data.Numero)
+                $('#txtFactura').attr('data-iddocventa', data.idDocVenta)
+                $.each(response, function(data, value){
+                  $('#tempIdProductoDet').val(value.IdProducto)
+                  $('#tempProductoDetCodigo').val(value.Codigo)
+                  $('#tempProductoDetMarca').val(value.ProductoMarca)
+                  $('#tempProductoDetForma').val(value.ProductoFormaFarmaceutica)
+                  $('#tempProductoDetMedida').val(value.ProductoMedicion)
+                  $('#tempProductoDet').val(value.Producto)
+                  agregarProductoDet(value.Cantidad, value.Precio, true);
+                });
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus); alert("Error: " + errorThrown);
+            }
+          });
+
+          //agregarProductoDet($("#txtProductoCantidadI").val(), $("#txtProductoPrecioI").val());
+          
+
+          $('#modalFactura').modal('hide');
+        })
+			}
+	});
+  
+})
+
+
+
 });
 
 function AgregarAlmacen(almacen1){
@@ -236,7 +311,7 @@ function AgregarAlmacen(almacen1){
           e.preventDefault();
     console.log($(this).serializeArray());
     var xhr = $.ajax({
-      url: "Lo_AlmacenGuardar.php",
+      url: "../controllers/Lo_AlmacenGuardar.php",
       type: "post",
       data: {almacen : JSON.stringify($(this).serializeArray())},
       dataType: "html",
@@ -304,32 +379,60 @@ function ListarTipoMovimiento(){
             ]
         });
         $("#tableTipoMovimientoListar tbody").on("click", "tr", function(){
-        $("#txtTipoMovimiento").val($(this).children("td").eq(1).html());
-        var tipo = $(this).children("td").eq(2).html();
-        if(tipo=="0"){
-          $("#btnAlmacenOrigen").prop("disabled", true);
-          $("#btnAlmacenDestino").prop("disabled", false);
-          $("#btnProveedor").prop("disabled", false);
-          $("#txtAlmacenOrigen").val("-");
-          $("#txtAlmacenOrigenTemp").val("-1");
-        }else
-        if(tipo=="1"){
-          $("#btnAlmacenOrigen").prop("disabled", false);
-          $("#btnAlmacenDestino").prop("disabled", true);
-          $("#btnProveedor").prop("disabled", true);
-          $("#txtAlmacenDestino").val("-");
-          $("#txtAlmacenDestinoTemp").val("-1");
-          $("#txtProveedor").val("-");
-        }else
-        if(tipo=="2"){
-          $("#btnAlmacenOrigen").prop("disabled", false);
-          $("#btnAlmacenDestino").prop("disabled", false);
-          $("#btnProveedor").prop("disabled", true);
-          $("#txtProveedor").val("-");
-        }
-        $("#modalTipoMovimiento").modal("hide");
+          $("#txtTipoMovimiento").val($(this).children("td").eq(1).html());
+          var tipo = $(this).children("td").eq(2).html();
+          if(tipo=="0"){
+            $("#btnAlmacenOrigen").prop("disabled", true);
+            $("#btnAlmacenDestino").prop("disabled", false);
+            $("#btnProveedor").prop("disabled", false);
+            $("#txtAlmacenOrigen").val("-");
+            $("#txtAlmacenOrigenTemp").val("-1");
+            $('#btnFactura').prop("disabled", true)
+            $('#txtNumero').prop("disabled", false)
+            
+          }else
+          if(tipo=="1"){
+            $("#btnAlmacenOrigen").prop("disabled", false);
+            $("#btnAlmacenDestino").prop("disabled", true);
+            $("#btnProveedor").prop("disabled", true);
+            $("#txtAlmacenDestino").val("-");
+            $("#txtAlmacenDestinoTemp").val("-1");
+            $("#txtProveedor").val("-");
+            $('#btnFactura').prop("disabled", false)
+            $('#txtNumero').prop("disabled", true)
+            
+          }else
+          if(tipo=="2"){
+            $("#btnAlmacenOrigen").prop("disabled", false);
+            $("#btnAlmacenDestino").prop("disabled", false);
+            $("#btnProveedor").prop("disabled", true);
+            $("#txtProveedor").val("-");
+            $('#btnFactura').prop("disabled", false)
+            $('#txtNumero').prop("disabled", true)      
+            
+          }
+          $("#modalTipoMovimiento").modal("hide");
         });
 }
+
+function LLenarNumero(serie) {
+    var xhr = $.ajax({
+			url: "../controllers/server_processingNuevoNumero.php",
+			type: "get",
+			data: {serie : serie},
+			dataType: "json",
+			success : function(respuesta){
+        console.log(respuesta)
+			},
+			error : function(XMLHttpRequest, textStatus, errorThrown){
+				alert("Status " + textStatus);
+				alert("errorThrown " + errorThrown);
+			}
+		});
+		console.log(xhr);
+}
+
+
 
 function Limpiar(){
  $("#txtAlmacenOrigen").val("");
@@ -355,7 +458,7 @@ function Limpiar(){
  //$("#txtPeriodoT").val("201706");
 }
 
-function agregarProductoDet(productoCantidadDet, productoPrecioDet){
+function agregarProductoDet(productoCantidadDet, productoPrecioDet, incluyeIgv = false){
           var Encontrado = 0;
 
               $("#tableProductoI tbody").each(function(index, el) {
@@ -381,12 +484,12 @@ function agregarProductoDet(productoCantidadDet, productoPrecioDet){
 						"</td><td class='nombreProductoDet'>"+ $("#tempProductoDet").val() +
 						"</td><td>"+productoCantidadDet+
 						"</td><td>"+productoPrecioDet+
-						"</td><td class='inputsIgv'>"+"<input type='checkbox' checked onchange='checkClick($(this), "+$("#tempIdProductoDet").val().concat(productoPrecioDet)+");' class='' id='idCheckIGV' value='0'>"+
-						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet))+
+						"</td><td class='inputsIgv'>"+"<input type='checkbox' "+(incluyeIgv ? '' : 'checked')+" onchange='checkClick($(this), "+$("#tempIdProductoDet").val().concat(productoPrecioDet)+");' class='' id='idCheckIGV' value='0'>"+
+						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet)).toFixed(2)+
 						"</td><td contenteditable='true' onkeyup='sumarISC();'>"+0+
-						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet)*0.18).toFixed(2)+
+						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet)*(incluyeIgv ? '0' : 0.18)).toFixed(2)+
 						"</td><td contenteditable='true' onkeyup='sumarFlete();'>"+0+
-						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet) + parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet)*0.18)+
+						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet) + parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet)*(incluyeIgv ? '0' : 0.18)).toFixed(2)+
 						"</td><td contenteditable='true'>"+0+
 						"</td><td contenteditable='true'><input type='date'>"+
 						"</td><td class='text-center'><a id='btnEliminarProducto' class='btn' onclick='EliminarProductoDet("+$("#tempIdProductoDet").val().concat(productoPrecioDet)+")'><i class='fa fa-trash'></i></a></td></tr>";
@@ -705,8 +808,8 @@ function calcularFlete() {
       <div class="col-md-4 form-group">
 				<label>Buscar Factura</label>
 				<div class="form-inline">
-					<input type="text" id="txtFactura" class="form-control">
-					<button type="button" id="btnFactura" class="btn btn-success"  data-toggle="modal" data-target="#modalFactura"><i class="fa fa-search-plus"></i></button>
+					<input type="text" id="txtFactura" class="form-control" readonly>
+					<button type="button" id="btnFactura" disabled class="btn btn-success"  data-toggle="modal" data-target="#modalFactura"><i class="fa fa-search-plus"></i></button>
 				</div>
 			</div>
 		</div>
@@ -768,6 +871,14 @@ function calcularFlete() {
         <div id="TransporteNumLicencia">
           <label>N° de licencia del conductor</label>
           <input type="text" name="" id="txtTransporteNumLicencia" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="TransporteRazonSocial">
+          <label>Razón social empresa de transporte</label>
+          <input type="text" name="" id="txtTransporteRazonSocial" class="form-control" value="" style="width:195px;">
+        </div>
+        <div id="TransporteRUC">
+          <label>RUC empresa de transporte</label>
+          <input type="text" name="" id="txtTransporteRUC" class="form-control" value="" style="width:195px;">
         </div>
       </div>
 
@@ -1073,7 +1184,17 @@ function calcularFlete() {
             </div>
           </div>
           <div class="row">
-          addslashes
+            <div class="col-sm-12">
+              <table id="tableFactura" class="table table-striped table-bordered">
+                <thead>
+                  <th>IdDocVenta</th>
+                  <th>Serie</th>
+                  <th>Numero</th>
+                  <th>Tipo Doc.</th>
+                </thead>
+              </table>
+            </div>
+            
           </div>
         </div>
       </div>

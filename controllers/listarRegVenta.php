@@ -14,9 +14,27 @@ include_once '../clases/BnGeneral.php';
 
 		$result = ListarRegVenta($fechaIni, $fechaFin, $declarado);
 		$data = array();
-		while ($rows = mysqli_fetch_assoc($result)) {
-				$data[] = $rows;
+
+	while ($rows = mysqli_fetch_assoc($result)) {
+		if(isset($_GET['codSunat'])) {
+			if($rows['CodSunat'] == $_GET['codSunat']) {
+				$data[] = $rows;		
 			}
+		} else {
+			$data[] = $rows;
+		}
+	}
+
+	if(isset($_GET['datatable'])) {
+		$results = array(
+			"sEcho" => 1,
+			"iTotalRecords" => count($data),
+			"iTotalDisplayRecords" => count($data),
+			"aaData" => $data);
+	   
+		   echo json_encode($results);
+		   return true;
+	}
 
 	echo json_encode($data);
 	return true;

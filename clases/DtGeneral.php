@@ -446,11 +446,11 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 		    	ejecutarSQLCommand($Ssql);
 		    }
 
-		    function fn_guardarMovimiento($tipoMovimiento, $proveedor, $serie, $numero, $fecha, $almacenOrigen, $almacenDestino, $obs, $fechaStock, $percepcion, $EsCredito, $fechaCredito, $periodoTributario, $tipoCambio, $moneda){
+		    function fn_guardarMovimiento($tipoMovimiento, $proveedor, $serie, $numero, $fecha, $almacenOrigen, $almacenDestino, $obs, $fechaStock, $percepcion, $EsCredito, $fechaCredito, $periodoTributario, $tipoCambio, $moneda, $partidaDist, $partidaProv, $partidaDpto, $llegadaDist, $llegadaProv, $llegadaDpto, $destinatarioRazonSocial, $destinatarioRUC, $transporteNumPlaca, $transporteNumContrato, $transporteNumLicencia, $transporteRazonSocial, $transporteRUC, $idDocVenta){
 					if (!$fechaCredito) {
-						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, NULL , $periodoTributario, $tipoCambio, '$moneda')";
+						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, NULL , $periodoTributario, $tipoCambio, '$moneda', $partidaDist, $partidaProv, $partidaDpto, $llegadaDist, $llegadaProv, $llegadaDpto, $destinatarioRazonSocial, $destinatarioRUC, $transporteNumPlaca, $transporteNumContrato, $transporteNumLicencia, $transporteRazonSocial, $transporteRUC, $idDocVenta)";
 					}else {
-						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, '$fechaCredito' , $periodoTributario, $tipoCambio, '$moneda')";
+						$Ssql = "CALL SbLo_MovimientoGuardar('$tipoMovimiento', '$proveedor', '$serie', $numero, '$fecha', $almacenOrigen, $almacenDestino, '$obs', 'jeam',  '$fechaStock', $percepcion, $EsCredito, '$fechaCredito' , $periodoTributario, $tipoCambio, '$moneda', $partidaDist, $partidaProv, $partidaDpto, $llegadaDist, $llegadaProv, $llegadaDpto, $destinatarioRazonSocial, $destinatarioRUC, $transporteNumPlaca, $transporteNumContrato, $transporteNumLicencia, $transporteRazonSocial, $transporteRUC, $idDocVenta)";
 					}
 					//echo $Ssql;
 					// exit();

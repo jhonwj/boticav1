@@ -574,7 +574,15 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function devolverProductosRegVenta($idDocVenta)
 	{
-		$Ssql = " call Sb_ListarProductosRegVenta($idDocVenta);";
+		//$Ssql = " call Sb_ListarProductosRegVenta($idDocVenta);";
+		$Ssql = "SELECT Gen_Producto.IdProducto, Gen_Producto.Producto, Gen_Producto.Codigo, Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaDet.IdDocVenta, Ve_DocVentaDet.Cantidad, Ve_DocVentaDet.Precio, Gen_ProductoMarca.ProductoMarca
+		FROM Gen_Producto
+		INNER JOIN Ve_DocVentaDet ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+		INNER JOIN Gen_ProductoFormaFarmaceutica ON Gen_ProductoFormaFarmaceutica.IdProductoFormaFarmaceutica = Gen_Producto.IdProductoFormaFarmaceutica
+		INNER JOIN Gen_ProductoMedicion ON Gen_ProductoMedicion.IdProductoMedicion = Gen_Producto.IdProductoMedicion
+		INNER JOIN Gen_ProductoMarca ON Gen_ProductoMarca.IdProductoMarca = Gen_Producto.IdProductoMarca
+		WHERE Ve_DocVentaDet.IdDocVenta = $idDocVenta;";
+
 		return getSQLResultSet($Ssql);
 	}
 
@@ -813,5 +821,16 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 			'iTotalRecords' => $iTotal,
 			'iTotalDisplayRecords' => $iFilteredTotal
 		);
+	}
+
+	function devolverNumeroSiguienteMovimiento($serie) {
+		$Ssql = "SELECT Lo_Movimiento.IdMovimientoTipo, Lo_MovimientoTipo.Tipo, Lo_Movimiento.Serie, Lo_Movimiento.Numero, (Lo_Movimiento.Numero+1) as NuevoNumero
+		FROM Lo_Movimiento
+		INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+		WHERE Lo_Movimiento.Serie = '$serie' AND (Lo_MovimientoTipo.Tipo = 1 OR Lo_MovimientoTipo.Tipo = 2)
+		ORDER BY Lo_Movimiento.MovimientoFecha DESC
+		LIMIT 1";
+		return getSQLResultSet($Ssql);
+		
 	}
  ?>
