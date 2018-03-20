@@ -20,6 +20,11 @@ $(document).ready(function(e){
         var respuesta = JSON.parse(res);
         var tableBody = "";
         $.each(respuesta, function(data, value){
+          var btnImprimir = ''
+          if (value.Tipo == "1" || value.Tipo == "2") {
+            btnImprimir = "<a class='btn' href='/imprimir/index.php?hashMovimiento="+ value.IdMovimiento +"'><i class='fa fa-print'></i></a>"
+          }
+
           console.log(data)
           console.log(value)
           tableBody = tableBody + "<tr data-periodo='"+value.FechaPeriodoTributario+"'><td>"+value.IdMovimiento+"</td><td>"+value.MovimientoFecha+"</td><td>"+value.IdMovimientoTipo+"</td><td>"+value.TipoMovimiento+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.Proveedor+
@@ -30,7 +35,8 @@ $(document).ready(function(e){
           "</td><td>"+value.Percepcion+
           "</td><td>"+(value.Moneda || '')+
           "</td><td>"+parseFloat(value.TOTAL).toFixed(2)+
-          "</td><td><a class='btn' onclick='EliminarRegMov("+ value.IdMovimiento +");'><i class='fa fa-trash'></i></a></td></tr>" ;
+          "</td><td><a class='btn' onclick='EliminarRegMov("+ value.IdMovimiento +");'><i class='fa fa-trash'></i></a>"+ btnImprimir
+          "</td></tr>" ;
         });
         $("#tableRegMov tbody").append(tableBody);
         var subtotal = 0;
@@ -131,6 +137,9 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
   })
 
 });
+
+
+
 
 function EliminarRegMov(idMovimiento){
 

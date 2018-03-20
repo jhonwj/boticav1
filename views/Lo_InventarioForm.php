@@ -303,6 +303,13 @@ $('#btnBuscarFactura').click(function() {
 })
 
 
+// cargar numero cuando la serie cambia
+$('#txtSerie').keyup(function() {
+  if($('#txtTipoMovimiento').attr('data-tipo') == "1" || $('#txtTipoMovimiento').attr('data-tipo') == "2") {
+    LLenarNumero($('#txtSerie').val())
+  }
+})
+
 
 });
 
@@ -381,6 +388,7 @@ function ListarTipoMovimiento(){
         $("#tableTipoMovimientoListar tbody").on("click", "tr", function(){
           $("#txtTipoMovimiento").val($(this).children("td").eq(1).html());
           var tipo = $(this).children("td").eq(2).html();
+          $('#txtTipoMovimiento').attr('data-tipo', tipo);
           if(tipo=="0"){
             $("#btnAlmacenOrigen").prop("disabled", true);
             $("#btnAlmacenDestino").prop("disabled", false);
@@ -411,6 +419,16 @@ function ListarTipoMovimiento(){
             $('#txtNumero').prop("disabled", true)      
             
           }
+
+          if(tipo == "1" || tipo == "2") {
+            console.log(typeof $('#txtSerie').val())
+            if($('#txtSerie').val().length) {
+              LLenarNumero($('#txtSerie').val())
+            }
+          } else {
+            $('#txtNumero').val('')
+          }
+
           $("#modalTipoMovimiento").modal("hide");
         });
 }
@@ -422,7 +440,11 @@ function LLenarNumero(serie) {
 			data: {serie : serie},
 			dataType: "json",
 			success : function(respuesta){
-        console.log(respuesta)
+        if(respuesta) {
+          $('#txtNumero').val(respuesta.NuevoNumero)
+        }else {
+          $('#txtNumero').val('00001')
+        }
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown){
 				alert("Status " + textStatus);
@@ -456,6 +478,24 @@ function Limpiar(){
  $("#txtPercepcion").val("0");
  $("#txtPercepcionTotal").val("0");
  //$("#txtPeriodoT").val("201706");
+
+ $('#txtPartidaDist').val('')
+ $('#txtPartidaProv').val('')
+ $('#txtPartidaDpto').val('')
+ $('#txtLlegadaDist').val('')
+ $('#txtLlegadaProv').val('')
+ $('#txtLlegadaDpto').val('')
+ $('#txtDestinatarioRazonSocial').val('')
+ $('#txtDestinatarioRUC').val('')
+ $('#txtTrasladoMotivo').val('')
+ $('#txtTransporteNumPlaca').val('')
+ $('#txtTransporteNumContrato').val('')
+ $('#txtTransporteNumLicencia').val('')
+ $('#txtTransporteRazonSocial').val('')
+ $('#txtTransporteRUC').val('')
+ $('#txtFactura').val('')
+ $('#txtFactura').attr('data-iddocventa', '')
+
 }
 
 function agregarProductoDet(productoCantidadDet, productoPrecioDet, incluyeIgv = false){
@@ -838,11 +878,11 @@ function calcularFlete() {
         </div>
         <div id="LlegadaDist">
           <label class=""> Punto de llegada (Prov) </label>
-          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtLlegadaProv" class="form-control" value="" style="width:195px;">
         </div>
         <div id="LlegadaDist">
           <label class=""> Punto de llegada (Dpto) </label>
-          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtLlegadaDpto" class="form-control" value="" style="width:195px;">
         </div>
       </div>
       <div class="col-md-3 form-group">

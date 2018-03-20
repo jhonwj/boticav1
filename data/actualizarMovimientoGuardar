@@ -1,13 +1,14 @@
+DROP procedure IF EXISTS `SbLo_MovimientoGuardar`;
 
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoGuardar`(IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT, IN `var_Fecha` DATETIME, IN `var_AlmacenOrigen` INT, IN `var_AlmacenDestino` INT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255), IN `var_FechaStock` DATE, IN `var_Percepcion` FLOAT, IN `var_EsCredito` BIT, IN `fechaCredito` DATE, IN `var_FechaPeriodoT` INT, IN `var_TipoCambio` FLOAT, IN `var_Moneda` VARCHAR(255), 
+DELIMITER $$
+CREATE PROCEDURE `SbLo_MovimientoGuardar`(IN `var_MovimientoTipo` VARCHAR(255), IN `var_Proveedor` VARCHAR(255), IN `var_Serie` VARCHAR(255), IN `var_Numero` INT, IN `var_Fecha` DATETIME, IN `var_AlmacenOrigen` INT, IN `var_AlmacenDestino` INT, IN `var_Observacion` TEXT, IN `var_Usuario` VARCHAR(255), IN `var_FechaStock` DATE, IN `var_Percepcion` FLOAT, IN `var_EsCredito` BIT, IN `fechaCredito` DATE, IN `var_FechaPeriodoT` INT, IN `var_TipoCambio` FLOAT, IN `var_Moneda` VARCHAR(255), 
 IN `var_PartidaDist` VARCHAR(255), IN `var_PartidaProv` VARCHAR(255), IN `var_PartidaDpto` VARCHAR(255), IN `var_LlegadaDist` VARCHAR(255), IN `var_LlegadaProv` VARCHAR(255), IN `var_LlegadaDpto` VARCHAR(255), IN `var_DestinatarioRazonSocial` VARCHAR(255), IN `var_DestinatarioRUC` VARCHAR(255), IN `var_TransporteNumPlaca` VARCHAR(255),
 IN `var_TransporteNumContrato` VARCHAR(255), IN `var_TransporteNumLicencia` VARCHAR(255), IN `var_TransporteRazonSocial` VARCHAR(255), IN `var_TransporteRUC` VARCHAR(255), IN `var_IdDocVenta` INT )
 BEGIN
 	SET @Hash2=(SELECT UNIX_TIMESTAMP());
 	INSERT INTO Lo_Movimiento(Lo_Movimiento.IdMovimientoTipo, Lo_Movimiento.IdProveedor, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Movimiento.MovimientoFecha, Lo_Movimiento.IdAlmacenOrigen, Lo_Movimiento.IdAlmacenDestino, Lo_Movimiento.Observacion, Lo_Movimiento.Anulado, Lo_Movimiento.FechaReg, Lo_Movimiento.UsuarioReg, Lo_Movimiento.`Hash`, Lo_Movimiento.FechaStock, Lo_Movimiento.Percepcion, Lo_Movimiento.EsCredito, Lo_Movimiento.FechaVenCredito, Lo_Movimiento.FechaPeriodoTributario, Lo_Movimiento.TipoCambio, Lo_Movimiento.Moneda,
     Lo_Movimiento.PartidaDist, Lo_Movimiento.PartidaProv, Lo_Movimiento.PartidaDpto, Lo_Movimiento.LlegadaDist, Lo_Movimiento.LlegadaProv, Lo_Movimiento.LlegadaDpto, Lo_Movimiento.DestinatarioRazonSocial, Lo_Movimiento.DestinatarioRUC, Lo_Movimiento.TransporteNumPlaca, 
-    Lo_Movimiento.TransporteNumPlaca, Lo_Movimiento.TransporteNumLicencia, Lo_Movimiento.TransporteRazonSocial, Lo_Movimiento.TransporteRUC, Lo_Movimiento.IdDocVenta)
+    Lo_Movimiento.TransporteNumContrato, Lo_Movimiento.TransporteNumLicencia, Lo_Movimiento.TransporteRazonSocial, Lo_Movimiento.TransporteRUC, Lo_Movimiento.IdDocVenta)
 	VALUES(
 		(SELECT IdMovimientoTipo FROM Lo_MovimientoTipo WHERE TipoMovimiento = var_MovimientoTipo),
 		(SELECT IdProveedor FROM Lo_Proveedor WHERE Proveedor = var_Proveedor),
@@ -46,17 +47,297 @@ BEGIN
 	);
 
 
-
-
-
-
-
 	SELECT Lo_Movimiento.`Hash` FROM Lo_Movimiento WHERE Lo_Movimiento.`Hash` = @Hash2;
 
 
+END$$
+
+DELIMITER ;
 
 
 
 
 
-END
+
+
+
+
+
+/* Actualizar SbLo_RegMovimiento */
+
+
+DROP procedure IF EXISTS `SbLo_RegMovimiento`;
+
+DELIMITER $$
+CREATE PROCEDURE `SbLo_RegMovimiento`(IN `var_RegVenta` BIT, IN `var_FechaIni` DATE, IN `var_FechaFin` DATE)
+BEGIN
+
+
+
+		SELECT
+
+
+
+	Lo_Movimiento.`Hash` as IdMovimiento,
+
+
+
+	Lo_Movimiento.MovimientoFecha,
+
+
+
+	Lo_Movimiento.IdMovimientoTipo,
+    
+    Lo_MovimientoTipo.Tipo,
+
+
+
+	Lo_MovimientoTipo.TipoMovimiento,
+
+
+
+	Lo_Movimiento.Serie,
+
+
+
+	Lo_Movimiento.Numero,
+
+	Lo_Movimiento.FechaPeriodoTributario,
+
+
+
+	Lo_Proveedor.Proveedor,
+
+
+
+	CASE WHEN Lo_Movimiento.IdAlmacenOrigen>0 THEN
+
+
+
+		(Select Lo_Almacen.Almacen From Lo_Almacen Where Lo_Almacen.IdAlmacen=Lo_Movimiento.IdAlmacenOrigen)
+
+
+
+	ELSE
+
+
+
+		'-'
+
+
+
+	END AS AlmacenOrigen,
+
+
+
+	CASE WHEN Lo_Movimiento.IdAlmacenDestino>0 THEN
+
+
+
+		(Select Lo_Almacen.Almacen From Lo_Almacen Where Lo_Almacen.IdAlmacen=Lo_Movimiento.IdAlmacenDestino)
+
+
+
+	ELSE
+
+
+
+		'-'
+
+
+
+	END AS AlmacenDestino,
+
+
+
+	Lo_Movimiento.Observacion,
+
+
+
+	Lo_Movimiento.Anulado,
+
+
+
+	(SELECT
+
+
+
+Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio,2)) as SUBTOTAL
+
+
+
+FROM
+
+
+
+Lo_MovimientoDetalle
+
+
+
+WHERE Lo_MovimientoDetalle.hashMovimiento=Lo_Movimiento.`Hash`) as SUBTOTAL,
+
+
+
+(SELECT
+
+
+
+Sum(CASE WHEN Lo_MovimientoDetalle.TieneIgv=1 THEN
+
+
+
+	ROUND((Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio)*
+
+
+
+	(Select Igv From GEN_EMPRESA),2)
+
+
+
+ELSE
+
+
+
+	0
+
+
+
+END) as IGV
+
+
+
+FROM
+
+
+
+Lo_MovimientoDetalle
+
+
+
+WHERE Lo_MovimientoDetalle.hashMovimiento=Lo_Movimiento.`Hash`) as IGV,
+
+
+
+(SELECT
+
+
+
+Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio,2)) +
+
+
+
+ Sum(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.ISC)=1 THEN  0 ELSE Lo_MovimientoDetalle.ISC END,2))
+
+
+
++ SUM(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.FLETE)=1 THEN  0 ELSE Lo_MovimientoDetalle.FLETE END,2))
+
+
+
++CASE WHEN ISNULL(Lo_Movimiento.Percepcion)=1 THEN 0 ELSE Lo_Movimiento.Percepcion END
+
+
+
++Sum(CASE WHEN Lo_MovimientoDetalle.TieneIgv=1 THEN
+
+
+
+	ROUND((Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio)*
+
+
+
+	(Select Igv From GEN_EMPRESA),2)
+
+
+
+ELSE
+
+
+
+	0
+
+
+
+END) as TOTAL
+
+
+
+FROM
+
+
+
+Lo_MovimientoDetalle
+
+
+
+WHERE Lo_MovimientoDetalle.hashMovimiento=Lo_Movimiento.`Hash`) as TOTAL,
+
+
+
+	Lo_Movimiento.FechaReg,
+
+
+
+	Lo_Movimiento.UsuarioReg,
+
+
+
+	Lo_Movimiento.FechaMod,
+
+
+
+	Lo_Movimiento.UsuarioMod,
+
+
+
+(SELECT SUM(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.ISC)=1 THEN  0 ELSE Lo_MovimientoDetalle.ISC END,2)) FROM Lo_MovimientoDetalle WHERE Lo_MovimientoDetalle.hashMovimiento=Lo_Movimiento.`Hash`) as ISC,
+
+(SELECT SUM(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.FLETE)=1 THEN  0 ELSE Lo_MovimientoDetalle.FLETE END,2)) FROM Lo_MovimientoDetalle WHERE Lo_MovimientoDetalle.hashMovimiento=Lo_Movimiento.`Hash`) as FLETE,
+
+CASE WHEN ISNULL(Lo_Movimiento.Percepcion)=1 THEN 0 ELSE Lo_Movimiento.Percepcion END AS Percepcion,
+
+Lo_Movimiento.TipoCambio,
+Lo_Movimiento.Moneda
+
+
+
+
+
+
+
+
+
+FROM
+
+
+
+	Lo_Movimiento
+
+
+
+	INNER JOIN Lo_MovimientoTipo On Lo_Movimiento.IdMovimientoTipo=Lo_MovimientoTipo.IdMovimientoTipo
+
+
+
+	INNER JOIN Lo_Proveedor On Lo_Movimiento.IdProveedor=Lo_Proveedor.IdProveedor
+
+
+
+WHERE
+
+
+
+	Lo_MovimientoTipo.VaRegCompra=var_RegVenta and Lo_Movimiento.MovimientoFecha BETWEEN var_FechaIni and var_FechaFin
+
+
+
+
+
+ORDER BY Lo_Movimiento.MovimientoFecha DESC;
+
+
+
+END$$
+
+DELIMITER ;
+

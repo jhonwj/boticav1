@@ -7,7 +7,7 @@ $movimiento = json_decode($_POST["movimiento"], true);
 $producto = json_decode($_POST["producto"], true);
 
 $remision = json_decode($_POST["remision"], true);
-var_dump($remision);exit();
+
 //if (empty($producto[0]["value"])) {
 // echo $movimiento[0][0];
 // exit();
