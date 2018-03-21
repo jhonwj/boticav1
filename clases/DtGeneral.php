@@ -469,8 +469,8 @@ function fn_modificarProductoCompuesto($idProductoCompuesto,$productoCompuesto,$
 					ejecutarSQLCommand($Ssql);
 				}
 
-			function fn_guardarMovimientoDet($hash, $producto, $cantidad, $precio, $tieneIgv, $ISC, $Flete, $Lote, $fechaVen){
-		    	$Ssql = "CALL SbLo_MovimientoDetGuardar('$hash', '$producto', $cantidad, $tieneIgv, $precio,$ISC, $Flete, $Lote, '$fechaVen')";
+			function fn_guardarMovimientoDet($hash, $producto, $cantidad, $precio, $tieneIgv, $ISC, $Flete, $Lote, $fechaVen, $pesoTotal){
+		    	$Ssql = "CALL SbLo_MovimientoDetGuardar('$hash', '$producto', $cantidad, $tieneIgv, $precio,$ISC, $Flete, $Lote, '$fechaVen', '$pesoTotal')";
 					//echo $Ssql;
 					//exit();
 					ejecutarSQLCommand($Ssql);

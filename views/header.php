@@ -53,23 +53,7 @@ define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
           <li><a href="<?php echo Compuesto; ?>">Compuesto</a></li>
         </ul>
       </li>
-      <li class="dropdown">
-        <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Ventas
-        <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
-          <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
-          <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
-          <li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
-          <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->
 
-        </ul>
-      </li>
-      <li><a href="<?php echo Experto; ?>">Sistema Experto</a></li>
       <li class="dropdown">
         <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Logistica
         <span class="caret"></span></a>
@@ -89,6 +73,25 @@ define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
           <li><a href="<?php echo RegCompraContable; ?>">REGISTRO DE COMPRA CONTABLE</a></li>
         </ul>
       </li>
+      <li><a href="<?php echo Experto; ?>">Sistema Experto</a></li>
+      <li class="dropdown">
+        <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Ventas
+        <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
+          <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
+          <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
+          <li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
+          <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->
+
+        </ul>
+      </li>
+
+      
       <li class="dropdown">
         <a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a>
       </li>

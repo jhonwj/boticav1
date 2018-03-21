@@ -492,8 +492,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	{
 		if ($serverSide) {
 			$Ssql = "Select prodstock.IdProducto as numero, ProductoMarca as marca,ProductoCategoria as categoria,FormaFarmaceutica as formafarmaceutica, prodstock.Producto as Producto,Stock as stock ,
-			Gen_Producto.PrecioContado,	Gen_Producto.PrecioPorMayor, Gen_Producto.StockPorMayor, Gen_Producto.Codigo, Gen_Producto.VentaEstrategica, Gen_ProductoMedicion.ProductoMedicion, Gen_Producto.CodigoBarra
-			from prodstock
+			Gen_Producto.PrecioContado,	Gen_Producto.PrecioPorMayor, Gen_Producto.StockPorMayor, Gen_Producto.Codigo, Gen_Producto.VentaEstrategica, Gen_ProductoMedicion.ProductoMedicion, Gen_Producto.CodigoBarra, Gen_Producto.StockMinimo, Gen_Producto.controlaStock,
+			(SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoPrecio,
+			(SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoCantidad,
+			((SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) * (SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1)) as MovimientoTotal
+			FROM prodstock
 			INNER JOIN Gen_Producto ON Gen_Producto.IdProducto = prodstock.IdProducto
 			INNER JOIN Gen_ProductoMedicion ON Gen_ProductoMedicion.IdProductoMedicion = Gen_Producto.IdProductoMedicion";
 
@@ -833,4 +836,21 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 		
 	}
+
+
+	function fn_devolverMovimiento($hash) {
+		$Ssql = "SELECT Lo_Movimiento.*, Ve_DocVenta.Serie AS DocVentaSerie, Ve_Docventa.Numero as DocVentaNumero FROM Lo_Movimiento 
+		LEFT JOIN Ve_DocVenta ON Lo_Movimiento.IdDocVenta = Ve_Docventa.idDocVenta
+		WHERE Lo_Movimiento.Hash='$hash';";
+		return getSQLResultSet($Ssql);
+	}
+
+	function fn_devolverMovimientoDet($hash) {
+		$Ssql = "SELECT Lo_MovimientoDetalle.*, Gen_Producto.Producto, Gen_ProductoMedicion.ProductoMedicion FROM Lo_MovimientoDetalle
+			INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
+			INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+			WHERE hashMovimiento='$hash';";
+		return getSQLResultSet($Ssql);
+	}
+
  ?>

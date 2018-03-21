@@ -93,7 +93,7 @@ calcularFlete();
 		e.preventDefault();
 		console.log($(this).serializeArray());
 		var xhr = $.ajax({
-			url: "Lo_ProveedorGuardar.php",
+			url: "../controllers/Lo_ProveedorGuardar.php",
 			type: "post",
 			data: {proveedor : JSON.stringify($(this).serializeArray())},
 			dataType: "html",
@@ -201,7 +201,7 @@ calcularFlete();
 	        $("#tableProductoI tbody tr").each(function(){
 	            arrTableProductos.push([$(this).children("td").eq(0).html(), $(this).children("td").eq(1+4).html(), $(this).children("td").eq(2+4).html(), $(this).children("td").eq(3+4).html(),
 							 												$(this).children("td").eq(4+4).find("#idCheckIGV").is(":checked"), $(this).children("td").eq(6+4).text(), $(this).children("td").eq(8+4).text(),$(this).children("td").eq(10+4).text(),
-						 													$(this).children("td").eq(11+4).find("input[type='date']").val()])
+						 													$(this).children("td").eq(11+4).find("input[type='date']").val(), $(this).children("td").eq(12+4).find("input").val()])
 	        });
 	      });
 
@@ -532,7 +532,9 @@ function agregarProductoDet(productoCantidadDet, productoPrecioDet, incluyeIgv =
 						"</td><td>"+parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet) + parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet)*(incluyeIgv ? '0' : 0.18)).toFixed(2)+
 						"</td><td contenteditable='true'>"+0+
 						"</td><td contenteditable='true'><input type='date'>"+
+						"</td><td contenteditable='false' ><input type='text' class='pesoProductoTotal' style='width:50px;'>"+
 						"</td><td class='text-center'><a id='btnEliminarProducto' class='btn' onclick='EliminarProductoDet("+$("#tempIdProductoDet").val().concat(productoPrecioDet)+")'><i class='fa fa-trash'></i></a></td></tr>";
+            
             $("#tableProductoI tbody").append(fila);
             console.log($("#tempIdProductoDet").val().concat(productoPrecioDet));
             console.log(String(parseFloat(parseFloat(productoCantidadDet)*parseFloat(productoPrecioDet) + parseFloat($("#idCheckIGV").val()))));
@@ -953,6 +955,7 @@ function calcularFlete() {
 					<th>Total</th>
 					<th>Lote</th>
 					<th>FechaVencimiento</th>
+					<th>Peso Total</th>
 				</thead>
 				<tbody></tbody>
 			</table>

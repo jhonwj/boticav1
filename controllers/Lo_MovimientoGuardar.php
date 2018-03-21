@@ -30,7 +30,7 @@ if ($row[0]>=1) {
 		if ($key[4]) {
 			$tieneIgv = 1;
 		}
-		fn_guardarMovimientoDet($result, $key[1], $key[2], $key[3], $tieneIgv, $key[5], $key[6], $key[7], $key[8]);
+		fn_guardarMovimientoDet($result, $key[1], $key[2], $key[3], $tieneIgv, $key[5], $key[6], $key[7], $key[8], $key[9]);
 	}
 	echo "OK" ;
 }

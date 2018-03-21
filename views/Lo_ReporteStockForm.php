@@ -37,31 +37,62 @@ $(document).ready(function(e){
     $("#btnReportar").click(function(e){
     window.location="../controllers/reporteExcel2.php?almacen="+$("#txtAlmacen").val();
     });
+
+
+
+    $('#generarStock').click(function() {
+      if (!window.isLoadStock) {
+        listarProveedor($('#txtAlmacen').val())
+      }else {
+        listarProveedor($('#txtAlmacen').val(), true);
+      }
+    })
+
+
+
 });
-function listarProveedor(almacen){
+function listarProveedor(almacen, serverSide = false){
+  if (serverSide) {
+    serverSide = true;
+    ajaxSource = "../controllers/server_processingReporteStock.php?serverSide=1&almacen=" + almacen;
+  } else {
+    serverSide = false;
+    ajaxSource = "../controllers/server_processingReporteStock.php?almacen=" + almacen;
+  }
+
   $("#tableProducto").DataTable().destroy();
     return $("#tableProducto").DataTable({
+            "serverSide": serverSide,
             "bProcessing": true,
             "retrieve" : true,
             "order": [[ 4, "desc" ]],
             "bPaginate":true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 5,
-            "ajax":{
+            "sAjaxSource": ajaxSource,
+            /*"ajax":{
               "url" : "../controllers/server_processingReporteStock.php",
               "type" : "get",
               "data" : {
                 almacen : almacen
               }
-            },
+            },*/
             "aoColumns": [
             { mData: 'marca' } ,
             { mData: 'categoria' },
 						{ mData: 'formafarmaceutica' },
             { mData: 'Codigo' },
             { mData: 'Producto' },
-            { mData: 'stock' }
-            ]
+            { mData: 'StockMinimo' },
+            { mData: 'controlaStock' },
+            { mData: 'stock' },
+            { mData: 'MovimientoPrecio' },
+            { mData: 'MovimientoCantidad' },
+            { mData: 'MovimientoTotal' },
+            ],
+            "initComplete": function( settings, json ) {
+              window.isLoadStock = true;
+            }
         });
      /* $("#tableProducto tbody").on("click", "tr", function(){
         $("#txtProveedor").val($(this).children("td").eq(1).html());
@@ -87,9 +118,31 @@ function listarAlmacen(){
 
             ]
         });
+
      $("#tableAlmacen tbody").off("click").on("click", "tr", function(){
+
+        window.isLoadStock = false;
+        // Ejecutar cursor - carga stock
+        $.ajax({
+          url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + $(this).children("td").eq(1).html(),
+          type: 'get',
+          dataType: 'json',
+          success: function(respuesta){
+              if(respuesta.success){
+                window.isLoadStock = true
+              }
+              else{
+                window.isLoadStock = false
+              }
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) {
+              window.isLoadStock = false
+              //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+          }
+        });
+       
         $("#txtAlmacen").val($(this).children("td").eq(1).html());
-        listarProveedor($(this).children("td").eq(1).html());
+        //listarProveedor($(this).children("td").eq(1).html(), true);
         $("#modalAlmacen").modal("hide");
       });
 }
@@ -126,6 +179,11 @@ function listarAlmacen(){
         </div>
       </div>
     </div>
+    <div class="row">
+      <div class="col-md-6 form-group">
+        <button class="btn btn-success" id="generarStock">Generar</button>
+      </div>
+    </div>
 		<div class="center_div_form">
       <table id="tableProducto" class="table table-bordered table-striped">
         <thead>
@@ -134,7 +192,12 @@ function listarAlmacen(){
 					<th>FORMA FARMACEUTICA</th>
           <th>CODIGO</th>
           <th>PRODUCTO</th>
+          <th>STOCK MINIMO</th>
+          <th>CONTROLA STOCK</th>
           <th>STOCK</th>
+          <th>P/U compra</th>
+          <th>CANT.U Compra</th>
+          <th>TOTAL</th>
         </thead>
       </table>
 		</div>

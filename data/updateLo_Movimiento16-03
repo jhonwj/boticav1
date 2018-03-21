@@ -19,7 +19,9 @@ ALTER TABLE Lo_Movimiento ADD IdDocVenta INT(11);
 
 
 
-ALTER TABLE `Lo_Movimiento` 
-CHANGE COLUMN `IdDocVenta` `IdDocVenta` INT(11) NOT NULL ,
-DROP PRIMARY KEY,
-ADD PRIMARY KEY (`IdMovimientoTipo`, `IdProveedor`, `Serie`, `Numero`, `IdDocVenta`);
+/* Update Lo_Movimiento Detalle */
+ALTER TABLE Lo_MovimientoDetalle ADD COLUMN PesoTotal VARCHAR(255) NULL AFTER `FechaVen`;
+
+
+/* Actualizar procedimiento MovimientoDetGuardar para alca */
+añadir var_PesoTotal

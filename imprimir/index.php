@@ -42,5 +42,48 @@ if (isset($_GET['IdDocVenta'])) {
 
   })
 </script>
-
 <?php } ?>
+
+
+
+
+
+
+
+
+<?php 
+  if(isset($_GET['hashMovimiento'])) {
+    $hash = $_GET['hashMovimiento'];
+    $result = fn_devolverMovimiento($hash);
+    $movimiento = mysqli_fetch_assoc($result);
+    
+    $resultDet = fn_devolverMovimientoDet($hash);
+    $movimientoDet = mysqli_fetch_all($resultDet, MYSQLI_ASSOC);
+    //var_dump($movimiento);
+    //var_dump($movimientoDet);
+    include_once('remision.php');
+
+?>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    //window.print()
+
+    <?php
+      if(!isset($_GET['preview'])) {
+        if (isset($_GET['redirect'])) {
+          //echo 'window.print();';
+          //echo 'window.location.href="' . $_GET['redirect'] . '";';
+        } else {
+          //echo 'window.print();';
+          //echo 'window.location.href="/views/V_VentaForm.php";';
+        }
+      }
+      
+    ?>
+    //window.location.href="/views/V_VentaForm.php";
+
+  })
+</script>
+<?php    
+  }
+?>
