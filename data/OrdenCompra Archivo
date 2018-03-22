@@ -1,0 +1,15 @@
+CREATE TABLE `Lo_OrdenCompra` (
+  `IdOrdenCompra` INT NOT NULL AUTO_INCREMENT,
+  `IdProveedor` INT NOT NULL,
+  `FechaOrdenCompra` DATETIME NULL,
+  `Total` FLOAT NULL,
+  PRIMARY KEY (`IdOrdenCompra`, `IdProveedor`));
+
+
+
+CREATE TABLE `Lo_OrdenCompraDet` (
+  `IdOrdenCompra` INT NOT NULL,
+  `IdProducto` INT NOT NULL,
+  `Cantidad` FLOAT NULL,
+  `Precio` FLOAT NULL,
+  PRIMARY KEY (`IdOrdenCompra`, `IdProducto`));

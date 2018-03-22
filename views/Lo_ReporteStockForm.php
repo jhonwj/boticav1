@@ -42,33 +42,101 @@ $(document).ready(function(e){
 
     $('#generarStock').click(function() {
       if (!window.isLoadStock) {
-        listarProveedor($('#txtAlmacen').val())
+        listarStock($('#txtAlmacen').val())
       }else {
-        listarProveedor($('#txtAlmacen').val(), true);
+        listarStock($('#txtAlmacen').val(), true);
       }
     })
 
+    $('#btnProducto').click(function() {
+      listarStock($('#txtAlmacen').val(), false, 'tableProductosProveedor', $('#txtProveedor').attr('data-id'))
+      $('#modalProductosProveedor').modal("show")
 
+      var tableProveedor = $('#tableProductosProveedor').DataTable();
+      var tableOrdenCompra = $('#tableOrdenCompra').DataTable();
+      $('#tableProductosProveedor tbody').off("click").on('click', 'tr', function() {
+        var d = tableProveedor.row( this ).data();
+        console.log(tableOrdenCompra.column(4).data())
+        
+        if(tableOrdenCompra.column(4).data().indexOf(d.Producto) == -1) {
+          console.log('hay')
+          tableOrdenCompra.row.add(d).draw(false);            
+        }
+
+      
+        
+       // console.log(tableOrdenCompra.rows('[Producto='+'TESTPRODUCTO'+']').any())
+      })
+    })
+
+    
+
+    $("#btnProveedor").click(function(e){
+      listarProveedor();
+      $("#modalProveedor").modal("show");
+    });
+
+    $("#generarOrdenCompra").click(function(e){
+      listarStock($('#txtAlmacen').val(), false, 'tableOrdenCompra', $('#txtProveedor').attr('data-id'), true);
+      $("#modalOrdenCompra").modal("show");
+    });
 
 });
-function listarProveedor(almacen, serverSide = false){
+
+
+
+function listarProveedor(){
+  $("#tableProveedor").DataTable().destroy();
+    var table4 = $("#tableProveedor").DataTable({
+            "bProcessing": true,
+            //"responsive" : true,
+            "sAjaxSource": "../controllers/server_processingProveedor.php",
+            "bPaginate":true,
+            "sPaginationType":"full_numbers",
+            "iDisplayLength": 5,
+            //"bAutoWidth": false,
+            //"autoWidth" : false,
+            //"bFilter": false,
+            "aoColumns": [
+            { mData: 'IdProveedor' } ,
+            { mData: 'Proveedor' },
+            { mData: 'Ruc' },
+            { mData: 'Direccion' },
+            ]
+        });
+      $("#tableProveedor tbody").on("click", "tr", function(){
+        $("#txtProveedor").val($(this).children("td").eq(1).html());
+        $('#txtProveedor').attr('data-id', $(this).children("td").eq(0).html())
+        $("#modalProveedor").modal("hide");
+        $('#generarOrdenCompra').prop('disabled', false)
+      });
+}
+
+function listarStock(almacen, serverSide = false, table = 'tableProducto', proveedor = false, menorStock = false){
   if (serverSide) {
     serverSide = true;
     ajaxSource = "../controllers/server_processingReporteStock.php?serverSide=1&almacen=" + almacen;
+  } else if(proveedor) {
+    serverSide = false;
+    if(menorStock) {
+      ajaxSource = "../controllers/server_processingReporteStock.php?menorStock=1&proveedor=" + proveedor + "&almacen=" + almacen;
+    }else {
+      ajaxSource = "../controllers/server_processingReporteStock.php?proveedor=" + proveedor + "&almacen=" + almacen;
+    }
   } else {
     serverSide = false;
     ajaxSource = "../controllers/server_processingReporteStock.php?almacen=" + almacen;
   }
 
-  $("#tableProducto").DataTable().destroy();
-    return $("#tableProducto").DataTable({
+  $("#"+table).DataTable().destroy();
+    var tableProducto = $("#"+table).DataTable({
             "serverSide": serverSide,
             "bProcessing": true,
             "retrieve" : true,
             "order": [[ 4, "desc" ]],
             "bPaginate":true,
             "sPaginationType":"full_numbers",
-            "iDisplayLength": 5,
+            "iDisplayLength": 10,
             "sAjaxSource": ajaxSource,
             /*"ajax":{
               "url" : "../controllers/server_processingReporteStock.php",
@@ -89,6 +157,7 @@ function listarProveedor(almacen, serverSide = false){
             { mData: 'MovimientoPrecio' },
             { mData: 'MovimientoCantidad' },
             { mData: 'MovimientoTotal' },
+            { mData: 'IdProveedor' }
             ],
             "initComplete": function( settings, json ) {
               window.isLoadStock = true;
@@ -98,6 +167,8 @@ function listarProveedor(almacen, serverSide = false){
         $("#txtProveedor").val($(this).children("td").eq(1).html());
         $("#modalProveedor").modal("hide");
         });*/
+
+      
 }
 
 function listarAlmacen(){
@@ -198,11 +269,25 @@ function listarAlmacen(){
           <th>P/U compra</th>
           <th>CANT.U Compra</th>
           <th>TOTAL</th>
+          <th>IDPROVEEDOR</th>
         </thead>
       </table>
 		</div>
+    <br><br>
+    <div class="row">
+      <div class="col-md-6 form-group">
+        <label>Seleccione un proveedor</label>
+        <div class="form-inline">
+          <input type="text" readonly="" id="txtProveedor" class="form-control">
+          <button type="button" class="btn btn-success" id="btnProveedor"><i class="fa fa-search"></i></button>
+        </div><br>
+        <button class="btn btn-success" id="generarOrdenCompra" disabled>Generar orden de compra</button>
+      </div>
+    </div>
   </div>
 </div>
+
+
 
 <?php include("footer.php"); ?>
 </body>
@@ -230,3 +315,105 @@ function listarAlmacen(){
   </div>
 </div>
 </html>
+
+
+<div class="modal fade" id="modalProveedor" role="dialog">
+	<div class="modal-dialog" style="width:800px">
+	<div class="modal-content">
+		<div class="modal-header">
+			Lista de Proveedores
+		</div>
+		<div class="modal-body" style="overflow-x:auto;">
+			<table id="tableProveedor" class="table table-bordered table-striped">
+				<thead>
+					<th >#</th>
+					<th >Proveedor</th>
+					<th >RUC</th>
+					<th >Direccion</th>
+				</thead>
+			</table>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="modalOrdenCompra" role="dialog">
+	<div class="modal-dialog" style="width:1100px">
+	<div class="modal-content">
+		<div class="modal-header">
+			Orden de compra
+		</div>
+		<div class="modal-body" style="overflow-x:auto;">
+      <div class="row">
+          <div class="col-xs-6">
+            <div class="input-group" style="margin-bottom:20px;">
+                <input type="text" class="form-control" placeholder="Producto">
+                <span class="input-group-btn">
+                <button id="btnProducto" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
+               </span>
+            </div>
+          </div>
+      </div>
+			<table id="tableOrdenCompra" class="table table-bordered table-striped">
+				<thead>
+          <th>MARCA</th>
+          <th>CATEGORIA</th>
+					<th>FORMA FARMACEUTICA</th>
+          <th>CODIGO</th>
+          <th>PRODUCTO</th>
+          <th>STOCK MINIMO</th>
+          <th>CONTROLA STOCK</th>
+          <th>STOCK</th>
+          <th>P/U compra</th>
+          <th>CANT.U Compra</th>
+          <th>TOTAL</th>
+          <th>IDPROVEEDOR</th>
+				</thead>
+			</table>
+		</div>
+		<div class="modal-footer">
+			<button type="button" id="btnAddProveedor" class="btn btn-success">Guardar orden de compra</button>
+			<button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+
+<div class="modal fade" id="modalProductosProveedor" role="dialog">
+	<div class="modal-dialog" style="width:1000px">
+	<div class="modal-content">
+		<div class="modal-header">
+			Añadir Productos en la orden de compra
+		</div>
+		<div class="modal-body" style="overflow-x:auto;">
+			<table id="tableProductosProveedor" class="table table-bordered table-striped">
+				<thead>
+          <th>MARCA</th>
+          <th>CATEGORIA</th>
+					<th>FORMA FARMACEUTICA</th>
+          <th>CODIGO</th>
+          <th>PRODUCTO</th>
+          <th>STOCK MINIMO</th>
+          <th>CONTROLA STOCK</th>
+          <th>STOCK</th>
+          <th>P/U compra</th>
+          <th>CANT.U Compra</th>
+          <th>TOTAL</th>
+          <th>IDPROVEEDOR</th>
+				</thead>
+			</table>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+		</div>
+	</div>
+	</div>
+</div>
+

@@ -37,7 +37,17 @@
 		exit();
 	}
 
-   	$result = ListarReporteStock($almacen,"");
+	// si se selecciona un proveedor hacer el filtrado y devolver
+	if(isset($_GET['proveedor'])) {
+		if(isset($_GET['menorStock'])) {
+			$result = ListarReporteStock($almacen,"", false, $_GET['proveedor'], true);
+		}else {
+			$result = ListarReporteStock($almacen,"", false, $_GET['proveedor']);
+		}
+	} else {
+		$result = ListarReporteStock($almacen,"");
+	}
+
 	$resultVencimiento = ListarLoteFechaVencimiento();
 
 	$data = array();
