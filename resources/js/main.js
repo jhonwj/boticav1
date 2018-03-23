@@ -198,6 +198,44 @@ function exportarPDF(obj) {
 
 }
 
+function exportarOrdenCompra(proveedor, total, productos) {
+    var doc = new jsPDF('p', 'pt');
+
+    var table = $('<table><thead></thead><tbody></tbody></table>')
+    table.find('thead').append('<tr><th>Producto</th><th>CANT.U Compra</th><th>P/U Compra</th><th>Tot.</th></tr>')
+    $(productos).each(function(index, value) {
+        table.find('tbody').append('<tr><td>'+value.Producto+'</td><td>'+value.Cantidad+'</td><td>'+value.Precio+'</td><td>'+(value.Cantidad*value.Precio)+'</td></tr>')        
+    })
+    table.find('tbody').append('<tr><td></td><td></td><td>Sumatoria</td><td>'+total+'</td></tr>')
+   
+    table = doc.autoTableHtmlToJson(table[0]);
+    
+    getDataUri('../resources/images/botica-header.jpg', function(dataUri) {
+        var imgData = dataUri
+
+        /*doc.autoTable(header.columns, header.data, {
+            theme: 'plain',
+            margin: {top: 100},
+            headerStyles: {fillColor: false},
+            bodyStyles: {fillColor: false}
+        });*/
+
+        doc.setFontSize(14);
+        doc.text(40, 160, 'Proveedor: ' + proveedor) 
+
+        doc.autoTable(table.columns, table.data, {
+            margin: {top: 60},
+            startY: 200,
+            tableLineColor: 200,
+        });
+
+        doc = renderHeaderPDF(doc, imgData)
+
+        doc.save("ordenCompra.pdf");
+    });
+
+}
+
 function exportarTXT(table) {
   var txt = ''
   table.find('tbody tr').each(function(index, tr) {

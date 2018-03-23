@@ -56,14 +56,13 @@ $(document).ready(function(e){
       var tableOrdenCompra = $('#tableOrdenCompra').DataTable();
       $('#tableProductosProveedor tbody').off("click").on('click', 'tr', function() {
         var d = tableProveedor.row( this ).data();
-        console.log(tableOrdenCompra.column(4).data())
         
         if(tableOrdenCompra.column(4).data().indexOf(d.Producto) == -1) {
-          console.log('hay')
           tableOrdenCompra.row.add(d).draw(false);            
         }
 
-      
+        actualizarTotalOrdenCompra()
+        $('#modalProductosProveedor').modal('hide')
         
        // console.log(tableOrdenCompra.rows('[Producto='+'TESTPRODUCTO'+']').any())
       })
@@ -81,8 +80,73 @@ $(document).ready(function(e){
       $("#modalOrdenCompra").modal("show");
     });
 
+
+
+    $('#btnGuardarOrdenCompra').click(function() {
+      var idProveedor = $('#txtProveedor').attr('data-id');
+      var total = parseFloat($('#totalOrdenCompra').text());
+
+      var productos = [];
+
+      $('#tableOrdenCompra tbody tr').each(function(index, value) {
+        var idProducto = $(value).attr('data-idproducto')
+        var cantidad = $(value).find('.cantidad').text()
+        var precio = $(value).find('.precio').text()
+        var producto = $(value).find('td').eq(4).text()
+        productos.push({
+          IdProducto: idProducto,
+          Producto: producto,
+          Cantidad: cantidad,
+          Precio: precio
+        })
+      })
+      
+      if($("#tableOrdenCompra tbody tr").length>0){
+        var xhr = $.ajax({
+          url: '/controllers/server_processingOrdenCompra.php',
+          type: 'post',
+          data: {idProveedor : idProveedor, total: total, productos : JSON.stringify(productos)},
+          dataType: 'json',
+          success: function(respuesta){
+            if (respuesta.success) {
+                $.notify({
+                    icon: 'fa fa-check',
+                    message: respuesta.success
+                }, {
+                    type: 'success'
+                });
+                exportarOrdenCompra($('#txtProveedor').val(), total, productos);
+
+            } else {
+                $.notify({
+                    icon: 'fa fa-exclamation',
+                    message: respuesta.error
+                }, {
+                    type: 'danger'
+                });
+            }
+
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) {
+              alert("Status: " + textStatus); alert("Error: " + errorThrown);
+          }
+        });
+        console.log(xhr);
+      }else {
+        alert("Registra al menos un producto");
+      }
+    })
 });
 
+
+
+function actualizarTotalOrdenCompra() {
+  var total = 0
+  $('#tableOrdenCompra tbody tr').each(function(index, value) {
+    total += parseFloat($(value).find('.total').text())
+  })
+  $('#totalOrdenCompra').text(total)
+}
 
 
 function listarProveedor(){
@@ -134,7 +198,7 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
             "bProcessing": true,
             "retrieve" : true,
             "order": [[ 4, "desc" ]],
-            "bPaginate":true,
+            "bPaginate": table == 'tableOrdenCompra' ? false : true,
             "sPaginationType":"full_numbers",
             "iDisplayLength": 10,
             "sAjaxSource": ajaxSource,
@@ -159,10 +223,46 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
             { mData: 'MovimientoTotal' },
             { mData: 'IdProveedor' }
             ],
+            "rowCallback": function( row, data, index ) {
+              $(row).attr('data-idproducto', data.numero)
+            },
+            'columnDefs': [
+              {
+                  'targets': [8, 9, 10],
+                  'createdCell':  function (td, cellData, rowData, row, col) {
+                      if (col == 8) {
+                        $(td).attr('class', 'precio')                        
+                      } else if(col == 9) {
+                        $(td).attr('class', 'cantidad')                                                
+                      } else {
+                        $(td).attr('class', 'total')
+                      }
+
+                      if(table == 'tableOrdenCompra') {
+                        if(col == 8 || col == 9) {
+                          $(td).addClass('bg-info')
+                          $(td).attr('contenteditable', true)
+                        }else {
+                          $(td).addClass('bg-success')                          
+                        }
+
+                        
+                      }
+                  }
+              }
+            ],
             "initComplete": function( settings, json ) {
               window.isLoadStock = true;
+              
+              actualizarTotalOrdenCompra()
             }
         });
+        $('#tableOrdenCompra').on('keyup',['.precio', '.compra'], function(e) {
+          var precio = parseFloat($(e.target).parent().find('.precio').text())
+          var cantidad = parseFloat($(e.target).parent().find('.cantidad').text())
+          $(e.target).parent().find('.total').text((precio * cantidad).toFixed(2))
+          actualizarTotalOrdenCompra()
+        })
      /* $("#tableProducto tbody").on("click", "tr", function(){
         $("#txtProveedor").val($(this).children("td").eq(1).html());
         $("#modalProveedor").modal("hide");
@@ -191,7 +291,7 @@ function listarAlmacen(){
         });
 
      $("#tableAlmacen tbody").off("click").on("click", "tr", function(){
-
+       $('#loading').addClass('active');
         window.isLoadStock = false;
         // Ejecutar cursor - carga stock
         $.ajax({
@@ -209,6 +309,10 @@ function listarAlmacen(){
           error: function(XMLHttpRequest, textStatus, errorThrown) {
               window.isLoadStock = false
               //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+          },
+          complete: function() {
+            $('#loading').removeClass('active');
+            
           }
         });
        
@@ -374,9 +478,11 @@ function listarAlmacen(){
           <th>IDPROVEEDOR</th>
 				</thead>
 			</table>
+      <br><br>
 		</div>
 		<div class="modal-footer">
-			<button type="button" id="btnAddProveedor" class="btn btn-success">Guardar orden de compra</button>
+    <p>TOTAL ORDEN DE COMPRA: <strong id="totalOrdenCompra">0</strong></p>
+			<button type="button" id="btnGuardarOrdenCompra" class="btn btn-success">Guardar orden de compra</button>
 			<button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
 		</div>
 	</div>

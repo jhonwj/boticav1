@@ -25,6 +25,7 @@ define("CajaYBanco", SITE_URL . "views/FrmCb_CajaBanco.php");
 define("Logout", SITE_URL . "controllers/logout.php");
 define("Usuarios", SITE_URL . "views/Seg_UsuarioForm.php");
 define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
+define("CajaYBancoBuscador", SITE_URL . "views/FrmCb_CajaBancoBuscador.php");
 
  ?>
 
@@ -93,7 +94,13 @@ define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
 
       
       <li class="dropdown">
-        <a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a>
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Caja y Banco
+      <span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li><a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a></li>
+        <li><a href="<?php echo CajaYBancoBuscador; ?>">Buscador de Caja y Banco</a></li>
+      </ul>
+        
       </li>
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Seguridad
@@ -113,3 +120,6 @@ define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
   </div>
   </div>
 </nav>
+
+
+<div id="loading"></div>

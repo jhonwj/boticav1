@@ -565,4 +565,23 @@ function fn_guardarUsuarioPerfilModulo($params) {
 	return $idUsuarioPerfilModulo || $idUsuarioPerfil;
 }
 
+function fn_guardarOrdenCompra($idProveedor, $total, $productos) {
+	$Ssql="INSERT INTO Lo_OrdenCompra(IdProveedor, FechaOrdenCompra, Total) VALUES($idProveedor, now(), $total)";
+	$idOrdenCompra = getSQLResultSet($Ssql);
+
+	if ($idOrdenCompra) {
+		foreach ($productos as $key => $value) {
+		 	$idProducto = $value['IdProducto'];
+			$cantidad = $value['Cantidad'];
+			$precio = $value['Precio'];
+
+			$Ssql="INSERT INTO Lo_OrdenCompraDet(IdOrdenCompra, IdProducto, Cantidad, Precio) VALUES($idOrdenCompra, $idProducto, $cantidad, $precio)";
+
+			getSQLResultSet($Ssql);
+		}
+	}
+
+	return $idOrdenCompra;
+}
+
  ?>

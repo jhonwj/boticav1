@@ -640,14 +640,14 @@ function ListarAlmacen(almacen){
             ]
         });
     if(almacen == "origen"){
-      $("#tableAlmacen tbody").on("click", "tr", function(){
+      $("#tableAlmacen tbody").off('click').on("click", "tr", function(){
       $("#txtAlmacenOrigen").val($(this).children("td").eq(1).html());
       $("#txtAlmacenOrigenTemp").val($(this).children("td").eq(0).html());
       $("#modalAlmacen").modal("hide");
       });
     }
     if(almacen == "destino"){
-      $("#tableAlmacen tbody").on("click", "tr", function(){
+      $("#tableAlmacen tbody").off('click').on("click", "tr", function(){
       $("#txtAlmacenDestino").val($(this).children("td").eq(1).html());
       $("#txtAlmacenDestinoTemp").val($(this).children("td").eq(0).html());
       $("#modalAlmacen").modal("hide");
