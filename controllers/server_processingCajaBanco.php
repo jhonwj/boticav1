@@ -1,4 +1,5 @@
 <?php
+include_once '../clases/BnGeneral.php';
 include_once '../clases/ClsBnCajaBanco.php';
 include_once '../clases/ClsDtCajaBanco.php';
 
@@ -6,7 +7,13 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $result = ListarCajaBanco($_GET['IdCuenta'], $_GET['FechaDoc']);
+
+        if (isset($_GET['rango'])) {
+            $result = fn_devolverCajaBancoPorFecha($_GET['IdCuenta'], $_GET['IdTipoOperacion'], $_GET['FechaIni'], $_GET['FechaFin']);
+        } else {
+            $result = ListarCajaBanco($_GET['IdCuenta'], $_GET['FechaDoc']);
+        }
+        
         $data = array();
         while ($rows = mysqli_fetch_assoc($result)) {
             $data[] = $rows;

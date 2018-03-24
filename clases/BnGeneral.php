@@ -871,4 +871,13 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function fn_devolverCajaBancoPorFecha($cuenta, $tipo, $fechaIni, $fechaFin) {
+		$Ssql = "SELECT IdCajaBanco, FechaDoc, Lo_Proveedor.Proveedor, Ve_DocVentaCliente.Cliente, Concepto, Importe 
+			FROM Cb_CajaBanco
+			LEFT JOIN Lo_Proveedor ON Cb_CajaBanco.IdProveedor = Lo_Proveedor.IdProveedor
+			LEFT JOIN Ve_DocVentaCliente ON Cb_CajaBanco.IdCliente = Ve_DocVentaCliente.IdCliente
+			WHERE IdCuenta=$cuenta AND IdTipoCajaBanco=$tipo AND FechaDoc BETWEEN '$fechaIni' AND '$fechaFin'";
+		return getSQLResultSet($Ssql);
+	}
+
  ?>

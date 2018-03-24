@@ -1,0 +1,2 @@
+ALTER TABLE `Cb_CajaBanco` ADD `IdProveedor` INT(11) NOT NULL DEFAULT '0' AFTER `FechaMod`;
+ALTER TABLE `Cb_CajaBanco` ADD `IdCliente` INT(11) NOT NULL DEFAULT '0';

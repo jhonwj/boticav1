@@ -123,6 +123,8 @@ include_once("../clases/helpers/Modal.php");
              //var data = $(this).children("td").eq(1).html();
              //console.log($(this).children("td").eq(1).html());
              var idCliente = $(this).children("td").eq(0).html();
+             $('#txtCliente').attr('data-idcliente', idCliente)
+
              $('#gridDocAplicados').show();
 
 
@@ -229,6 +231,9 @@ include_once("../clases/helpers/Modal.php");
 
            // Documentos aplicados ListarDocAplicadosProveedor
            var idProveedor = $(this).children("td").eq(0).html();
+
+          $('#txtProveedor').attr('data-idproveedor', idProveedor);
+
            $("#tableDocAplicados").DataTable().destroy();
            $("#tableDocAplicados").DataTable({
                "bProcessing": true,
@@ -473,6 +478,8 @@ include_once("../clases/helpers/Modal.php");
                FechaDoc: $('#txtFechaVen2').val(),
                Concepto: $('#txtConcepto').val(),
                Importe: $('#txtImporte').val(),
+               IdCliente: $('#txtCliente').is(':disabled') ? 0 : $('#txtCliente').attr('data-idcliente'),
+               IdProveedor: $('#txtProveedor').is(':disabled') ? 0 : $('#txtProveedor').attr('data-idproveedor'),
                AplicadoDocVenta: window.aplicadoDocVenta,
                TipoCajaBanco: window.tipoCajaBanco || 0
            },

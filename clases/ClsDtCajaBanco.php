@@ -10,8 +10,10 @@ function fn_guardarCajaBanco($data) {
     $importe = $data['Importe'];
     $tipo = $data['TipoCajaBanco'];
     $aplicadoDocVenta = $data['AplicadoDocVenta'];
+    $idCliente = $data['IdCliente'];
+    $idProveedor = $data['IdProveedor'];
 
-    $Ssql = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe) VALUES ($idTipo, $idCuenta, '$fechaDoc', '$concepto', $importe)";
+    $Ssql = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, IdProveedor, IdCliente) VALUES ($idTipo, $idCuenta, '$fechaDoc', '$concepto', $importe, $idProveedor, $idCliente)";
     $idCajaBanco = getSQLResultSet($Ssql);
 
     if ($idCajaBanco) {
