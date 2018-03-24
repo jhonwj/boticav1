@@ -1,5 +1,6 @@
 DROP PROCEDURE `SbLo_MovimientoDetGuardar`;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SbLo_MovimientoDetGuardar`(IN `var_Hash` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_Cantidad` FLOAT, IN `var_TieneIgv` BIT, IN `var_Precio` FLOAT, IN `var_ISC` FLOAT, IN `var_FLETE` FLOAT, IN `var_IdLote` INT, IN `var_FechaVen` DATE, IN `var_PesoTotal` VARCHAR(255)) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
+DELIMITER //
+CREATE PROCEDURE `SbLo_MovimientoDetGuardar`(IN `var_Hash` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_Cantidad` FLOAT, IN `var_TieneIgv` BIT, IN `var_Precio` FLOAT, IN `var_ISC` FLOAT, IN `var_FLETE` FLOAT, IN `var_IdLote` INT, IN `var_FechaVen` DATE, IN `var_PesoTotal` VARCHAR(255)) NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER BEGIN
 
 
 
@@ -78,4 +79,4 @@ var_PesoTotal
 
 
 
-END
+END //

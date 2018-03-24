@@ -857,8 +857,8 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 
 	function fn_devolverMovimiento($hash) {
-		$Ssql = "SELECT Lo_Movimiento.*, Ve_DocVenta.Serie AS DocVentaSerie, Ve_Docventa.Numero as DocVentaNumero FROM Lo_Movimiento 
-		LEFT JOIN Ve_DocVenta ON Lo_Movimiento.IdDocVenta = Ve_Docventa.idDocVenta
+		$Ssql = "SELECT Lo_Movimiento.*, Ve_DocVenta.Serie AS DocVentaSerie, Ve_DocVenta.Numero as DocVentaNumero FROM Lo_Movimiento 
+		LEFT JOIN Ve_DocVenta ON Lo_Movimiento.IdDocVenta = Ve_DocVenta.idDocVenta
 		WHERE Lo_Movimiento.Hash='$hash';";
 		return getSQLResultSet($Ssql);
 	}

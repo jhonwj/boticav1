@@ -11,4 +11,4 @@ INNER JOIN Ve_PreOrdenDet AS pod ON po.IdPreOrden = pod.IdPreOrden
 INNER JOIN Gen_Producto AS PRO ON pod.IdProducto = PRO.IdProducto
 GROUP BY cl.DniRuc
 ORDER BY po.FechaReg DESC;
-END
+END //
