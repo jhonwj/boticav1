@@ -1,0 +1,40 @@
+DROP PROCEDURE `SbLo_MovimientoDetGuardar`;
+DELIMITER //
+CREATE PROCEDURE `SbLo_MovimientoDetGuardar`(IN `var_Hash` VARCHAR(255), IN `var_Producto` VARCHAR(255), IN `var_Cantidad` FLOAT, IN `var_TieneIgv` BIT, IN `var_Precio` FLOAT, IN `var_ISC` FLOAT, IN `var_FLETE` FLOAT, IN `var_IdLote` INT, IN `var_FechaVen` DATE, IN `var_PesoTotal` VARCHAR(255), IN `var_PrecioTipoCambio` FLOAT) 
+BEGIN
+
+	INSERT INTO Lo_MovimientoDetalle(hashMovimiento, IdProducto, Cantidad, TieneIgv, Precio, ISC, FLETE, IdLote, FechaVen, PesoTotal)
+	VALUES(
+	var_Hash,
+	(SELECT IdProducto FROM Gen_Producto WHERE Producto = var_Producto),
+	var_Cantidad,
+	var_TieneIgv,
+	var_Precio,
+var_ISC ,
+var_FLETE ,
+var_IdLote ,
+var_FechaVen,
+var_PesoTotal
+	);
+
+
+
+SET @vaRegcompra = (SELECT MT.VaRegCompra FROM Lo_Movimiento as M
+INNER JOIN Lo_MovimientoTipo AS MT ON M.IdMovimientoTipo = MT.IdMovimientoTipo
+WHERE M.Hash = var_Hash);
+
+UPDATE Gen_Producto 
+SET PrecioCosto = CASE
+					WHEN @vaRegCompra = 1 THEN var_PrecioTipoCambio
+					ELSE PrecioCosto
+                END,
+	PrecioContado = CASE
+					WHEN @vaRegCompra = 1 THEN var_PrecioTipoCambio * (1 + (Gen_Producto.PorcentajeUtilidad/100))
+                    ELSE PrecioContado
+				END
+WHERE Producto = var_Producto;
+
+
+
+
+END //
