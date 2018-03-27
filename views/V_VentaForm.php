@@ -129,6 +129,7 @@ $("#FechaVen").hide();
         $("#ModalAlmacen").modal("hide");
 
         window.isLoadStock = false;
+        $('#loading').addClass('active');
         // Ejecutar cursor - carga stock
         $.ajax({
           url: '../controllers/server_processingReporteStock.php?cursor=1&almacen=' + data[1],
@@ -145,6 +146,9 @@ $("#FechaVen").hide();
           error: function(XMLHttpRequest, textStatus, errorThrown) {
               window.isLoadStock = false
               //alert("Status: " + textStatus); alert("Error: " + errorThrown);
+          },
+          complete: function() {
+            $('#loading').removeClass('active');
           }
         });
     });

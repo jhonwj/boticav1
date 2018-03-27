@@ -146,7 +146,7 @@ function EliminarRegMov(idMovimiento){
 var r = confirm("Estas seguro que desea eliminar el movimiento?");
 if (r == true) {
   var xhr =  $.ajax({
-    url: 'EliminarMovimiento.php',
+    url: '../controllers/EliminarMovimiento.php',
     type: 'get',
     data:  {"idMov" : idMovimiento},
     dataType: 'html',

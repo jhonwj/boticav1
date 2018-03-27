@@ -41,7 +41,7 @@ if ($permiso) {
   $parent = explode("/", $_SERVER['PHP_SELF']);
   $parent = $parent[1];
 
-  if ($parent != 'controllers' && $_SESSION['user'] != 'admin') {
+  if ($parent != 'controllers' && $_SESSION['idPerfil'] != '1') {
     include_once('error/noAcceso.php');
     exit();
   }

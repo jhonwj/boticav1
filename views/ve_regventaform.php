@@ -76,7 +76,7 @@ function EliminarRegVenta(docVenta){
 	var r = confirm("Estas seguro que desea anular la venta?");
 	if (r == true) {
 	  var xhr =  $.ajax({
-	    url: 'EliminarRegVenta.php',
+	    url: '../controllers/EliminarRegVenta.php',
 	    type: 'get',
 	    data:  {"idRegVenta" : docVenta},
 	    dataType: 'html',

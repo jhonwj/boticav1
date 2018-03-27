@@ -30,10 +30,12 @@
 		if (empty($isLogin)) {
 			$isLogin =  false;
 		} else {
+			$idUsuarioPerfil = 0;
 			$permisos = obtenerPermisos($isLogin['IdUsuarioPerfil']);
 			$permisos = mysqli_fetch_all($permisos, MYSQLI_ASSOC);
 			$nuevosPermisos = [];
 			foreach ($permisos as $key => $permiso) {
+				$idUsuarioPerfil = $permiso['IdUsuarioPerfil'];
 				$nuevosPermisos[$permiso['UsuarioModulo']] = array(
 					'Lectura' => $permiso['Lectura'],
 					'Escritura' => $permiso['Escritura']
@@ -43,6 +45,7 @@
 			$_SESSION['user'] = $Usuario;
 			$_SESSION['permisos'] = $nuevosPermisos;
 			$_SESSION['start'] = time();
+			$_SESSION['idPerfil'] = $idUsuarioPerfil;
       $_SESSION['expire'] = $_SESSION['start'] + (5 * 60 * 60);
 
 			$isLogin = true;
