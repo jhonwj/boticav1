@@ -1,0 +1,54 @@
+DROP procedure IF EXISTS `SbVe_GuardarDocVenta`;
+
+DELIMITER $$
+CREATE PROCEDURE `SbVe_GuardarDocVenta`(IN `var_PuntoVenta` VARCHAR(255), IN `var_TipoDocVenta` VARCHAR(255), IN `var_Cliente` VARCHAR(255), IN `var_Almacen` VARCHAR(255), IN `var_FechaDoc` DATETIME, IN `var_Usuario` VARCHAR(255), IN `var_Credito` BIT, IN `var_FechaCredito` DATETIME, IN `var_Serie` VARCHAR(45))
+BEGIN
+
+
+
+SET @Hash2=(Select UNIX_TIMESTAMP());
+
+
+
+INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito)
+
+
+
+VALUES (
+
+
+				(Select IdDocVentaPuntoVenta From Ve_DocVentaPuntoVenta Where Ve_DocVentaPuntoVenta.PuntoVenta=var_PuntoVenta),
+
+
+
+				(Select IdCliente From Ve_DocVentaCliente Where Ve_DocVentaCliente.Cliente=var_Cliente),
+
+
+
+				(Select IdTipoDoc From Ve_DocVentaTipoDoc Where Ve_DocVentaTipoDoc.TipoDoc=var_TipoDocVenta),
+
+
+
+				(Select IdAlmacen From Lo_Almacen Where Lo_Almacen.Almacen=var_Almacen),
+
+
+
+				var_Serie,
+
+
+
+				(Select Ifnull((Select VE.Numero From Ve_DocVenta VE WHERE VE.Serie=var_Serie and VE.IdTipoDoc=(Select IdTipoDoc From Ve_DocVentaTipoDoc Where Ve_DocVentaTipoDoc.TipoDoc=var_TipoDocVenta) ORDER BY VE.Numero DESC limit 1),0))+1,
+
+
+
+				var_FechaDoc,0,now(),var_Usuario,@Hash2, var_Credito, var_FechaCredito );
+
+
+
+Select IdDocVenta From Ve_DocVenta Where Hash=@Hash2;
+
+
+
+END$$
+
+DELIMITER ;
