@@ -617,7 +617,7 @@ function listarProveedor(){
             ]
         });
       $("#tableProveedor tbody").on("click", "tr", function(){
-        $("#txtProveedor").val($(this).children("td").eq(1).html());
+        $("#txtProveedor").val($(this).children("td").eq(1).text());
         $("#modalProveedor").modal("hide");
         });
 }

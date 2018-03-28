@@ -10,9 +10,9 @@ if (isset($_SESSION['expire']) && $now > $_SESSION['expire']) {
 
 if (!isset($_SESSION['user'])) {
   ?>
-  <!--<script>
+  <script>
     window.location.href = "/"
-  </script>-->
+  </script>
   <?php
     header('Location: ' . 'http://' . $_SERVER['HTTP_HOST']);
     exit();

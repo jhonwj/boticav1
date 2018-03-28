@@ -48,6 +48,7 @@ include_once '../clases/DtGeneral.php';
 						 $usuario = $_POST['Usuario'];
 						 $password = $_POST['Password'];
              $nombreUsuario = $_POST['NombreUsuario'];
+             $update = $_POST['Update'];
 
              $usuario = fn_guardarUsuario($_POST);
              if ($usuario) {

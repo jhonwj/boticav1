@@ -67,7 +67,8 @@ $(document).ready(function(){
 				Usuario : $('#Usuario').val(),
 				IdUsuarioPerfil : $('#IdUsuarioPerfil').val(),
 				Password : $('#Password').val(),
-				NombreUsuario: $('#NombreUsuario').val()
+				NombreUsuario: $('#NombreUsuario').val(),
+				Update: $('#Update').val()
 			},
 			dataType: "json",
 			success: function(respuesta){
@@ -198,6 +199,10 @@ $(document).ready(function(){
 		console.log(xhr)
 	})
 
+	$('#btn-nuevo').on('click', function () {
+		$('#nuevo').modal('show')
+		$('#Update').val('0')
+	})
 
 	$('#nuevo').on('hide.bs.modal', function(e) {
 		$('#IdUsuarioPerfil').val('')
@@ -288,6 +293,8 @@ function EditarUsuario(user) {
 	$('#nuevo').modal('show');
 	$('#Usuario').val(user.Usuario)
 	$('#Password').val(user.Password)
+	$('#Update').val('1')
+	$('#Usuario').attr('disabled', true)
 
 	$('#NombreUsuario').val(user.NombreUsuario)
 	$('#IdUsuarioPerfil').val(user.IdUsuarioPerfil)
@@ -354,7 +361,7 @@ function EditarPerfil(perfil,  event) {
 <body>
 <?php include 'header.php'; ?>
 <div class="container">
- <button id="btn-nuevo" class="btn btn-danger fab" data-toggle="modal" data-target="#nuevo"><i class="fa fa-plus"></i></button>
+ <button id="btn-nuevo" class="btn btn-danger fab"><i class="fa fa-plus"></i></button>
 	<div class="row">
 		<div class="col s12">
 				<table id="tableUsuarioPerfil" class="table table-bordered table-striped">
@@ -380,6 +387,7 @@ function EditarPerfil(perfil,  event) {
 
 						<div class="form-group">
 							<label for="Usuario">Usuario</label>
+							<input type="hidden" name="Update" id="Update" value="0" />
 							<input type="text" name="usuario" id="Usuario" class="form-control">
 						</div>
 						<div class="form-group">
