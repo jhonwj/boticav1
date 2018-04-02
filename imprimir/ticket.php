@@ -160,5 +160,7 @@ $igv = 0;
   <br />
   <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONIA</div>
   <div class="center small">PARA SER CONSUMIDOS EN LA MISMA</div>
+  <br />
+  <br />
 
 </div>
