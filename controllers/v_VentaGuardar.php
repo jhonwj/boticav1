@@ -19,7 +19,7 @@ if(isset($cabecerajson)){
 	}
 	$res = "";
   //var_dump($FechaCredito);exit();
-	$res = fn_guardarDocVenta("CAJA1", $cabecerajson[1], $cabecerajson[0], $cabecerajson[2], "jeam", $Escredito, $FechaCredito, $cabecerajson[3]);
+	$res = fn_guardarDocVenta($cabecerajson[6], $cabecerajson[1], $cabecerajson[0], $cabecerajson[2], "jeam", $Escredito, $FechaCredito, $cabecerajson[3]);
 	//echo '<script type="text/javascript">console.log("Datos incorrectos! NO'.$res.'");</script>';
 			foreach ($tablejson as $key) {
 				fn_guardarDocVentaDet($res, $key[0], $key[2], $key[3]);

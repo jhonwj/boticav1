@@ -25,7 +25,7 @@ $direccion = strtoupper($docVenta['Direccion']);
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = $docVenta['LimiteItems'];
-$docVentaNro = str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
+$docVentaNro = $docVenta['Serie'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
 $fechaDoc = $docVenta['FechaDoc'];
 $serieMaq = $docVenta['SerieImpresora'];
 

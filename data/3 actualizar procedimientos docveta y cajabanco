@@ -1,0 +1,113 @@
+CREATE PROCEDURE `SbVe_GuardarDocVenta`(IN `var_PuntoVenta` VARCHAR(255), IN `var_TipoDocVenta` VARCHAR(255), IN `var_Cliente` VARCHAR(255), IN `var_Almacen` VARCHAR(255), IN `var_FechaDoc` DATETIME, IN `var_Usuario` VARCHAR(255), IN `var_Credito` BIT, IN `var_FechaCredito` DATETIME, IN `var_Serie` VARCHAR(45))
+BEGIN
+
+
+
+SET @Hash2=(Select UNIX_TIMESTAMP());
+
+
+
+
+
+
+
+INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito)
+
+
+
+VALUES (
+
+
+
+				(Select IdDocVentaPuntoVenta From Ve_DocVentaPuntoVenta Where Ve_DocVentaPuntoVenta.PuntoVenta=var_PuntoVenta),
+
+
+
+				(Select IdCliente From Ve_DocVentaCliente Where Ve_DocVentaCliente.Cliente=var_Cliente),
+
+
+
+				(Select IdTipoDoc From Ve_DocVentaTipoDoc Where Ve_DocVentaTipoDoc.TipoDoc=var_TipoDocVenta),
+
+
+
+				(Select IdAlmacen From Lo_Almacen Where Lo_Almacen.Almacen=var_Almacen),
+
+
+
+				var_Serie,
+
+
+
+				(Select Ifnull((Select VE.Numero From Ve_DocVenta VE WHERE VE.IdDocVentaPuntoVenta=(Select IdDocVentaPuntoVenta From Ve_DocVentaPuntoVenta Where Ve_DocVentaPuntoVenta.PuntoVenta=var_PuntoVenta) and  VE.Serie=var_Serie and VE.IdTipoDoc=(Select IdTipoDoc From Ve_DocVentaTipoDoc Where Ve_DocVentaTipoDoc.TipoDoc=var_TipoDocVenta) ORDER BY VE.Numero DESC limit 1),0))+1,
+
+
+
+				var_FechaDoc,0,now(),var_Usuario,@Hash2, var_Credito, var_FechaCredito );
+
+
+
+Select IdDocVenta From Ve_DocVenta Where Hash=@Hash2;
+
+
+
+END
+
+
+
+
+/***********************************************************************/
+/***********************************************************************/
+/***********************************************************************/
+/***********************************************************************/
+
+
+
+CREATE PROCEDURE `SbCb_ListarCajaBanco`(IN `var_IdCuenta` INT, IN `var_FechaDoc` DATETIME)
+BEGIN
+
+
+	(SELECT 
+    Ve_DocVenta.iddocventa as IdCajaBanco,
+    CONCAT('Venta ',Ve_DocVentaPuntoVenta.PuntoVenta ,' CodSunat: ' , Ve_DocVentaTipoDoc.CodSunat , ' Correlativo: ' , Ve_DocVenta.Serie , '-' , Ve_DocVenta.Numero ) as Concepto,
+    if(Ve_DocVentaMetodoPagoDet.Importe-    Round(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio,2)>0,Ve_DocVentaMetodoPagoDet.Importe,Round(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio,2)) as Ingresos,
+    0 as 'Salida'
+From Ve_DocVenta 
+Inner JOin Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocventa
+Inner JOin Ve_DocVentaMetodoPagoDet On Ve_DocVenta.idDocVenta=Ve_DocVentaMetodoPagoDet.IdDocVenta
+Inner Join Ve_DocVentaMetodoPago On Ve_DocVentaMetodoPagoDet.IdMetodoPago=Ve_DocVentaMetodoPAgo.IdMetodopago
+Inner JOin Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
+Inner Join Ve_DocVentaPuntoVenta On Ve_DocVenta.IdDocVentaPuntoVenta=Ve_DocventaPuntoVenta.IdDocVentaPuntoVenta
+Where DATE_FORMAT(Ve_DocVenta.Fechadoc, '%Y-%m-%d')=var_FechaDoc and Ve_DocVentaMetodoPAgo.esTarjeta=0 )
+    union All   
+	(SELECT
+	CB.IdCajaBanco as IdCajaBanco,
+
+	CB.Concepto as  Concepto,
+
+	CASE TCB.Tipo
+
+		WHEN 1 THEN 0
+
+        ELSE CB.Importe
+
+	END as 'Ingresos',
+
+    CASE TCB.Tipo
+
+		WHEN 1 THEN CB.Importe
+
+        ELSE 0
+
+	END as 'Salida'
+
+    FROM Cb_CajaBanco as CB
+
+    INNER JOIN Cb_TipoCajaBanco as TCB
+
+    ON CB.IdTipoCajaBanco = TCB.IdTipoCajaBanco
+    WHERE CB.IdCuenta = var_IdCuenta AND CB.FechaDoc = var_FechaDoc
+
+	ORDER BY TCB.Tipo,CB.IdCajaBanco);
+
+END

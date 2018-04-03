@@ -389,7 +389,7 @@ include_once("../clases/helpers/Modal.php");
                  }
              },
              //"sAjaxSource": "../controllers/server_processingCajaBanco.php",
-             "bPaginate":true,
+             "bPaginate":false,
              "sPaginationType":"full_numbers",
              "iDisplayLength": 5,
              //"bAutoWidth": false,

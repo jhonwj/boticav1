@@ -22,8 +22,18 @@ include_once("../clases/helpers/Modal.php");
 
     var table2 = $("#tableTipoDocVenta").DataTable();
     var table3 = $("#tableAlmacen").DataTable();
+    var tablePuntoVenta = $("#tablePuntoVenta").DataTable();
 
-
+    tablePuntoVenta
+    .column( 1 )
+    .data()
+    .each(function(value, index) {
+      if(index == 0) {
+        row = tablePuntoVenta.row(index).data();
+        $('#txtPuntoVenta').val(value);
+        $('#txtIdPuntoVenta').val(row[0])
+      }
+    }) 
 
 	 table2
     .column( 1 )
@@ -38,7 +48,7 @@ include_once("../clases/helpers/Modal.php");
           $("#txtTipoVenta").attr('data-limite', limite);
           $("#txtTipoVenta").val(value);
 
-          obtenerSerie(1, id)
+          obtenerSerie($('#txtIdPuntoVenta').val(), id)
         }
     } );
 
@@ -53,6 +63,7 @@ include_once("../clases/helpers/Modal.php");
         }
     } );
 
+   
     /*table4
     .column( 1 )
     .data()
@@ -103,6 +114,7 @@ $("#FechaVen").hide();
     $('#tableTipoDocVenta tbody').on('click', 'tr', function () {
         var data = table2.row( this ).data();
         $("#txtTipoVenta").val(data[1]);
+        $('#txtTipoVenta').attr('data-id', data[0])
         $('#txtTipoVenta').attr('data-igv', data[2])
         $('#txtTipoVenta').attr('data-limite', data[3])
         $("#ModalBuscarTipoVenta").modal("hide");
@@ -119,7 +131,7 @@ $("#FechaVen").hide();
         }
 
         // cargar serie correcta
-        obtenerSerie(1, data[0])
+        obtenerSerie($('#txtIdPuntoVenta').val(), data[0])
 
     });
     
@@ -152,6 +164,16 @@ $("#FechaVen").hide();
           }
         });
     });
+
+    $('#tablePuntoVenta tbody').on('click', 'tr', function() {
+      var data = tablePuntoVenta.row(this).data();
+      $('#txtPuntoVenta').val(data[1]);
+      $('#txtIdPuntoVenta').val(data[0]);
+      $('#ModalPuntoVenta').modal('hide');
+
+      obtenerSerie(data[0], $('#txtTipoVenta').attr('data-id'))
+      
+    })
     
     $('.spinner .btn:first-of-type').on('click', function() {
     $('.spinner input').val( parseInt($('.spinner input').val(), 10) + 1);
@@ -179,6 +201,11 @@ $("#FechaVen").hide();
  	$("#btnAlmacen").click(function(event) {
  		$("#ModalAlmacen").modal("show");
  	});
+
+   // Punto de Venta
+   $('#btnPuntoVenta').click(function(e) {
+     $('#ModalPuntoVenta').modal('show')
+   })
 
   // Limpiar
   $("#btnClean").click(function(){
@@ -360,10 +387,11 @@ $("#btnGuardarMetPago").click(function(){
   var serie = $("#txtSerie").val();
   var EsCredito = $("#txtCredito").is(":checked");
   var FechaCredito = $("#txtFechaCredito").val();
+  var PuntoVenta = $("#txtPuntoVenta").val();
 
   var cabecera = [];
 
-  cabecera.push(cliente, tipoDoc, almacen, serie, EsCredito, FechaCredito);
+  cabecera.push(cliente, tipoDoc, almacen, serie, EsCredito, FechaCredito, PuntoVenta);
 
   var myJson2 = JSON.stringify(cabecera);
 
@@ -729,22 +757,22 @@ function cargarPreOrden(row) {
     </div>
     <div class="col-xs-6 col-md-3">
       <div class="input-group" style="">
-        <input id="txtAlmacen" type="text" class="form-control" placeholder="Venta">
+        <input id="txtAlmacen" type="text" class="form-control" placeholder="Almacen">
         <span class="input-group-btn">
           <button id="btnAlmacen" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
         </span>
       </div>
     </div>
-    <div class="col-xs-6 col-md-6">
-      <div class="pull-right">
-        <?php
-        	$result = fn_devolverFecha();
-        	while ($row = mysqli_fetch_array($result)) {
-        	echo '<input type="text" id="fecha" class="form-control fechaActual" disabled placeholder="fecha" value="'.$row[0].'">';
-        	}
-         ?>
+    <div class="col-xs-6 col-md-3">
+      <div class="input-group" style="">
+        <input id="txtIdPuntoVenta" type="hidden">
+        <input id="txtPuntoVenta" type="text" class="form-control" placeholder="Punto de venta" readonly>
+        <span class="input-group-btn">
+          <button id="btnPuntoVenta" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
+        </span>
       </div>
-
+    </div>
+    <div class="col-xs-6 col-md-3">
       <div class="pull-right">
         <?php
             /*$result = fn_devolverPuntodeVenta("", "");
@@ -754,6 +782,15 @@ function cargarPreOrden(row) {
           ?>
           <input type="text" id="txtSerie" class="form-control puntoVentaActual" readonly value="">
       </div>
+      <div class="pull-right">
+        <?php
+        	$result = fn_devolverFecha();
+        	while ($row = mysqli_fetch_array($result)) {
+        	echo '<input type="text" id="fecha" class="form-control fechaActual" disabled placeholder="fecha" value="'.$row[0].'">';
+        	}
+         ?>
+      </div>
+
     </div>
   </div>
 </div>
@@ -989,6 +1026,42 @@ function cargarPreOrden(row) {
                     		echo '<tr>';
                      		echo '<td class="idTipoDoc">'.$row["IdAlmacen"]."</td>";
                      		echo "<td>".$row["Almacen"]."</td>";
+                     		echo "</tr>";
+                     }
+                    ?>
+              </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+ </div>
+
+
+  <!-- PUNTO DE VENTA -->
+<div class="modal fade" id="ModalPuntoVenta" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">PUNTO DE VENTA</h4>
+      </div>
+      <div class="modal-body">
+        <div class="sTableAlmacen">
+          <table id="tablePuntoVenta" class="table table-striped table-bordered">
+            <thead>
+             <th class="">#</th>
+             <th>Almacen</th>
+             <th>Serie</th>
+            </thead>
+              <tbody>
+                <?php
+                   $result = fn_devolverPuntodeVenta("", "");
+                    while ($row = mysqli_fetch_array($result)) {
+                    		echo '<tr>';
+                     		echo '<td class="idPuntoVenta">'.$row["IdDocVentaPuntoVenta"]."</td>";
+                     		echo "<td>".$row["PuntoVenta"]."</td>";
+                     		echo "<td>".$row["SerieDocVenta"]."</td>";
                      		echo "</tr>";
                      }
                     ?>
