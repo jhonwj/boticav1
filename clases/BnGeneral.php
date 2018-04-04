@@ -490,25 +490,25 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function ListarReporteStock($almacen, $producto, $serverSide = false, $proveedor = false, $menorStock = false)
 	{
-		$Ssql = "Select prodstock.IdProducto as numero, ProductoMarca as marca,ProductoCategoria as categoria,FormaFarmaceutica as formafarmaceutica, prodstock.Producto as Producto,Stock as stock ,
+		$Ssql = "Select Gen_Producto.IdProducto as numero, prodStock.ProductoMarca as marca,ProductoCategoria as categoria,prodstock.FormaFarmaceutica as formafarmaceutica, Gen_Producto.Producto as Producto,Stock as stock ,
 			Gen_Producto.PrecioContado,	Gen_Producto.PrecioPorMayor, Gen_Producto.StockPorMayor, Gen_Producto.Codigo, Gen_Producto.VentaEstrategica, Gen_ProductoMedicion.ProductoMedicion, Gen_Producto.CodigoBarra, Gen_Producto.StockMinimo, Gen_Producto.controlaStock,
-			(SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoPrecio,
-			(SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoCantidad,
-			((SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) * (SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = prodstock.IdProducto ORDER BY hashMovimiento DESC LIMIT 1)) as MovimientoTotal,
+			(SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = Gen_Producto.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoPrecio,
+			(SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = Gen_Producto.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoCantidad,
+			((SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = Gen_Producto.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) * (SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = Gen_Producto.IdProducto ORDER BY hashMovimiento DESC LIMIT 1)) as MovimientoTotal,
 			(SELECT Lo_Movimiento.IdProveedor FROM Lo_Movimiento WHERE Lo_Movimiento.Hash = (
 				SELECT hashMovimiento FROM Lo_MovimientoDetalle
-				WHERE IdProducto = prodstock.IdProducto
+				WHERE IdProducto = Gen_Producto.IdProducto
 				ORDER BY hashMovimiento DESC
 				LIMIT 1)) as IdProveedor
-			FROM prodstock
-			INNER JOIN Gen_Producto ON Gen_Producto.IdProducto = prodstock.IdProducto
+			FROM Gen_Producto
+			LEFT JOIN prodstock ON Gen_Producto.IdProducto = prodstock.IdProducto
 			INNER JOIN Gen_ProductoMedicion ON Gen_ProductoMedicion.IdProductoMedicion = Gen_Producto.IdProductoMedicion ";
 			
 
 		if ($proveedor) {
 			$Ssql .= "WHERE (SELECT Lo_Movimiento.IdProveedor FROM Lo_Movimiento WHERE Lo_Movimiento.Hash = (
 				SELECT hashMovimiento FROM Lo_MovimientoDetalle
-				WHERE IdProducto = prodstock.IdProducto
+				WHERE IdProducto = Gen_Producto.IdProducto
 				ORDER BY hashMovimiento DESC
 				LIMIT 1))=$proveedor ";
 			if($menorStock) {
@@ -519,10 +519,10 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		if ($serverSide) {
 
 			$serverSideQuery = generateDatatableServerSideQuery(
-				'prodstock.IdProducto',
-				array('prodstock.IdProducto', 'ProductoMarca', 'ProductoCategoria', 'FormaFarmaceutica', 'prodstock.Producto', 'Stock', 
+				'Gen_Producto.IdProducto',
+				array('Gen_Producto.IdProducto', 'ProductoMarca', 'ProductoCategoria', 'FormaFarmaceutica', 'Gen_Producto.Producto', 'Stock', 
 					'Gen_Producto.PrecioContado', 'Gen_Producto.PrecioPorMayor', 'Gen_Producto.StockPorMayor', 'Gen_Producto.Codigo', 'Gen_Producto.VentaEstrategica', 'Gen_ProductoMedicion.ProductoMedicion', 'Gen_Producto.CodigoBarra'),
-				'prodstock',	
+				'Gen_Producto',	
 				$Ssql
 			);
 
