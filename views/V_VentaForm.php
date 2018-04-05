@@ -717,39 +717,43 @@ function cargarProducto(codigoBarra) {
     url: '../controllers/server_processingProductoFilter.php?codigoBarra=' + codigoBarra,
     dataType: 'json',
     success: function(producto){
-      var producto = producto[0]
-      var cantidad = 1;
-      var existeProducto = false;
-      
-      $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
-        console.log($(this).find('td').eq(0).text())
-        console.log(producto)
-        if (producto.IdProducto == $(this).find('td').eq(0).text()) {
-          cantidad += parseInt($(this).find('td').eq(2).text())
-          precio = parseFloat($(this).find('td').eq(3).text())
-          $(this).find('td').eq(2).text(cantidad) //cantidad
-          $(this).find('td').eq(4).text(cantidad * precio) //Total
-          existeProducto = true
+      if (producto.length) {
+        var producto = producto[0]
+        var cantidad = 1;
+        var existeProducto = false;
+        
+        $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
+          console.log($(this).find('td').eq(0).text())
+          console.log(producto)
+          if (producto.IdProducto == $(this).find('td').eq(0).text()) {
+            cantidad += parseInt($(this).find('td').eq(2).text())
+            precio = parseFloat($(this).find('td').eq(3).text())
+            $(this).find('td').eq(2).text(cantidad) //cantidad
+            $(this).find('td').eq(4).text(cantidad * precio) //Total
+            existeProducto = true
+          }
+        });
+  
+        if (!existeProducto) {
+          var fila = "<tr><td class='idProd'>"+producto.IdProducto+"</td><td class='nombreProducto'>"+producto.Producto+"</td><td>"+cantidad+ "</td><td>" +producto.PrecioContado+ "</td><td>"+parseFloat(producto.PrecioContado)*parseFloat(cantidad)+"</td><td class='nombreProducto'>"+ ((producto.Lote === null)?'':producto.Lote) + "</td><td class='nombreProducto'>"+ ((producto.FechaVen === null)?'':producto.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
+            $("#tablePuntoVentaDet tbody").append(fila);
         }
-      });
-
-      if (!existeProducto) {
-        var fila = "<tr><td class='idProd'>"+producto.IdProducto+"</td><td class='nombreProducto'>"+producto.Producto+"</td><td>"+cantidad+ "</td><td>" +producto.PrecioContado+ "</td><td>"+parseFloat(producto.PrecioContado)*parseFloat(cantidad)+"</td><td class='nombreProducto'>"+ ((producto.Lote === null)?'':producto.Lote) + "</td><td class='nombreProducto'>"+ ((producto.FechaVen === null)?'':producto.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
-          $("#tablePuntoVentaDet tbody").append(fila);
+  
+        
+  
+         var Total = 0;
+         $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
+  
+           //console.log($(this).find('td').eq(4).html());
+           var Tot = $(this).find('td').eq(4).html();
+           Total = parseFloat(Total) + parseFloat(Tot);
+           //console.log(Total;
+         });
+         $("#txtSubTot").val(Total.toFixed(2));
+         $("#txtTotalGen").val(Total.toFixed(2));
+      } else {
+        alert('el producto no existe')
       }
-
-      
-
-       var Total = 0;
-       $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
-
-         //console.log($(this).find('td').eq(4).html());
-         var Tot = $(this).find('td').eq(4).html();
-         Total = parseFloat(Total) + parseFloat(Tot);
-         //console.log(Total;
-       });
-       $("#txtSubTot").val(Total.toFixed(2));
-       $("#txtTotalGen").val(Total.toFixed(2));
 
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
