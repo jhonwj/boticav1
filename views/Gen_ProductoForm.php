@@ -19,6 +19,12 @@ include_once("../clases/BnGeneral.php");
     TablaCompuesto();
    // ListarProductoDet();
 
+    $('#ProductoCodigoBarra').on('keypress', function(e) {
+      if(e.which == 13) {
+        $('#ProductoCodigo').focus()
+        return false;
+      }
+    });
     $("#modal-form").submit(function(e){
       e.preventDefault();
       var arrTableCompuestos = [];

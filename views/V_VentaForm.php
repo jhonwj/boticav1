@@ -551,6 +551,18 @@ $("#formAddCliente").submit(function(e){
 });
 
 
+
+// codigo de barra carga de producto
+  $('#codigoBarra').on('keypress', function(e) {
+    if(e.which == 13) {
+      cargarProducto($('#codigoBarra').val());
+      return false;
+    }
+  });
+
+  $('#btnCodigoBarra').click(function () {
+    cargarProducto($('#codigoBarra').val());
+  })
 } );
 
 function obtenerSerie(idPuntoVenta, idTipoDoc) {
@@ -700,6 +712,52 @@ function fn_SumarProd(){
     $("#txtTotalGen").val(Total.toFixed(2));
 }
 
+function cargarProducto(codigoBarra) {
+  var xhr = $.ajax({
+    url: '../controllers/server_processingProductoFilter.php?codigoBarra=' + codigoBarra,
+    dataType: 'json',
+    success: function(producto){
+      var producto = producto[0]
+      var cantidad = 1;
+      var existeProducto = false;
+      
+      $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
+        console.log($(this).find('td').eq(0).text())
+        console.log(producto)
+        if (producto.IdProducto == $(this).find('td').eq(0).text()) {
+          cantidad += parseInt($(this).find('td').eq(2).text())
+          precio = parseFloat($(this).find('td').eq(3).text())
+          $(this).find('td').eq(2).text(cantidad) //cantidad
+          $(this).find('td').eq(4).text(cantidad * precio) //Total
+          existeProducto = true
+        }
+      });
+
+      if (!existeProducto) {
+        var fila = "<tr><td class='idProd'>"+producto.IdProducto+"</td><td class='nombreProducto'>"+producto.Producto+"</td><td>"+cantidad+ "</td><td>" +producto.PrecioContado+ "</td><td>"+parseFloat(producto.PrecioContado)*parseFloat(cantidad)+"</td><td class='nombreProducto'>"+ ((producto.Lote === null)?'':producto.Lote) + "</td><td class='nombreProducto'>"+ ((producto.FechaVen === null)?'':producto.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
+          $("#tablePuntoVentaDet tbody").append(fila);
+      }
+
+      
+
+       var Total = 0;
+       $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
+
+         //console.log($(this).find('td').eq(4).html());
+         var Tot = $(this).find('td').eq(4).html();
+         Total = parseFloat(Total) + parseFloat(Tot);
+         //console.log(Total;
+       });
+       $("#txtSubTot").val(Total.toFixed(2));
+       $("#txtTotalGen").val(Total.toFixed(2));
+
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+    }
+  });
+}
+
 function cargarPreOrden(row) {
 
   var xhr = $.ajax({
@@ -811,11 +869,19 @@ function cargarPreOrden(row) {
   </div>
       <div class="" style="margin-left:10px; margin-right:10px;">
         <div class="row">
-          <div class="col-xs-6">
+          <div class="col-xs-3">
             <div class="input-group" style="margin-bottom:20px;">
                 <input type="text" class="form-control" placeholder="Producto">
                 <span class="input-group-btn">
                 <button id="btnProducto" class="btn btn-danger" type="button"><i class="fa fa-search-plus"></i></button>
+               </span>
+            </div>
+          </div>
+          <div class="col-xs-3">
+            <div class="input-group" style="margin-bottom:20px;">
+                <input type="text" class="form-control" placeholder="Código de barra" id="codigoBarra">
+                <span class="input-group-btn">
+                <button id="btnCodigoBarra" class="btn btn-danger" type="button"><i class="fa fa-barcode"></i></button>
                </span>
             </div>
           </div>

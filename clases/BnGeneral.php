@@ -880,4 +880,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function ListarProductoFilter($codigoBarra) {
+		$Ssql = "SELECT *, 
+			(SELECT MD.IdLote FROM Lo_MovimientoDetalle as MD WHERE MD.IdProducto=Gen_Producto.IdProducto group by IdProducto ORDER BY FechaVen ASC) AS Lote,
+			(SELECT MD.FechaVen FROM Lo_MovimientoDetalle as MD WHERE MD.IdProducto=Gen_Producto.IdProducto group by IdProducto ORDER BY FechaVen ASC) AS FechaVen 
+			FROM Gen_Producto WHERE CodigoBarra='$codigoBarra' LIMIT 1";
+		return getSQLResultSet($Ssql);
+	}
  ?>
