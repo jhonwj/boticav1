@@ -1,3 +1,6 @@
+DROP procedure IF EXISTS `SbVe_GuardarDocVenta`;
+
+DELIMITER $$
 CREATE PROCEDURE `SbVe_GuardarDocVenta`(IN `var_PuntoVenta` VARCHAR(255), IN `var_TipoDocVenta` VARCHAR(255), IN `var_Cliente` VARCHAR(255), IN `var_Almacen` VARCHAR(255), IN `var_FechaDoc` DATETIME, IN `var_Usuario` VARCHAR(255), IN `var_Credito` BIT, IN `var_FechaCredito` DATETIME, IN `var_Serie` VARCHAR(45))
 BEGIN
 
@@ -16,7 +19,6 @@ INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Seri
 
 
 VALUES (
-
 
 
 				(Select IdDocVentaPuntoVenta From Ve_DocVentaPuntoVenta Where Ve_DocVentaPuntoVenta.PuntoVenta=var_PuntoVenta),
@@ -43,6 +45,7 @@ VALUES (
 
 
 
+
 				var_FechaDoc,0,now(),var_Usuario,@Hash2, var_Credito, var_FechaCredito );
 
 
@@ -51,7 +54,10 @@ Select IdDocVenta From Ve_DocVenta Where Hash=@Hash2;
 
 
 
-END
+END$$
+
+DELIMITER ;
+
 
 
 
