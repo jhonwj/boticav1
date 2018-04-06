@@ -380,6 +380,7 @@ $("#mPMastercard").click(function(){
 });
 
 $("#btnGuardarMetPago").click(function(){
+  $(this).attr('disabled', true);
 
   var cliente = $("#txtCliente").val();
   var tipoDoc = $("#txtTipoVenta").val();
@@ -432,10 +433,12 @@ $("#btnGuardarMetPago").click(function(){
           //window.print();
         }
         else{
+          $('#btnGuardarMetPago').attr('disabled', false)
           alert("¡Error en el envio!");
         }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
+        $('#btnGuardarMetPago').attr('disabled', false)        
         alert("Status: " + textStatus); alert("Error: " + errorThrown);
     }
       });

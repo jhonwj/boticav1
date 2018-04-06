@@ -19,8 +19,13 @@ $(document).ready(function(e){
 				var respuesta = JSON.parse(res);
 				var tableBody = "";
 				var TotalGeneral = 0.00;
+				
 				$.each(respuesta, function(data, value){
-					tableBody = tableBody + "<tr><td>"+value.idDocVenta+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +");'><i class='fa fa-ban'></i></a></td></tr>" ;
+					var style='';
+					if(value.Anulado == '1') {
+						style='danger';
+					}
+					tableBody = tableBody + "<tr class='" + style + "'><td>"+value.idDocVenta+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +");'><i class='fa fa-ban'></i></a></td></tr>" ;
 					TotalGeneral = TotalGeneral + parseFloat(value.Total);
 				});
 				$("#tableRegVenta tbody").append(tableBody);

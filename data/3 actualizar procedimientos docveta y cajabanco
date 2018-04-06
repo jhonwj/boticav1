@@ -62,28 +62,31 @@ END
 /***********************************************************************/
 
 
+DROP procedure IF EXISTS `SbCb_ListarCajaBanco`;
 
+DELIMITER $$
 CREATE PROCEDURE `SbCb_ListarCajaBanco`(IN `var_IdCuenta` INT, IN `var_FechaDoc` DATETIME)
 BEGIN
 
-
-	(SELECT 
-    Ve_DocVenta.iddocventa as IdCajaBanco,
+(SELECT 
+    Ve_DocVenta.idDocventa as IdCajaBanco,
     CONCAT('Venta ',Ve_DocVentaPuntoVenta.PuntoVenta ,' CodSunat: ' , Ve_DocVentaTipoDoc.CodSunat , ' Correlativo: ' , Ve_DocVenta.Serie , '-' , Ve_DocVenta.Numero ) as Concepto,
     if(Ve_DocVentaMetodoPagoDet.Importe-    Round(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio,2)>0,Ve_DocVentaMetodoPagoDet.Importe,Round(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio,2)) as Ingresos,
     0 as 'Salida'
 From Ve_DocVenta 
 Inner JOin Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocventa
 Inner JOin Ve_DocVentaMetodoPagoDet On Ve_DocVenta.idDocVenta=Ve_DocVentaMetodoPagoDet.IdDocVenta
-Inner Join Ve_DocVentaMetodoPago On Ve_DocVentaMetodoPagoDet.IdMetodoPago=Ve_DocVentaMetodoPAgo.IdMetodopago
+Inner Join Ve_DocVentaMetodoPago On Ve_DocVentaMetodoPagoDet.IdMetodoPago=Ve_DocVentaMetodoPago.IdMetodoPago
 Inner JOin Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
-Inner Join Ve_DocVentaPuntoVenta On Ve_DocVenta.IdDocVentaPuntoVenta=Ve_DocventaPuntoVenta.IdDocVentaPuntoVenta
-Where DATE_FORMAT(Ve_DocVenta.Fechadoc, '%Y-%m-%d')=var_FechaDoc and Ve_DocVentaMetodoPAgo.esTarjeta=0 )
-    union All   
-	(SELECT
-	CB.IdCajaBanco as IdCajaBanco,
+Inner Join Ve_DocVentaPuntoVenta On Ve_DocVenta.IdDocVentaPuntoVenta=Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
+Where DATE_FORMAT(Ve_DocVenta.Fechadoc, '%Y-%m-%d')=var_FechaDoc and Ve_DocVentaMetodoPago.EsTarjeta=0 )
+    union All  
+	
+    (SELECT
 
-	CB.Concepto as  Concepto,
+	CB.IdCajaBanco,
+
+	CB.Concepto,
 
 	CASE TCB.Tipo
 
@@ -110,4 +113,7 @@ Where DATE_FORMAT(Ve_DocVenta.Fechadoc, '%Y-%m-%d')=var_FechaDoc and Ve_DocVenta
 
 	ORDER BY TCB.Tipo,CB.IdCajaBanco);
 
-END
+END$$
+
+DELIMITER ;
+
