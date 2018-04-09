@@ -87,3 +87,37 @@ if (isset($_GET['IdDocVenta'])) {
 <?php    
   }
 ?>
+
+
+
+
+
+<?php 
+  if(isset($_GET['especificacion'])) {
+   
+    include_once('especificacion.php');
+
+?>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    //window.print()
+
+    <?php
+      if(!isset($_GET['preview'])) {
+        if (isset($_GET['redirect'])) {
+          //echo 'window.print();';
+          //echo 'window.location.href="' . $_GET['redirect'] . '";';
+        } else {
+          //echo 'window.print();';
+          //echo 'window.location.href="/views/V_VentaForm.php";';
+        }
+      }
+      
+    ?>
+    //window.location.href="/views/V_VentaForm.php";
+
+  })
+</script>
+<?php    
+  }
+?>

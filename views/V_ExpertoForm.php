@@ -226,7 +226,7 @@
 				//var arrNroDias = [];
 				//console.log(response);
 				$.each(response, function(data, value){
-					var fila = "<tr><td class='nombreCompuesto'>" + value.ProductoCompuesto + "</td><td>" + value.TomasXDia*value.NroDias + "</td><td></td><td></td><td>"+ value.DosisXPeso + "</td><td>"+ value.Concentracion+ "</td><td id='txtpeso' contenteditable='true'>"+0+"</td><td style='display:none;'>"+value.NroDias+"</td><td style='display:none;'>"+value.TomasXDia+"</td><td style='display:none;'>"+value.NroDias+"</td></tr>";
+					var fila = "<tr data-nrodias='"+ value.NroDias +"' data-dosisdia='"+ value.TomasXDia +"' data-unidaddosispeso='"+ value.UnidadDosisXPeso +"' data-idproductocompuesto='"+ value.IdProductoCompuesto +"'><td class='nombreCompuesto'>" + value.ProductoCompuesto + "</td><td>" + value.TomasXDia*value.NroDias + "</td><td class='producto'></td><td></td><td class='dosisPeso'>"+ value.DosisXPeso + "</td><td class='concentracion'>"+ value.Concentracion+ "</td><td id='txtpeso' contenteditable='true' class='peso'>"+0+"</td><td style='display:none;'>"+value.NroDias+"</td><td style='display:none;'>"+value.TomasXDia+"</td><td style='display:none;'>"+value.NroDias+"</td></tr>";
 					$("#tableTratamientoPreO tbody").append(fila);
 					console.log(value.NroDias + " - ");
 					//console.log($("#txtMaxPreO").val());
@@ -281,7 +281,27 @@
 		}
 	});
 
-	});
+
+	$('#btnEspecificaciones').click(function() {
+		var productos = []
+		$('#tableTratamientoPreO tbody tr').each(function(e) {
+			if($(this).find('.producto').text()) {
+				productos.push({
+					producto: $(this).find('.producto').text(),
+					dosisXPeso: $(this).find('.dosisPeso').text(),
+					peso: $(this).find('.peso').text(),
+					dosis: $(this).attr('data-dosis').replace(/(^\d+)(.+$)/i,'$1'),
+					concentracion: $(this).find('.concentracion').text(),
+					unidadDosisPeso: $(this).attr('data-unidaddosispeso'),
+					nroDias: $(this).attr('data-nrodias'),
+					dosisDia: $(this).attr('data-dosisdia')
+				})
+			}
+		})
+		window.open('/imprimir/index.php?especificacion=1&productos='+ JSON.stringify(productos))
+		//window.location.href = '/imprimir/index.php?especificacion=1&productos='+ JSON.stringify(productos);
+	})
+});
 
 
 function agregarDiasTratamiento(){
@@ -307,12 +327,14 @@ function agregarProducto(){
 		var compuesto = $("#tempCompuesto").val();
 	$("#tableProductosAdd tbody").off("click").on("click", "tr", function(e){
 		idProducto = $(this).children("td").eq(0).html();
+		dosis = $(this).attr('data-dosis')
 		producto = $(this).children("td").eq(1).html();
 		precio = $(this).children("td").eq(2).html();
 		$("#tableTratamientoPreO tbody").each(function(e){
 		$("#tableTratamientoPreO tbody tr").each(function(e){
 			if (compuesto == $(this).children("td").eq(0).html()) {
 				$(this).attr('data-idProducto', idProducto);
+				$(this).attr('data-dosis', dosis)
 				$(this).children("td").eq(2).html(producto);
 				$(this).children("td").eq(3).html(precio);
 				console.log($(this).children("td").eq(0).html() + " - " + producto);
@@ -448,7 +470,10 @@ function ListarProductos(compuesto){
       	{ mData: 'Producto' },
       	{ mData: 'PrecioContado' },
       	{ mData: 'PrecioPorMayor' }
-      	]
+      	],
+		"rowCallback": function(row, data, index) {
+			$(row).attr('data-dosis', data.Dosis)
+		}
     });
 		agregarProducto();
 }
@@ -1400,6 +1425,7 @@ function EditarCliente(idCliente) {
 				</div>
 			</div>
 			<div class="modal-footer">
+				<button type="button" id="btnEspecificaciones" class="btn btn-success" >Imprimir Especificaciones</button>
 				<button type="button" id="btnPreOrden" class="btn btn-primary" >Pre Orden</button>
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
 			</div>

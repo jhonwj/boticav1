@@ -1,0 +1,125 @@
+
+DROP procedure IF EXISTS `SbVe_BuscarTratamiento`;
+
+DELIMITER $$
+CREATE PROCEDURE `SbVe_BuscarTratamiento`(IN `var_Diagnostico` VARCHAR(255), IN `var_Edad` INT)
+BEGIN
+
+
+
+SELECT DISTINCT
+
+
+
+
+
+
+
+Ve_ExpertoTratamiento.NroDias,
+
+
+
+Ve_ExpertoTratamiento.TomasXDia,
+
+Ve_ExpertoTratamiento.DosisXPeso,
+
+Ve_ExpertoTratamiento.Concentracion,
+
+
+
+Gen_ProductoCompuesto.ProductoCompuesto,
+Ve_ExpertoTratamiento.IdCompuesto as IdProductoCompuesto,
+Ve_ExpertoTratamiento.UnidadDosisXPeso as UnidadDosisXPeso,
+Ve_ExpertoTratamiento.TomasXDia,
+Ve_ExpertoTratamiento.NroDias
+
+FROM
+
+Ve_ExpertoTratamiento
+
+
+
+INNER JOIN Gen_ProductoCompuesto ON Gen_ProductoCompuesto.IdProductoCompuesto = Ve_ExpertoTratamiento.IdCompuesto
+
+
+
+INNER JOIN Gen_ProductoCompuestoDet ON Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto = Gen_ProductoCompuesto.IdProductoCompuesto
+
+
+
+INNER JOIN Ve_ExpertoDiagnostico ON Ve_ExpertoDiagnostico.IdDiagnostico = Ve_ExpertoTratamiento.IdDiagnostico
+
+
+
+WHERE
+
+
+
+Ve_ExpertoDiagnostico.Diagnostico = var_Diagnostico AND Ve_ExpertoDiagnostico.Edad >= var_Edad;
+
+
+
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**********************************************/
+
+
+
+DROP procedure IF EXISTS `SbVe_ListarProductoXCompuesto`;
+
+DELIMITER $$
+CREATE PROCEDURE `SbVe_ListarProductoXCompuesto`(IN `var_IdProductoCompuesto` INT, IN `var_ProductoCompuesto` VARCHAR(255))
+BEGIN
+
+IF var_ProductoCompuesto='00000' THEN
+
+
+
+SELECT Gen_Producto.IdProducto, Gen_Producto.Producto, Gen_Producto.Dosis
+
+FROM Gen_Producto
+
+INNER JOIN Gen_ProductoCompuestoDet ON  Gen_ProductoCompuestoDet.Gen_Producto_IdProducto = Gen_Producto.IdProducto
+
+INNER JOIN Gen_ProductoCompuesto ON Gen_ProductoCompuesto.IdProductoCompuesto = Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto
+
+WHERE Gen_ProductoCompuesto.IdProductoCompuesto = var_IdProductoCompuesto;
+
+
+
+ELSEIF var_IdProductoCompuesto=00000 THEN
+
+
+
+SELECT Gen_Producto.IdProducto, Gen_Producto.Producto, Gen_Producto.PrecioContado, Gen_Producto.PrecioPorMayor, Gen_Producto.Dosis
+
+FROM Gen_Producto
+
+INNER JOIN Gen_ProductoCompuestoDet ON  Gen_ProductoCompuestoDet.Gen_Producto_IdProducto = Gen_Producto.IdProducto
+
+INNER JOIN Gen_ProductoCompuesto ON Gen_ProductoCompuesto.IdProductoCompuesto = Gen_ProductoCompuestoDet.Gen_ProductoCompuesto_IdProductoCompuesto
+
+WHERE Gen_ProductoCompuesto.ProductoCompuesto = var_ProductoCompuesto;
+
+END IF;
+
+END$$
+
+DELIMITER ;
+
