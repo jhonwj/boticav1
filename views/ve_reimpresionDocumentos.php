@@ -33,7 +33,13 @@ include_once("../clases/helpers/Modal.php");
             return "<a href='/imprimir/index.php?IdDocVenta=" + row.idDocVenta + "&redirect=/views/ve_reimpresionDocumentos.php' class='btn btn-success'><i class='fa fa-print'></i> " + row.TipoDoc + "</a> " +
             "<a href='/imprimir/index.php?IdDocVenta=" + row.idDocVenta + "&preview=1' target='_blank' class='btn btn-success'><i class='fa fa-search'></i></a>"
           }, width: 180}
-        ]
+        ],
+        "aoColumnDefs": [ {
+            "aTargets": [ 5 ],
+            "mRender": function (data, type, full) {
+              return parseFloat(data).toFixed(2);
+            }
+        }],
       });
 
   })

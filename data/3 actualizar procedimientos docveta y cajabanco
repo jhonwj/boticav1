@@ -75,7 +75,7 @@ CREATE PROCEDURE `SbCb_ListarCajaBanco`(IN `var_IdCuenta` INT, IN `var_FechaDoc`
 BEGIN
 
 (SELECT 
-    Ve_DocVenta.idDocventa as IdCajaBanco,
+    DISTINCT Ve_DocVenta.idDocventa as IdCajaBanco,
     CONCAT('Venta ',Ve_DocVentaPuntoVenta.PuntoVenta ,' CodSunat: ' , Ve_DocVentaTipoDoc.CodSunat , ' Correlativo: ' , Ve_DocVenta.Serie , '-' , Ve_DocVenta.Numero ) as Concepto,
     if(Ve_DocVentaMetodoPagoDet.Importe-    Round(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio,2)>0,Ve_DocVentaMetodoPagoDet.Importe,Round(Ve_DocVentaDet.Cantidad*Ve_DocVentaDet.Precio,2)) as Ingresos,
     0 as 'Salida'

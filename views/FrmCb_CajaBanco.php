@@ -412,6 +412,12 @@ include_once("../clases/helpers/Modal.php");
                     data-target="#modalEliminarCajaBanco">Eliminar</button>';
                }}
              ],
+             "aoColumnDefs": [ {
+                  "aTargets": [ 2, 3, 4 ],
+                  "mRender": function (data, type, full) {
+                    return parseFloat(data).toFixed(2);
+                  }
+              }],
              "rowCallback": function( row, data, index ) {
                saldo = parseInt(saldo) + parseInt(data.Ingresos) - parseInt(data.Salida);
                $('td:eq(4)', row).html( saldo );
