@@ -419,8 +419,8 @@ include_once("../clases/helpers/Modal.php");
                   }
               }],
              "rowCallback": function( row, data, index ) {
-               saldo = parseInt(saldo) + parseInt(data.Ingresos) - parseInt(data.Salida);
-               $('td:eq(4)', row).html( saldo );
+               saldo = parseFloat(saldo) + parseFloat(data.Ingresos) - parseFloat(data.Salida);
+               $('td:eq(4)', row).html( saldo.toFixed(2) );
              },
              "drawCallback": function( settings ) {
                saldo = 0
