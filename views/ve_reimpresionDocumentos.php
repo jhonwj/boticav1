@@ -23,7 +23,10 @@ include_once("../clases/helpers/Modal.php");
         "sPaginationType":"full_numbers",
         "iDisplayLength": 5,
         "aoColumns": [
-          { mData: 'idDocVenta' } ,
+          { mData: 'idDocVenta' },
+          { mRender : function(data, type, row){
+            return row.Serie+"-"+row.Numero
+          }},
           { mData: 'FechaDoc' },
           { mData: 'DniRuc' },
           { mData: 'TipoDoc' },
@@ -34,7 +37,7 @@ include_once("../clases/helpers/Modal.php");
             "<a href='/imprimir/index.php?IdDocVenta=" + row.idDocVenta + "&preview=1' target='_blank' class='btn btn-success'><i class='fa fa-search'></i></a>"
           }, width: 180}
         ],
-        "aoColumnDefs": [ {
+        "aoColumnDefs": [{
             "aTargets": [ 5 ],
             "mRender": function (data, type, full) {
               return parseFloat(data).toFixed(2);
@@ -55,6 +58,7 @@ include_once("../clases/helpers/Modal.php");
    <table id="tableReimpresion" class="table table-striped table-bordered" style="">
      <thead>
        <th class="">IdDocVenta</th>
+       <th>Correlativo</th>
        <th>Fecha</th>
        <th>DNI / RUC</th>
        <th>Tipo Doc</th>
