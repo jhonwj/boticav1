@@ -1235,7 +1235,7 @@ function EditarCliente(idCliente) {
 				<div class="form-inline">
 					<label>Dosis por peso</label>
 					<input type="number" id="txtDosisXPeso" class="form-control"><br>
-					<label>  Tipo UND Solución</label>
+					<label>  Unidad de Medida</label>
 					<input type="text" id="txtUnidadDosisXPeso" class="form-control">
 				</div>
 				<div class="form-inline">

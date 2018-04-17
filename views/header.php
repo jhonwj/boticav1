@@ -62,8 +62,8 @@ define("CajaYBancoBuscador", SITE_URL . "views/FrmCb_CajaBancoBuscador.php");
           <li><a href="<?php echo Inventario; ?>">MOVIMIENTO</a></li>
           <li role="separator" class="divider"></li>
           <li class="dropdown-header">KARDEX CONTABLE</li>
-            <li><a href="<?php echo ReporteKardex."?Tipo=0"; ?>">1. KARDEX</a></li>
-            <li><a href="<?php echo ReporteKardexValorizado."?Tipo=0"; ?>">2. KARDEX VALORIZADO</a></li>
+            <!--<li><a href="<?php echo ReporteKardex."?Tipo=0"; ?>">1. KARDEX</a></li>-->
+            <li><a href="<?php echo ReporteKardexValorizado."?Tipo=0"; ?>">1. KARDEX VALORIZADO</a></li>
           <li class="dropdown-header">KARDEX FECHA STOCK</li>
             <li><a href="<?php echo ReporteKardex."?Tipo=1"; ?>">1. KARDEX</a></li>
             <li><a href="<?php echo ReporteKardexValorizado."?Tipo=1"; ?>">2. KARDEX VALORIZADO</a></li>
