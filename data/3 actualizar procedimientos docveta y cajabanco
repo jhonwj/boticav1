@@ -85,7 +85,7 @@ Inner JOin Ve_DocVentaMetodoPagoDet On Ve_DocVenta.idDocVenta=Ve_DocVentaMetodoP
 Inner Join Ve_DocVentaMetodoPago On Ve_DocVentaMetodoPagoDet.IdMetodoPago=Ve_DocVentaMetodoPago.IdMetodoPago
 Inner JOin Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
 Inner Join Ve_DocVentaPuntoVenta On Ve_DocVenta.IdDocVentaPuntoVenta=Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
-Where DATE_FORMAT(Ve_DocVenta.Fechadoc, '%Y-%m-%d')=var_FechaDoc and Ve_DocVentaMetodoPago.EsTarjeta=0 )
+Where DATE_FORMAT(Ve_DocVenta.Fechadoc, '%Y-%m-%d')=var_FechaDoc and Ve_DocVentaMetodoPago.EsTarjeta=0 AND Ve_DocVenta.EsCredito = 0)
     union All  
 	
     (SELECT

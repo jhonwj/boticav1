@@ -38,7 +38,7 @@ include_once("../clases/helpers/Modal.php");
           }, width: 180}
         ],
         "aoColumnDefs": [{
-            "aTargets": [ 5 ],
+            "aTargets": [ 6 ],
             "mRender": function (data, type, full) {
               return parseFloat(data).toFixed(2);
             }
