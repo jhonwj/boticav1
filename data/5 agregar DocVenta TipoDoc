@@ -1,0 +1,12 @@
+
+/* DocVenta */
+INSERT INTO `Ve_DocVentaTipoDoc` (`IdTipoDoc`, `TipoDoc`, `VaRegVenta`, `CodSunat`, `TipoDocSunat`, `TieneIgv`, `LimiteItems`) VALUES (6, 'TICKET BOLETA', '1', '12', '01', '0', '0');
+INSERT INTO `Ve_DocVentaTipoDoc` (`IdTipoDoc`, `TipoDoc`, `VaRegVenta`, `CodSunat`, `TipoDocSunat`, `TieneIgv`, `LimiteItems`) VALUES (7, 'TICKET FACTURA', '1', '12', '01', '0', '0');
+
+/* DocVentaDet */
+INSERT INTO `Ve_DocVentaPuntoVentaDet` (`IdDocVentaPuntoVenta`, `IdDocVentaTipoDoc`, `Serie`) VALUES ('1', '6', '001');
+INSERT INTO `Ve_DocVentaPuntoVentaDet` (`IdDocVentaPuntoVenta`, `IdDocVentaTipoDoc`, `Serie`) VALUES ('1', '7', '001');
+INSERT INTO `Ve_DocVentaPuntoVentaDet` (`IdDocVentaPuntoVenta`, `IdDocVentaTipoDoc`, `Serie`) VALUES ('2', '6', '002');
+INSERT INTO `Ve_DocVentaPuntoVentaDet` (`IdDocVentaPuntoVenta`, `IdDocVentaTipoDoc`, `Serie`) VALUES ('2', '7', '002');
+
+

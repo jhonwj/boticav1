@@ -28,6 +28,7 @@ $limitProducto = $docVenta['LimiteItems'];
 $docVentaNro = $docVenta['Serie'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
 $fechaDoc = $docVenta['FechaDoc'];
 $serieMaq = $docVenta['SerieImpresora'];
+$tipoDoc = $docVenta['TipoDoc'];
 
 $subtotal = 0;
 $total = 0;
@@ -87,6 +88,14 @@ $igv = 0;
   <div class="center">BOTICA DELMAN S.A.C</div>
   <div class="center">RUC: 20393999544 </div>
   <br />
+  
+  <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
+    <div class="strike">
+      <span><?php echo str_replace('TICKET ', '', $tipoDoc); ?></span>
+    </div>
+    <br />
+  <?php endif; ?>
+  
   <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
