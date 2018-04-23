@@ -565,6 +565,7 @@ include_once("../clases/helpers/Modal.php");
        </table>
      </div>
      <div class="pull-right">
+       <button id="btnPdf" type="button" class="btn btn-success" onclick="exportarCajaBanco()"><i class="fa fa-file-pdf-o fa-lg"></i></button>
        <button id="btnExcel" type="button" class="btn btn-success" name="button"><i class="fa fa-file-excel-o fa-lg"></i></button>
        <button id="btnAdd" type="button" class="btn btn-danger" name="button"><i class="fa fa-plus fa-lg"></i></button>
      </div>

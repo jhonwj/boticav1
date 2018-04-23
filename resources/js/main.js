@@ -126,6 +126,37 @@ function renderHeaderPDF(doc, imgData) {
   return doc
 }
 
+function exportarCajaBanco() {
+    var doc = new jsPDF('p', 'pt');
+    var table = $("#tableCajaBanco");
+    table = table.clone()
+
+    table.find('thead tr:first-child').remove()
+    table.find('thead tr th:first-child').remove()
+    table.find('thead tr th:last-child').remove()
+
+    table.find('tbody tr td:first-child').remove()
+
+    table = doc.autoTableHtmlToJson(table[0]);
+    console.log(table)
+    getDataUri('../resources/images/header.jpg', function(dataUri) {
+        var imgData = dataUri
+        doc.setFontSize(13);
+        doc.text(40, 140, 'Reporte Caja y Banco') 
+        doc.text(40, 160, 'Fecha: ' + $('#txtFechaVen').val()) 
+  
+        doc.autoTable(table.columns, table.data, {
+            margin: {top: 60},
+            startY: 200,
+            tableLineColor: 200,
+        });
+  
+        doc = renderHeaderPDF(doc, imgData)
+
+        doc.save("ReporteCajaBanco.pdf");
+    });
+}
+
 function exportarCajaBancoClientePDF(fn) {
   var doc = new jsPDF('p', 'pt');
   var table = $("#tableDocAplicadosTmp");
