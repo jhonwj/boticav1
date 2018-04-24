@@ -1,0 +1,16 @@
+/* ACTUALIZAR CUANDO SE CREA UN NUEVO PRODUCTO */
+
+/* ACTUALIZAR CODIGO */
+Update Gen_Producto Set 
+Codigo=
+		Concat((Select SUBSTRING(Gen_ProductoCategoria.ProductoCategoria,1,2) from Gen_ProductoCategoria Where Gen_ProductoCategoria.IdProductoCategoria=Gen_Producto.IdProductoCategoria),
+						(Select SubString(Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica,1,2)
+from Gen_ProductoFormaFarmaceutica
+Where Gen_ProductoFormaFarmaceutica.IdProductoFormaFarmaceutica=Gen_Producto.IdProductoFormaFarmaceutica),
+(Select SubString(Gen_ProductoMarca.ProductoMarca,1,2) 
+from Gen_ProductoMarca
+Where Gen_ProductoMarca.IdProductoMarca=Gen_Producto.IdProductoMarca),
+(Select SubString(Gen_ProductoMedicion.ProductoMedicion,1,2) 
+from Gen_ProductoMedicion
+Where Gen_ProductoMedicion.IdProductoMedicion=Gen_Producto.IdProductoMedicion),
+LPAD(IdProducto, 5, '0'));
