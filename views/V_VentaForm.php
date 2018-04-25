@@ -176,20 +176,41 @@ $("#FechaVen").hide();
     })
     
     $('.spinner .btn:first-of-type').on('click', function() {
-    $('.spinner input').val( parseInt($('.spinner input').val(), 10) + 1);
-    if ($('.spinner input').val()<="1") {$("#btnCaretDown").prop("disabled", true); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));} else{$("#btnCaretDown").prop("disabled", false); $("#txtTotal").val((($("#txtPrecio").val())*$('.spinner input').val()).toFixed(2));};
+      $('.spinner input').val( parseInt($('.spinner input').val(), 10) + 1);
+      
+      if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val())) {
+        $('#txtPrecio').val($('#tempPrecioMayor').val())
+      }else {
+        $('#txtPrecio').val($('#tempPrecioContado').val())
+      }
+
+      if ($('.spinner input').val()<="1") {$("#btnCaretDown").prop("disabled", true); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));} else{$("#btnCaretDown").prop("disabled", false); $("#txtTotal").val((($("#txtPrecio").val())*$('.spinner input').val()).toFixed(2));};
   	});
- 	$('.spinner .btn:last-of-type').on('click', function() {
 
-    $('.spinner input').val( parseInt($('.spinner input').val(), 10) - 1);
-    if ($('.spinner input').val()<="1") {$("#btnCaretDown").prop("disabled", true); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));} else{$("#btnCaretDown").prop("disabled", false); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));};
+ 	  $('.spinner .btn:last-of-type').on('click', function() {
+      $('.spinner input').val( parseInt($('.spinner input').val(), 10) - 1);
 
-  });
-  $("#txtCantidad").on("keyup", function(e){
+      if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val())) {
+        $('#txtPrecio').val($('#tempPrecioMayor').val())
+      }else {
+        $('#txtPrecio').val($('#tempPrecioContado').val())
+      }
+
+      if ($('.spinner input').val()<="1") {$("#btnCaretDown").prop("disabled", true); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));} else{$("#btnCaretDown").prop("disabled", false); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));};
+
+    });
+  $("#txtCantidad").on("keyup change", function(e){
     if($('#txtCantidad').val()<="1"){
       $("#btnCaretDown").prop("disabled", true);
       $('#txtCantidad').val("1");
+    } 
+    
+    if (parseInt($('#txtCantidad').val()) >= parseInt($('#tempStockMayor').val())) {
+      $('#txtPrecio').val($('#tempPrecioMayor').val())
+    }else {
+      $('#txtPrecio').val($('#tempPrecioContado').val())
     }
+
     $("#txtTotal").val(($("#txtPrecio").val()*$('#txtCantidad').val()).toFixed(2));
   });
 
@@ -663,6 +684,11 @@ function ListarProducto(almacen, serverSide = false){
         $("#tempProducto").val($(this).children("td").eq(1).text());
         $("#tempLote").val($(this).children("td").eq(11).text());
         $("#tempFechaVen").val($(this).children("td").eq(12).text());
+        $("#tempPrecioContado").val($(this).children("td").eq(2).text())
+
+        // stock por mayor
+        $("#tempPrecioMayor").val($(this).children("td").eq(3).text());
+        $("#tempStockMayor").val($(this).children("td").eq(4).text());
 
         $("#txtPrecio").val($(this).children("td").eq(2).text());
         $('.spinner input').val("1");
@@ -1023,7 +1049,10 @@ function cargarPreOrden(row) {
       			<input id="tempId" type="hidden">
                 <input id="tempProducto" type="hidden">
                 <input id="tempLote" type="hidden">
-    			<input id="tempFechaVen" type="hidden">
+    			      <input id="tempFechaVen" type="hidden">
+    			      <input id="tempPrecioContado" type="hidden">
+    			      <input id="tempPrecioMayor" type="hidden">
+    			      <input id="tempStockMayor" type="hidden">
       			<hr/>
       			<div class="input-group">
       				<span class="input-group-addon">S/.</span>
