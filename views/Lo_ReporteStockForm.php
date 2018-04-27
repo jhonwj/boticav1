@@ -192,6 +192,8 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
     ajaxSource = "../controllers/server_processingReporteStock.php?almacen=" + almacen;
   }
 
+  ajaxSource = ajaxSource + '&ultimaCompra=1';
+
   $("#"+table).DataTable().destroy();
     var tableProducto = $("#"+table).DataTable({
             "serverSide": serverSide,

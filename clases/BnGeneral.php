@@ -490,7 +490,8 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function ListarReporteStock($almacen, $producto, $serverSide = false, $proveedor = false, $menorStock = false)
 	{
-		$Ssql = "Select Gen_Producto.IdProducto as numero, prodstock.ProductoMarca as marca,ProductoCategoria as categoria,prodstock.FormaFarmaceutica as formafarmaceutica, Gen_Producto.Producto as Producto,Stock as stock ,
+		if(isset($_GET['ultimaCompra'])) {
+			$Ssql = "Select Gen_Producto.IdProducto as numero, prodstock.ProductoMarca as marca,ProductoCategoria as categoria,prodstock.FormaFarmaceutica as formafarmaceutica, Gen_Producto.Producto as Producto,Stock as stock ,
 			Gen_Producto.PrecioContado,	Gen_Producto.PrecioPorMayor, Gen_Producto.StockPorMayor, Gen_Producto.Codigo, Gen_Producto.VentaEstrategica, Gen_ProductoMedicion.ProductoMedicion, Gen_Producto.CodigoBarra, Gen_Producto.StockMinimo, Gen_Producto.controlaStock,
 			(SELECT Lo_MovimientoDetalle.Precio FROM Lo_MovimientoDetalle WHERE IdProducto = Gen_Producto.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoPrecio,
 			(SELECT Lo_MovimientoDetalle.Cantidad FROM Lo_MovimientoDetalle WHERE IdProducto = Gen_Producto.IdProducto ORDER BY hashMovimiento DESC LIMIT 1) as MovimientoCantidad,
@@ -503,6 +504,14 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 			FROM Gen_Producto
 			LEFT JOIN prodstock ON Gen_Producto.IdProducto = prodstock.IdProducto
 			INNER JOIN Gen_ProductoMedicion ON Gen_ProductoMedicion.IdProductoMedicion = Gen_Producto.IdProductoMedicion ";
+		} else {
+			$Ssql = "Select Gen_Producto.IdProducto as numero, prodstock.ProductoMarca as marca,ProductoCategoria as categoria,prodstock.FormaFarmaceutica as formafarmaceutica, Gen_Producto.Producto as Producto,Stock as stock ,
+			Gen_Producto.PrecioContado,	Gen_Producto.PrecioPorMayor, Gen_Producto.StockPorMayor, Gen_Producto.Codigo, Gen_Producto.VentaEstrategica, Gen_ProductoMedicion.ProductoMedicion, Gen_Producto.CodigoBarra, Gen_Producto.StockMinimo, Gen_Producto.controlaStock
+			FROM Gen_Producto
+			LEFT JOIN prodstock ON Gen_Producto.IdProducto = prodstock.IdProducto
+			INNER JOIN Gen_ProductoMedicion ON Gen_ProductoMedicion.IdProductoMedicion = Gen_Producto.IdProductoMedicion ";
+		}
+		
 			
 
 		if ($proveedor) {
