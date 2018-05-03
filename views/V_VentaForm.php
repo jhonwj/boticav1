@@ -672,6 +672,11 @@ function ListarProducto(almacen, serverSide = false){
                 $(row).addClass('danger')
               }
             },*/
+            "rowCallback" : function( row, data, index) {
+              console.log(data)
+              $(row).attr('data-preciomayor', data.PrecioPorMayor)
+              $(row).attr('data-stockmayor', data.StockPorMayor)
+            },
             "initComplete": function( settings, json ) {
               window.isLoadStock = true;
             }
@@ -695,8 +700,8 @@ function ListarProducto(almacen, serverSide = false){
         $("#tempPrecioContado").val($(this).children("td").eq(2).text())
 
         // stock por mayor
-        $("#tempPrecioMayor").val($(this).children("td").eq(3).text());
-        $("#tempStockMayor").val($(this).children("td").eq(4).text());
+        $("#tempPrecioMayor").val($(this).attr('data-preciomayor'));
+        $("#tempStockMayor").val($(this).attr('data-stockmayor'));
 
         $("#txtPrecio").val($(this).children("td").eq(2).text());
         $('.spinner input').val("1");
