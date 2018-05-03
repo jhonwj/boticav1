@@ -673,7 +673,6 @@ function ListarProducto(almacen, serverSide = false){
               }
             },*/
             "rowCallback" : function( row, data, index) {
-              console.log(data)
               $(row).attr('data-preciomayor', data.PrecioPorMayor)
               $(row).attr('data-stockmayor', data.StockPorMayor)
             },
