@@ -664,6 +664,14 @@ function ListarProducto(almacen, serverSide = false){
               { mData: 'IdLote' },
               { mData: 'FechaVen' }
             ],
+            /*rowCallback: function( row, data, index ) {
+              var dt = new Date()
+              var hoy = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate()
+
+              if(data.FechaVen < hoy) {
+                $(row).addClass('danger')
+              }
+            },*/
             "initComplete": function( settings, json ) {
               window.isLoadStock = true;
             }
