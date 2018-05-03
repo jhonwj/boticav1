@@ -673,6 +673,7 @@ function ListarProducto(almacen, serverSide = false){
               }
             },*/
             "rowCallback" : function( row, data, index) {
+              $(row).attr('data-preciocontado', data.PrecioContado)
               $(row).attr('data-preciomayor', data.PrecioPorMayor)
               $(row).attr('data-stockmayor', data.StockPorMayor)
             },
@@ -696,7 +697,8 @@ function ListarProducto(almacen, serverSide = false){
         $("#tempProducto").val($(this).children("td").eq(1).text());
         $("#tempLote").val($(this).children("td").eq(11).text());
         $("#tempFechaVen").val($(this).children("td").eq(12).text());
-        $("#tempPrecioContado").val($(this).children("td").eq(2).text())
+        
+        $("#tempPrecioContado").val($(this).attr('data-preciocontado'))
 
         // stock por mayor
         $("#tempPrecioMayor").val($(this).attr('data-preciomayor'));
