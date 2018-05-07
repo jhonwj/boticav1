@@ -33,10 +33,10 @@ $igv = 0;
 ?>
 <style>
   body {
-    font-size: 14px;
+    font-size: 12px;
     margin: 0;
     font-family: sans-serif;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
   }
   .container {
     margin-top: 7.2em;
@@ -46,7 +46,7 @@ $igv = 0;
   }
   td {
     line-height: 1em;
-    font-size: 14px;
+    font-size: 12px;
     /*border: 1px solid black;*/
   }
   .emision {
@@ -83,7 +83,7 @@ $igv = 0;
   }
   .fecha span {
     margin-left: 0px;
-    font-size: 10px;
+    font-size: 11px;
   }
   .totales {
     float: right;
@@ -99,7 +99,7 @@ $igv = 0;
   /*  height: 8em;*/
   }
   .productos {
-    padding-top: 1.2em;
+    padding-top: 1.6em;
     box-sizing: border-box;
   }
   .productos .cantidad {
@@ -107,7 +107,7 @@ $igv = 0;
     text-align: center;
   }
   .productos .detalle span{
-    margin-left: 40px;
+    margin-left: 50px;
   }
   .productos .precio {
     width: 100px;
@@ -124,11 +124,11 @@ $igv = 0;
   }
   .footer .small {
     display: block;
-    font-size: 13px;
+    /*font-size: 13px;*/
   }
   .footer .user {
-    margin-top: 10px;
-    margin-left: 20px;
+    margin-top: 3em;
+    margin-left: 5em;
   }
 </style>
 <div class="container">
@@ -138,17 +138,17 @@ $igv = 0;
         <span class="cliente"><?php echo $cliente; ?></span>
       </td>
       <td class="ruc">
-        <span><?php echo $dniRuc; ?></span>
+        <!--<span><?php echo $dniRuc; ?></span>-->
       </td>
     </tr>
     <tr>
-      <td>
+      <td style="width: 550px;">
         <span class="cliente"><?php echo $direccion; ?></span>
       </td>
-      <td class="ruc fecha">
-        <span><?php echo $docVenta['FechaDoc']; ?></span>
+      <td class="ruc fecha" style="width:">
+        <span><?php echo str_replace(' ', '<br>', $docVenta['FechaDoc']); ?></span>
       </td>
-      <td>
+      <td style="width:150px">
         <span><?php echo strtoupper($_SESSION['user']); ?></span>
       </td>
     </tr>
