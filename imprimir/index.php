@@ -18,7 +18,7 @@ if (isset($_GET['IdDocVenta'])) {
   } elseif ($docVenta['CodSunat'] == 03) {
     include_once('boletabotica.php');
   } elseif ($docVenta['CodSunat'] == 01) {
-    include_once('factura.php');
+    include_once('facturabotica.php');
   }
 ?>
 

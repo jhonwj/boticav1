@@ -1,6 +1,6 @@
 <?php
-include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
+include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 
 //var_dump($docVenta);
 $emision = strtotime($docVenta['FechaDoc']);
@@ -21,11 +21,12 @@ $meses = array(
   '12' =>'Diciembre'
 );
 $lastAnio = substr(date("Y", $emision), -1);
-$cliente = mb_strimwidth(strtoupper($docVenta['Cliente']), 0, 40, '...');
-$direccion = mb_strimwidth(strtoupper($docVenta['Direccion']), 0, 40,'...');
+$cliente = mb_strimwidth(strtoupper($docVenta['Cliente']), 0, 50, '...');
+$direccion = mb_strimwidth(strtoupper($docVenta['Direccion']), 0, 50, '...');
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
-$limitProducto = $docVenta['LimiteItems'];
+//$limitProducto = $docVenta['LimiteItems'];
+$limitProducto = 10;
 
 $subtotal = 0;
 $total = 0;
@@ -33,20 +34,21 @@ $igv = 0;
 ?>
 <style>
   body {
-    font-size: 12px;
+    font-size: 20px;
     margin: 0;
     font-family: sans-serif;
-    letter-spacing: 5px;
+    letter-spacing: 4px;
+
   }
   .container {
-    margin-top: 7em;
-    width: 820px;
-    margin-left: 14px;
-    /*border: 1px solid red;*/
+    margin-top: 7.7em;
+    width: 1200px;
+    margin-left: 25px;
+  /*  border: 1px solid red;*/
   }
   td {
-    line-height: 1em;
-    font-size: 12px;
+    line-height: 1.48em;
+    font-size: 1em;
     /*border: 1px solid black;*/
   }
   .emision {
@@ -66,32 +68,23 @@ $igv = 0;
 
   }
   .anio span {
-    margin-left: 10px;
+    margin-left: 15px;
   }
   .cliente {
-    margin-left: 100px;
+    margin-left: 140px;
   }
   .ruc {
-    width: 230px;
-    position: relative;
+    width: 320px;
   }
   .ruc span {
-    margin-left: 80px;
-    position: absolute;
-    top: 0;
-    width: 260px;
-  }
-  .fecha span {
-    margin-left: 45px;
-    font-size: 11px;
+    margin-left: 60px;
   }
   .totales {
     float: right;
-    width: 150px;
+    width: 310px;
   }
   .totales span {
-    margin-left: 10px;
-
+    margin-left: 140px;
   }
 
   /* Estilos para productos */
@@ -99,7 +92,7 @@ $igv = 0;
   /*  height: 8em;*/
   }
   .productos {
-    padding-top: 1.8em;
+    padding-top: 1.5em;
     box-sizing: border-box;
   }
   .productos .cantidad {
@@ -107,51 +100,60 @@ $igv = 0;
     text-align: center;
   }
   .productos .detalle span{
-    margin-left: 50px;
-    display: block;
+    margin-left: 1em;
   }
   .productos .precio {
     width: 100px;
   }
   .productos .pTotal {
-    width: 150px;
+    width: 174px;
   }
   .productos .pTotal span {
     margin-left: 10px;
   }
+
   .footer {
-    width: 750px;
+    width: 890px;
     float: left;
+    margin-top: 5px;
+  }
+  .footer .son {
+    margin-left: 80px;
+  }
+  .footer .user, .footer .fecha {
+    margin-left: 230px;
   }
   .footer .small {
     display: block;
-    /*font-size: 13px;*/
+    font-size: 13px;
   }
-  .footer .user {
-    margin-top: 3em;
-    margin-left: 5em;
+  .footer .small:first-child {
+    margin-top: 20px;
   }
 </style>
 <div class="container">
+  
   <table width="100%">
     <tr>
       <td>
         <span class="cliente"><?php echo $cliente; ?></span>
       </td>
-      <td class="ruc">
-        <!--<span><?php echo $dniRuc; ?></span>-->
+      <td>
+        <span><?php echo $docVenta['FechaDoc']; ?></span>
       </td>
     </tr>
     <tr>
-      <td style="width: 425px;overflow: hidden;display: block;">
-        <span class="cliente direccion" style="white-space: nowrap;"><?php echo $direccion; ?></span>
+      <td>
+        <span class="cliente"><?php echo $direccion; ?></span>
       </td>
-      <td class="ruc fecha" style="width:">
-        <span><?php echo str_replace(' ', '<br>', $docVenta['FechaDoc']); ?></span>
+      <td class="ruc">
+
       </td>
-      <td style="width:150px">
-        <span><?php echo strtoupper($_SESSION['user']); ?></span>
-      </td>
+    </tr>
+    <tr>
+        <td>
+            <span class="cliente"><?php echo $dniRuc; ?></span>
+        </td>
     </tr>
   </table>
   <div class="productos">
@@ -164,7 +166,7 @@ $igv = 0;
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
             <td class="detalle">
-              <span><?php echo mb_strimwidth($producto['Producto'], 0, 38, '...') ?></span>
+              <span><?php echo mb_strimwidth($producto['Producto'], 0, 60, '...') ?></span>
             </td>
             <td class="precio">
               <span><?php echo $producto['Precio'] ?></span>
@@ -197,19 +199,21 @@ $igv = 0;
   </div>
 
   <table class="footer">
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td class="small user"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></td>
-      </tr>
+    <tr>
+      <td>
+        <span class="son"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="small fecha"><?php echo $docVenta['FechaDoc'] ?></span>
+        <span class="small user"><?php echo strtoupper($_SESSION['user']); ?></span>
+      </td>
+    </tr>
   </table>
 
   <table class="totales">
-    <!--<tr>
+    <tr>
       <td>
         <span><?php echo number_format($subtotal, 2); ?></span>
       </td>
@@ -218,7 +222,7 @@ $igv = 0;
       <td>
         <span><?php echo number_format($igv, 2); ?></span>
       </td>
-    </tr>-->
+    </tr>
     <tr>
       <td>
         <span><?php echo number_format($total, 2); ?></span>
