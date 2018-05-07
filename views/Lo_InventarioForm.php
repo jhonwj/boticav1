@@ -199,7 +199,7 @@ calcularFlete();
 	      var arrTableProductos = [];
 	      $("#tableProductoI tbody").each(function(){
 	        $("#tableProductoI tbody tr").each(function(){
-	            arrTableProductos.push([$(this).children("td").eq(0).html(), $(this).children("td").eq(1+4).html(), $(this).children("td").eq(2+4).html(), $(this).children("td").eq(3+4).html(),
+	            arrTableProductos.push([$(this).children("td").eq(0).html(), $(this).children("td").eq(1+4).text(), $(this).children("td").eq(2+4).html(), $(this).children("td").eq(3+4).html(),
 							 												$(this).children("td").eq(4+4).find("#idCheckIGV").is(":checked"), $(this).children("td").eq(6+4).text(), $(this).children("td").eq(8+4).text(),$(this).children("td").eq(10+4).text(),
 						 													$(this).children("td").eq(11+4).find("input[type='date']").val(), $(this).children("td").eq(12+4).find("input").val()])
 	        });
