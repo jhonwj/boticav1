@@ -1,5 +1,6 @@
 <?php
 include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
+include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
 
 //var_dump($docVenta);
 $emision = strtotime($docVenta['FechaDoc']);
@@ -39,7 +40,7 @@ $igv = 0;
   }
   .container {
     margin-top: 7.2em;
-    width: 900px;
+    width: 820px;
     margin-left: 14px;
     /*border: 1px solid red;*/
   }
@@ -81,7 +82,8 @@ $igv = 0;
     width: 260px;
   }
   .fecha span {
-    margin-left: 40px;
+    margin-left: 0px;
+    font-size: 10px;
   }
   .totales {
     float: right;
@@ -146,6 +148,9 @@ $igv = 0;
       <td class="ruc fecha">
         <span><?php echo $docVenta['FechaDoc']; ?></span>
       </td>
+      <td>
+        <span><?php echo strtoupper($_SESSION['user']); ?></span>
+      </td>
     </tr>
   </table>
   <div class="productos">
@@ -198,7 +203,7 @@ $igv = 0;
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td class="small user"><?php echo strtoupper($_SESSION['user']); ?></td>
+        <td class="small user"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></td>
       </tr>
   </table>
 
