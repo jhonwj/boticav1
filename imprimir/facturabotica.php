@@ -26,7 +26,7 @@ $direccion = mb_strimwidth(strtoupper($docVenta['Direccion']), 0, 50, '...');
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
 //$limitProducto = $docVenta['LimiteItems'];
-$limitProducto = 10;
+$limitProducto = 12;
 
 $subtotal = 0;
 $total = 0;
@@ -34,21 +34,21 @@ $igv = 0;
 ?>
 <style>
   body {
-    font-size: 20px;
+    font-size: 16px;
     margin: 0;
     font-family: sans-serif;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
 
   }
   .container {
-    margin-top: 7.7em;
-    width: 1200px;
+    margin-top: 10em;
+    width: 1300px;
     margin-left: 25px;
   /*  border: 1px solid red;*/
   }
   td {
-    line-height: 1.48em;
-    font-size: 1em;
+    line-height: 1em;
+    font-size: 14px;
     /*border: 1px solid black;*/
   }
   .emision {
@@ -81,10 +81,11 @@ $igv = 0;
   }
   .totales {
     float: right;
-    width: 310px;
+    width: 110px;
+    margin-top: 1.5em;
   }
   .totales span {
-    margin-left: 140px;
+    /*margin-left: 140px;*/
   }
 
   /* Estilos para productos */
@@ -92,21 +93,22 @@ $igv = 0;
   /*  height: 8em;*/
   }
   .productos {
-    padding-top: 1.5em;
+    padding-top: 2.5em;
     box-sizing: border-box;
+    margin-left: 1em;
   }
   .productos .cantidad {
     width: 70px;
     text-align: center;
-  }
+  }.productos .pTotal,
   .productos .detalle span{
-    margin-left: 1em;
+    margin-left: 5em;
   }
   .productos .precio {
-    width: 100px;
+    width: 180px;
   }
   .productos .pTotal {
-    width: 174px;
+    width: 110px;
   }
   .productos .pTotal span {
     margin-left: 10px;
@@ -115,13 +117,13 @@ $igv = 0;
   .footer {
     width: 890px;
     float: left;
-    margin-top: 5px;
+    margin-top: .5em;
   }
   .footer .son {
-    margin-left: 80px;
+    margin-left: 8em;
   }
   .footer .user, .footer .fecha {
-    margin-left: 230px;
+    margin-left: 9em;
   }
   .footer .small {
     display: block;
@@ -129,6 +131,10 @@ $igv = 0;
   }
   .footer .small:first-child {
     margin-top: 20px;
+  }
+
+  .fecha {
+    margin-left: 2em;
   }
 </style>
 <div class="container">
@@ -139,7 +145,7 @@ $igv = 0;
         <span class="cliente"><?php echo $cliente; ?></span>
       </td>
       <td>
-        <span><?php echo $docVenta['FechaDoc']; ?></span>
+        <span class="fecha"><?php echo $docVenta['FechaDoc']; ?></span>
       </td>
     </tr>
     <tr>
@@ -206,7 +212,7 @@ $igv = 0;
     </tr>
     <tr>
       <td>
-        <span class="small fecha"><?php echo $docVenta['FechaDoc'] ?></span>
+        <!--<span class="small fecha"><?php echo $docVenta['FechaDoc'] ?></span>-->
         <span class="small user"><?php echo strtoupper($_SESSION['user']); ?></span>
       </td>
     </tr>
