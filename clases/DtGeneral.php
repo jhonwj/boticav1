@@ -584,4 +584,10 @@ function fn_guardarOrdenCompra($idProveedor, $total, $productos) {
 	return $idOrdenCompra;
 }
 
- ?>
+function fn_actualizarVencimiento($hashMovimiento, $idProducto, $newFechaVen) {
+	$Ssql = "UPDATE Lo_MovimientoDetalle SET FechaVen='$newFechaVen' WHERE hashMovimiento='$hashMovimiento' AND IdProducto='$idProducto'";
+
+	return  getSQLResultSet($Ssql);
+}
+
+?>

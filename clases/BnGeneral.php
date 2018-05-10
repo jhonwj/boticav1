@@ -896,4 +896,13 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 			FROM Gen_Producto WHERE CodigoBarra='$codigoBarra' LIMIT 1";
 		return getSQLResultSet($Ssql);
 	}
+
+	function fn_devolverProductosProximosAVencer($fechaIni, $fechaFin) {
+		$Ssql = "SELECT Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_MovimientoDetalle.*, Gen_Producto.Producto FROM Lo_MovimientoDetalle 
+		INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
+		LEFT JOIN Lo_Movimiento ON Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.Hash
+		WHERE FechaVen BETWEEN '$fechaIni' AND '$fechaFin'
+		group by Lo_MovimientoDetalle.IdProducto ORDER BY FechaVen ASC	";
+		return getSQLResultSet($Ssql);		
+	}
  ?>

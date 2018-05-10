@@ -26,6 +26,7 @@ define("Logout", SITE_URL . "controllers/logout.php");
 define("Usuarios", SITE_URL . "views/Seg_UsuarioForm.php");
 define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
 define("CajaYBancoBuscador", SITE_URL . "views/FrmCb_CajaBancoBuscador.php");
+define("BuscarVencimiento", SITE_URL . "views/Lo_BuscarVencimiento.php");
 
  ?>
 
@@ -72,6 +73,8 @@ define("CajaYBancoBuscador", SITE_URL . "views/FrmCb_CajaBancoBuscador.php");
           <li><a href="<?php echo ReporteStock; ?>">STOCK</a></li>
           <li><a href="<?php echo RegMovimiento; ?>">REGISTRO DE MOVIMIENTO</a></li>
           <li><a href="<?php echo RegCompraContable; ?>">REGISTRO DE COMPRA CONTABLE</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="<?php echo BuscarVencimiento; ?>">PRODUCTOS POR VENCER</a></li>
         </ul>
       </li>
       <li><a href="<?php echo Experto; ?>">Sistema Experto</a></li>

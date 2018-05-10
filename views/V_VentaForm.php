@@ -676,6 +676,27 @@ function ListarProducto(almacen, serverSide = false){
               $(row).attr('data-preciocontado', data.PrecioContado)
               $(row).attr('data-preciomayor', data.PrecioPorMayor)
               $(row).attr('data-stockmayor', data.StockPorMayor)
+
+              // cambiar color los vencidos
+              var dt = new Date()
+              var anio = dt.getFullYear()
+              var mes =  dt.getMonth() + 1
+              var dia = dt.getDate()
+              var fechaVen = new Date(data.FechaVen).getTime()
+              
+              var hoy = anio + "-" + mes + "-" + dia
+              hoy = new Date(hoy).getTime()
+              var en4meses = anio + '-' + (mes + 4) + '-' + dia
+              en4meses = new Date(en4meses).getTime()
+
+              if(fechaVen < hoy && data.stock > 0) {
+                $(row).addClass('danger')
+              }
+
+              // cambiar color los que faltan 4 meses por vencer
+              if (fechaVen >= hoy && fechaVen <= en4meses  && data.stock > 0) {
+                $(row).addClass('ambar')
+              }
             },
             "initComplete": function( settings, json ) {
               window.isLoadStock = true;
@@ -1034,6 +1055,9 @@ function cargarPreOrden(row) {
              <th>FechaVencimiento</th>
             </thead>
         </table>
+        <span class="label label-danger">Vencidos</span>
+        <span class="label label-warning">proximos a vencer 4 meses</span>
+
         </div>
       </div>
     </div>

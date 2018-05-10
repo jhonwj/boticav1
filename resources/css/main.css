@@ -145,3 +145,9 @@ table tbody tr:first-child td:empty {
   background-repeat: no-repeat;
   background-position: center;
 }
+
+
+
+tr.ambar td {
+  background-color: #f6e58d !important;
+}
