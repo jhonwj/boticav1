@@ -14,13 +14,23 @@ include_once '../clases/BnGeneral.php';
  switch ($method) {
      case 'GET':
         $result = fn_devolverListaProductosPorBloque($_GET['bloque'], $_GET['porcentaje']);
+        $resultProductos = fn_devolverProductosDetalle();
 
         $data = array();
+        $dataDetalles = array();
 
-        while ($rows = mysqli_fetch_assoc($result)) {
-          $data[] = $rows;
+        while ($rows = mysqli_fetch_assoc($resultProductos)) {
+            $dataDetalles[$rows['IdProducto']] = $rows;
         }
 
+        while ($rows = mysqli_fetch_assoc($result)) {
+            $rows['Codigo'] = $dataDetalles[$rows['IdProducto']]['Codigo'];
+            $rows['ProductoFormaFarmaceutica'] = $dataDetalles[$rows['IdProducto']]['ProductoFormaFarmaceutica'];
+            $rows['ProductoMarca'] = $dataDetalles[$rows['IdProducto']]['ProductoMarca'];
+            
+            $data[] = $rows;
+        }
+        
         $results = array(
          "sEcho" => 1,
          "iTotalRecords" => count($data),
@@ -28,7 +38,7 @@ include_once '../clases/BnGeneral.php';
          "aaData" => $data);
 
         echo json_encode($results);
-         break;
+        break;
 
      case 'POST':
          if (isset($_POST['update'])) {

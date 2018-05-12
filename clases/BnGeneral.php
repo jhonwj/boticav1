@@ -905,4 +905,15 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		group by Lo_MovimientoDetalle.IdProducto ORDER BY FechaVen ASC	";
 		return getSQLResultSet($Ssql);		
 	}
+
+	function fn_devolverProductosDetalle() {
+		$Ssql = "select Gen_Producto.IdProducto, Gen_Producto.Codigo, Gen_Producto.Producto, 
+			Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Gen_ProductoMarca.ProductoMarca
+		FROM Gen_Producto 
+		LEFT JOIN Gen_ProductoFormaFarmaceutica ON Gen_Producto.IdProductoFormaFarmaceutica = Gen_ProductoFormaFarmaceutica.IdProductoFormaFarmaceutica 
+		LEFT JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+		";
+
+		return getSQLResultSet($Ssql);
+	}
  ?>

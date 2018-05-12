@@ -76,14 +76,19 @@ function actualizarVencimiento() {
 	data:  {
 		"update" : true, 
 		"hashMovimiento": $("#hashMovimiento").val(), 
-		"idProducto": $("idProducto").val(),
+		"idProducto": $("#idProducto").val(),
 		"fechaVen": $("#newFechaVen").val()
 	},
 	dataType: 'html',
 	success : function(res){
+		var res = JSON.parse(res)
+		
+		if (res.success) {
+			alert(res.success)
+		}
+
 		$("#modalProductos").modal("hide");
 		cargarProductos()
-		alert('Se actualizo la fecha de vencimiento');
 	},
 	error: function(XMLHttpRequest, textStatus, errorThrown) {
 		alert("Status: " + textStatus); alert("Error: " + errorThrown);

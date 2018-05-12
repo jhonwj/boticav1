@@ -25,10 +25,17 @@ switch ($method) {
     case 'POST':
         if (isset($_POST['update'])) {
             // Actualizar Fecha vencimiento
-            $hashMovimiento = $_GET['hashMovimiento'];
-            $idProducto = $_GET['idProducto'];
-            $fechaVen = $_GET['fechaVen'];
+            $hashMovimiento = $_POST['hashMovimiento'];
+            $idProducto = $_POST['idProducto'];
+            $fechaVen = $_POST['fechaVen'];
 
+            if (fn_actualizarVencimiento($hashMovimiento, $idProducto, $fechaVen)) {
+                $result['success'] = 'Se actualizó la fecha de vencimiento correctamente';
+            } else {
+                $result['error'] = 'No se puede actualizar la fecha de vencimiento';
+            }
+
+            echo json_encode($result); exit();
 
             break;
         } elseif (isset($_POST['delete'])) {

@@ -94,6 +94,14 @@
 .alert {
 	z-index: 1060!important;
 }
+table {
+	font-size: 13px;
+}
+table#tableProducto {
+	white-space: nowrap;
+}
+
+
 table tbody tr:first-child td:empty {
 	/*display: none;*/
 }

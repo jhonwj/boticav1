@@ -354,7 +354,7 @@ function ListarProductosDet(){
 						{ mData: 'Producto' },
 						{ mData: 'ProductoMedicion' },
 						{ mData: 'PrecioContado' },
-
+            { mData: 'PrecioCosto' }
             ]
         });
 
@@ -744,6 +744,13 @@ function calcularFlete() {
 
 }
 
+function toggleIGV() {
+
+  $('#tableProductoI tbody .inputsIgv input').each(function () {
+    $(this).click()
+  })
+}
+
 </script>
 
 <body>
@@ -947,7 +954,10 @@ function calcularFlete() {
 					<th>Producto</th>
 					<th>Cantidad</th>
           <th>Precio</th>
-          <th>Tiene IGV?</th>
+          <th> Tiene IGV?
+            <br>
+            <input type="checkbox" id="toggleIGV" onclick="toggleIGV()" checked="checked" />
+          </th>
           <th>SubTotal</th>
 					<th>ISC</th>
 					<th>IGV</th>
@@ -1090,7 +1100,8 @@ function calcularFlete() {
             <th>Forma</th>
 						<th>Producto</th>
             <th>Medicion</th>
-						<th>Precio</th>
+            <th>Precio Venta</th>
+            <th>Precio Costo</th>
           </thead>
         </table>
 				</div>

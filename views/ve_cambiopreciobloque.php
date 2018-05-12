@@ -87,7 +87,10 @@ include_once("../clases/helpers/Modal.php");
         //"bFilter": false,
         "aoColumns": [
             { mData: 'IdProducto' },
+            { mData: 'Codigo' },
             { mData: 'Producto' },
+            { mData: 'ProductoFormaFarmaceutica'},
+            { mData: 'ProductoMarca'},
             { mData: 'PrecioCosto' },
             { mData: 'Utilidad' },
             { mData: 'PrecioContado' },
@@ -182,13 +185,16 @@ include_once("../clases/helpers/Modal.php");
   <div class="sTableProducto" class="table-responsive" style="overflow-x:auto">
    <table id="tableProducto" class="table table-striped table-bordered" style="">
      <thead>
-       <th class="">IdProducto</th>
+       <th class="">ID</th>
+       <th>Código</th>
        <th>Producto</th>
-       <th>Precio Costo</th>
+       <th>Forma <br>Farmaceutica</th>
+       <th>Laboratorio</th>
+       <th>Precio <br>Costo</th>
        <th>Utilidad</th>
-       <th>Precio Venta</th>
-       <th>Utilidad Nueva</th>
-       <th>Precio Venta Nueva</th>
+       <th>Precio <br>Venta</th>
+       <th>Utilidad <br>Nueva</th>
+       <th>Precio Venta<br> Nueva</th>
      </thead>
    </table>
   </div>
