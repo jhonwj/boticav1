@@ -178,7 +178,7 @@ $("#FechaVen").hide();
     $('.spinner .btn:first-of-type').on('click', function() {
       $('.spinner input').val( parseInt($('.spinner input').val(), 10) + 1);
       
-      if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val())) {
+      if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val()) && parseInt($('#tempStockMayor').val()) > 0) {
         $('#txtPrecio').val($('#tempPrecioMayor').val())
       }else {
         $('#txtPrecio').val($('#tempPrecioContado').val())
@@ -190,7 +190,7 @@ $("#FechaVen").hide();
  	  $('.spinner .btn:last-of-type').on('click', function() {
       $('.spinner input').val( parseInt($('.spinner input').val(), 10) - 1);
 
-      if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val())) {
+      if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val()) && parseInt($('#tempStockMayor').val()) > 0) {
         $('#txtPrecio').val($('#tempPrecioMayor').val())
       }else {
         $('#txtPrecio').val($('#tempPrecioContado').val())
@@ -205,7 +205,7 @@ $("#FechaVen").hide();
       $('#txtCantidad').val("1");
     } 
     
-    if (parseInt($('#txtCantidad').val()) >= parseInt($('#tempStockMayor').val())) {
+    if (parseInt($('#txtCantidad').val()) >= parseInt($('#tempStockMayor').val()) && parseInt($('#tempStockMayor').val()) > 0) {
       $('#txtPrecio').val($('#tempPrecioMayor').val())
     }else {
       $('#txtPrecio').val($('#tempPrecioContado').val())
