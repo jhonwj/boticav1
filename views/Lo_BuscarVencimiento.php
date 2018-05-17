@@ -16,6 +16,28 @@ $(document).ready(function(e){
 		actualizarVencimiento()
 	})
 
+	// exportar vencimiento a excel
+	$("#btnExcel").click(function(e){
+
+        window.location = "reporteExcelVencimiento.php?FechaIni="+$('#fechaIni').val()+"&FechaFin="+$('#fechaFinal').val();
+		
+            /*var xhr = $.ajax({
+          url: "reporteExcelVencimiento.php",
+          type: "get",
+          data: {
+			"FechaIni" : $('#fechaIni').val(),
+			"FechaFin" : $('#fechaFinal').val()
+		  },
+          //dataType: "html",
+          success: function(respuesta){
+            window.location = "reporteExcelVencimiento.php";
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown){
+            alert("Status" + textStatus); alert("Error" + errorThrown);
+          }
+          });
+      console.log(xhr);*/
+    });
 
 });
 
@@ -36,12 +58,15 @@ function cargarProductos() {
 			}
 		},
 		"aoColumns": [
+			{ mData: 'Codigo' } ,
+			{ mData: 'Producto' } ,
+			{ mData: 'FormaFarmaceutica' } ,
+			{ mData: 'Marca' } ,
+			{ mData: 'IdLote' },
+			{ mData: 'FechaVen' },
 			{ mData: 'hashMovimiento'} ,
 			{ mData: 'Serie' },
-			{ mData: 'Numero' },
-			{ mData: 'Producto' } ,
-			{ mData: 'IdLote' },
-			{ mData: 'FechaVen' }
+			{ mData: 'Numero' }
 		],
 		/*rowCallback: function( row, data, index ) {
 			var dt = new Date()
@@ -127,19 +152,23 @@ function actualizarVencimiento() {
 	<div class="panel panel-success">
 		<table id="tableProducto" class="table table-striped table-bordered">
 			<thead>
+				<th>Codigo</th>
+         		<th>Producto</th>
+         		<th>Forma Farmaceutica</th>
+         		<th>Laboratorio</th>
+         		<th>Lote</th>
+         		<th>Fecha Vencimiento</th>
 				<th>hashMovimiento</th>
 				<th>Serie</th>
 				<th>Numero</th>
-         		<th>Producto</th>
-         		<th>Lote</th>
-         		<th>Fecha Vencimiento</th>
 			</thead>
 			<tbody></tbody>
 		</table>
 	</div>
 
 </div>
-
+<button id="btnExcel" class="btn btn-success fab2"><i class="fa fa-file-excel-o"></i></button>
+ 
 <?php include("footer.php"); ?>
 </body>
 

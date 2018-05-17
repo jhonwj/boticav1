@@ -266,6 +266,10 @@ $('#btnBuscarFactura').click(function() {
 			],
 			"rowCallback": function(row, data, index){
         $(row).on('click', function() {
+          $('#txtDestinatarioRazonSocial').val(data.Cliente || '')
+          $('#txtDestinatarioRUC').val(data.DniRuc || '')
+          $('#txtLlegadaDist').val(data.Direccion || '')
+
           console.log(data)
           var xhr = $.ajax({
             url: '../controllers/serverprocessingProductosRegVenta.php',
@@ -869,65 +873,65 @@ function toggleIGV() {
       <div class="col-md-3 form-group">
         <div id="PartidaDist">
           <label class=""> Punto de partida (Dist)</label>
-          <input type="text" name="" id="txtPartidaDist" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtPartidaDist" class="form-control" value="" style="width:80%;">
         </div>
         <div id="PartidaProv">
           <label class=""> Punto de partida (Prov) </label>
-          <input type="text" name="" id="txtPartidaProv" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtPartidaProv" class="form-control" value="" style="width:80%;">
         </div>
         <div id="PartidaDpto">
           <label class=""> Punto de partida (Dpto) </label>
-          <input type="text" name="" id="txtPartidaDpto" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtPartidaDpto" class="form-control" value="" style="width:80%;">
         </div>
       </div>
       <div class="col-md-3 form-group">
         <div id="LlegadaDist">
           <label class=""> Punto de llegada (Dist)</label>
-          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtLlegadaDist" class="form-control" value="" style="width:80%;">
         </div>
         <div id="LlegadaDist">
           <label class=""> Punto de llegada (Prov) </label>
-          <input type="text" name="" id="txtLlegadaProv" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtLlegadaProv" class="form-control" value="" style="width:80%;">
         </div>
         <div id="LlegadaDist">
           <label class=""> Punto de llegada (Dpto) </label>
-          <input type="text" name="" id="txtLlegadaDpto" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtLlegadaDpto" class="form-control" value="" style="width:80%;">
         </div>
       </div>
       <div class="col-md-3 form-group">
         <div id="DestinatarioRazonSocial">
           <label class=""> Destinatario - Razón Social</label>
-          <input type="text" name="" id="txtDestinatarioRazonSocial" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtDestinatarioRazonSocial" class="form-control" value="" style="width:80%;">
         </div>
         <div id="DestinatarioRUC">
           <label class=""> Destinatario RUC </label>
-          <input type="text" name="" id="txtDestinatarioRUC" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtDestinatarioRUC" class="form-control" value="" style="width:80%;">
         </div>
         <div id="TrasladoMotivo">
           <label class=""> Motivo del traslado </label>
-          <textarea name="" id="txtTrasladoMotivo" class="form-control" value="" rows="2" style="width:195px;"> </textarea>
+          <textarea name="" id="txtTrasladoMotivo" class="form-control" value="" rows="2" style="width:80%;"> </textarea>
         </div>
       </div>
       <div class="col-md-3 form-group">
         <div id="TransporteNumPlaca">
           <label>N° de placa</label>
-          <input type="text" name="" id="txtTransporteNumPlaca" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtTransporteNumPlaca" class="form-control" value="" style="width:80%;">
         </div>
         <div id="TransporteNumContrato">
           <label>N° de contrato de Inscripción</label>
-          <input type="text" name="" id="txtTransporteNumContrato" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtTransporteNumContrato" class="form-control" value="" style="width:80%;">
         </div>
         <div id="TransporteNumLicencia">
           <label>N° de licencia del conductor</label>
-          <input type="text" name="" id="txtTransporteNumLicencia" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtTransporteNumLicencia" class="form-control" value="" style="width:80%;">
         </div>
         <div id="TransporteRazonSocial">
           <label>Razón social empresa de transporte</label>
-          <input type="text" name="" id="txtTransporteRazonSocial" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtTransporteRazonSocial" class="form-control" value="" style="width:80%;">
         </div>
         <div id="TransporteRUC">
           <label>RUC empresa de transporte</label>
-          <input type="text" name="" id="txtTransporteRUC" class="form-control" value="" style="width:195px;">
+          <input type="text" name="" id="txtTransporteRUC" class="form-control" value="" style="width:80%;">
         </div>
       </div>
 

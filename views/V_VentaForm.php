@@ -648,13 +648,13 @@ function ListarProducto(almacen, serverSide = false){
             },*/
             "aoColumns": [
               { mData: 'numero', sClass: "idProd" } ,
+              { mData: 'Codigo' },
               { mData: 'Producto' } ,
+              { mData: 'formafarmaceutica' },
+              { mData: 'marca' },
               { mData: 'PrecioContado' },
               { mData: 'PrecioPorMayor' },
               { mData: 'StockPorMayor' },
-              { mData: 'formafarmaceutica' },
-              { mData: 'marca' },
-              { mData: 'Codigo' },
               { mData: 'ProductoMedicion' },
               { mData: 'stock' },
               /*{ mRender: function ( data, type, row ) {
@@ -676,6 +676,7 @@ function ListarProducto(almacen, serverSide = false){
               $(row).attr('data-preciocontado', data.PrecioContado)
               $(row).attr('data-preciomayor', data.PrecioPorMayor)
               $(row).attr('data-stockmayor', data.StockPorMayor)
+              $(row).attr('data-producto', data.Producto)
 
               // cambiar color los vencidos
               var dt = new Date()
@@ -715,7 +716,7 @@ function ListarProducto(almacen, serverSide = false){
         });
 
         $("#tempId").val($(this).children("td").eq(0).text());
-        $("#tempProducto").val($(this).children("td").eq(1).text());
+        $("#tempProducto").val($(this).attr('data-producto'));
         $("#tempLote").val($(this).children("td").eq(11).text());
         $("#tempFechaVen").val($(this).children("td").eq(12).text());
         
@@ -725,7 +726,7 @@ function ListarProducto(almacen, serverSide = false){
         $("#tempPrecioMayor").val($(this).attr('data-preciomayor'));
         $("#tempStockMayor").val($(this).attr('data-stockmayor'));
 
-        $("#txtPrecio").val($(this).children("td").eq(2).text());
+        $("#txtPrecio").val($(this).attr('data-preciocontado'));
         $('.spinner input').val("1");
         if ($('.spinner input').val()<="1") {
           $("#btnCaretDown").prop("disabled", true); $("#txtTotal").val(($("#txtPrecio").val()*$('.spinner input').val()).toFixed(2));
@@ -1041,13 +1042,13 @@ function cargarPreOrden(row) {
           <table id="tableProducto" class="table table-striped table-bordered">
             <thead>
              <th class="idProd">#</th>
+             <th>Codigo</th>
              <th>Producto</th>
+             <th>Forma</th>
+             <th>Laboratorio</th>
              <th>Precio Contado</th>
              <th>Precio Por Mayor</th>
              <th>Stock Por Mayor</th>
-             <th>Forma</th>
-             <th>Laboratorio</th>
-             <th>Codigo</th>
              <th>Medicion</th>
              <th>Stock</th>
              <th>Venta Estrategica</th>

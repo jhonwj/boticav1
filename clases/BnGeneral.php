@@ -898,7 +898,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	}
 
 	function fn_devolverProductosProximosAVencer($fechaIni, $fechaFin) {
-		$Ssql = "SELECT Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_MovimientoDetalle.*, Gen_Producto.Producto FROM Lo_MovimientoDetalle 
+		$Ssql = "SELECT Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_MovimientoDetalle.*, Gen_Producto.Producto, 
+		Gen_Producto.Codigo, Gen_Producto.Codigo, 
+		(SELECT ProductoFormaFarmaceutica FROM Gen_ProductoFormaFarmaceutica WHERE IdProductoFormaFarmaceutica=Gen_Producto.IdProductoFormaFarmaceutica) AS FormaFarmaceutica, 
+		(SELECT ProductoMarca FROM Gen_ProductoMarca WHERE IdProductoMarca=Gen_Producto.IdProductoMarca) AS Marca
+		FROM Lo_MovimientoDetalle 
 		INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
 		LEFT JOIN Lo_Movimiento ON Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.Hash
 		WHERE FechaVen BETWEEN '$fechaIni' AND '$fechaFin'
@@ -913,6 +917,14 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		LEFT JOIN Gen_ProductoFormaFarmaceutica ON Gen_Producto.IdProductoFormaFarmaceutica = Gen_ProductoFormaFarmaceutica.IdProductoFormaFarmaceutica 
 		LEFT JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
 		";
+
+		return getSQLResultSet($Ssql);
+	}
+
+	function obtenerClienteVenta($idDocVenta) {
+		$Ssql = "SELECT Ve_DocVentaCliente.* FROM Ve_DocVentaCliente 
+		INNER JOIN Ve_DocVenta ON Ve_DocVentaCliente.IdCliente = Ve_DocVenta.IdCliente
+		WHERE Ve_DocVenta.idDocVenta=$idDocVenta";
 
 		return getSQLResultSet($Ssql);
 	}

@@ -57,7 +57,7 @@ $(document).ready(function(e){
       $('#tableProductosProveedor tbody').off("click").on('click', 'tr', function() {
         var d = tableProveedor.row( this ).data();
         
-        if(tableOrdenCompra.column(4).data().indexOf(d.Producto) == -1) {
+        if(tableOrdenCompra.column(1).data().indexOf(d.Producto) == -1) {
           tableOrdenCompra.row.add(d).draw(false);            
         }
 
@@ -212,11 +212,11 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
               }
             },*/
             "aoColumns": [
-            { mData: 'marca' } ,
-            { mData: 'categoria' },
-						{ mData: 'formafarmaceutica' },
-            { mData: 'Codigo' },
-            { mData: 'Producto' },
+              { mData: 'Codigo' },
+              { mData: 'Producto' },
+              { mData: 'formafarmaceutica' },
+              { mData: 'marca' } ,
+              { mData: 'categoria' },
             { mData: 'StockMinimo' },
             { mData: 'controlaStock' },
             { mData: 'stock' },
@@ -364,11 +364,11 @@ function listarAlmacen(){
 		<div class="center_div_form">
       <table id="tableProducto" class="table table-bordered table-striped">
         <thead>
-          <th>MARCA</th>
-          <th>CATEGORIA</th>
-					<th>FORMA FARMACEUTICA</th>
           <th>CODIGO</th>
           <th>PRODUCTO</th>
+					<th>FORMA FARMACEUTICA</th>
+          <th>LABORATORIO</th>
+          <th>CATEGORIA</th>
           <th>STOCK MINIMO</th>
           <th>CONTROLA STOCK</th>
           <th>STOCK</th>
@@ -466,11 +466,11 @@ function listarAlmacen(){
       </div>
 			<table id="tableOrdenCompra" class="table table-bordered table-striped">
 				<thead>
-          <th>MARCA</th>
-          <th>CATEGORIA</th>
-					<th>FORMA FARMACEUTICA</th>
           <th>CODIGO</th>
           <th>PRODUCTO</th>
+					<th>FORMA FARMACEUTICA</th>
+          <th>LABORATORIO</th>
+          <th>CATEGORIA</th>
           <th>STOCK MINIMO</th>
           <th>CONTROLA STOCK</th>
           <th>STOCK</th>
@@ -503,11 +503,11 @@ function listarAlmacen(){
 		<div class="modal-body" style="overflow-x:auto;">
 			<table id="tableProductosProveedor" class="table table-bordered table-striped">
 				<thead>
-          <th>MARCA</th>
-          <th>CATEGORIA</th>
-					<th>FORMA FARMACEUTICA</th>
           <th>CODIGO</th>
           <th>PRODUCTO</th>
+					<th>FORMA FARMACEUTICA</th>
+          <th>LABORATORIO</th>
+          <th>CATEGORIA</th>
           <th>STOCK MINIMO</th>
           <th>CONTROLA STOCK</th>
           <th>STOCK</th>
