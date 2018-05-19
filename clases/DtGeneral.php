@@ -566,7 +566,22 @@ function fn_guardarUsuarioPerfilModulo($params) {
 }
 
 function fn_guardarOrdenCompra($idProveedor, $total, $productos) {
-	$Ssql="INSERT INTO Lo_OrdenCompra(IdProveedor, FechaOrdenCompra, Total) VALUES($idProveedor, now(), $total)";
+	// obtener el ultimo codigo
+	$Ssql = "SELECT Numero, Anio FROM Lo_OrdenCompra WHERE Anio='" . date("Y") . "' ORDER BY Numero DESC LIMIT 1";
+	$ordenCompra = getSQLResultSet($Ssql);
+	$ordenCompra = mysqli_fetch_assoc($ordenCompra);
+
+	$numero = $ordenCompra['Numero'];
+	$anio = $ordenCompra['Anio'];
+
+	$newNumero = 1;
+	$newAnio = date("Y");
+
+	if ($numero && $anio) {
+		$newNumero = $numero + 1;
+	}
+
+	$Ssql="INSERT INTO Lo_OrdenCompra(IdProveedor, FechaOrdenCompra, Total, Anio, Numero) VALUES($idProveedor, now(), $total, $newAnio, $newNumero)";
 	$idOrdenCompra = getSQLResultSet($Ssql);
 
 	if ($idOrdenCompra) {
@@ -579,6 +594,13 @@ function fn_guardarOrdenCompra($idProveedor, $total, $productos) {
 
 			getSQLResultSet($Ssql);
 		}
+
+		
+		return [
+			'idOrdenCompra' => $idOrdenCompra,
+			'Anio' => $newAnio,
+			'Numero' => $newNumero
+		];
 	}
 
 	return $idOrdenCompra;

@@ -25,11 +25,12 @@ $objPHPExcel->getActiveSheet()->setTitle('Hoja 1');
 
 
 // Agregar en celda A1 valor string
-$objPHPExcel->getActiveSheet()->setCellValue('D3', 'MARCA');
-$objPHPExcel->getActiveSheet()->setCellValue('E3', 'CATEGORIA');
+$objPHPExcel->getActiveSheet()->setCellValue('D3', 'CODIGO');
+$objPHPExcel->getActiveSheet()->setCellValue('E3', 'PRODUCTO');
 $objPHPExcel->getActiveSheet()->setCellValue('F3', 'FORMA FARMACEUTICA');
-$objPHPExcel->getActiveSheet()->setCellValue('G3', 'PRODUCTO');
+$objPHPExcel->getActiveSheet()->setCellValue('G3', 'LABORATORIO');
 $objPHPExcel->getActiveSheet()->setCellValue('H3', 'STOCK');
+$objPHPExcel->getActiveSheet()->setCellValue('I3', 'CATEGORIA');
 // Agregar en celda A2 valor numerico
 //$objPHPExcel->getActiveSheet()->setCellValue('A2', 12345.6789);
 	
@@ -42,11 +43,12 @@ $objPHPExcel->getActiveSheet()->setCellValue('H3', 'STOCK');
    $result = ListarReporteStock($almacen,"");
    $cont = 4;
 	while ($row = mysqli_fetch_assoc($result)) {
-		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["marca"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["categoria"]);
+		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["Codigo"]);
+		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["Producto"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["formafarmaceutica"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('G'.$cont, $row["Producto"]);
+		$objPHPExcel->getActiveSheet()->setCellValue('G'.$cont, $row["marca"]);
 		$objPHPExcel->getActiveSheet()->setCellValue('H'.$cont, $row["stock"]);
+		$objPHPExcel->getActiveSheet()->setCellValue('I'.$cont, $row["categoria"]);
 		$cont++;
 	}
 
@@ -72,7 +74,7 @@ $style_header = array(
          'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
     )
 );
- for ($i=3; $i < 8; $i++) { 
+ for ($i=3; $i < 9; $i++) { 
  	$objPHPExcel->getActiveSheet()->getStyle(chr(68+($i-3)).'3')->applyFromArray( $style_header );
  	$objPHPExcel->getActiveSheet()->getColumnDimension(chr(68+($i-3)))->setAutoSize(true);
  }

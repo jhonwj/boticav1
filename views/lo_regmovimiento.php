@@ -34,7 +34,7 @@ $(document).ready(function(e){
           "</td><td>"+value.FLETE+
           "</td><td>"+value.Percepcion+
           "</td><td>"+(value.Moneda || '')+
-          "</td><td>"+parseFloat(value.TOTAL).toFixed(2)+
+          "</td><td>"+(parseFloat(value.TOTAL).toFixed(2) || 0)+
           "</td><td><a class='btn' onclick='EliminarRegMov("+ value.IdMovimiento +");'><i class='fa fa-trash'></i></a>"+ btnImprimir
           "</td></tr>" ;
         });
@@ -92,14 +92,18 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
     dataType: 'html',
     success: function(respuesta){
         var response = JSON.parse(respuesta);
+        console.log(response)
         var fila = "";
         $.each(response, function(data, value){
-          var check = "";
+          var total = value.Precio*value.Cantidad;
+          var igv = "";
           if (value.TieneIgv == null || value.TieneIgv =="0") {
-           check= "<input type='checkbox'>"
+           igv = 0
           }else{
-           check= "<input type='checkbox' checked>"
+           igv = total * 0.18;
           }
+          var totalGeneral = parseFloat(total) + parseFloat(igv) + parseFloat(value.ISC)
+
           fila = "<tr><td>"+value.hashMovimiento+
           "</td><td>"+value.Codigo+
           "</td><td>"+value.ProductoFormaFarmaceutica+
@@ -108,9 +112,10 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
           // "</td><td>"+value.PrecioContado+
           "</td><td>"+value.ProductoMedicion+
           "</td><td>"+value.Cantidad+
-          "</td><td>"+check+
+          "</td><td>"+igv+
+          "</td><td>"+value.ISC+
           "</td><td>"+value.Precio+
-          "</td><td>"+(value.Precio*value.Cantidad)+
+          "</td><td>"+totalGeneral.toFixed(2)+
           "</td></tr>";
           $("#tableProducto tbody").append(fila);
         });
@@ -307,7 +312,8 @@ function SumarTotalIgvSub(){
             <!-- <th>Precio Venta</th> -->
             <th>Medida</th>
             <th>Cantidad</th>
-            <th>IGV?</th>
+            <th>IGV</th>
+            <th>ISC</th>
             <th>Precio</th>
             <th>Total</th>
           </thead>

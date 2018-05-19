@@ -56,7 +56,7 @@ $(document).ready(function(e){
       var tableOrdenCompra = $('#tableOrdenCompra').DataTable();
       $('#tableProductosProveedor tbody').off("click").on('click', 'tr', function() {
         var d = tableProveedor.row( this ).data();
-        
+        console.log(d)
         if(tableOrdenCompra.column(1).data().indexOf(d.Producto) == -1) {
           tableOrdenCompra.row.add(d).draw(false);            
         }
@@ -92,12 +92,16 @@ $(document).ready(function(e){
         var idProducto = $(value).attr('data-idproducto')
         var cantidad = $(value).find('.cantidad').text()
         var precio = $(value).find('.precio').text()
-        var producto = $(value).find('td').eq(4).text()
+        var producto = $(value).attr('data-producto')
+        var forma = $(value).attr('data-forma')
+        var laboratorio = $(value).attr('data-marca')
         productos.push({
           IdProducto: idProducto,
           Producto: producto,
           Cantidad: cantidad,
-          Precio: precio
+          Precio: precio,
+          Forma: forma,
+          Laboratorio: laboratorio
         })
       })
       
@@ -115,7 +119,7 @@ $(document).ready(function(e){
                 }, {
                     type: 'success'
                 });
-                exportarOrdenCompra($('#txtProveedor').val(), total, productos);
+                exportarOrdenCompra($('#txtProveedor').val(), total, productos, respuesta);
 
             } else {
                 $.notify({
@@ -223,10 +227,19 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
             { mData: 'MovimientoPrecio' },
             { mData: 'MovimientoCantidad' },
             { mData: 'MovimientoTotal' },
-            { mData: 'IdProveedor' }
+            { mData: 'IdProveedor' },
+            { mRender: function( data, type, full ) {
+              if(table == 'tableOrdenCompra') {
+                return '<button type="button" class="btn btn-danger elimina-ordencompra" id="">Eliminar</button>'
+              }
+              return ''
+            }}
             ],
             "rowCallback": function( row, data, index ) {
               $(row).attr('data-idproducto', data.numero)
+              $(row).attr('data-producto', data.Producto)
+              $(row).attr('data-forma', data.formafarmaceutica)
+              $(row).attr('data-marca', data.marca)
             },
             'columnDefs': [
               {
@@ -253,6 +266,14 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
                   }
               }
             ],
+            "drawCallback": function( settings ) {
+              $('.elimina-ordencompra').off('click').on('click', function() {
+                var table = $('#tableOrdenCompra').DataTable()
+                var row = table.row( $(this).parents('tr') )
+                row.remove().draw()
+                actualizarTotalOrdenCompra()
+              })
+            },
             "initComplete": function( settings, json ) {
               window.isLoadStock = true;
               
@@ -376,6 +397,7 @@ function listarAlmacen(){
           <th>CANT.U Compra</th>
           <th>TOTAL</th>
           <th>IDPROVEEDOR</th>
+          <th></th>
         </thead>
       </table>
 		</div>
@@ -478,6 +500,7 @@ function listarAlmacen(){
           <th>CANT.U Compra</th>
           <th>TOTAL</th>
           <th>IDPROVEEDOR</th>
+          <th>Editar</th>
 				</thead>
 			</table>
       <br><br>
@@ -515,6 +538,7 @@ function listarAlmacen(){
           <th>CANT.U Compra</th>
           <th>TOTAL</th>
           <th>IDPROVEEDOR</th>
+          <th></th>
 				</thead>
 			</table>
 		</div>

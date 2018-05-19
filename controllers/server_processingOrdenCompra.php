@@ -43,12 +43,15 @@ switch ($method) {
             break;
         } else {
             // Insertar caja y banco
+            $result = [];
             $idProveedor = $_POST['idProveedor'];
             $total = $_POST['total'];
             $productos = json_decode($_POST['productos'], true);
 
             $ordenCompra = fn_guardarOrdenCompra($idProveedor, $total, $productos);
             if ($ordenCompra) {
+                $result = $ordenCompra;
+
                 $result['success'] = 'Orden de compra almacenado correctamente';
             } else {
                 $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo más tarde';

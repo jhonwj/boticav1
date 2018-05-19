@@ -471,28 +471,40 @@ $("#btnCliente").click(function(){
       $("#tableCliente").DataTable().destroy();
       $("#tableCliente tbody").empty();
       var table4 = $("#tableCliente").DataTable({
-      "bProcessing": true,
-      "sAjaxSource": "../controllers/server_processingCliente.php",
-      "bPaginate":true,
-      "sPaginationType":"full_numbers",
-      "iDisplayLength": 5,
-      "aoColumns": [
-      { mData: 'IdCliente' } ,
-      { mData: 'Cliente' },
-      { mData: 'DniRuc' },
-      { mRender : function(data, type, row){
-        return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
-      }},
-      { mData: 'Direccion', "sClass": "idProd" },
-      { mData: 'Telefono', "sClass": "idProd"},
-      { mData: 'Email', "sClass": "idProd" },
+        "bProcessing": true,
+        "sAjaxSource": "../controllers/server_processingCliente.php",
+        "bPaginate":true,
+        "sPaginationType":"full_numbers",
+        "iDisplayLength": 5,
+        "aoColumns": [
+          { mData: 'IdCliente' } ,
+          { mData: 'Cliente' },
+          { mData: 'DniRuc' },
+          { mRender : function(data, type, row){
+            return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+          }},
+          { mData: 'Direccion', "sClass": "idProd" },
+          { mData: 'Telefono', "sClass": "idProd"},
+          { mData: 'Email', "sClass": "idProd" },
 
-    ]
-    });
+        ],
+        "rowCallback" : function( row, data, index ) {
+          $(row).attr('data-cliente', data.Cliente || '')
+          $(row).attr('data-dniruc', data.DniRuc || '')
+          $(row).attr('data-direccion', data.Direccion || '')
+          $(row).attr('data-telefono', data.Telefono || '')
+          $(row).attr('data-email', data.Email || '')
+        }
+      });
       $('#tableCliente tbody').on('click', 'tr', function () {
         //var data = $(this).children("td").eq(1).html();
         //console.log($(this).children("td").eq(1).html());
-        $("#txtCliente").val($(this).children("td").eq(1).html());
+        $("#txtCliente").val($(this).attr('data-cliente'));
+        $('#txtCliente').attr('data-direccion', $(this).attr('data-direccion'))
+        $('#txtCliente').attr('data-dniruc', $(this).attr('data-dniruc'))
+        $('#txtCliente').attr('data-telefono', $(this).attr('data-telefono'))
+        $('#txtCliente').attr('data-email', $(this).attr('data-email'))
+
         $("#ModalCliente").modal("hide");
 
     });

@@ -163,7 +163,7 @@ function defaultStyles() {
         textColor: 20,
         halign: 'left',
         valign: 'top',
-        fontSize: 10,
+        fontSize: 8,
         cellPadding: 5 / scaleFactor,
         lineColor: 200,
         lineWidth: 0 / scaleFactor,

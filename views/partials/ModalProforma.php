@@ -24,7 +24,7 @@
                         <td>Fecha: </td>
                         <td class="fecha"></td>
                         <td>RUC:</td>
-                        <td><input class="form-control" type="text" /></td>
+                        <td class="dniruc"><input class="form-control" type="text" /></td>
 						<td style="text-align:center">
 							PROFORMA
 						</td>
@@ -33,16 +33,16 @@
                         <td>Cliente:</td>
                         <td class='cliente'><input class="form-control" type="text" /></td>
                         <td>Email:</td>
-                        <td><input class="form-control" type="text" /></td>
+                        <td class="email"><input class="form-control" type="text" /></td>
 						<td style="text-align:center">
 							NRO: <input class="form-control" type="text" />
 						</td>
                     </tr>
                     <tr>
                         <td>Direccion:</td>
-                        <td><input class="form-control" type="text" /></td>
+                        <td class="direccion"><input class="form-control" type="text" /></td>
   					  	<td>Teléfono:</td>
-                        <td><input class="form-control" type="text" /></td>
+                        <td class="telefono"><input class="form-control" type="text" /></td>
 						<td></td>
                     </tr>
 				</tbody>
@@ -51,6 +51,7 @@
             <table id="tableModalProforma" class="table table-striped table-bordered">
               <thead>
                   <tr>
+				  	  <th>#</th>
                       <th>Producto</th>
                       <th>Cantidad</th>
                       <th>Precio</th>
@@ -62,6 +63,7 @@
 			  </tbody>
 			  <tfoot>
 				<tr>
+				    <td></td>
 					<td></td>
 					<td></td>
 					<td><strong>Subtotal</strong></td>
@@ -70,10 +72,12 @@
 				<tr>
 					<td></td>
 					<td></td>
+					<td></td>
 					<td><strong>IGV</strong></td>
 					<td class='igv'></td>
 				</tr>
 				<tr>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td><strong>Total</strong></td>
@@ -110,12 +114,24 @@
         $(idModal).on('show.bs.modal', function (e) {
 			$('.fecha').html($('#fecha').val())
 			$('.cliente input').val($('#txtCliente').val())
+			$('.direccion input').val($('#txtCliente').attr('data-direccion'))
+			$('.dniruc input').val($('#txtCliente').attr('data-dniruc'))
+			$('.email input').val($('#txtCliente').attr('data-email'))
+			$('.telefono input').val($('#txtCliente').attr('data-telefono'))
+
 			$('.subtotal').html($('#txtSubTot').val())
 			$('.igv').html($('#txtIGV').val())
 			$('.total').html($('#txtTotalGen').val())
 
-            $(this).find('#tableModalProforma tbody').prepend($('<?php echo $args["clone"] ?> tbody tr').clone(false))
+			$(this).find('#tableModalProforma tbody').prepend($('<?php echo $args["clone"] ?> tbody tr').clone(false))
 			$(this).find('#tableModalProforma tbody tr td:first-child').remove()
+			
+			$(this).find('#tableModalProforma tbody tr').each(function(index, value) {
+				$(this).prepend('<td>' + (index+1) + '</td>')
+			})
+			
+			$(this).find('#tableModalProforma tbody tr td:last-child').remove()
+			$(this).find('#tableModalProforma tbody tr td:last-child').remove()
 			$(this).find('#tableModalProforma tbody tr td:last-child').remove()
         })
         $(idModal).on('hide.bs.modal', function (e) {
