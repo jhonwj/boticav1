@@ -37,7 +37,11 @@ $(document).ready(function(e){
           }
           });
       console.log(xhr);*/
-    });
+	});
+	
+	$('#btnPDF').click(function(e) {
+
+	})
 
 });
 
@@ -167,7 +171,12 @@ function actualizarVencimiento() {
 	</div>
 
 </div>
-<button id="btnExcel" class="btn btn-success fab2"><i class="fa fa-file-excel-o"></i></button>
+<div class="fab2">
+  	<!--<button id="btnPDF" class="btn btn-warning"><i class="fa fa-file-pdf-o"></i> PDF</button>-->
+	<button id="btnExcel" class="btn btn-success"><i class="fa fa-file-excel-o"></i> XLSX</button>
+</div>
+
+
  
 <?php include("footer.php"); ?>
 </body>

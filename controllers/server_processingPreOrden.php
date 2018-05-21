@@ -38,8 +38,16 @@ switch ($method) {
 
             break;
         } elseif (isset($_POST['delete'])) {
-            // Eliminar caja y Banco
+            // Eliminar PreOrden
+            $idPreOrden = $_POST['idPreOrden'];
+            $eliminar = fn_eliminarPreOrden($idPreOrden);
 
+            if ($eliminar) {
+                $result['success'] = 'Pre orden eliminado correctamente';
+            } else {
+                $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo más tarde';
+            }
+            echo json_encode($result);
             break;
         } else {
             // Insertar caja y banco

@@ -229,6 +229,10 @@ function exportarPDF(obj) {
 
 }
 
+function exportarProductosVencidos() {
+    
+}
+
 function exportarOrdenCompra(proveedor, total, productos, ordenCompra) {
     var doc = new jsPDF('p', 'pt');
 

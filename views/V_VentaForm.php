@@ -262,7 +262,7 @@ $("#FechaVen").hide();
         //console.log(Encontrado);
 
         if (Encontrado ==0) {
-          var fila = "<tr data-vencimiento='" + $('#tempFechaVen').val() + "' data-forma='" + $('#tempForma').val() + "' data-laboratorio='" + $('#tempLaboratorio').val() + "'><td class='idProd'>"+ $("#tempId").val() +"</td><td class='nombreProducto'>"+ $("#tempProducto").val() +"</td><td>"+ $('.spinner input').val() + "</td><td>" + $("#txtPrecio").val() + "</td><td>"+ $("#txtTotal").val() +"</td><td class='nombreProducto'>"+ $("#tempLote").val() + "</td><td class='nombreProducto'>"+ $("#tempFechaVen").val() +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
+          var fila = "<tr data-vencimiento='" + $('#tempFechaVen').val() + "' data-forma='" + $('#tempForma').val() + "' data-laboratorio='" + $('#tempLaboratorio').val() + "'><td class='idProd'>"+ $("#tempId").val() +"</td><td class='nombreProducto'>"+ $("#tempProducto").val() +"</td><td>"+ $('.spinner input').val() + "</td><td>" + parseFloat($("#txtPrecio").val()).toFixed(2) + "</td><td>"+ $("#txtTotal").val() +"</td><td class='nombreProducto'>"+ $("#tempLote").val() + "</td><td class='nombreProducto'>"+ $("#tempFechaVen").val() +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
         $("#tablePuntoVentaDet tbody").append(fila);
 
         }
@@ -720,12 +720,12 @@ function ListarProducto(almacen, serverSide = false){
         
       $('#tableProducto tbody').off("click").on('click', 'tr', function () {
         var id = $(this).children("td").eq(0).text();
-        $("#txtPrecio").prop("readonly", true);
+        // $("#txtPrecio").prop("readonly", true);
         $("#tablePuntoVentaDet tbody tr").each(function(){
           if (id === $(this).children("td").eq(0).text()) {
-            $("#txtPrecio").prop("readonly", false);
+            // $("#txtPrecio").prop("readonly", false);
           }else {
-            $("#txtPrecio").prop("readonly", true);
+            // $("#txtPrecio").prop("readonly", true);
           }
         });
 
@@ -836,6 +836,40 @@ function cargarProducto(codigoBarra) {
         alert('el producto no existe')
       }
 
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+    }
+  });
+}
+
+function eliminarPreOrden(row) {
+  var xhr = $.ajax({
+    url: '../controllers/server_processingPreOrden.php',
+    dataType: 'json',
+    type: 'post',
+    data: {
+      delete: true,
+      idPreOrden: row.IdPreOrden
+    },
+    success: function(respuesta){
+      if (respuesta.success) {
+        $('#tableModalPreOrden').DataTable().ajax.reload();
+
+        $.notify({
+            icon: 'fa fa-check',
+            message: respuesta.success
+        }, {
+            type: 'success'
+        });
+      } else {
+        $.notify({
+            icon: 'fa fa-exclamation',
+            message: respuesta.error
+        }, {
+            type: 'danger'
+        });
+      }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
         alert("Status: " + textStatus); alert("Error: " + errorThrown);
@@ -1037,7 +1071,7 @@ function cargarPreOrden(row) {
 <div class="pull-right">
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalProformaVenta"><i class="fa fa-file-pdf-o fa-lg"></i>Crear Proforma</button>
-  <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-money fa-lg"></i>   Efectuar pago</button>
+  <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-money fa-lg"></i>   Efectuar Venta</button>
   <button id="btnClean" type="button" class="btn btn-warning" name="button"><i class="fa fa-eraser fa-lg"></i>Limpiar</button>
 </div>
 
@@ -1385,7 +1419,7 @@ function cargarPreOrden(row) {
          </div>
        </div>
        <div class="modal-footer">
-         <button type="button" id="btnGuardarMetPago" class="btn btn-success" name="button"><i class="fa fa-print"></i>  Imprimir pago</button>
+         <button type="button" id="btnGuardarMetPago" class="btn btn-success" name="button"><i class="fa fa-print"></i>  Imprimir Venta</button>
          <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i>  Cancelar</button>
        </div>
      </div>

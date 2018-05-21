@@ -606,10 +606,39 @@ function fn_guardarOrdenCompra($idProveedor, $total, $productos) {
 	return $idOrdenCompra;
 }
 
+function fn_guardarProforma() {
+	$Ssql = "SELECT Numero, Anio FROM Ve_Proforma WHERE Anio='" . date("Y") . "' ORDER BY Numero DESC LIMIT 1";
+	$proforma = getSQLResultSet($Ssql);
+	$proforma = mysqli_fetch_assoc($proforma);
+
+	$numero = $proforma['Numero'];
+	$anio = $proforma['Anio'];
+
+	$newNumero = 1;
+	$newAnio = date("Y");
+
+	if ($numero && $anio) {
+		$newNumero = $numero + 1;
+	}
+
+	$Ssql="INSERT INTO Ve_Proforma(Anio, Numero) VALUES($newAnio, $newNumero)";
+	$idProforma = getSQLResultSet($Ssql);
+
+	return $idProforma;
+}
+
 function fn_actualizarVencimiento($hashMovimiento, $idProducto, $newFechaVen) {
 	$Ssql = "UPDATE Lo_MovimientoDetalle SET FechaVen='$newFechaVen' WHERE hashMovimiento='$hashMovimiento' AND IdProducto='$idProducto'";
 
 	return  getSQLResultSet($Ssql);
 }
 
+
+function fn_eliminarPreOrden($idPreOrden) {
+	$Ssql = "DELETE FROM Ve_PreOrdenDet WHERE IdPreOrden=$idPreOrden";
+	getSQLResultSet($Ssql);
+
+	$Ssql = "DELETE FROM Ve_PreOrden WHERE IdPreOrden=$idPreOrden";
+	return getSQLResultSet($Ssql);
+}
 ?>

@@ -120,6 +120,7 @@ calcularFlete();
       ListarProductosDet();
       $("#txtProductoCantidadI").val("0");
       $("#txtProductoPrecioI").val("0.00");
+      $('#txtProductoTotal').val('0.00')
       $("#modalProductoDet").modal("show");
     });
 
@@ -314,6 +315,13 @@ $('#txtSerie').keyup(function() {
   }
 })
 
+
+  $('#txtProductoTotal').on('input', function(e) {
+    var total = parseFloat($('#txtProductoTotal').val())
+    var cantidad = parseInt($('#txtProductoCantidadI').val())
+    
+    $('#txtProductoPrecioI').val((total / cantidad).toFixed(2))
+  })
 
 });
 
@@ -1206,6 +1214,10 @@ function toggleIGV() {
           <div class="input-group">
             <label class="">P/U</label>
             <input type="number" step="any" required id="txtProductoPrecioI"  class="form-control" placeholder="0.00" min="0">
+          </div>
+          <div class="input-group">
+            <label class="">TOTAL</label>
+            <input type="number" step="any" required id="txtProductoTotal"  class="form-control" placeholder="0.00" min="0">
           </div>
         </div>
       </div>

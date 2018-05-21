@@ -65,7 +65,10 @@
 							{ mData: 'Total' },
 				      { mData: 'FechaReg' },
 				      { mRender : function(data, type, row){
-				        return "<button class='btn btn-success' onclick='cargarPreOrden("+JSON.stringify(row)+")'>Cargar Pre orden</button>"
+								var buttons = "<button class='btn btn-success' onclick='cargarPreOrden(" + JSON.stringify(row) +")'>Cargar</button>"
+								buttons += "<button class='btn btn-danger' onclick='eliminarPreOrden(" + JSON.stringify(row) + ")'>Eliminar</button>"
+
+				        return buttons;
 				      }}
 				    ]
 			    });

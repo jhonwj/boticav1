@@ -1,4 +1,14 @@
 <?php
+include_once("../clases/BnGeneral.php");
+$numProforma = fn_devolverUltimaProforma();
+$numProforma = mysqli_fetch_assoc($numProforma);
+
+if($numProforma) {
+	$numProforma = ($numProforma['Numero']+1) . '-' . $numProforma['Anio'];
+} else {
+	$numProforma = '1-' . date("Y");
+}
+
 ?>
 <div class="modal fade" id="<?php echo $args['id'] ?>" role="dialog">
   <!-- <div class="modal-dialog" style="width:800px"> -->
@@ -35,7 +45,7 @@
                         <td>Email:</td>
                         <td class="email"><input class="form-control" type="text" /></td>
 						<td style="text-align:center">
-							NRO: <input class="form-control" type="text" />
+							NRO: <input id="numeroProforma" class="form-control" type="text" readonly="readonly" value="<?php echo $numProforma ?>"  />
 						</td>
                     </tr>
                     <tr>
@@ -56,7 +66,7 @@
                       <th>Forma</th>
                       <th>Laboratorio</th>
                       <th>Vencimiento</th>
-                      <th>Cantidad</th>
+                      <th>Cant.</th>
                       <th>Precio</th>
                       <th>Tot.</th>
                   </tr>
@@ -100,7 +110,7 @@
             <div class="modal-clone"></div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-success" onclick="exportarPDF()">
+			<button type="button" class="btn btn-success" onclick="exportarProforma()">
 				<i class="fa fa-file-pdf-o fa-lg"></i> PDF
 			</button>
             <!--<button
@@ -120,7 +130,43 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+	function exportarProforma() {
+		var xhr = $.ajax({
+			url: '../controllers/V_ProformaGuardar.php',
+			type: 'post',
+			dataType: 'json',
+			success: function(respuesta){
+				if (respuesta.success) {
+					exportarPDF()
+					
+					var partes = ($('#numeroProforma').val()).split('-');
+					$('#numeroProforma').val((parseInt(partes[0]) + 1) + '-' + partes[1])
+
+                   	$.notify({
+                       icon: 'fa fa-check',
+                       message: respuesta.success
+                   	}, {
+                       type: 'success'
+                   	});
+              	} else {
+                   $.notify({
+                       icon: 'fa fa-exclamation',
+                       message: respuesta.error
+                   }, {
+                       type: 'danger'
+                   });
+				}
+				$("#modalProformaVenta").modal("hide");
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("Status: " + textStatus); alert("Error: " + errorThrown);
+			}
+		});
+
+		
+	}
+
+	$(document).ready(function () {
         var idModal = '#<?php echo $args["id"] ?>'
 
         $(idModal).on('show.bs.modal', function (e) {
