@@ -262,7 +262,7 @@ $("#FechaVen").hide();
         //console.log(Encontrado);
 
         if (Encontrado ==0) {
-          var fila = "<tr><td class='idProd'>"+ $("#tempId").val() +"</td><td class='nombreProducto'>"+ $("#tempProducto").val() +"</td><td>"+ $('.spinner input').val() + "</td><td>" + $("#txtPrecio").val() + "</td><td>"+ $("#txtTotal").val() +"</td><td class='nombreProducto'>"+ $("#tempLote").val() + "</td><td class='nombreProducto'>"+ $("#tempFechaVen").val() +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
+          var fila = "<tr data-vencimiento='" + $('#tempFechaVen').val() + "' data-forma='" + $('#tempForma').val() + "' data-laboratorio='" + $('#tempLaboratorio').val() + "'><td class='idProd'>"+ $("#tempId").val() +"</td><td class='nombreProducto'>"+ $("#tempProducto").val() +"</td><td>"+ $('.spinner input').val() + "</td><td>" + $("#txtPrecio").val() + "</td><td>"+ $("#txtTotal").val() +"</td><td class='nombreProducto'>"+ $("#tempLote").val() + "</td><td class='nombreProducto'>"+ $("#tempFechaVen").val() +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
         $("#tablePuntoVentaDet tbody").append(fila);
 
         }
@@ -689,6 +689,8 @@ function ListarProducto(almacen, serverSide = false){
               $(row).attr('data-preciomayor', data.PrecioPorMayor)
               $(row).attr('data-stockmayor', data.StockPorMayor)
               $(row).attr('data-producto', data.Producto)
+              $(row).attr('data-forma', data.formafarmaceutica)
+              $(row).attr('data-laboratorio', data.marca)
 
               // cambiar color los vencidos
               var dt = new Date()
@@ -729,6 +731,8 @@ function ListarProducto(almacen, serverSide = false){
 
         $("#tempId").val($(this).children("td").eq(0).text());
         $("#tempProducto").val($(this).attr('data-producto'));
+        $("#tempForma").val($(this).attr('data-forma'));
+        $("#tempLaboratorio").val($(this).attr('data-laboratorio'));
         $("#tempLote").val($(this).children("td").eq(11).text());
         $("#tempFechaVen").val($(this).children("td").eq(12).text());
         
@@ -1099,6 +1103,8 @@ function cargarPreOrden(row) {
       			</div>
       			<input id="tempId" type="hidden">
                 <input id="tempProducto" type="hidden">
+                <input id="tempForma" type="hidden">
+                <input id="tempLaboratorio" type="hidden">
                 <input id="tempLote" type="hidden">
     			      <input id="tempFechaVen" type="hidden">
     			      <input id="tempPrecioContado" type="hidden">

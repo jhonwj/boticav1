@@ -53,6 +53,9 @@
                   <tr>
 				  	  <th>#</th>
                       <th>Producto</th>
+                      <th>Forma</th>
+                      <th>Laboratorio</th>
+                      <th>Vencimiento</th>
                       <th>Cantidad</th>
                       <th>Precio</th>
                       <th>Tot.</th>
@@ -66,10 +69,16 @@
 				    <td></td>
 					<td></td>
 					<td></td>
-					<td><strong>Subtotal</strong></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td><strong>SUBTOTAL</strong></td>
 					<td class='subtotal'></td>
 				</tr>
 				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
@@ -80,7 +89,10 @@
 					<td></td>
 					<td></td>
 					<td></td>
-					<td><strong>Total</strong></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td><strong>TOTAL</strong></td>
 					<td class='total'></td>
 				</tr>
 			</tfoot>
@@ -128,8 +140,14 @@
 			
 			$(this).find('#tableModalProforma tbody tr').each(function(index, value) {
 				$(this).prepend('<td>' + (index+1) + '</td>')
+				
+				$(this).find('td:eq(1)').after('<td>' + $(this).attr('data-forma') + '</td>')
+				$(this).find('td:eq(2)').after('<td>' + $(this).attr('data-laboratorio') + '</td>')
+				$(this).find('td:eq(3)').after('<td>' + $(this).attr('data-vencimiento') + '</td>')
 			})
 			
+			// insert forma y laboratorio
+
 			$(this).find('#tableModalProforma tbody tr td:last-child').remove()
 			$(this).find('#tableModalProforma tbody tr td:last-child').remove()
 			$(this).find('#tableModalProforma tbody tr td:last-child').remove()

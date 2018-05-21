@@ -19,7 +19,7 @@ include_once '../clases/BnGeneral.php';
 		$cliente = obtenerClienteVenta($rows['idDocVenta']);
 		$cliente = mysqli_fetch_assoc($cliente);
 
-		$rows = array_merge($rows, $cliente);
+		$rows = array_merge($cliente, $rows);
 		
 		if(isset($_GET['codSunat'])) {
 			if($rows['CodSunat'] == $_GET['codSunat']) {
