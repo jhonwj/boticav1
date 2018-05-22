@@ -294,12 +294,25 @@ $("#FechaVen").hide();
 
   });
 
-//Guardar Venta
+$('#txtCredito').change(function() {
+  if(this.checked) {
+    $('#btnSave').html('<i class="fa fa-money fa-lg"></i> Imprimir venta')
+  } else {
+    $('#btnSave').html('<i class="fa fa-money fa-lg"></i> Efectuar Venta')
+  }
+})
 
+//Guardar Venta
 $("#btnSave").click(function(event) {
   if($("#tablePuntoVentaDet tbody tr").length>0){
       $("#txtTotalPagar").val($("#txtTotalGen").val());
-      $("#ModalMetPago").modal({backdrop: false});
+
+      if($('#txtCredito').is(':checked')) {
+        $('#btnGuardarMetPago').click()
+
+      } else {
+        $("#ModalMetPago").modal({backdrop: false});
+      }
   }else{
     alert("Registra al menos un producto");
   }
