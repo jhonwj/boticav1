@@ -1119,7 +1119,8 @@ function toggleIGV() {
 				</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar <i class="fa fa-close"></i></button>
+      <button data-toggle="modal" data-target="#nuevo-producto" type="button" class="btn btn-success">Añadir <i class="fa fa-plus"></i></button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar <i class="fa fa-close"></i></button>
       </div>
     </div>
   </div>
@@ -1277,11 +1278,37 @@ function toggleIGV() {
 
 
 
+<div class="modal fade" id="nuevo-producto" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <producto-form></producto-form>
+  </div>
+</div>
+
+
+
+  <div id="producto-form">
+   
+  </div>
+
+
 
 <?php
 Modal::render('ModalMoneda', [
 		'id' => 'modalMoneda'
 ]);
 ?>
+
+
+<script type="module" src="../components/ProductForm.js"></script>
+<script type="module">
+    import ProductoForm from '../components/ProductForm.js';
+
+    window.asd= new Vue({
+    el: '#nuevo-producto',
+    components: {
+      ProductoForm
+    }
+    });
+</script>
 
 </html>
