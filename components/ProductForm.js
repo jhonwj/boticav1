@@ -42,6 +42,14 @@ export default {
                 <label for="Producto">Producto</label>
                 <input type="text" class="form-control" id="Producto" name="producto" placeholder="Producto">
               </div>
+              <div class="form-group">
+                <label for="Producto">Genero</label>
+                <input type="text" class="form-control" id="Producto" name="producto" placeholder="Producto">
+              </div>
+              <div class="form-group">
+              <label for="Producto">Botapie</label>
+              <input type="text" class="form-control" id="Producto" name="producto" placeholder="Producto">
+            </div>
             </div>
             <div class="col-md-6">
               <div class=" form-group">
