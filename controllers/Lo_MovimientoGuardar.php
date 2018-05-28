@@ -31,7 +31,7 @@ if ($row[0]>=1) {
 			$tieneIgv = 1;
 		}
 		$precioTipoCambio = $key[3] * floatval($movimiento[0][13]); // precio * tipocambio
-		fn_guardarMovimientoDet($result, $key[1], $key[2], $key[3], $tieneIgv, $key[5], $key[6], $key[7], $key[8], $key[9], $precioTipoCambio);
+		fn_guardarMovimientoDet($result, $key[1], $key[2], $key[3], $tieneIgv, $key[5], $key[6], $key[7], $key[8], $key[9], $precioTipoCambio, $key[10]);
 	}
 	echo "OK" ;
 }

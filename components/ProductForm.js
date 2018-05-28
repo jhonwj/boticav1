@@ -29,7 +29,7 @@ export default {
                 <div class="row">
                   <div class="col-md-9">
                     <v-select v-model="producto.marca" :options="marcas">
-                      <span slot="no-options">No se encontró, por favor agreguelo.</span>
+                      <span slot="no-options">No se encontró, por favor agréguelo.</span>
                     </v-select>
                   </div>
                   <div class="col-md-3">
@@ -40,15 +40,17 @@ export default {
               </div>
               <div class="form-group">
                 <label for="Producto">Producto</label>
-                <input type="text" class="form-control" id="Producto" name="producto" placeholder="Producto">
+                <input type="text" class="form-control" placeholder="Producto" v-model="producto.Producto">
               </div>
               <div class="form-group">
                 <label for="Producto">Genero</label>
-                <input type="text" class="form-control" id="Producto" name="producto" placeholder="Producto">
+                <v-select v-model="producto.Genero" :options="generos">
+                  <span slot="no-options">No se encontró, por favor agréguelo.</span>
+                </v-select>
               </div>
               <div class="form-group">
               <label for="Producto">Botapie</label>
-              <input type="text" class="form-control" id="Producto" name="producto" placeholder="Producto">
+              <input type="text" class="form-control" placeholder="Botapie" v-model="producto.Botapie">
             </div>
             </div>
             <div class="col-md-6">
@@ -101,22 +103,30 @@ export default {
                 </div>
 
               </div>
+              <div class=" form-group">
+                <label>Porcentaje Utilidad</label>
+                <input type="number" class="form-control"  placeholder="Porcentaje Utilidad" v-model="producto.PorcentajeUtilidad">
+              </div>
             </div>
           </div>
 
         </div>
         <div class="modal-footer">
-        <button class="btn btn-success" id="btnBuscarFactura">Guardar</button>
+        <button class="btn btn-success" @click="guardarProducto">Guardar</button>
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar <i class="fa fa-close"></i></button>
         </div>
       </div>
       
     `,
-    mounted() {
+    mounted () {
       this.obtenerCategorias()
       this.obtenerMarcas()
       this.obtenerMediciones()
       this.obtenerModelos()
+      this.obtenerTallas()
+    },
+    watch: {
+
     },
     data() {
       return {
@@ -125,19 +135,21 @@ export default {
         mediciones: [],
         categorias: [],
         marcas: [],
+        generos: ['VARON', 'DAMA'],
         message: 'asdasd',
         producto: {
           IdProductoMarca: null,
           IdProductoMedicion: null,
           IdProductoCategoria: null,
           IdProductoModelo: null,
-          IdProductoBotapie: null,
-          IdProductoGenero: null,
+          // IdProductoBotapie: null,
           IdProductoTalla: '',
           Producto: '',
           CodigoBarra: '',
           Color: '',
           PorcentajeUtilidad: '',
+          Botapie: '',
+          Genero: '',
           categoria: null,
           marca: null,
           modelo: null,
@@ -145,7 +157,18 @@ export default {
         }
       }
     },
+    computed: {
+    },
     methods: {
+      generarCodigoBarra() {
+
+      },
+      clearForm() {
+        this.producto.Producto = ''
+        this.producto.Color = ''
+        this.producto.Genero = ''
+        this.producto.talla = ''
+      },
       obtenerTallas() {
         axios.get('/api/index.php/tallas').then((response) => {
           this.tallas = response.data.map(function(talla) {
@@ -203,7 +226,25 @@ export default {
         })
       },
       guardarProducto() {
-        alert('se guardo')
+        axios.post('/api/index.php/productos', this.producto)
+        .then((response) => {
+          $.notify({
+              icon: 'fa fa-check',
+              message: 'Producto guardado correctamente'
+          }, {
+              type: 'success'
+          });
+          $('#nuevo-producto').modal('hide')
+          this.clearForm()
+        })
+        .catch((error) => {
+          $.notify({
+              icon: 'fa fa-check',
+              message: 'Ha ocurrido un error, vuelva a intentarlo'
+          }, {
+              type: 'error'
+          });
+        })
       }
     }
   }

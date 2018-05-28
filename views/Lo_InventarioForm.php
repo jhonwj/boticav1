@@ -18,6 +18,13 @@ include_once("../clases/helpers/Modal.php");
 
 $(document).ready(function(e){
 
+  $('#txtProductoPrecioI').on('change input', function() {
+    var porcentaje = $('#tempProductoPorcentajeUtilidad').val();
+    var precio = parseFloat($(this).val())
+    
+    $('#txtProductoPrecioContado').val(precio + (precio * (porcentaje/100)))
+  })
+
 calcularFlete();
   $("#btnAlmacenOrigen").prop("disabled", true);
   $("#btnAlmacenDestino").prop("disabled", true);
@@ -121,6 +128,7 @@ calcularFlete();
       $("#txtProductoCantidadI").val("0");
       $("#txtProductoPrecioI").val("0.00");
       $('#txtProductoTotal').val('0.00')
+      $('#txtProductoPrecioContado').val('0');
       $("#modalProductoDet").modal("show");
     });
 
@@ -202,7 +210,7 @@ calcularFlete();
 	        $("#tableProductoI tbody tr").each(function(){
 	            arrTableProductos.push([$(this).children("td").eq(0).html(), $(this).children("td").eq(1+4).text(), $(this).children("td").eq(2+4).html(), $(this).children("td").eq(3+4).html(),
 							 												$(this).children("td").eq(4+4).find("#idCheckIGV").is(":checked"), $(this).children("td").eq(6+4).text(), $(this).children("td").eq(8+4).text(),$(this).children("td").eq(10+4).text(),
-						 													$(this).children("td").eq(11+4).find("input[type='date']").val(), $(this).children("td").eq(12+4).find("input").val()])
+						 													$(this).children("td").eq(11+4).find("input[type='date']").val(), $(this).children("td").eq(12+4).find("input").val(), $(this).attr('data-preciocontado')])
 	        });
 	      });
 
@@ -367,7 +375,10 @@ function ListarProductosDet(){
 						{ mData: 'ProductoMedicion' },
 						{ mData: 'PrecioContado' },
             { mData: 'PrecioCosto' }
-            ]
+            ],
+            "rowCallback": function(row, data, index){
+              $(row).attr('data-porcentajeutilidad', data.PorcentajeUtilidad)
+            }
         });
 
         $("#tableProductoDetListar tbody").on("click", "tr", function(e) {
@@ -378,6 +389,7 @@ function ListarProductosDet(){
 				$("#tempProductoDetForma").val($(this).children("td").eq(3).html());
 				$("#tempProductoDetMedida").val($(this).children("td").eq(5).html());
         $("#tempProductoDet").val($(this).children("td").eq(4).html());
+        $("#tempProductoPorcentajeUtilidad").val($(this).attr('data-porcentajeutilidad'))
         $("#modalCantidadI").modal("show");
         $("#txtProductoI").val($("#tempProductoDet").val());
         });
@@ -528,7 +540,7 @@ function agregarProductoDet(productoCantidadDet, productoPrecioDet, incluyeIgv =
               });
 
             if (Encontrado ==0) {
-            var fila = "<tr><td>"+ $("#tempIdProductoDet").val() +
+            var fila = "<tr data-preciocontado='" + $('#txtProductoPrecioContado').val() + "'><td>"+ $("#tempIdProductoDet").val() +
 						"</td><td class=''>"+ $("#tempProductoDetCodigo").val() +
 						"</td><td class=''>"+ $("#tempProductoDetMarca").val() +
 						"</td><td class=''>"+ $("#tempProductoDetForma").val() +
@@ -1049,7 +1061,8 @@ function toggleIGV() {
 			</table>
 		</div>
 		<div class="modal-footer">
-			<button type="button" id="btnAddProveedor" class="btn btn-success">Nuevo</button>
+			<!--<button type="button" id="btnAddProveedor" class="btn btn-success">Nuevo</button>-->
+			<button type="button" class="btn btn-success" data-toggle="modal" data-target="#nuevo-proveedor">Nuevo</button>
 			<button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
 		</div>
 	</div>
@@ -1207,6 +1220,7 @@ function toggleIGV() {
 						<input type="hidden" id="tempProductoDetForma">
 						<input type="hidden" id="tempProductoDetMedida">
           	<input type="hidden" id="tempProductoDet">
+            <input type="hidden" id="tempProductoPorcentajeUtilidad">
             <input type="text" id="txtProductoI" readonly class="form-control">
             <div class="separator"></div>
             <label class="">Cantidad</label>
@@ -1217,9 +1231,13 @@ function toggleIGV() {
             <input type="number" step="any" required id="txtProductoPrecioI"  class="form-control" placeholder="0.00" min="0">
           </div>
           <div class="input-group">
+            <label class="">Sugerencia Precio de Venta</label>
+            <input type="number" step="any" required id="txtProductoPrecioContado"  class="form-control" placeholder="0.00" min="0">
+          </div>
+          <!--<div class="input-group">
             <label class="">TOTAL</label>
             <input type="number" step="any" required id="txtProductoTotal"  class="form-control" placeholder="0.00" min="0">
-          </div>
+          </div>-->
         </div>
       </div>
       <div class="modal-footer">
@@ -1278,12 +1296,19 @@ function toggleIGV() {
 
 
 
-<div class="modal fade" id="nuevo-producto" role="dialog">
-  <div class="modal-dialog modal-lg">
-    <producto-form></producto-form>
+<div id="app">
+  <div class="modal fade" id="nuevo-producto" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <producto-form></producto-form>
+    </div>
+  </div>
+
+  <div class="modal fade" id="nuevo-proveedor" role="dialog">
+    <div class="modal-dialog">
+      <proveedor-form></proveedor-form>
+    </div>
   </div>
 </div>
-
 
 
   <div id="producto-form">
@@ -1300,14 +1325,17 @@ Modal::render('ModalMoneda', [
 
 
 <script type="module" src="../components/ProductForm.js"></script>
+<script type="module" src="../components/ProveedorForm.js"></script>
 <script type="module">
     import ProductoForm from '../components/ProductForm.js';
+    import ProveedorForm from '../components/ProveedorForm.js';
 
-    window.asd= new Vue({
-    el: '#nuevo-producto',
-    components: {
-      ProductoForm
-    }
+    new Vue({
+      el: '#app',
+      components: {
+        ProductoForm,
+        ProveedorForm
+      }
     });
 </script>
 

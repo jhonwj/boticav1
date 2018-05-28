@@ -4,6 +4,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require 'vendor/autoload.php';
 
+$config['debug'] = true;
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
@@ -28,6 +29,9 @@ $container['db'] = function ($c) {
 };
 
 
+function getNow() {
+    return date_create('now', timezone_open('America/Lima'))->format('Y-m-d H:i:s');
+}
 
 
 $app->get('/categorias', function (Request $request, Response $response, array $args) {
@@ -76,7 +80,76 @@ $app->get('/tallas', function (Request $request, Response $response, array $args
 });
 
 
+$app->get('/productos', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Gen_Producto');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
 
 
+$app->get('/proveedores', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Lo_Proveedor');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+
+$app->post('/proveedores', function (Request $request, Response $response) {
+    $proveedor = $request->getParam('Proveedor');
+    $ruc = $request->getParam('Ruc');
+    $direccion = $request->getParam('Direccion');
+    $observacion = $request->getParam('Observacion');
+
+    $insert = $this->db->insert(array('Proveedor', 'Ruc', 'Direccion', 'Observacion', 'FechaReg'))
+                       ->into('Lo_Proveedor')
+                       ->values(array($proveedor, $ruc, $direccion, $observacion, getNow()));
+    
+    $insertId = $insert->execute();
+
+    $data = array(
+        "insertId" => $insertId
+    );
+
+    return $response->withJson($data);
+});
+
+
+$app->post('/productos', function (Request $request, Response $response) {
+    $idProductoMarca = $request->getParam('marca')['IdProductoMarca'];
+    $idProductoMedicion = $request->getParam('medicion')['IdProductoMedicion'];
+    $idProductoCategoria = $request->getParam('categoria')['IdProductoCategoria'];
+    $idProductoModelo = $request->getParam('modelo')['IdProductoModelo'];
+    $idProductoTalla = $request->getParam('talla')['IdProductoTalla'];
+    $idProductoFormaFarmaceutica = 1;
+    $producto = $request->getParam('Producto');
+    $fechaReg = getNow();
+    $hash = time();
+    $controlaStock = 1;
+    $porcentajeUtilidad = $request->getParam('PorcentajeUtilidad');
+    $genero = $request->getParam('Genero');
+    $color = $request->getParam('Color');
+    $botapie = $request->getParam('Botapie');
+
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoModelo', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie'))
+                       ->into('Gen_Producto')
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $idProductoModelo, $idProductoTalla, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie));
+    $insertId = $insert->execute();
+    
+    // Generando codigo de barras
+    $categoria = $request->getParam('categoria')['ProductoCategoria'];
+    $codigoBarra = substr($categoria, 0, 2) . $insertId . substr($producto, 0, 2);
+    
+    $update = $this->db->update(array("CodigoBarra" => $codigoBarra))
+                       ->table('Gen_Producto')
+                       ->where('IdProducto', '=', $insertId);
+    $affectedRows = $update->execute();
+
+    return $response->withJson(array("insertId" => $insertId));
+
+});
 
 $app->run();
