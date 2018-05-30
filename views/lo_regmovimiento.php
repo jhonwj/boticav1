@@ -93,6 +93,9 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
     success: function(respuesta){
         var response = JSON.parse(respuesta);
         console.log(response)
+        
+        $('#verCodigoBarra').attr('href', '/api/index.php/codigobarra?hash=' + response[0].hashMovimiento);
+
         var fila = "";
         $.each(response, function(data, value){
           var total = value.Precio*value.Cantidad;
@@ -322,6 +325,7 @@ function SumarTotalIgvSub(){
         </div>
       </div>
       <div class="modal-footer">
+        <a class="btn btn-warning" target="_blank" id="verCodigoBarra">Codigo de barras</a>
         <button class="btn btn-success" data-dismiss="modal" >Cerrar</button>
       </div>
     </div>

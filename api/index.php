@@ -152,4 +152,35 @@ $app->post('/productos', function (Request $request, Response $response) {
 
 });
 
+
+
+$app->get('/codigobarra', function (Request $request, Response $response, array $args) {
+    $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
+    $hashMovimiento = $request->getParam('hash');
+    
+    $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_ProductoModelo.ProductoModelo, 
+        Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Gen_ProductoTalla.ProductoTalla, Lo_MovimientoDetalle.Cantidad 
+        FROM Lo_MovimientoDetalle 
+        INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        LEFT JOIN Gen_ProductoModelo ON Gen_Producto.IdProductoModelo = Gen_ProductoModelo.IdProductoModelo
+        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla
+        WHERE hashMovimiento = '$hashMovimiento'";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    $barcodes = '';
+    foreach($data as $key => $producto) {
+        for($i = 0; $i < $producto['Cantidad']; $i++) {
+            echo $generator->getBarcode($producto['CodigoBarra'], $generator::TYPE_CODE_128) . '---';
+        }
+    }
+    //var_dump($barcodes);exit();
+    return $barcodes;
+});
+
+
+
 $app->run();

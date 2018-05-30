@@ -18,7 +18,7 @@ export default {
                     </v-select>
                   </div>
                   <div class="col-md-3">
-                    <button type="button" class="btn btn-danger"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" class="btn btn-warning" @click="obtenerCategorias"><i class="fa fa-refresh"></i></button>
                   </div>
                 </div>
                 
@@ -33,7 +33,7 @@ export default {
                     </v-select>
                   </div>
                   <div class="col-md-3">
-                    <button type="button" class="btn btn-danger"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" class="btn btn-warning" @click="obtenerMarcas"><i class="fa fa-refresh"></i></button>                    
                   </div>
                 </div>
                 
@@ -64,7 +64,7 @@ export default {
                     </v-select>
                   </div>
                   <div class="col-md-3">
-                    <button type="button" class="btn btn-danger"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" class="btn btn-warning" @click="obtenerMediciones"><i class="fa fa-refresh"></i></button>
                   </div>
                 </div>
 
@@ -79,7 +79,7 @@ export default {
                     </v-select>
                   </div>
                   <div class="col-md-3">
-                    <button type="button" class="btn btn-danger"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" class="btn btn-warning" @click="obtenerModelos"><i class="fa fa-refresh"></i></button>
                   </div>
                 </div>
 
@@ -98,7 +98,7 @@ export default {
                     </v-select>
                   </div>
                   <div class="col-md-3">
-                    <button type="button" class="btn btn-danger"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" class="btn btn-warning" @click="obtenerTallas"><i class="fa fa-refresh"></i></button>
                   </div>
                 </div>
 

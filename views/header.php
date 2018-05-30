@@ -27,6 +27,8 @@ define("Usuarios", SITE_URL . "views/Seg_UsuarioForm.php");
 define("Roles", SITE_URL . "views/Seg_UsuarioPerfil.php");
 define("CajaYBancoBuscador", SITE_URL . "views/FrmCb_CajaBancoBuscador.php");
 define("BuscarVencimiento", SITE_URL . "views/Lo_BuscarVencimiento.php");
+define("GenerarCodigoBarra", SITE_URL . "views/Lo_GenerarCodigoBarra.php");
+define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
 
  ?>
 
@@ -38,7 +40,7 @@ define("BuscarVencimiento", SITE_URL . "views/Lo_BuscarVencimiento.php");
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>">Botica</a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">Rojas Sport</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >
@@ -48,11 +50,12 @@ define("BuscarVencimiento", SITE_URL . "views/Lo_BuscarVencimiento.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li ><a href= "<?php echo Producto; ?>" class="text-primary-color"><i class="fa fa-"></i>Producto</a></li>
-          <li><a href="<?php echo Marca; ?>" >Laboratorio</a></li>
-          <li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>
+          <li><a href="<?php echo Marca; ?>" >Marca</a></li>
+          <!--<li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>-->
+          <li><a href="<?php echo Modelo; ?>">Modelo</a></li>
           <li><a href="<?php echo Medicion; ?>">Medicion</a></li>
           <li><a href="<?php echo Categoria; ?>">Categoria</a></li>
-          <li><a href="<?php echo Compuesto; ?>">Compuesto</a></li>
+          <!--<li><a href="<?php echo Compuesto; ?>">Compuesto</a></li>-->
         </ul>
       </li>
 
@@ -61,6 +64,7 @@ define("BuscarVencimiento", SITE_URL . "views/Lo_BuscarVencimiento.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="<?php echo Inventario; ?>">MOVIMIENTO</a></li>
+          <!--<li><a href="<?php echo GenerarCodigoBarra; ?>">CODIGO DE BARRA</a></li>-->
           <li role="separator" class="divider"></li>
           <li class="dropdown-header">KARDEX CONTABLE</li>
             <!--<li><a href="<?php echo ReporteKardex."?Tipo=0"; ?>">1. KARDEX</a></li>-->
