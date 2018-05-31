@@ -8,7 +8,7 @@ include_once("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>Botica - Categoria</title>
+ 	<title>Rojas Sport - Categoria</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">

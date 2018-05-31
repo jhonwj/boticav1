@@ -8,7 +8,7 @@ include_once("../clases/helpers/Modal.php");
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>Botica - Reimpresión de documentos</title>
+  <title>Rojas Sport - Reimpresión de documentos</title>
 
  </head>
 <?php include_once 'linker.php'; ?>

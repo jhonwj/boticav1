@@ -154,7 +154,7 @@ $app->post('/productos', function (Request $request, Response $response) {
 
 
 
-$app->get('/codigobarra', function (Request $request, Response $response, array $args) {
+$app->get('/movimiento/productos', function (Request $request, Response $response, array $args) {
     $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
     $hashMovimiento = $request->getParam('hash');
     
@@ -171,15 +171,21 @@ $app->get('/codigobarra', function (Request $request, Response $response, array 
     $stmt->execute();
     $data = $stmt->fetchAll();    
 
+   /* echo "<style>@page {
+        size: 11cm 4cm;
+        margin: 10%;
+    }</style>";
     $barcodes = '';
     foreach($data as $key => $producto) {
         for($i = 0; $i < $producto['Cantidad']; $i++) {
             echo $generator->getBarcode($producto['CodigoBarra'], $generator::TYPE_CODE_128) . '---';
         }
-    }
+    }*/
     //var_dump($barcodes);exit();
-    return $barcodes;
+    return $response->withJson($data);
 });
+
+
 
 
 

@@ -1308,14 +1308,9 @@ function toggleIGV() {
       <proveedor-form></proveedor-form>
     </div>
   </div>
+
+  <codigo-barra-lista></codigo-barra-lista>
 </div>
-
-
-  <div id="producto-form">
-   
-  </div>
-
-
 
 <?php
 Modal::render('ModalMoneda', [
@@ -1326,15 +1321,18 @@ Modal::render('ModalMoneda', [
 
 <script type="module" src="../components/ProductForm.js"></script>
 <script type="module" src="../components/ProveedorForm.js"></script>
+<script type="module" src="../components/CodigoBarraLista.js"></script>
 <script type="module">
     import ProductoForm from '../components/ProductForm.js';
     import ProveedorForm from '../components/ProveedorForm.js';
+    import CodigoBarraLista from '../components/CodigoBarraLista.js';
 
     new Vue({
       el: '#app',
       components: {
         ProductoForm,
-        ProveedorForm
+        ProveedorForm,
+        CodigoBarraLista
       }
     });
 </script>
