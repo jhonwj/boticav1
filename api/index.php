@@ -29,14 +29,27 @@ $container['db'] = function ($c) {
 };
 
 
+
+$app->add(function ($req, $res, $next) {
+    $response = $next($req, $res);
+    return $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+});
+
+
+
 function getNow() {
     return date_create('now', timezone_open('America/Lima'))->format('Y-m-d H:i:s');
 }
 
 
 $app->get('/categorias', function (Request $request, Response $response, array $args) {
+    
+    $select = $this->db->select()->from('Gen_ProductoCategoria')
+                ->whereLike('ProductoCategoria','%' . $request->getParam('q') . '%');
 
-    $select = $this->db->select()->from('Gen_ProductoCategoria');
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
 
@@ -81,9 +94,22 @@ $app->get('/tallas', function (Request $request, Response $response, array $args
 
 
 $app->get('/productos', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Gen_Producto');
-    $stmt = $select->execute();
-    $data = $stmt->fetchAll();
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca, Gen_ProductoModelo.ProductoModelo,
+        Gen_ProductoTalla.ProductoTalla
+        FROM Gen_Producto 
+        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        LEFT JOIN Gen_ProductoModelo ON Gen_Producto.IdProductoModelo = Gen_ProductoModelo.IdProductoModelo
+        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla
+        WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.CodigoBarra LIKE '%" . $request->getParam('q') . "%'";
+    
+    if ($request->getParam('limit')) {
+        $select .= " LIMIT " . $request->getParam('limit');
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
 
     return $response->withJson($data);
 });
@@ -171,22 +197,47 @@ $app->get('/movimiento/productos', function (Request $request, Response $respons
     $stmt->execute();
     $data = $stmt->fetchAll();    
 
-   /* echo "<style>@page {
-        size: 11cm 4cm;
-        margin: 10%;
-    }</style>";
-    $barcodes = '';
-    foreach($data as $key => $producto) {
-        for($i = 0; $i < $producto['Cantidad']; $i++) {
-            echo $generator->getBarcode($producto['CodigoBarra'], $generator::TYPE_CODE_128) . '---';
-        }
-    }*/
-    //var_dump($barcodes);exit();
     return $response->withJson($data);
 });
 
 
 
 
+$app->get('/movimientos/tipos', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Lo_MovimientoTipo')->whereLike('TipoMovimiento', '%' . $request->getParam('q') . '%');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+
+$app->get('/monedas', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Gen_Moneda')->whereLike('Moneda', '%' . $request->getParam('q') . '%');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
+    $handler = $this->notFoundHandler; // handle using the default Slim page not found handler
+    return $handler($req, $res);
+});
 
 $app->run();
