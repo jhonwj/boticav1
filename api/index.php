@@ -116,9 +116,34 @@ $app->get('/productos', function (Request $request, Response $response, array $a
 
 
 $app->get('/proveedores', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Lo_Proveedor');
+    $q = $request->getParam('q');
+    $select = $this->db->select()->from('Lo_Proveedor')
+            ->whereLike('Proveedor', "%$q%")
+            ->orWhereLike('Ruc', "%$q%");
+
+    if ($request->getParam('limit')) {
+        $limit = $request->getParam('limit');
+        $offset = 0;
+
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select = $select->limit((int)$limit, $offset);
+    }
+
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+$app->get('/proveedores/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) as total FROM Lo_Proveedor";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
 
     return $response->withJson($data);
 });
@@ -212,6 +237,63 @@ $app->get('/movimientos/tipos', function (Request $request, Response $response, 
 });
 
 
+
+$app->post('/movimientos', function (Request $request, Response $response) { 
+    // start verificar Movimiento
+    $select = "SELECT * FROM Lo_Movimiento
+	WHERE IdMovimientoTipo = '" . $request->getParam('movimiento')['movimientoTipo']['IdMovimientoTipo']
+	. "' AND IdProveedor = '" . $request->getParam('movimiento')['proveedor']['IdProveedor']
+	. "' AND Serie = '" . $request->getParam('movimiento')['Serie']
+    . "' AND Numero = '" . $request->getParam('movimiento')['Numero'] . "'";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    if (count($stmt->fetchAll())) {
+        return '';
+    }
+    // end verificar Movimiento
+
+    // start Insertar Movimiento
+    $idMovimientoTipo = $request->getParam('movimiento')['movimientoTipo']['IdMovimientoTipo'];
+    $idProveedor = $request->getParam('movimiento')['proveedor']['IdProveedor'];
+    $serie = $request->getParam('movimiento')['Serie'];
+    $numero = $request->getParam('movimiento')['Numero'];
+    $movimientoFecha = $request->getParam('movimiento')['MovimientoFecha'];
+    $almacenOrigen = $request->getParam('movimiento')['almacenOrigen']['IdAlmacen'];
+    $almacenDestino = $request->getParam('movimiento')['almacenDestino']['IdAlmacen'];
+    $anulado = 0;
+    $fechaReg = getNow();
+    $usuarioReg = 'jeam';
+    $hash = time();
+    $fechaStock = $request->getParam('movimiento')['FechaStock'];
+    $percepcion = 0;
+    $esCredito = $request->getParam('movimiento')['EsCredito'];
+    $fechaVenCredito = $request->getParam('movimiento')['FechaVenCredito'];
+    $fechaPeriodoTributario = $request->getParam('movimiento')['FechaPeriodoTributario'];
+    $tipoCambio = $request->getParam('movimiento')['TipoCambio'];
+    $moneda = $request->getParam('movimiento')['Moneda'];
+   
+    $insert = $this->db->insert(array('IdMovimientoTipo', 'IdProveedor', 'Serie', 'Numero', 'MovimientoFecha', 'IdAlmacenOrigen',
+                        'IdAlmacenDestino', 'Anulado', 'FechaReg', 'UsuarioReg', 'Hash', 'FechaStock', 'Percepcion', 'EsCredito',
+                        'FechaVenCredito', 'FechaPeriodoTributario', 'TipoCambio', 'Moneda'))
+                       ->into('Lo_Movimiento')
+                       ->values(array($idMovimientoTipo, $idProveedor, $serie, $numero, $movimientoFecha, $almacenOrigen, 
+                       $almacenDestino, $anulado, $fechaReg, $usuarioReg, $hash, $fechaStock, $percepcion, $esCredito, $fechaVenCredito,
+                       $fechaPeriodoTributario, $tipoCambio, $moneda));
+    
+    $insertId = $insert->execute();
+
+    $data = array(
+        "insertId" => $insertId
+    );
+
+    return $response->withJson($data);
+    // end insertar Movimiento
+
+});
+
+
+
 $app->get('/monedas', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Gen_Moneda')->whereLike('Moneda', '%' . $request->getParam('q') . '%');
     $stmt = $select->execute();
@@ -221,7 +303,45 @@ $app->get('/monedas', function (Request $request, Response $response, array $arg
 });
 
 
+$app->get('/almacenes', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Lo_Almacen');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
 
+    return $response->withJson($data);
+});
+
+
+$app->get('/consultarRUC', function (Request $request, Response $response, array $args) {
+    $headers = array(
+        "Content-Type: application/json; charset=UTF-8",
+        "Cache-Control: no-cache",
+        "Pragma: no-cache"
+    );
+    //var_dump("https://www.facturacionelectronica.us/facturacion/controller/ws_consulta_rucdni_v2.php?usuario=20573027125&password=5i573m45&documento=" . $_GET['type'] . "&nro_documento=" . $_GET['numero']);
+    $ch = curl_init("https://www.facturacionelectronica.us/facturacion/controller/ws_consulta_rucdni_v2.php?usuario=20573027125&password=5i573m45&documento=" . $_GET['type'] . "&nro_documento=" . $_GET['numero']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+    //quitar en produccion
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+    //curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    //curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    //curl_setopt($ch, CURLOPT_USERPWD, "PRUEBA:LOG");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $response = curl_exec($ch);
+    // Se cierra el recurso CURL y se liberan los recursos del sistema
+    curl_close($ch);
+    if (!$response) {
+        return false;
+    } else {
+      header('Content-Type: application/json');
+      echo $response;
+    }
+});
 
 
 
