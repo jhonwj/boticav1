@@ -94,7 +94,7 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
         var response = JSON.parse(respuesta);
         console.log(response)
         
-        $('#verCodigoBarra').attr('href', '/api/index.php/codigobarra?hash=' + response[0].hashMovimiento);
+        $('#verCodigoBarra').attr('href', '/views/codigoBarra.php?hash=' + response[0].hashMovimiento);
 
         var fila = "";
         $.each(response, function(data, value){

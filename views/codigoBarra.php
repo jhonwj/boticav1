@@ -82,7 +82,7 @@
 <body>
 
 <div id="app">
-    <codigo-barra-lista hash-movimiento="1527526467"></codigo-barra-lista>
+    <codigo-barra-lista hash-movimiento="<?php echo $_GET['hash']?>"></codigo-barra-lista>
 </div>
 
 

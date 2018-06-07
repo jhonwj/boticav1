@@ -10,7 +10,7 @@ export default {
             <label>{{ producto.ProductoTalla }}</label>
         </div>
         <div class="barcode-left">
-            <div class="item negro">ARTICULO</div><div class="item derecha">{{ producto.Producto.substring(0, 12) }}</div><br />
+            <div class="item negro">ARTICULO</div><div class="item derecha">{{ producto.Producto.substring(0, 12).toUpperCase() }}</div><br />
             <div class="item negro">MARCA</div><div class="item derecha">{{ producto.ProductoMarca }}</div><br />
             <div class="item negro">MODELO</div><div class="item derecha">{{ producto.ProductoModelo }}</div><br />
             <div class="item negro">COLOR</div><div class="item derecha">{{ producto.Color }}</div>

@@ -1,4 +1,7 @@
 <?php
+// quitar esto cuando este mejorada la validacion
+//include_once('../views/validateUser.php');
+
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
@@ -184,17 +187,18 @@ $app->post('/productos', function (Request $request, Response $response) {
     $genero = $request->getParam('Genero');
     $color = $request->getParam('Color');
     $botapie = $request->getParam('Botapie');
+    $anulado = $request->getParam('Anulado');
 
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoModelo', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoModelo', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $idProductoModelo, $idProductoTalla, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $idProductoModelo, $idProductoTalla, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado));
     $insertId = $insert->execute();
     
-    // Generando codigo de barras
+    // Generando codigo de barras  // actualizar el nombre para que sea unico
     $categoria = $request->getParam('categoria')['ProductoCategoria'];
     $codigoBarra = substr($categoria, 0, 2) . $insertId . substr($producto, 0, 2);
     
-    $update = $this->db->update(array("CodigoBarra" => $codigoBarra))
+    $update = $this->db->update(array("CodigoBarra" => $codigoBarra, "Producto" => $producto . '-' . $codigoBarra))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $insertId);
     $affectedRows = $update->execute();
@@ -248,8 +252,12 @@ $app->post('/movimientos', function (Request $request, Response $response) {
 
     $stmt = $this->db->query($select);
     $stmt->execute();
+    
     if (count($stmt->fetchAll())) {
-        return '';
+        $data = array(
+            "error" => 'Error: Movimiento duplicado'
+        );
+        return $response->withJson($data);
     }
     // end verificar Movimiento
 
@@ -284,12 +292,38 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     $insertId = $insert->execute();
 
     $data = array(
-        "insertId" => $insertId
+        "hash" => $hash
     );
-
-    return $response->withJson($data);
     // end insertar Movimiento
+    
+    // start Movimiento Detalle
+    $productos = $request->getParam('productos');
+    foreach($productos as $producto) {
+        if ($producto['total'] > 0) {
+            $idProducto = $producto['IdProducto'];
+            $cantidad = $producto['cantidad'];
+            $tieneIgv = $producto['TieneIgv'];
+            $precio = $producto['precio'];
+            $nuevoPrecioContado = $producto['nuevoPrecioContado'];
+            $idLote = $producto['IdLote'];
+            
+            $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote'))
+            ->into('Lo_MovimientoDetalle')
+            ->values(array($hash, $idProducto, $cantidad, $tieneIgv, $precio, $idLote));
+            $insert->execute();
+            
+            // start actualizar precioventa producto
+            $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
+                               ->table('Gen_Producto')
+                               ->where('IdProducto', '=', $idProducto);
+            $update->execute();
+            // end actualizar precioventa producto
+        }
+    }
+    // end Movimiento Detalle
 
+    
+    return $response->withJson($data);
 });
 
 
