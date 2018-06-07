@@ -61,7 +61,8 @@ $app->get('/categorias', function (Request $request, Response $response, array $
 
 
 $app->get('/marcas', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Gen_ProductoMarca');
+    $select = $this->db->select()->from('Gen_ProductoMarca')
+                ->whereLike('ProductoMarca','%' . $request->getParam('q') . '%');
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
 
@@ -79,7 +80,8 @@ $app->get('/mediciones', function (Request $request, Response $response, array $
 
 
 $app->get('/modelos', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Gen_ProductoModelo');
+    $select = $this->db->select()->from('Gen_ProductoModelo')
+                ->whereLike('ProductoModelo','%' . $request->getParam('q') . '%');
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
 
@@ -88,7 +90,8 @@ $app->get('/modelos', function (Request $request, Response $response, array $arg
 
 
 $app->get('/tallas', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Gen_ProductoTalla');
+    $select = $this->db->select()->from('Gen_ProductoTalla')
+                ->whereLike('ProductoTalla','%' . $request->getParam('q') . '%');
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
 
@@ -98,16 +101,41 @@ $app->get('/tallas', function (Request $request, Response $response, array $args
 
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca, Gen_ProductoModelo.ProductoModelo,
-        Gen_ProductoTalla.ProductoTalla
+        Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
         FROM Gen_Producto 
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
         LEFT JOIN Gen_ProductoModelo ON Gen_Producto.IdProductoModelo = Gen_ProductoModelo.IdProductoModelo
-        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla
-        WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.CodigoBarra LIKE '%" . $request->getParam('q') . "%'";
+        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
     
+    if ($request->getParam('filter')) {
+        $filter = $request->getParam('filter');
+        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
+                   "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
+                   "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
+                   "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
+                   "%' ";        
+    } else {
+        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
+    }
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
     if ($request->getParam('limit')) {
-        $select .= " LIMIT " . $request->getParam('limit');
+        $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
     }
 
     $stmt = $this->db->query($select);
@@ -116,6 +144,18 @@ $app->get('/productos', function (Request $request, Response $response, array $a
 
     return $response->withJson($data);
 });
+
+
+$app->get('/productos/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) as total FROM Gen_Producto";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
 
 
 $app->get('/proveedores', function (Request $request, Response $response, array $args) {
@@ -188,6 +228,36 @@ $app->post('/productos', function (Request $request, Response $response) {
     $color = $request->getParam('Color');
     $botapie = $request->getParam('Botapie');
     $anulado = $request->getParam('Anulado');
+    $categoria = $request->getParam('categoria')['ProductoCategoria'];
+
+    // Actualizamos el producto si le pasamos el ID
+    if ($request->getParam('IdProducto')) {
+        // aqui se actualiza el producto si existe
+        $idProducto = $request->getParam('IdProducto');
+        $codigoBarra = $request->getParam('CodigoBarra');
+        if (!$codigoBarra) {
+            $codigoBarra = substr($categoria, 0, 2) . $idProducto . substr($producto, 0, 2);
+            $producto = $producto . '-' . $codigoBarra;
+        }
+        $update = $this->db->update(array(
+                            "CodigoBarra" => $codigoBarra, 
+                            "Producto" => $producto,
+                            "IdProductoMarca" => $idProductoMarca,
+                            "IdProductoFormaFarmaceutica" => $idProductoFormaFarmaceutica,
+                            "IdProductoMedicion" => $idProductoMedicion,
+                            "IdProductoCategoria" => $idProductoCategoria,
+                            "IdProductoModelo" => $idProductoModelo,
+                            "IdProductoTalla" => $idProductoTalla,
+                            "ControlaStock" => $controlaStock,
+                            "PorcentajeUtilidad" => $porcentajeUtilidad,
+                            "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado
+                        ))
+                       ->table('Gen_Producto')
+                       ->where('IdProducto', '=', $idProducto);
+        $affectedRows = $update->execute();
+        return $response->withJson(array("affectedRows" => $affectedRows));
+    }
+    // fin actualizacion producto
 
     $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoModelo', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado'))
                        ->into('Gen_Producto')
@@ -195,7 +265,6 @@ $app->post('/productos', function (Request $request, Response $response) {
     $insertId = $insert->execute();
     
     // Generando codigo de barras  // actualizar el nombre para que sea unico
-    $categoria = $request->getParam('categoria')['ProductoCategoria'];
     $codigoBarra = substr($categoria, 0, 2) . $insertId . substr($producto, 0, 2);
     
     $update = $this->db->update(array("CodigoBarra" => $codigoBarra, "Producto" => $producto . '-' . $codigoBarra))
