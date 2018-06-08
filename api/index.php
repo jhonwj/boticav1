@@ -59,6 +59,19 @@ $app->get('/categorias', function (Request $request, Response $response, array $
     return $response->withJson($data);
 });
 
+$app->post('/categorias', function (Request $request, Response $response, array $args) {
+    
+    $productoCategoria = $request->getParam('ProductoCategoria');
+    $anulado = 0;
+
+    $insert = $this->db->insert(array('ProductoCategoria', 'Anulado', 'FechaReg'))
+                       ->into('Gen_ProductoCategoria')
+                       ->values(array($productoCategoria, $anulado, getNow()));
+    $insertId = $insert->execute();
+    
+    return $response->withJson(array("insertId" => $insertId, "ProductoCategoria" => $productoCategoria));
+});
+
 
 $app->get('/marcas', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Gen_ProductoMarca')
@@ -67,6 +80,19 @@ $app->get('/marcas', function (Request $request, Response $response, array $args
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
+});
+
+$app->post('/marcas', function (Request $request, Response $response, array $args) {
+    
+    $productoMarca = $request->getParam('ProductoMarca');
+    $anulado = 0;
+
+    $insert = $this->db->insert(array('ProductoMarca', 'Anulado', 'FechaReg'))
+                       ->into('Gen_ProductoMarca')
+                       ->values(array($productoMarca, $anulado, getNow()));
+    $insertId = $insert->execute();
+    
+    return $response->withJson(array("insertId" => $insertId, "ProductoMarca" => $productoMarca));
 });
 
 
