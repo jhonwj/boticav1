@@ -23,8 +23,7 @@ body:before {
   width: 100%;
   height: 100%;
   display: block;
-  background: rgba(255,255,255,0);
-  background-image: linear-gradient(to top, rgba(255,255,255,0), rgba(88,178,23,0.5));
+  background: #ecf0f1;
   position: absolute;
 }
 .login-box {
@@ -49,8 +48,7 @@ body:before {
   box-sizing: border-box;
 }
 .login-header {
-  background: #01b3eb;
-  background-image: linear-gradient(to bottom, #00a9e1, rgba(148,238,83,0.8));
+  background: #e74c3c;
   padding: 30px;
   text-align: center;
   color: #fff;

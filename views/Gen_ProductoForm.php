@@ -23,7 +23,7 @@ include_once("../clases/helpers/Modal.php");
   }
 </script>
 
-<iframe src="/nuevo/index.html#/productos" width="100%" height="800px" frameborder="0" scrolling="no"  onload="resizeIframe(this)"></iframe>
+<iframe src="/nuevo/index.html#/productos" width="100%" height="700px" frameborder="0" scrolling="no"  onload="resizeIframe(this)"></iframe>
 
 
 </html>

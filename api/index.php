@@ -1,6 +1,6 @@
 <?php
 // quitar esto cuando este mejorada la validacion
-include_once('../views/validateUser.php');
+// include_once('../views/validateUser.php');
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
@@ -113,6 +113,7 @@ $app->get('/productos', function (Request $request, Response $response, array $a
         $filter = $request->getParam('filter');
         $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
                    "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
+                   "%' OR Gen_Producto.Color LIKE '%" . $filter . 
                    "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
                    "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
                    "%' ";        

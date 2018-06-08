@@ -1,5 +1,5 @@
 <?php
-define("SITE_URL", '/');
+define("SITE_URL", "http://".$_SERVER['SERVER_NAME'].'/');
 define("Producto", SITE_URL . "views/Gen_ProductoForm.php");
 define("Forma_Farmaceutica", SITE_URL . "views/Gen_ProductoFormaFarmaceuticaForm.php");
 define("Medicion", SITE_URL . "views/Gen_ProductoMedicionForm.php");

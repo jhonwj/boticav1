@@ -6,7 +6,7 @@ include_once("../clases/BnGeneral.php");
   <!DOCTYPE html>
  <html>
  <head>
-  <title>Rojas Sport - Laboratorio</title>
+  <title>Rojas Sport - Marca</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
@@ -58,7 +58,7 @@ include_once("../clases/BnGeneral.php");
   <table id="tableProductoMarca" class="table table-striped table-bordered">
     <thead>
       <th class="">ID</th>
-      <th>Laboratorio</th>
+      <th>Marca</th>
       <th>Estado</th>
       <th>FechaReg</th>
       <th>UsuarioReg</th>
@@ -77,14 +77,14 @@ include_once("../clases/BnGeneral.php");
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title">Añadir Laboratorio</h4>
+              <h4 class="modal-title">Añadir Marca</h4>
       </div>
       <div class="modal-body">
         <form id="modal-form" action="../controllers/Gen_ProductoMarcaGuardar.php" method="get">
                <input type="hidden" class="form-control" id="IdProducto"  name="idproductomarca">
             <div class="form-group">
-               <label for="MarcaProducto">Laboratorio</label>
-               <input type="text" class="form-control" id="MarcaProducto"  name="productomarca" placeholder="Laboratorio">
+               <label for="MarcaProducto">Marca</label>
+               <input type="text" class="form-control" id="MarcaProducto"  name="productomarca" placeholder="Marca">
             </div>
             <input type="hidden" name="usuario" value="Jeam">
       </div>

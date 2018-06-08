@@ -1,8 +1,8 @@
 <?php
 include_once("../clases/DtGeneral.php");
 include_once("../clases/BnGeneral.php");
-include_once("header.php");
-header( 'Content-Type: text/html;charset=utf-8' );
+include_once("../views/header.php");
+// header( 'Content-Type: text/html;charset=utf-8' );
 $productoMarca=$_POST['productomarca'];
 $usuario=$_POST['usuario'];
 $idproductoMarca=$_POST['idproductomarca'];

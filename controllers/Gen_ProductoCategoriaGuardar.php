@@ -1,7 +1,7 @@
 <?php
 include_once("../clases/DtGeneral.php");
 include_once("../clases/BnGeneral.php");
-include_once("header.php");
+include_once("../views/header.php");
 header( 'Content-Type: text/html;charset=utf-8' );
 $productoCategoria=$_GET['productocategoria'];
 $usuario=$_GET['usuario'];
