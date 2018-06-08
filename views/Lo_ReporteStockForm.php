@@ -218,7 +218,6 @@ function listarStock(almacen, serverSide = false, table = 'tableProducto', prove
             "aoColumns": [
               { mData: 'Codigo' },
               { mData: 'Producto' },
-              { mData: 'formafarmaceutica' },
               { mData: 'marca' } ,
               { mData: 'categoria' },
             { mData: 'StockMinimo' },
@@ -387,8 +386,7 @@ function listarAlmacen(){
         <thead>
           <th>CODIGO</th>
           <th>PRODUCTO</th>
-					<th>FORMA FARMACEUTICA</th>
-          <th>LABORATORIO</th>
+          <th>MARCA</th>
           <th>CATEGORIA</th>
           <th>STOCK MINIMO</th>
           <th>CONTROLA STOCK</th>
@@ -529,7 +527,7 @@ function listarAlmacen(){
           <th>CODIGO</th>
           <th>PRODUCTO</th>
 					<th>FORMA FARMACEUTICA</th>
-          <th>LABORATORIO</th>
+          <th>MARCA</th>
           <th>CATEGORIA</th>
           <th>STOCK MINIMO</th>
           <th>CONTROLA STOCK</th>

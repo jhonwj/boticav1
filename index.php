@@ -17,13 +17,15 @@ body {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  margin: 0;
 }
 body:before {
   content: "";
   width: 100%;
   height: 100%;
   display: block;
-  background: #ecf0f1;
+  background: url('/resources/images/ropa.jpg') no-repeat;
+  background-size: cover;
   position: absolute;
 }
 .login-box {
