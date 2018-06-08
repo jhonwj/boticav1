@@ -1,6 +1,6 @@
 <?php
 // quitar esto cuando este mejorada la validacion
-//include_once('../views/validateUser.php');
+include_once('../views/validateUser.php');
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;

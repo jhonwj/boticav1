@@ -14,7 +14,7 @@ if (!isset($_SESSION['user'])) {
     window.location.href = "/"
   </script>
   <?php
-    header('Location: ' . 'http://' . $_SERVER['HTTP_HOST']);
+    //header('Location: ' . 'http://' . $_SERVER['HTTP_HOST']);
     exit();
 }
 
