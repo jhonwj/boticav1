@@ -132,6 +132,20 @@ $app->get('/modelos', function (Request $request, Response $response, array $arg
     return $response->withJson($data);
 });
 
+$app->post('/modelos', function (Request $request, Response $response, array $args) {
+    
+    $productoModelo = $request->getParam('ProductoModelo');
+    $anulado = 0;
+
+    $insert = $this->db->insert(array('ProductoModelo', 'Anulado', 'FechaReg'))
+                       ->into('Gen_ProductoModelo')
+                       ->values(array($productoModelo, $anulado, getNow()));
+    $insertId = $insert->execute();
+    
+    return $response->withJson(array("insertId" => $insertId, "ProductoModelo" => $productoModelo));
+});
+
+
 
 $app->get('/tallas', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Gen_ProductoTalla')
