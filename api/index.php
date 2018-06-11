@@ -13,8 +13,11 @@ $config['addContentLengthHeader'] = false;
 
 $config['db']['host']   = "127.0.0.1";
 $config['db']['user']   = "root";
+// $config['db']['user']   = "neurosys_rojas";
 $config['db']['pass']   = "";
+// $config['db']['pass']   = ")-9OkYjdiU1k";
 $config['db']['dbname'] = "neurofac_rojas";
+// $config['db']['dbname'] = "neurosys_rojas";
 
 $app = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
