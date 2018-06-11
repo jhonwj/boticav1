@@ -51,8 +51,8 @@ $(document).ready(function(e){
         var fila = "";
         $.each(response, function(data, value){
         	fila = "<tr><td>"+value.IdDocVenta+
-					"</td><td>"+value.Codigo+
-					"</td><td>"+value.ProductoFormaFarmaceutica+
+					"</td><td>"+value.CodigoBarra+
+					// "</td><td>"+value.ProductoFormaFarmaceutica+
 					"</td><td>"+value.ProductoMarca+
 					"</td><td>"+value.Producto+
 					"</td><td>"+value.ProductoMedicion+
@@ -185,8 +185,8 @@ function EliminarRegVenta(docVenta){
 				<table id="tableProducto" style="overflow-x:auto;" class="table table-bordered table-striped">
 					<thead>
 						<th>IdDocVenta</th>
-						<th>Codigo</th>
-						<th>Forma</th>
+						<th>Codigo Barra</th>
+						<!--<th>Forma</th>-->
 						<th>Marca</th>
 						<th>Producto</th>
 						<th>Medicion</th>

@@ -74,10 +74,25 @@ $app->post('/categorias', function (Request $request, Response $response, array 
 
 
 $app->get('/marcas', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Gen_ProductoMarca')
-                ->whereLike('ProductoMarca','%' . $request->getParam('q') . '%');
-    $stmt = $select->execute();
-    $data = $stmt->fetchAll();
+    $q = $request->getParam('q');
+
+    $select = "SELECT * FROM Gen_ProductoMarca";
+    $select .= " WHERE ProductoMarca LIKE '%" . $q . "%' ";
+
+    if ($request->getParam('limit')) {
+        $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();  
 
     return $response->withJson($data);
 });
@@ -187,23 +202,24 @@ $app->get('/productos/count', function (Request $request, Response $response, ar
 
 $app->get('/proveedores', function (Request $request, Response $response, array $args) {
     $q = $request->getParam('q');
-    $select = $this->db->select()->from('Lo_Proveedor')
-            ->whereLike('Proveedor', "%$q%")
-            ->orWhereLike('Ruc', "%$q%");
+
+    $select = "SELECT *, IFNULL(CONCAT(Ruc, ' - ', Proveedor), '-') AS ProveedorRuc FROM Lo_Proveedor";
+    $select .= " WHERE Proveedor LIKE '%" . $q . "%' OR Ruc LIKE '%" . $q . "%' ";
 
     if ($request->getParam('limit')) {
         $limit = $request->getParam('limit');
         $offset = 0;
-
         if ($request->getParam('page')) {
             $page = $request->getParam('page');
             $offset = (--$page) * $limit;
         }
-        $select = $select->limit((int)$limit, $offset);
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
     }
 
-    $stmt = $select->execute();
-    $data = $stmt->fetchAll();
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();  
 
     return $response->withJson($data);
 });

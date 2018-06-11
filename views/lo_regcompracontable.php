@@ -90,8 +90,8 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
            check= "<input type='checkbox' checked>"
           }
           fila = "<tr><td>"+value.hashMovimiento+
-          "</td><td>"+value.Codigo+
-          "</td><td>"+value.ProductoFormaFarmaceutica+
+          "</td><td>"+value.CodigoBarra+
+          // "</td><td>"+value.ProductoFormaFarmaceutica+
           "</td><td>"+value.ProductoMarca+
           "</td><td>"+value.Producto+
           // "</td><td>"+value.PrecioContado+
@@ -231,8 +231,8 @@ function SumarTotalIgvSub(){
         <table id="tableProducto"  class="table table-bordered table-striped">
           <thead>
             <th>#</th>
-            <th>Codigo</th>
-            <th>Forma</th>
+            <th>Codigo Barra</th>
+            <!--<th>Forma</th>-->
             <th>Marca</th>
             <th>Producto</th>
             <!-- <th>Precio Venta</th> -->

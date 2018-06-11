@@ -50,11 +50,11 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li ><a href= "<?php echo Producto; ?>" class="text-primary-color"><i class="fa fa-"></i>Producto</a></li>
-          <li><a href="<?php echo Marca; ?>" >Marca</a></li>
+          <!--<li><a href="<?php echo Marca; ?>" >Marca</a></li>-->
           <!--<li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>-->
-          <li><a href="<?php echo Modelo; ?>">Modelo</a></li>
+          <!--<li><a href="<?php echo Modelo; ?>">Modelo</a></li>
           <li><a href="<?php echo Medicion; ?>">Medicion</a></li>
-          <li><a href="<?php echo Categoria; ?>">Categoria</a></li>
+          <li><a href="<?php echo Categoria; ?>">Categoria</a></li>-->
           <!--<li><a href="<?php echo Compuesto; ?>">Compuesto</a></li>-->
         </ul>
       </li>
@@ -78,10 +78,10 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
           <li><a href="<?php echo RegMovimiento; ?>">REGISTRO DE MOVIMIENTO</a></li>
           <li><a href="<?php echo RegCompraContable; ?>">REGISTRO DE COMPRA CONTABLE</a></li>
           <li role="separator" class="divider"></li>
-          <li><a href="<?php echo BuscarVencimiento; ?>">PRODUCTOS POR VENCER</a></li>
+          <!--<li><a href="<?php echo BuscarVencimiento; ?>">PRODUCTOS POR VENCER</a></li>-->
         </ul>
       </li>
-      <li><a href="<?php echo Experto; ?>">Sistema Experto</a></li>
+      <!--<li><a href="<?php echo Experto; ?>">Sistema Experto</a></li>-->
       <li class="dropdown">
         <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Ventas
         <span class="caret"></span></a>
@@ -91,7 +91,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
-          <li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>
+          <!--<li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
           <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->

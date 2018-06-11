@@ -605,6 +605,7 @@ $("#formAddCliente").submit(function(e){
   $('#codigoBarra').on('keypress', function(e) {
     if(e.which == 13) {
       cargarProducto($('#codigoBarra').val());
+      $('#codigoBarra').val('')
       return false;
     }
   });
@@ -1083,7 +1084,7 @@ function cargarPreOrden(row) {
 
 <div class="pull-right">
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPreOrden"><i class="fa fa-upload fa-lg"></i>Cargar Pre orden</button>
-  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalProformaVenta"><i class="fa fa-file-pdf-o fa-lg"></i>Crear Proforma</button>
+  <!--<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalProformaVenta"><i class="fa fa-file-pdf-o fa-lg"></i>Crear Proforma</button>-->
   <button id="btnSave" type="button" class="btn btn-primary" name="button"><i class="fa fa-money fa-lg"></i>   Efectuar Venta</button>
   <button id="btnClean" type="button" class="btn btn-warning" name="button"><i class="fa fa-eraser fa-lg"></i>Limpiar</button>
 </div>

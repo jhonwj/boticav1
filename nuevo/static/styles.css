@@ -5,3 +5,6 @@
     width: 1%;
     margin-bottom: 0;
 }
+.upper {
+    text-transform: uppercase;
+}

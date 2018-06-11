@@ -605,7 +605,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 	function devolverProductosRegVenta($idDocVenta)
 	{
 		//$Ssql = " call Sb_ListarProductosRegVenta($idDocVenta);";
-		$Ssql = "SELECT Gen_Producto.IdProducto, Gen_Producto.Producto, Gen_Producto.Codigo, Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaDet.IdDocVenta, Ve_DocVentaDet.Cantidad, Ve_DocVentaDet.Precio, Gen_ProductoMarca.ProductoMarca
+		$Ssql = "SELECT Gen_Producto.IdProducto, Gen_Producto.Producto, Gen_Producto.Codigo, Gen_Producto.CodigoBarra, Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaDet.IdDocVenta, Ve_DocVentaDet.Cantidad, Ve_DocVentaDet.Precio, Gen_ProductoMarca.ProductoMarca
 		FROM Gen_Producto
 		INNER JOIN Ve_DocVentaDet ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
 		INNER JOIN Gen_ProductoFormaFarmaceutica ON Gen_ProductoFormaFarmaceutica.IdProductoFormaFarmaceutica = Gen_Producto.IdProductoFormaFarmaceutica
@@ -618,7 +618,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function devolverProductosRegMov($idMov)
 	{
-		$Ssql = "Select Lo_MovimientoDetalle.hashMovimiento, Gen_Producto.Codigo, 
+		$Ssql = "Select Lo_MovimientoDetalle.hashMovimiento, Gen_Producto.Codigo, Gen_Producto.CodigoBarra, 
 		Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Gen_Producto.Producto, 
 		Gen_Producto.PrecioContado, Gen_ProductoMedicion.ProductoMedicion, Lo_MovimientoDetalle.Cantidad,
 		Lo_MovimientoDetalle.TieneIgv, Lo_MovimientoDetalle.Precio, Gen_ProductoMarca.ProductoMarca, Lo_MovimientoDetalle.ISC

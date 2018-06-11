@@ -98,6 +98,7 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
 
         var fila = "";
         $.each(response, function(data, value){
+          console.log(value)
           var total = value.Precio*value.Cantidad;
           var igv = "";
           if (value.TieneIgv == null || value.TieneIgv =="0") {
@@ -105,18 +106,19 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
           }else{
            igv = total * 0.18;
           }
-          var totalGeneral = parseFloat(total) + parseFloat(igv) + parseFloat(value.ISC)
+          var isc = parseFloat(value.ISC) || 0
+          var totalGeneral = parseFloat(total) + parseFloat(igv) + isc 
 
           fila = "<tr><td>"+value.hashMovimiento+
-          "</td><td>"+value.Codigo+
-          "</td><td>"+value.ProductoFormaFarmaceutica+
+          "</td><td>"+value.CodigoBarra+
+          // "</td><td>"+value.ProductoFormaFarmaceutica+
           "</td><td>"+value.ProductoMarca+
           "</td><td>"+value.Producto+
           // "</td><td>"+value.PrecioContado+
           "</td><td>"+value.ProductoMedicion+
           "</td><td>"+value.Cantidad+
           "</td><td>"+igv+
-          "</td><td>"+value.ISC+
+          // "</td><td>"+value.ISC+
           "</td><td>"+value.Precio+
           "</td><td>"+totalGeneral.toFixed(2)+
           "</td></tr>";
@@ -308,15 +310,14 @@ function SumarTotalIgvSub(){
         <table id="tableProducto"  class="table table-bordered table-striped">
           <thead>
             <th>#</th>
-            <th>Codigo</th>
-            <th>Forma</th>
-            <th>Laboratorio</th>
+            <th>Codigo Barra</th>
+            <th>Marca</th>
             <th>Producto</th>
             <!-- <th>Precio Venta</th> -->
             <th>Medida</th>
             <th>Cantidad</th>
             <th>IGV</th>
-            <th>ISC</th>
+            <!--<th>ISC</th>-->
             <th>Precio</th>
             <th>Total</th>
           </thead>

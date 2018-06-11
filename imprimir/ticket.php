@@ -84,9 +84,9 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center">BOTICA</div>
-  <div class="center">BOTICA DELMAN S.A.C</div>
-  <div class="center">RUC: 20393999544 </div>
+  <div class="center">ROJAS SPORT</div>
+  <div class="center">S.A.C</div>
+  <div class="center">RUC: 0000000 </div>
   <br />
   
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -167,8 +167,8 @@ $igv = 0;
     </table>
   </div>
   <br />
-  <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONIA</div>
-  <div class="center small">PARA SER CONSUMIDOS EN LA MISMA</div>
+  <!--<div class="center small">BIENES TRANSFERIDOS EN LA AMAZONIA</div>
+  <div class="center small">PARA SER CONSUMIDOS EN LA MISMA</div>-->
   <br />
   <br />
 
