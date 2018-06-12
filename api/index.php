@@ -359,7 +359,7 @@ $app->get('/movimiento/productos', function (Request $request, Response $respons
     $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
     $hashMovimiento = $request->getParam('hash');
     
-    $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, 
+    $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_Producto.ProductoModelo,
         Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Gen_ProductoTalla.ProductoTalla, Lo_MovimientoDetalle.Cantidad 
         FROM Lo_MovimientoDetalle 
         INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
