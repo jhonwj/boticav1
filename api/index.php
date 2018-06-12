@@ -54,7 +54,7 @@ function getNow() {
 $app->get('/categorias', function (Request $request, Response $response, array $args) {
     
     $select = $this->db->select()->from('Gen_ProductoCategoria')
-                ->whereLike('ProductoCategoria','%' . $request->getParam('q') . '%');
+                ->whereLike('ProductoCategoria', $request->getParam('q') . '%');
 
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
@@ -80,7 +80,7 @@ $app->get('/marcas', function (Request $request, Response $response, array $args
     $q = $request->getParam('q');
 
     $select = "SELECT * FROM Gen_ProductoMarca";
-    $select .= " WHERE ProductoMarca LIKE '%" . $q . "%' ";
+    $select .= " WHERE ProductoMarca LIKE '" . $q . "%' ";
 
     if ($request->getParam('limit')) {
         $limit = $request->getParam('limit');
@@ -123,16 +123,16 @@ $app->get('/mediciones', function (Request $request, Response $response, array $
 });
 
 
-$app->get('/modelos', function (Request $request, Response $response, array $args) {
+/* $app->get('/modelos', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Gen_ProductoModelo')
                 ->whereLike('ProductoModelo','%' . $request->getParam('q') . '%');
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
-});
+}); */
 
-$app->post('/modelos', function (Request $request, Response $response, array $args) {
+/* $app->post('/modelos', function (Request $request, Response $response, array $args) {
     
     $productoModelo = $request->getParam('ProductoModelo');
     $anulado = 0;
@@ -143,28 +143,43 @@ $app->post('/modelos', function (Request $request, Response $response, array $ar
     $insertId = $insert->execute();
     
     return $response->withJson(array("insertId" => $insertId, "ProductoModelo" => $productoModelo));
-});
+}); */
 
 
 
 $app->get('/tallas', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Gen_ProductoTalla')
-                ->whereLike('ProductoTalla','%' . $request->getParam('q') . '%');
+                ->whereLike('ProductoTalla', $request->getParam('q') . '%');
     $stmt = $select->execute();
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
 
+$app->get('/productos/id/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+    Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
+    FROM Gen_Producto 
+    INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+    INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+    INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+    LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
+
+    $select .= " WHERE Gen_Producto.IdProducto = " . $args['id'];
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();    
+
+    return $response->withJson($data);
+});
 
 $app->get('/productos', function (Request $request, Response $response, array $args) {
-    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca, Gen_ProductoModelo.ProductoModelo,
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
         FROM Gen_Producto 
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-        LEFT JOIN Gen_ProductoModelo ON Gen_Producto.IdProductoModelo = Gen_ProductoModelo.IdProductoModelo
         LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
     
     if ($request->getParam('filter')) {
@@ -276,10 +291,11 @@ $app->post('/productos', function (Request $request, Response $response) {
     $idProductoMarca = $request->getParam('marca')['IdProductoMarca'];
     $idProductoMedicion = $request->getParam('medicion')['IdProductoMedicion'];
     $idProductoCategoria = $request->getParam('categoria')['IdProductoCategoria'];
-    $idProductoModelo = $request->getParam('modelo')['IdProductoModelo'];
+    // $idProductoModelo = $request->getParam('modelo')['IdProductoModelo'];
     $idProductoTalla = $request->getParam('talla')['IdProductoTalla'];
     $idProductoFormaFarmaceutica = 1;
     $producto = $request->getParam('Producto');
+    $productoModelo = $request->getParam('ProductoModelo') ? $request->getParam('ProductoModelo') : '';
     $fechaReg = getNow();
     $hash = time();
     $controlaStock = 1;
@@ -306,11 +322,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "IdProductoFormaFarmaceutica" => $idProductoFormaFarmaceutica,
                             "IdProductoMedicion" => $idProductoMedicion,
                             "IdProductoCategoria" => $idProductoCategoria,
-                            "IdProductoModelo" => $idProductoModelo,
+                            // "IdProductoModelo" => $idProductoModelo,
                             "IdProductoTalla" => $idProductoTalla,
                             "ControlaStock" => $controlaStock,
                             "PorcentajeUtilidad" => $porcentajeUtilidad,
-                            "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado
+                            "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado,
+                            "ProductoModelo" => $productoModelo
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
@@ -319,9 +336,9 @@ $app->post('/productos', function (Request $request, Response $response) {
     }
     // fin actualizacion producto
 
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoModelo', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $idProductoModelo, $idProductoTalla, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $idProductoTalla, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo));
     $insertId = $insert->execute();
     
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -342,12 +359,11 @@ $app->get('/movimiento/productos', function (Request $request, Response $respons
     $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
     $hashMovimiento = $request->getParam('hash');
     
-    $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_ProductoModelo.ProductoModelo, 
+    $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, 
         Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Gen_ProductoTalla.ProductoTalla, Lo_MovimientoDetalle.Cantidad 
         FROM Lo_MovimientoDetalle 
         INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
-        LEFT JOIN Gen_ProductoModelo ON Gen_Producto.IdProductoModelo = Gen_ProductoModelo.IdProductoModelo
         LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla
         WHERE hashMovimiento = '$hashMovimiento'";
 
@@ -372,6 +388,7 @@ $app->get('/movimientos/tipos', function (Request $request, Response $response, 
 
 
 $app->post('/movimientos', function (Request $request, Response $response) { 
+    //return  $response->withJson($request->getParam('productos'));exit();
     // start verificar Movimiento
     $select = "SELECT * FROM Lo_Movimiento
 	WHERE IdMovimientoTipo = '" . $request->getParam('movimiento')['movimientoTipo']['IdMovimientoTipo']
@@ -431,10 +448,10 @@ $app->post('/movimientos', function (Request $request, Response $response) {
         if ($producto['total'] > 0) {
             $idProducto = $producto['IdProducto'];
             $cantidad = $producto['cantidad'];
-            $tieneIgv = $producto['TieneIgv'];
+            $tieneIgv = isset($producto['TieneIgv']) ? $producto['TieneIgv'] : 0;
             $precio = $producto['precio'];
             $nuevoPrecioContado = $producto['nuevoPrecioContado'];
-            $idLote = $producto['IdLote'];
+            $idLote = isset($producto['IdLote']) ? $producto['IdLote'] : 0;
             
             $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote'))
             ->into('Lo_MovimientoDetalle')

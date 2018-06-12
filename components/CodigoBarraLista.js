@@ -25,7 +25,12 @@ export default {
                     hash: this.hashMovimiento
                 }
             }).then((response) => {
-                this.productos = response.data
+                var productos = response.data.map(function(x) {
+                    x.Producto = x.Producto.split('-').slice(0, -1).join()
+                    return x
+                })
+                
+                this.productos = productos
               })
               .catch(function (error) {
                 console.log(error)
