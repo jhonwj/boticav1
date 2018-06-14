@@ -50,10 +50,10 @@ body:before {
   box-sizing: border-box;
 }
 .login-header {
-  background: #e74c3c;
+  background: #e74c3c00;
   padding: 30px;
   text-align: center;
-  color: #fff;
+  color: #c0392b;
   text-shadow: 0 2px 2px rgba(0,0,0,0.2);
   box-shadow: inset 0 -1px rgba(255,255,255,0.8), 0 4px rgba(0,0,0,0.06), inset 0 4px rgba(255,255,255,0.2), inset 0 2px 2px rgba(255,255,255,0.2);
 }
@@ -63,7 +63,7 @@ body:before {
 }
 .login-icon {
   width: 50px;
-  fill: #fff;
+  fill: #c0392b;
   -webkit-filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
   filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
 }
