@@ -400,7 +400,7 @@ function listarAlmacen(){
       </table>
 		</div>
     <br><br>
-    <div class="row">
+    <!--<div class="row">
       <div class="col-md-6 form-group">
         <label>Seleccione un proveedor</label>
         <div class="form-inline">
@@ -409,7 +409,7 @@ function listarAlmacen(){
         </div><br>
         <button class="btn btn-success" id="generarOrdenCompra" disabled>Generar orden de compra</button>
       </div>
-    </div>
+    </div>-->
   </div>
 </div>
 
