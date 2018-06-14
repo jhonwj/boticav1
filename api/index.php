@@ -52,12 +52,26 @@ function getNow() {
 
 
 $app->get('/categorias', function (Request $request, Response $response, array $args) {
+    $q = $request->getParam('q');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
     
-    $select = $this->db->select()->from('Gen_ProductoCategoria')
-                ->whereLike('ProductoCategoria', $request->getParam('q') . '%');
+    $select = "SELECT * FROM Gen_ProductoCategoria";
+    $select .= " WHERE ProductoCategoria LIKE '" . $q . "%' ";    
 
-    $stmt = $select->execute();
-    $data = $stmt->fetchAll();
+    if ($limit) {
+        // $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();  
 
     return $response->withJson($data);
 });
@@ -78,12 +92,13 @@ $app->post('/categorias', function (Request $request, Response $response, array 
 
 $app->get('/marcas', function (Request $request, Response $response, array $args) {
     $q = $request->getParam('q');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
 
     $select = "SELECT * FROM Gen_ProductoMarca";
     $select .= " WHERE ProductoMarca LIKE '" . $q . "%' ";
 
-    if ($request->getParam('limit')) {
-        $limit = $request->getParam('limit');
+    if ($limit) {
+        // $limit = $request->getParam('limit');
         $offset = 0;
         if ($request->getParam('page')) {
             $page = $request->getParam('page');
@@ -148,13 +163,43 @@ $app->get('/mediciones', function (Request $request, Response $response, array $
 
 
 $app->get('/tallas', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Gen_ProductoTalla')
-                ->whereLike('ProductoTalla', $request->getParam('q') . '%');
-    $stmt = $select->execute();
-    $data = $stmt->fetchAll();
+    $q = $request->getParam('q');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+
+    $select = "SELECT * FROM Gen_ProductoTalla";
+    $select .= " WHERE ProductoTalla LIKE '" . $q . "%' ";
+
+    if ($limit) {
+        // $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();  
 
     return $response->withJson($data);
 });
+
+$app->post('/tallas', function (Request $request, Response $response, array $args) {
+    
+    $productoTalla = $request->getParam('ProductoTalla');
+    $anulado = 0;
+
+    $insert = $this->db->insert(array('ProductoTalla', 'Anulado', 'FechaReg'))
+                       ->into('Gen_ProductoTalla')
+                       ->values(array($productoTalla, $anulado, getNow()));
+    $insertId = $insert->execute();
+    
+    return $response->withJson(array("insertId" => $insertId, "ProductoTalla" => $productoTalla));
+});
+
 
 $app->get('/productos/id/{id}', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
