@@ -31,6 +31,8 @@
             }
             #barcode .direccion {
                 font-size: .2cm;
+                margin-bottom: 6.5mm;
+                z-index: 1;
             }
             .text-right: {
                 text-align: right;
@@ -38,12 +40,16 @@
             .barcode-box {
                 border-radius: 2mm;
                 margin: .4mm 2.5mm;
-                padding: 1mm;
+                padding: 0.5mm 1mm;
                 border: .5mm solid #000;
                 display: inline-block;
                 width: 49mm;
                 height: 36mm;
                 overflow: hidden;
+                position: relative;
+            }
+            .barcode-left {
+                line-height: 2.7mm
             }
             .barcode-right {
                 text-align: right;
@@ -53,7 +59,7 @@
                 margin-bottom: 0;
                 font-size: 2.5mm !important;
                 text-align: center;
-                width: 8mm;
+                width: 9mm;
                 padding: .2mm .5mm;
                 border: .1mm solid #000;
             }
@@ -64,13 +70,19 @@
             .barcode-image {
                 text-align: center;
             }
+            .barcode-logo {
+                position: absolute;
+                top: 1.5mm;
+                z-index: -1;
+                margin-left: 9mm;
+            }
             #barcode .item {
                 display: inline-block;
                 width: 13mm;
                 box-sizing: border-box;
             }
             #barcode .item.derecha {
-                width: 15mm;
+                width: 20mm;
             }
             @media print { 
                 body {
