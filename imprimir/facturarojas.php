@@ -82,7 +82,7 @@ $igv = 0;
     /*width: 320px;*/
   }
   .ruc span {
-    margin-left: 17mm;
+    margin-left: 16mm;
   }
   .totales {
       text-align: right;
@@ -137,7 +137,7 @@ $igv = 0;
     font-size: 13px;
   }
   .footer .small:first-child {
-    margin-top: 15mm;
+    margin-top: 16mm;
   }
   .arriba td {
       line-height: 7mm;
