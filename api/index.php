@@ -571,6 +571,94 @@ $app->get('/consultarRUC', function (Request $request, Response $response, array
 
 
 
+$app->get('/productos/stock', function (Request $request, Response $response, array $args) {
+
+    // STOCK INGRESO POR UNIDADES
+    $stockIngresoUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
+        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
+
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+    
+        return $data;
+    };
+    // FIN STOCK POR UNIDADES
+
+
+
+    // STOCK SALIDA POR UNIDADES
+    $stockSalidaUnd = function () {
+
+    };
+    // FIN SALIDA POR UNIDADES
+
+
+
+
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+        Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
+        FROM Gen_Producto 
+        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
+    
+    if ($request->getParam('filter')) {
+        $filter = $request->getParam('filter');
+        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
+                   "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
+                   "%' OR Gen_Producto.Color LIKE '%" . $filter . 
+                   "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
+                   "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
+                   "%' ";        
+    } else {
+        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
+    }
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    if ($request->getParam('limit')) {
+        $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = [];
+    
+    while ($row = $stmt->fetch()) {
+        $row['stock'] = $stockIngresoUnd($row['IdProducto'], 1, '2018-06-16');
+        $data[] = $row;
+
+    }
+var_dump($data);exit();
+    //$data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+    
+    
+    
+});
+
+
+
 
 
 
