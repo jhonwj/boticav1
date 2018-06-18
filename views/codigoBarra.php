@@ -94,7 +94,12 @@
 <body>
 
 <div id="app">
-    <codigo-barra-lista hash-movimiento="<?php echo $_GET['hash']?>"></codigo-barra-lista>
+    <?php if (isset($_GET['idProducto'])) : ?>
+        <?php $cantidad = isset($_GET['cantidad']) ? $_GET['cantidad'] : 10 ?>
+        <codigo-barra-lista id-producto="<?php echo $_GET['idProducto']?>" cantidad="<?php echo $cantidad ?>"></codigo-barra-lista>            
+    <?php else : ?>
+        <codigo-barra-lista hash-movimiento="<?php echo $_GET['hash']?>"></codigo-barra-lista>
+    <?php endif; ?>
 </div>
 
 

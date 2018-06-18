@@ -356,6 +356,8 @@ $app->post('/productos', function (Request $request, Response $response) {
         // aqui se actualiza el producto si existe
         $idProducto = $request->getParam('IdProducto');
         $codigoBarra = $request->getParam('CodigoBarra');
+        $precioContado = $request->getParam('PrecioContado');
+
         if (!$codigoBarra) {
             $codigoBarra = substr($categoria, 0, 2) . $idProducto . substr($producto, 0, 2);
             $producto = $producto . '-' . $codigoBarra;
@@ -372,14 +374,42 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "ControlaStock" => $controlaStock,
                             "PorcentajeUtilidad" => $porcentajeUtilidad,
                             "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado,
-                            "ProductoModelo" => $productoModelo
+                            "ProductoModelo" => $productoModelo,
+                            "PrecioContado" => $precioContado
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
         $affectedRows = $update->execute();
         return $response->withJson(array("affectedRows" => $affectedRows));
     }
-    // fin actualizacion producto
+    // Fin actualizacion producto
+
+    // Inicio verificar Producto
+    $select = "SELECT * FROM Gen_Producto
+        WHERE IdProductoMarca = '" . $idProductoMarca
+        . "' AND IdProductoMedicion = '" . $idProductoMedicion
+        . "' AND IdProductoCategoria = '" . $idProductoCategoria
+        . "' AND IdProductoTalla = '" . $idProductoTalla
+        . "' AND ProductoModelo = '" . $productoModelo
+        . "' AND Genero = '" . $genero
+        . "' AND Botapie = '" . $botapie
+        . "' AND Color = '" . $color
+        . "' AND Producto like '" . $producto . "-%'";
+
+    $stmt = $this->db->query($select);
+    $prod = $stmt->fetch();
+    $stmt->execute();
+
+    //return $response->withJson(array('select' => empty($prod)));
+    
+    if (!empty($prod)) {
+        $data = array(
+            'error' => 'Error: Producto duplicado',
+            'insertId' => $prod['IdProducto']
+        );
+        return $response->withJson($data);
+    }
+    // Final verificar Movimiento
 
     $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo'))
                        ->into('Gen_Producto')

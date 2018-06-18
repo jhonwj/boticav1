@@ -10,15 +10,32 @@ export default {
       </div>
     `,
     mounted() {
-        this.obtenerProductos()
+        if (this.idProducto) {
+            this.obtenerProducto()
+        } else {
+            this.obtenerProductos()
+        }
     },
     data() {
       return {
           productos: []
       }
     },
-    props: ['hashMovimiento'],
+    props: ['hashMovimiento', 'idProducto', 'cantidad'],
     methods: {
+        obtenerProducto () {
+            axios.get('/api/index.php/productos/id/' + this.idProducto)
+                .then((response) => {
+                    var producto = response.data
+                    producto.Producto = producto.Producto.split('-').slice(0, -1).join()
+                    producto.Cantidad = parseInt(this.cantidad)
+
+                    this.productos.push(producto)
+                })
+                .catch(function (error) {
+                    console.log(error)
+                })
+        },
         obtenerProductos () {
             axios.get('/api/index.php/movimiento/productos', {
                 params: {

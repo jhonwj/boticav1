@@ -5,7 +5,7 @@ export default {
         <div class="barcode-logo"><img src="/resources/images/barcode-logo.png"  style="height:30px"/></div>
         <div class="barcode-right">
             <p>PRECIO S/.</p>
-            <label>{{ producto.PrecioContado.toFixed(2) }}</label>
+            <label>{{ (producto.PrecioContado || 0).toFixed(2) }}</label>
             <p>TALLA</p>
             <label>{{ producto.ProductoTalla }}</label>
         </div>
