@@ -358,13 +358,9 @@ $app->post('/productos', function (Request $request, Response $response) {
         $codigoBarra = $request->getParam('CodigoBarra');
         $precioContado = $request->getParam('PrecioContado');
 
-        if (!$codigoBarra) {
-            $codigoBarra = substr($categoria, 0, 2) . $idProducto . substr($producto, 0, 2);
-            $producto = $producto . '-' . $codigoBarra;
-        }
+
         $update = $this->db->update(array(
-                            "CodigoBarra" => $codigoBarra, 
-                            "Producto" => $producto,
+                            "Producto" => $producto . '-' . $codigoBarra,
                             "IdProductoMarca" => $idProductoMarca,
                             "IdProductoFormaFarmaceutica" => $idProductoFormaFarmaceutica,
                             "IdProductoMedicion" => $idProductoMedicion,
@@ -404,7 +400,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     
     if (!empty($prod)) {
         $data = array(
-            'error' => 'Error: Producto duplicado',
+            'error' => 'Producto ya existe',
+            'codigoBarra' => $prod['CodigoBarra'],
             'insertId' => $prod['IdProducto']
         );
         return $response->withJson($data);
@@ -688,13 +685,68 @@ var_dump($data);exit();
 });
 
 
+$app->get('/movimientos/numero', function (Request $request, Response $response, array $args) {
+    $serie = $request->getParam('serie');
+    $idMovimientoTipo = $request->getParam('idMovimientoTipo');
+
+    $select = "SELECT Lo_Movimiento.IdMovimientoTipo, Lo_MovimientoTipo.Tipo, Lo_Movimiento.Serie, Lo_Movimiento.Numero, (Lo_Movimiento.Numero+1) as NuevoNumero
+        FROM Lo_Movimiento
+        INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+        WHERE Lo_Movimiento.Serie = '$serie' AND Lo_Movimiento.IdMovimientoTipo = '$idMovimientoTipo'
+        ORDER BY Lo_Movimiento.Numero DESC
+        LIMIT 1";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();    
+
+    return $response->withJson($data);
+});
 
 
 
 
+// VENTAS
+
+$app->get('/ventas/tipos', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Ve_DocVentaTipoDoc')->whereLike('TipoDoc', '%' . $request->getParam('q') . '%');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+$app->get('/ventas/puntos', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Ve_DocVentaPuntoVenta')->whereLike('PuntoVenta', '%' . $request->getParam('q') . '%');
+    $stmt = $select->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
 
 
+$app->get('/usuarios', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL";
+    $select .= " AND Seg_Usuario.Usuario LIKE '%" . $request->getParam('q') . "%' ";
 
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+$app->get('/clientes', function (Request $request, Response $response, array $args) {
+    $select = "SELECT *, IFNULL(CONCAT(DniRuc, ' - ', Cliente), '-') AS ClienteDniRuc FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
+    $select .= " AND Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
+    $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%'";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
 
 
 

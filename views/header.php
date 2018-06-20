@@ -49,7 +49,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="medical-drugs-pills-and-capsules.svg" style="width:1em;"> Gestion Producto
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
-          <li ><a href= "<?php echo Producto; ?>" class="text-primary-color"><i class="fa fa-"></i>Producto</a></li>
+          <li ><a href= "<?php echo Producto; ?>" class="text-primary-color"><i class="fa fa-"></i>Modificar Producto</a></li>
           <!--<li><a href="<?php echo Marca; ?>" >Marca</a></li>-->
           <!--<li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>-->
           <!--<li><a href="<?php echo Modelo; ?>">Modelo</a></li>
@@ -63,7 +63,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Logistica
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
-          <li><a href="<?php echo Inventario; ?>">MOVIMIENTO</a></li>
+          <li><a href="<?php echo Inventario; ?>">REGISTRO DE VENTAS</a></li>
           <!--<li><a href="<?php echo GenerarCodigoBarra; ?>">CODIGO DE BARRA</a></li>-->
           <li role="separator" class="divider"></li>
           <li class="dropdown-header">KARDEX CONTABLE</li>
@@ -94,7 +94,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
           <!--<li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
-          <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->
+          <li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>
 
         </ul>
       </li>
