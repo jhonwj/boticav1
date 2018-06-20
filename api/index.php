@@ -724,9 +724,51 @@ $app->get('/ventas/puntos', function (Request $request, Response $response, arra
     return $response->withJson($data);
 });
 
+$app->get('/ventas/descuento/[{puntos}]', function (Request $request, Response $response, array $args) {
+    $puntos = $request->getAttribute('puntos', 0);
+
+    $select = "SELECT * FROM Ve_DocVentaDescuento WHERE IdDocVentaDescuento = 1";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+    $data['descuento'] = $data['ValorPunto'] * $puntos;
+
+    return $response->withJson($data);
+});
+
+
+$app->get('/ventas/numero', function (Request $request, Response $response, array $args) {
+    $idPuntoVenta = $request->getParam('idPuntoVenta');
+    $idTipoDoc = $request->getParam('idTipoDoc');
+
+    // Obtener Serie
+    $selectSerie = "SELECT Serie FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
+    
+    $stmt = $this->db->query($selectSerie);
+    $stmt->execute();
+    $selectSerie = $stmt->fetch();
+    $serie = $selectSerie['Serie'];
+    
+    // Obtener siguiente Numero
+    $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
+        WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdTipoDoc=$idTipoDoc 
+        ORDER BY Numero DESC LIMIT 1";
+    $stmt = $this->db->query($selectNumero);
+    $stmt->execute();
+    $selectNumero = $stmt->fetch();
+    $numero = $selectNumero['NuevoNumero'];
+    return $response->withJson(array(
+        "serie" => $serie,
+        "numero" => $numero
+    ));
+});
+
+
+
 
 $app->get('/usuarios', function (Request $request, Response $response, array $args) {
-    $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL";
+    $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL)";
     $select .= " AND Seg_Usuario.Usuario LIKE '%" . $request->getParam('q') . "%' ";
 
     $stmt = $this->db->query($select);
@@ -747,6 +789,14 @@ $app->get('/clientes', function (Request $request, Response $response, array $ar
 
     return $response->withJson($data);
 });
+
+
+
+
+
+
+
+
 
 
 
