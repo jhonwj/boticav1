@@ -620,8 +620,19 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
 
 
     // STOCK SALIDA POR UNIDADES
-    $stockSalidaUnd = function () {
+    $stockSalidaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
+        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
+                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
 
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+    
+        return $data;
     };
     // FIN SALIDA POR UNIDADES
 
@@ -760,9 +771,112 @@ $app->get('/ventas/numero', function (Request $request, Response $response, arra
     $numero = $selectNumero['NuevoNumero'];
     return $response->withJson(array(
         "serie" => $serie,
-        "numero" => $numero
+        "numero" => $numero ? $numero : 1
     ));
 });
+
+$app->post('/ventas', function (Request $request, Response $response) { 
+    $vendedor = 'xx';
+    if(isset($_SESSION['user'])) {
+        $vendedor = $_SESSION['user'];
+    }
+
+    // START INSERTAR NUEVA VENTA
+    $idDocVentaPuntoVenta = $request->getParam('puntoVenta')['IdDocVentaPuntoVenta'];
+    $idCliente = $request->getParam('cliente')['IdCliente'];
+    $idTipoDoc = $request->getParam('tipoVenta')['IdTipoDoc']; 
+    $idAlmacen = $request->getParam('almacen')['IdAlmacen']; 
+    $serie = $request->getParam('Serie'); 
+    $numero = $request->getParam('Numero');
+    $anulado = 0;
+    $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
+    
+    $esCredito = $request->getParam('EsCredito');
+    $fechaCredito = $request->getParam('FechaCredito');
+    
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', NOW(), $anulado, now(), '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito')";
+    
+    $stmt = $this->db->prepare($insert);
+    $inserted = $stmt->execute();
+    $idDocVenta = $this->db->lastInsertId();
+    // END INSERTAR NUEVA VENTA
+    
+    
+    // START INSERTAR VENTA DETALLE
+    $productos = $request->getParam('productos');
+    $descuentoTotal = 0;
+    foreach($productos as $producto) {
+        if ($producto['total'] > 0) {
+            $idProducto = $producto['IdProducto'];
+            $cantidad = $producto['cantidad'];
+            $precio = $producto['precio'];
+            $descuento = $producto['descuento'];
+            
+            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento'))
+                ->into('Ve_DocVentaDet')
+                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento));
+            
+            $insert->execute();
+            $descuentoTotal += $descuento;
+        }
+    }
+    // END VENTA DETALLE
+    
+    // START INSERTAR PAGO DETALLE
+    $pagos = $request->getParam('pago');
+    if (!$esCredito) {
+        foreach($pagos as $pago) {
+            if ($pago['monto'] > 0) {
+                $idMetodoPago = $pago['IdMetodoPago'];
+                $importe = $pago['monto'];
+                $nroTarjeta = isset($pago['descripcion']) ? $pago['descripcion'] : '';
+                $insert = $this->db->insert(array('IdDocVenta', 'IdMetodoPago', 'Importe', 'NroTarjeta'))
+                    ->into('Ve_DocVentaMetodoPagoDet')
+                    ->values(array($idDocVenta, $idMetodoPago, $importe, $nroTarjeta));
+                $insert->execute();
+            }
+        }
+    }
+    // END PAGO DETALLE
+
+    // START AÑADIR PUNTOS CLIENTE
+    $puntosAplicados = $request->getParam('puntosAplicados'); 
+    $totalCart = $request->getParam('totalCart'); 
+    if(!$descuentoTotal) { // quitar condicional si siempre se otorgarán puntos
+        // actualizar si la venta se pago en su totalidad, sin descuentos
+        $select = "SELECT * FROM Ve_DocVentaDescuento WHERE IdDocVentaDescuento=1";
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $tablaDescuento = $stmt->fetch(); 
+
+        if ($totalCart >= $tablaDescuento['PorCada']) {
+            $puntosAdicionales = ($totalCart / $tablaDescuento['PorCada']) * $tablaDescuento['Puntos'];
+            $update = "UPDATE Ve_DocVentaCliente SET Puntos=Puntos+$puntosAdicionales WHERE IdCliente=$idCliente";
+            $stmt = $this->db->prepare($update);
+            $updated = $stmt->execute();
+        }
+    }
+    if ($puntosAplicados) {
+        $update = "UPDATE Ve_DocVentaCliente SET Puntos=Puntos-$puntosAplicados WHERE IdCliente=$idCliente";
+        $stmt = $this->db->prepare($update);
+        $updated = $stmt->execute();
+    }
+    // END PUNTOS CLIENTE
+
+    // return $response->withJson(array('insertId' => $nroTarjeta));
+    
+    $data = array(
+        'insertId' => $idDocVenta
+    );
+    
+    return $response->withJson($data);
+});
+
+
+
+
+
 
 
 
