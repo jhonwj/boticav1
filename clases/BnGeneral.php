@@ -118,6 +118,7 @@ INNER JOIN Lo_Almacen ON Ve_DocVenta.IdAlmacen = Lo_Almacen.IdAlmacen";
 Ve_DocVentaDet.IdDocVentaDet,
 Ve_DocVentaDet.IdDocVenta,
 Ve_DocVentaDet.IdProducto,
+Ve_DocVentaDet.Descuento,
 Gen_Producto.ProductoDesc,
 Gen_Producto.Producto,
 Ve_DocVentaDet.Cantidad,

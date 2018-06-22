@@ -1,4 +1,5 @@
 <?php
+include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
 include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 
 //var_dump($docVenta);
@@ -32,6 +33,7 @@ $tipoDoc = $docVenta['TipoDoc'];
 
 $subtotal = 0;
 $total = 0;
+$totalDescuento = 0;
 $igv = 0;
 ?>
 <style>
@@ -84,9 +86,10 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center">ROJAS SPORT</div>
-  <div class="center">S.A.C</div>
-  <div class="center">RUC: 0000000 </div>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 254px"/></div><br />
+  <div class="center">ROJAS SPORT S.R.L</div>
+  <div class="center">RUC: 20573209665 </div>
+  <div class="center small">VENTA DE ROPA SPORT Y DE VESTIR.</div>
   <br />
   
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -137,6 +140,7 @@ $igv = 0;
           </tr>
           <?php
           $filas += 1;
+          $totalDescuento += floatval($producto['Descuento']);
           $total += floatval($producto['TOTAL']);
         }
 
@@ -153,22 +157,34 @@ $igv = 0;
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
-        <tr>
+        <!--<tr>
           <td></td>
           <td class="text-right">IGV</td>
           <td class="text-right">S/.<?php echo number_format($igv, 2); ?></td>
-        </tr>
+        </tr>-->
+        <?php if ($totalDescuento > 0) : ?>
+          <tr>
+            <td></td>
+            <td class="text-right">DESCUENTO</td>
+            <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2); ?></td>
+          </tr>
+        <?php endif; ?>
         <tr>
           <td></td>
           <td class="text-right"><strong>TOTAL</strong></td>
-          <td class="text-right">S/.<?php echo number_format($total, 2); ?></td>
+          <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
         </tr>
       </tbody>
     </table>
+    <br />
+    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></span>
+
   </div>
   <br />
-  <!--<div class="center small">BIENES TRANSFERIDOS EN LA AMAZONIA</div>
-  <div class="center small">PARA SER CONSUMIDOS EN LA MISMA</div>-->
+  <div class="center small">JR. HUÁNUCO N° 613</div>
+  <div class="center small">HUÁNUCO - HUÁNUCO - HUÁNUCO</div>
+  <div class="center small">TELF. 062-285043 - CEL. 999678194</div>
+  <div class="center small">.</div>
   <br />
   <br />
 

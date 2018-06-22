@@ -597,6 +597,66 @@ $app->get('/consultarRUC', function (Request $request, Response $response, array
 });
 
 
+$app->get('/productos/stock/unidad', function (Request $request, Response $response, array $args) {
+    // STOCK INGRESO POR UNIDADES
+    $stockIngresoUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
+        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
+
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+    
+        return $data;
+    };
+    // FIN STOCK POR UNIDADES
+
+
+    // STOCK SALIDA POR UNIDADES
+    $stockSalidaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
+        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
+                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
+
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+    
+        return $data;
+    };
+    // FIN SALIDA POR UNIDADES
+
+
+    // STOCK VENTA UNIDAD
+    $stockDocVentaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
+        $select = "SELECT SUM(Ve_DocVentaDet.Cantidad) AS cantidad FROM Ve_DocVenta
+            INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
+            WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
+                AND Ve_DocVentaDet.IdProducto = $idProducto
+                AND Ve_DocVenta.Anulado = 0
+                AND Ve_DocVenta.FechaDoc < '$fechaHasta'";
+        
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+
+        return $data;
+    };
+    // FIN VENTA UNIDAD
+    $idProducto = 2661;
+    $idAlmacen = 1;
+    $fechaHasta = '2018-06-22';
+    $ingresos = $stockIngresoUnd($idProducto, $idAlmacen, $fechaHasta);
+    var_dump($ingresos);
+});
+
 
 $app->get('/productos/stock', function (Request $request, Response $response, array $args) {
 
@@ -618,7 +678,6 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     // FIN STOCK POR UNIDADES
 
 
-
     // STOCK SALIDA POR UNIDADES
     $stockSalidaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
         $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
@@ -636,6 +695,23 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     };
     // FIN SALIDA POR UNIDADES
 
+
+    // STOCK VENTA UNIDAD
+    $stockDocVentaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
+        $select = "SELECT SUM(Ve_DocVentaDet.Cantidad) AS cantidad FROM Ve_DocVenta
+            INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
+            WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
+                AND Ve_DocVentaDet.IdProducto = $idProducto
+                AND Ve_DocVenta.Anulado = 0
+                AND Ve_DocVenta.FechaDoc < '$fechaHasta'";
+        
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+
+        return $data;
+    };
+    // FIN VENTA UNIDAD
 
 
 
@@ -746,6 +822,34 @@ $app->get('/ventas/descuento/[{puntos}]', function (Request $request, Response $
     $data['descuento'] = $data['ValorPunto'] * $puntos;
 
     return $response->withJson($data);
+});
+
+$app->get('/ventas/descuento', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('Ve_DocVentaDescuento')->where('IdDocVentaDescuento', '=', 1);
+    $stmt = $select->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+$app->post('/ventas/descuento', function (Request $request, Response $response) {
+    $id = 1;
+    $porCada = $request->getParam('porCada');
+    $puntos = $request->getParam('puntos');
+    $valorPunto = $request->getParam('valorPunto');
+    
+    $update = "UPDATE Ve_DocVentaDescuento SET PorCada=$porCada, Puntos=$puntos, ValorPunto=$valorPunto 
+        WHERE IdDocVentaDescuento=$id";
+    
+    $stmt = $this->db->prepare($update);
+    $updated = $stmt->execute();
+
+    return $response->withJson(array(
+        "IdDocVentaDescuento" => $id,
+        "PorCada" => $porCada,
+        "Puntos" => $puntos,
+        "ValorPunto" => $valorPunto
+    ));
 });
 
 
@@ -904,6 +1008,26 @@ $app->get('/clientes', function (Request $request, Response $response, array $ar
     return $response->withJson($data);
 });
 
+$app->post('/clientes', function (Request $request, Response $response) {
+    $cliente = $request->getParam('Cliente');
+    $dniRuc = $request->getParam('DniRuc');
+    $direccion = $request->getParam('Direccion');
+    $telefono = $request->getParam('Telefono');
+    $email = $request->getParam('Email');
+
+    $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Telefono', 'Email', 'Anulado', 'FechaReg'))
+                       ->into('Ve_DocVentaCliente')
+                       ->values(array($cliente, $dniRuc, $direccion, $telefono, $email, '0', getNow()));
+    
+    $insertId = $insert->execute();
+
+    $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente=$insertId";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();  
+
+    return $response->withJson($data);
+});
 
 
 
