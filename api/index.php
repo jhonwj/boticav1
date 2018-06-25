@@ -218,6 +218,120 @@ $app->get('/productos/id/{id}', function (Request $request, Response $response, 
     return $response->withJson($data);
 });
 
+$app->get('/productos/colores', function (Request $request, Response $response, array $args) {
+    $select = "SELECT DISTINCT Color FROM Gen_Producto";
+    $select .= " WHERE Gen_Producto.Color LIKE '%" . $request->getParam('q') . "%' ";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/productos/generos', function (Request $request, Response $response, array $args) {
+    $select = "SELECT DISTINCT Genero FROM Gen_Producto";
+    $select .= " WHERE Gen_Producto.Genero LIKE '%" . $request->getParam('q') . "%' ";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/productos/botapies', function (Request $request, Response $response, array $args) {
+    $select = "SELECT DISTINCT Botapie FROM Gen_Producto";
+    $select .= " WHERE Gen_Producto.Botapie LIKE '%" . $request->getParam('q') . "%' ";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/productos/modelos', function (Request $request, Response $response, array $args) {
+    $select = "SELECT DISTINCT ProductoModelo FROM Gen_Producto";
+    $select .= " WHERE Gen_Producto.ProductoModelo LIKE '%" . $request->getParam('q') . "%' ";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
@@ -232,6 +346,7 @@ $app->get('/productos', function (Request $request, Response $response, array $a
         $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
                    "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
                    "%' OR Gen_Producto.Color LIKE '%" . $filter . 
+                   "%' OR Gen_Producto.Genero LIKE '%" . $filter . 
                    "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
                    "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
                    "%' ";        
@@ -246,8 +361,8 @@ $app->get('/productos', function (Request $request, Response $response, array $a
         $select .= " ORDER BY " . $sortBy . " " . $orientation;
     }
 
-    if ($request->getParam('limit')) {
-        $limit = $request->getParam('limit');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
         $offset = 0;
         if ($request->getParam('page')) {
             $page = $request->getParam('page');
@@ -597,124 +712,85 @@ $app->get('/consultarRUC', function (Request $request, Response $response, array
 });
 
 
-$app->get('/productos/stock/unidad', function (Request $request, Response $response, array $args) {
-    // STOCK INGRESO POR UNIDADES
-    $stockIngresoUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
-        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
-            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
-            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
-            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
-                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
 
-        $stmt = $this->db->query($select);
-        $stmt->execute();
-        $data = $stmt->fetch();
-    
-        return $data;
-    };
-    // FIN STOCK POR UNIDADES
+function stockIngresoUnd($db, $idProducto, $idAlmacen, $fechaHasta) {
+    $select = "SELECT IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+        INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+        INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+        WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
 
+    $stmt = $db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
 
-    // STOCK SALIDA POR UNIDADES
-    $stockSalidaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
-        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
-            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
-            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
-            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
-                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
+    return $data;
+}
 
-        $stmt = $this->db->query($select);
-        $stmt->execute();
-        $data = $stmt->fetch();
-    
-        return $data;
-    };
-    // FIN SALIDA POR UNIDADES
+function stockSalidaUnd($db, $idProducto, $idAlmacen, $fechaHasta) {
+    $select = "SELECT IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+        INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+        INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+        WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
 
+    $stmt = $db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
 
-    // STOCK VENTA UNIDAD
-    $stockDocVentaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
-        $select = "SELECT SUM(Ve_DocVentaDet.Cantidad) AS cantidad FROM Ve_DocVenta
-            INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
-            WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
-                AND Ve_DocVentaDet.IdProducto = $idProducto
-                AND Ve_DocVenta.Anulado = 0
-                AND Ve_DocVenta.FechaDoc < '$fechaHasta'";
-        
-        $stmt = $this->db->query($select);
-        $stmt->execute();
-        $data = $stmt->fetch();
+    return $data;
+}
 
-        return $data;
-    };
-    // FIN VENTA UNIDAD
-    $idProducto = 2661;
-    $idAlmacen = 1;
-    $fechaHasta = '2018-06-22';
-    $ingresos = $stockIngresoUnd($idProducto, $idAlmacen, $fechaHasta);
-    var_dump($ingresos);
+function stockSalidaVentaUnd($db, $idProducto, $idAlmacen, $fechaHasta) {
+    $select = "SELECT IFNULL(SUM(Ve_DocVentaDet.Cantidad), 0) AS cantidad FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
+        WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
+            AND Ve_DocVentaDet.IdProducto = $idProducto
+            AND Ve_DocVenta.Anulado = 0
+            AND Ve_DocVenta.FechaDoc < '$fechaHasta'";
+
+    $stmt = $db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $data;
+}
+
+$app->get('/productos/stock/ingresos', function (Request $request, Response $response, array $args) {
+    $idProducto = $request->getParam('idProducto');
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaHasta = $request->getParam('fechaHasta');
+
+    $data = stockIngresoUnd($this->db, $idProducto, $idAlmacen, $fechaHasta);
+
+    return $response->withJson($data);
 });
+$app->get('/productos/stock/salidas', function (Request $request, Response $response, array $args) {
+
+    // SALIDAS POR MOVIMIENTO
+    $idProducto = $request->getParam('idProducto');
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaHasta = $request->getParam('fechaHasta');
+
+    $salidaUnd = stockSalidaUnd($this->db, $idProducto, $idAlmacen, $fechaHasta);
+    $cantidadSalida = $salidaUnd['cantidad'];
+
+    // SALIDAS POR VENTAS
+    $salidaVentaUnd = stockSalidaVentaUnd($this->db, $idProducto, $idAlmacen, $fechaHasta);
+    $salidaVentaUnd['cantidad'] += $cantidadSalida;
+
+    return $response->withJson($salidaVentaUnd);
+});
+
 
 
 $app->get('/productos/stock', function (Request $request, Response $response, array $args) {
 
-    // STOCK INGRESO POR UNIDADES
-    $stockIngresoUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
-        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
-            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
-            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
-            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
-                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
-
-        $stmt = $this->db->query($select);
-        $stmt->execute();
-        $data = $stmt->fetch();
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaHasta = $request->getParam('fechaHasta') ? $request->getParam('fechaHasta') : getNow();
     
-        return $data;
-    };
-    // FIN STOCK POR UNIDADES
-
-
-    // STOCK SALIDA POR UNIDADES
-    $stockSalidaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
-        $select = "SELECT SUM(Lo_MovimientoDetalle.Cantidad) AS cantidad FROM Lo_Movimiento
-            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
-            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
-            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-                AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
-                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'";
-
-        $stmt = $this->db->query($select);
-        $stmt->execute();
-        $data = $stmt->fetch();
-    
-        return $data;
-    };
-    // FIN SALIDA POR UNIDADES
-
-
-    // STOCK VENTA UNIDAD
-    $stockDocVentaUnd = function ($idProducto, $idAlmacen, $fechaHasta) {
-        $select = "SELECT SUM(Ve_DocVentaDet.Cantidad) AS cantidad FROM Ve_DocVenta
-            INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
-            WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
-                AND Ve_DocVentaDet.IdProducto = $idProducto
-                AND Ve_DocVenta.Anulado = 0
-                AND Ve_DocVenta.FechaDoc < '$fechaHasta'";
-        
-        $stmt = $this->db->query($select);
-        $stmt->execute();
-        $data = $stmt->fetch();
-
-        return $data;
-    };
-    // FIN VENTA UNIDAD
-
-
-
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
         FROM Gen_Producto 
@@ -725,12 +801,27 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
-        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
-                   "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
-                   "%' OR Gen_Producto.Color LIKE '%" . $filter . 
-                   "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
-                   "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
-                   "%' ";        
+        if(is_array($filter)) {
+            $select .= " WHERE Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') . 
+                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') . 
+                       "%' ANd Gen_Producto.Color LIKE '" . (isset($filter['color']) ? addslashes($filter['color']) : '') . 
+                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') . 
+                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') . 
+                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
+                       "%' AND Gen_Producto.Genero LIKE '" . (isset($filter['genero']) ? addslashes($filter['genero']) : '') . 
+                       "%' AND Gen_Producto.Botapie LIKE '" . (isset($filter['botapie']) ? addslashes($filter['botapie']) : '') . 
+                       "%' AND Gen_ProductoTalla.ProductoTalla LIKE '" . (isset($filter['talla']) ? addslashes($filter['talla']) : '%') . 
+                       "' "; 
+            
+        } else {
+            $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.Color LIKE '%" . $filter . 
+                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
+                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
+                       "%' ";        
+        }
     } else {
         $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
     }
@@ -758,17 +849,20 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     $data = [];
     
     while ($row = $stmt->fetch()) {
-        $row['stock'] = $stockIngresoUnd($row['IdProducto'], 1, '2018-06-16');
-        $data[] = $row;
 
+        // obtener stock
+        $stockIngresoUnd = stockIngresoUnd($this->db, $row['IdProducto'], $idAlmacen, $fechaHasta);
+        $stockSalidaUnd = stockSalidaUnd($this->db, $row['IdProducto'], $idAlmacen, $fechaHasta);
+        $stockSalidaVentaUnd = stockSalidaVentaUnd($this->db, $row['IdProducto'], $idAlmacen, $fechaHasta);
+    
+        $ingresos = $stockIngresoUnd['cantidad'];
+        $salidas = $stockSalidaUnd['cantidad'] + $stockSalidaVentaUnd['cantidad'];
+
+        $row['stock'] = $ingresos - $salidas;
+        $data[] = $row;
     }
-var_dump($data);exit();
-    //$data = $stmt->fetchAll();
 
     return $response->withJson($data);
-    
-    
-    
 });
 
 
