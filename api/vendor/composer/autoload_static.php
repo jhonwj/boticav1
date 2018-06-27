@@ -18,9 +18,11 @@ class ComposerStaticInit430b0d0e92b425a37ffeae294c032e96
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
             'Picqer\\Barcode\\' => 15,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
         ),
         'I' => 
         array (
@@ -41,6 +43,10 @@ class ComposerStaticInit430b0d0e92b425a37ffeae294c032e96
         array (
             0 => __DIR__ . '/..' . '/slim/slim/Slim',
         ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
@@ -52,6 +58,10 @@ class ComposerStaticInit430b0d0e92b425a37ffeae294c032e96
         'Picqer\\Barcode\\' => 
         array (
             0 => __DIR__ . '/..' . '/picqer/php-barcode-generator/src',
+        ),
+        'PhpOffice\\PhpSpreadsheet\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
         ),
         'Interop\\Container\\' => 
         array (

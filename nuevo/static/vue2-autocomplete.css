@@ -38,6 +38,7 @@
     color: #2b2b2b;
     padding: 5px;
     padding-left: 10px;
+    font-size: 14px;
   }
   
   .autocomplete ul li a:hover, .autocomplete ul li.focus-list a{

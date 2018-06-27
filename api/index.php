@@ -7,6 +7,10 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require 'vendor/autoload.php';
 
+// EXCEL 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 $config['debug'] = true;
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
@@ -46,8 +50,8 @@ $app->add(function ($req, $res, $next) {
 
 
 
-function getNow() {
-    return date_create('now', timezone_open('America/Lima'))->format('Y-m-d H:i:s');
+function getNow($format = "Y-m-d H:i:s") {
+    return date_create('now', timezone_open('America/Lima'))->format($format);
 }
 
 
@@ -347,11 +351,12 @@ $app->get('/productos', function (Request $request, Response $response, array $a
                    "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
                    "%' OR Gen_Producto.Color LIKE '%" . $filter . 
                    "%' OR Gen_Producto.Genero LIKE '%" . $filter . 
+                   "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
                    "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
                    "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
                    "%' ";        
     } else {
-        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
+        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.ProductoModelo LIKE '" . $request->getParam('q') . "%'";
     }
 
     if ($request->getParam('sortBy')) {
@@ -429,8 +434,8 @@ $app->get('/proveedores', function (Request $request, Response $response, array 
     $select = "SELECT *, IFNULL(CONCAT(Ruc, ' - ', Proveedor), '-') AS ProveedorRuc FROM Lo_Proveedor";
     $select .= " WHERE Proveedor LIKE '%" . $q . "%' OR Ruc LIKE '%" . $q . "%' ";
 
-    if ($request->getParam('limit')) {
-        $limit = $request->getParam('limit');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') : 10;
+    if ($limit) {
         $offset = 0;
         if ($request->getParam('page')) {
             $page = $request->getParam('page');
@@ -902,6 +907,12 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
     }
 
+    if ($request->getParam('idProductos')) {
+        // mandar array de IDS 
+        $idProductos = $request->getParam('idProductos');
+        $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
+    }
+
     if (isset($request->getParam('filter')['stock'])) {
         $filterStock = $request->getParam('filter')['stock'];
         if ($filterStock == 'mayor') {
@@ -934,7 +945,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
-
+    
     return $response->withJson($data);
 });
 
@@ -1197,7 +1208,54 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 
+// REPORTES 
+$app->get('/reporte/stock', function (Request $request, Response $response, array $args) use ($app) {
+    $idAlmacen = $request->getParam('idAlmacen');
+    
+    $res = $app->subRequest('GET', '/productos/stock', 'idAlmacen=' . $idAlmacen);
+    $productos = (string) $res->getBody();
+    $productos = json_decode($productos, true);
+    
+    $excel = new Spreadsheet();
+    //$sheet = $excel->setActiveSheetIndex(0);
+    $sheet = $excel->getActiveSheet();
+    $sheet->setCellValue('A1', 'CODIGO');
+    $sheet->setCellValue('B1', 'CATEGORIA');
+    $sheet->setCellValue('C1', 'PRODUCTO');
+    $sheet->setCellValue('D1', 'MARCA');
+    $sheet->setCellValue('E1', 'MODELO');
+    $sheet->setCellValue('F1', 'COLOR');
+    $sheet->setCellValue('G1', 'TALLA');
+    $sheet->setCellValue('H1', 'GENERO');
+    $sheet->setCellValue('I1', 'BOTAPIE');
+    $sheet->setCellValue('J1', 'STOCK');
 
+    $cont = 3;
+    foreach($productos as $prod) {
+        $sheet->setCellValue('A'.$cont, $prod['CodigoBarra']);
+        $sheet->setCellValue('B'.$cont, $prod['ProductoCategoria']);
+        $sheet->setCellValue('C'.$cont, $prod['Producto']);
+        $sheet->setCellValue('D'.$cont, $prod['ProductoMarca']);
+        $sheet->setCellValue('E'.$cont, $prod['ProductoModelo']);
+        $sheet->setCellValue('F'.$cont, $prod['Color']);
+        $sheet->setCellValue('G'.$cont, $prod['ProductoTalla']);
+        $sheet->setCellValue('H'.$cont, $prod['Genero']);
+        $sheet->setCellValue('I'.$cont, $prod['Botapie']);
+        $sheet->setCellValue('J'.$cont, $prod['stock']);
+        $cont += 1;
+    }
+
+    $excelWriter = new Xlsx($excel);
+
+    $fileName = 'stock' . getNow('Y-m-d-H-i-s').  '.xlsx';
+    $excelFileName = __DIR__ . '/reporte/' . $fileName;
+    $excelWriter->save($excelFileName);
+    // For Excel2007 and above .xlsx files   
+    // $response = $response->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $response = $response->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    $stream = fopen($excelFileName, 'r+');
+    return $response->withBody(new \Slim\Http\Stream($stream));
+});
 
 
 

@@ -43,12 +43,12 @@ $objPHPExcel->getActiveSheet()->setCellValue('I3', 'CATEGORIA');
    $result = ListarReporteStock($almacen,"");
    $cont = 4;
 	while ($row = mysqli_fetch_assoc($result)) {
-		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["Codigo"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["Producto"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["formafarmaceutica"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('G'.$cont, $row["marca"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('H'.$cont, $row["stock"]);
-		$objPHPExcel->getActiveSheet()->setCellValue('I'.$cont, $row["categoria"]);
+		$objPHPExcel->getActiveSheet()->setCellValue('D'.$cont, $row["Codigo"])->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->setCellValue('E'.$cont, $row["Producto"])->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->setCellValue('F'.$cont, $row["formafarmaceutica"])->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->setCellValue('G'.$cont, $row["marca"])->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->setCellValue('H'.$cont, $row["stock"])->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->setCellValue('I'.$cont, $row["categoria"])->setAutoSize(true);
 		$cont++;
 	}
 
