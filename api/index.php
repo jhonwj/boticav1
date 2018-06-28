@@ -347,14 +347,39 @@ $app->get('/productos', function (Request $request, Response $response, array $a
     
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
-        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
+
+        if(is_array($filter)) {
+            $select .= " WHERE Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') . 
+                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') . 
+                       "%' ANd Gen_Producto.Color LIKE '" . (isset($filter['color']) ? addslashes($filter['color']) : '') . 
+                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') . 
+                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') . 
+                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
+                       "%' AND Gen_Producto.Genero LIKE '" . (isset($filter['genero']) ? addslashes($filter['genero']) : '') . 
+                       "%' AND Gen_Producto.Botapie LIKE '" . (isset($filter['botapie']) ? addslashes($filter['botapie']) : '') . 
+                       "%' AND Gen_ProductoTalla.ProductoTalla LIKE '" . (isset($filter['talla']) ? addslashes($filter['talla']) : '%') . 
+                       "' "; 
+            
+        } else {
+            $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.Color LIKE '%" . $filter .
+                       "%' OR Gen_Producto.Genero LIKE '%" . $filter .  
+                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
+                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
+                       "%' ";        
+        }
+
+
+       /* $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
                    "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
                    "%' OR Gen_Producto.Color LIKE '%" . $filter . 
                    "%' OR Gen_Producto.Genero LIKE '%" . $filter . 
                    "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
                    "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
                    "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
-                   "%' ";        
+                   "%' ";        */
     } else {
         $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.ProductoModelo LIKE '" . $request->getParam('q') . "%'";
     }
