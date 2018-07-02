@@ -214,7 +214,8 @@ $app->get('/productos/id/{id}', function (Request $request, Response $response, 
     INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
     LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
 
-    $select .= " WHERE Gen_Producto.IdProducto = " . $args['id'];
+    $select .= " WHERE Gen_Producto.IdProducto = '" . $args['id'] . "'";
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetch();    
@@ -1081,6 +1082,22 @@ $app->get('/ventas/numero', function (Request $request, Response $response, arra
         "numero" => $numero ? $numero : 1
     ));
 });
+
+$app->get('/ventas', function (Request $request, Response $response) { 
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv, 
+        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
+        IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc";
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    
+    return $response->withJson($data);
+
+});
+
 
 $app->post('/ventas', function (Request $request, Response $response) { 
     $vendedor = 'xx';
