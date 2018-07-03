@@ -1,6 +1,6 @@
 <?php
 define("SITE_URL", "http://".$_SERVER['SERVER_NAME'].'/');
-define("Producto", SITE_URL . "views/Gen_ProductoForm.php");
+define("", SITE_URL . "views/Gen_ProductoForm.php");
 define("Forma_Farmaceutica", SITE_URL . "views/Gen_ProductoFormaFarmaceuticaForm.php");
 define("Medicion", SITE_URL . "views/Gen_ProductoMedicionForm.php");
 define("Marca", SITE_URL . "views/Gen_ProductoMarcaForm.php");
@@ -76,7 +76,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
           <li><a href="<?php echo ReporteStock; ?>"></a></li>
           <li><a href="<?php echo ReporteStock; ?>">STOCK</a></li>
           <li><a href="<?php echo RegMovimiento; ?>">REGISTRO DE MOVIMIENTO</a></li>
-          <li><a href="<?php echo RegCompraContable; ?>">REGISTRO DE COMPRA CONTABLE</a></li>
+          <!--<li><a href="<?php echo RegCompraContable; ?>">REGISTRO DE COMPRA CONTABLE</a></li>-->
           <li role="separator" class="divider"></li>
           <!--<li><a href="<?php echo BuscarVencimiento; ?>">PRODUCTOS POR VENCER</a></li>-->
         </ul>
@@ -90,6 +90,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
+          <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
           <!--<li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>-->
           <li role="separator" class="divider"></li>

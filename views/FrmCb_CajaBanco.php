@@ -499,7 +499,7 @@ include_once("../clases/helpers/Modal.php");
                    }, {
                        type: 'success'
                    });
-                   exportarCajaBancoClientePDF(limpiarTmpCajaBanco)
+                  // exportarCajaBancoClientePDF(limpiarTmpCajaBanco)
                } else {
                    $.notify({
                        icon: 'fa fa-exclamation',

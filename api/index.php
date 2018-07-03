@@ -628,8 +628,11 @@ $app->get('/movimiento/productos', function (Request $request, Response $respons
 
 
 $app->get('/movimientos/tipos', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Lo_MovimientoTipo')->whereLike('TipoMovimiento', '%' . $request->getParam('q') . '%');
-    $stmt = $select->execute();
+    $select = "SELECT * FROM Lo_MovimientoTipo WHERE Anulado=0";
+    $select .= " AND TipoMovimiento LIKE '%" . $request->getParam('q') . "%' ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
@@ -695,7 +698,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     // start Movimiento Detalle
     $productos = $request->getParam('productos');
     foreach($productos as $producto) {
-        if ($producto['total'] > 0) {
+        //if ($producto['total'] > 0) {
             $idProducto = $producto['IdProducto'];
             $cantidad = $producto['cantidad'];
             $tieneIgv = isset($producto['TieneIgv']) ? $producto['TieneIgv'] : 0;
@@ -709,12 +712,15 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $insert->execute();
             
             // start actualizar precioventa producto
-            $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
-                               ->table('Gen_Producto')
-                               ->where('IdProducto', '=', $idProducto);
-            $update->execute();
+            $alterarProductos = $request->getParam('movimiento')['alterarProductos'];
+            if ($alterarProductos) {
+                $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
+                                   ->table('Gen_Producto')
+                                   ->where('IdProducto', '=', $idProducto);
+                $update->execute();
+            }
             // end actualizar precioventa producto
-        }
+        //}
     }
     // end Movimiento Detalle
 
@@ -846,9 +852,11 @@ function stringSalidaUnd($idProducto, $idAlmacen, $fechaHasta) {
 function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta) {
     $select = "(SELECT IFNULL(SUM(Ve_DocVentaDet.Cantidad), 0) AS cantidad FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
         WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
             AND Ve_DocVentaDet.IdProducto = $idProducto
             AND Ve_DocVenta.Anulado = 0
+            AND Ve_DocVentaTipoDoc.VaRegVenta = 1
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     return $select;
@@ -967,7 +975,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " LIMIT " . $limit;
         $select .= " OFFSET " . $offset;
     }
-
+    // print_r($select);exit();
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
@@ -1083,19 +1091,106 @@ $app->get('/ventas/numero', function (Request $request, Response $response, arra
     ));
 });
 
+
+$app->get('/ventas/usuario', function (Request $request, Response $response) {
+    $usuario = $request->getParam('usuario');
+    $fechaInicio = $request->getParam('fechaInicio');
+    $fechaFin = $request->getParam('fechaFin');
+    $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y') . '-01-01';
+    $fechaFin = $fechaFin ? $fechaFin : getNow('Y-m-d');
+
+    $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total FROM Ve_DocVentaDet
+    INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
+    INNER JOIN Seg_Usuario ON Ve_DocVenta.UsuarioReg = Seg_Usuario.Usuario
+    WHERE Seg_Usuario.Usuario = '$usuario' 
+    AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
+    //print_r($select);exit();
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+
 $app->get('/ventas', function (Request $request, Response $response) { 
+    $filtros = '';
+
     $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv, 
-        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
+        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
-        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc";
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+        LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente";
     
+    $select .= " WHERE CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $request->getParam('q') . "%' ";
+    
+    
+    $idAlmacen = $request->getParam('idAlmacen');
+    if ($idAlmacen) {
+        $filtros .= " AND Ve_DocVenta.IdAlmacen =  $idAlmacen";
+    }
+
+    $filter = ($request->getParam('filter')) ? $request->getParam('filter') : [];
+    if (!isset($filter['fechaInicio'])) {
+        $filter['fechaInicio'] = getNow('Y') . '-01-01';
+    }
+
+    if (!isset($filter['fechaFin'])) {
+        $filter['fechaFin'] = getNow('Y-m-d');
+    }
+    
+    if ($filter) {
+        if(is_array($filter)) {
+
+            if (isset($filter['vendedor']) && $filter['vendedor']) $filtros .= " AND Ve_DocVenta.UsuarioReg = '" . $filter['vendedor'] . "'";
+            if (isset($filter['declarado'])) $filtros .= " AND Ve_DocVentaTipoDoc.VaRegVenta = " . $filter['declarado'];
+            if (isset($filter['fechaInicio']) && isset($filter['fechaFin'])) $filtros .= " AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $filter['fechaInicio'] . "' AS DATETIME) AND CONCAT('" . $filter['fechaFin'] . "',' 23:59:59')";
+            
+        } else {
+        }
+    }
+
+    $select .= $filtros;
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+    
+
+    if ($request->getParam('limit')) {
+        $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    // print_r($select);exit();
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
     
     return $response->withJson($data);
 
+});
+
+
+$app->get('/ventas/count', function (Request $request, Response $response) {
+    $idAlmacen = $request->getParam('idAlmacen');
+    $select = "SELECT COUNT(*) as total FROM Ve_DocVenta WHERE Ve_DocVenta.IdAlmacen = $idAlmacen";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
 });
 
 

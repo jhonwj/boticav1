@@ -17,6 +17,7 @@ $(document).ready(function(e){
       data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked")},
       dataType: "html",
       success: function(res){
+        console.log(res)
         var respuesta = JSON.parse(res);
         var tableBody = "";
         $.each(respuesta, function(data, value){
