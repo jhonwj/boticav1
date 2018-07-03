@@ -49,7 +49,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="medical-drugs-pills-and-capsules.svg" style="width:1em;"> Gestion Producto
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
-          <li ><a href= "<?php echo Producto; ?>" class="text-primary-color"><i class="fa fa-"></i>Modificar Producto</a></li>
+          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Modificar Producto</a></li>
           <!--<li><a href="<?php echo Marca; ?>" >Marca</a></li>-->
           <!--<li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>-->
           <!--<li><a href="<?php echo Modelo; ?>">Modelo</a></li>
