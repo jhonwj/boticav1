@@ -1092,6 +1092,26 @@ $app->get('/ventas/numero', function (Request $request, Response $response, arra
 });
 
 
+$app->get('/ventas/total', function (Request $request, Response $response, array $args) {
+    $fechaInicio = $request->getParam('fechaInicio');
+    $fechaFin = $request->getParam('fechaFin');
+    // $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y') . '-01-01';
+    $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y-m-d');
+    $fechaFin = $fechaFin ? $fechaFin : getNow('Y-m-d');
+
+    $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total 
+        FROM Ve_DocVentaDet
+        INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
+        WHERE Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
+    //print_r($select);exit();
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+
 $app->get('/ventas/usuario', function (Request $request, Response $response) {
     $usuario = $request->getParam('usuario');
     $fechaInicio = $request->getParam('fechaInicio');
@@ -1133,7 +1153,8 @@ $app->get('/ventas', function (Request $request, Response $response) {
 
     $filter = ($request->getParam('filter')) ? $request->getParam('filter') : [];
     if (!isset($filter['fechaInicio'])) {
-        $filter['fechaInicio'] = getNow('Y') . '-01-01';
+        //$filter['fechaInicio'] = getNow('Y') . '-01-01';
+        $filter['fechaInicio'] = getNow('Y-m-d');
     }
 
     if (!isset($filter['fechaFin'])) {
@@ -1291,6 +1312,60 @@ $app->post('/ventas', function (Request $request, Response $response) {
     
     return $response->withJson($data);
 });
+
+
+$app->get('/preorden/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) as total FROM Ve_Preorden";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
+
+$app->get('/preorden', function (Request $request, Response $response) {
+    $filter = $request->getParam('filter');
+    $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_PreOrden.IdCliente, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_PreOrden.FechaReg 
+        FROM Ve_PreOrden INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente";
+    $select .= " WHERE Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%' 
+                 OR Ve_DocVentaCliente.DniRuc LIKE '" . $filter . "%'";
+    $select .= " ORDER BY Ve_PreOrden.IdPreOrden DESC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+    
+});
+
+$app->get('/preorden/detalle', function (Request $request, Response $response) {
+    $idPreOrden = $request->getParam('idPreOrden');
+
+    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden=$idPreOrden";
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+    
+});
+
+$app->get('/cliente', function (Request $request, Response $response, array $args) {
+    $idCliente = $request->getParam('idCliente');
+
+    $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente=$idCliente";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();    
+
+    return $response->withJson($data);
+});
+
+
 
 
 

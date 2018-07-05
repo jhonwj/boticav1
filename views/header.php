@@ -63,7 +63,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Logistica
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
-          <li><a href="<?php echo Inventario; ?>">REGISTRO DE VENTAS</a></li>
+          <li><a href="<?php echo Inventario; ?>">REGISTRO DE COMPRAS</a></li>
           <!--<li><a href="<?php echo GenerarCodigoBarra; ?>">CODIGO DE BARRA</a></li>-->
           <li role="separator" class="divider"></li>
           <li class="dropdown-header">KARDEX CONTABLE</li>
