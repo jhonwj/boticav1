@@ -834,6 +834,16 @@ function stringIngresoUnd($idProducto, $idAlmacen, $fechaHasta) {
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
             AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
+    
+    if (!$idProducto) {
+        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+                AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
+            GROUP BY Lo_MovimientoDetalle.IdProducto)";
+    }
 
     return $select;
 }
@@ -845,6 +855,16 @@ function stringSalidaUnd($idProducto, $idAlmacen, $fechaHasta) {
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
             AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
+    
+    if (!$idProducto) {
+        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
+                AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
+            GROUP BY Lo_MovimientoDetalle.IdProducto)";
+    }
 
     return $select;
 }
@@ -858,6 +878,17 @@ function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta) {
             AND Ve_DocVenta.Anulado = 0
             AND Ve_DocVentaTipoDoc.VaRegVenta = 1
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
+
+    if (!$idProducto) {
+        $select = "(SELECT Ve_DocVentaDet.IdProducto, IFNULL(SUM(Ve_DocVentaDet.Cantidad), 0) AS cantidad FROM Ve_DocVenta
+            INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
+            INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+            WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
+                AND Ve_DocVenta.Anulado = 0
+                AND Ve_DocVentaTipoDoc.VaRegVenta = 1
+                AND Ve_DocVenta.FechaDoc < '$fechaHasta'
+            GROUP BY Ve_DocVentaDet.IdProducto)";
+    }
 
     return $select;
 }
@@ -895,25 +926,62 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     $idAlmacen = $request->getParam('idAlmacen');
     $fechaHasta = $request->getParam('fechaHasta') ? $request->getParam('fechaHasta') : getNow();
 
-    $strIngresoUnd = stringIngresoUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
-    $strSalidaUnd = stringSalidaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
-    $strSalidaVentaUnd = stringSalidaVentaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
+    // $strIngresoUnd = stringIngresoUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
+    // $strSalidaUnd = stringSalidaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
+    // $strSalidaVentaUnd = stringSalidaVentaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     
-    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-        Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion,
-
-        $strIngresoUnd AS StockIngresoUnd, 
-        $strSalidaUnd AS StockSalidaUnd,
-        $strSalidaVentaUnd AS StockSalidaVentaUnd,
-        ((SELECT StockIngresoUnd) - (SELECT StockSalidaUnd) - (SELECT StockSalidaVentaUnd)) AS stock 
-
-
-        FROM Gen_Producto 
-        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
-        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
-        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
+    $strIngresoUnd = stringIngresoUnd(false, $idAlmacen, $fechaHasta);
+    $strSalidaUnd = stringSalidaUnd(false, $idAlmacen, $fechaHasta);
+    $strSalidaVentaUnd = stringSalidaVentaUnd(false, $idAlmacen, $fechaHasta);
     
+    /*$select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+            Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion,
+            
+            $strIngresoUnd AS StockIngresoUnd, 
+            $strSalidaUnd AS StockSalidaUnd,
+            $strSalidaVentaUnd AS StockSalidaVentaUnd,  
+            ((SELECT StockIngresoUnd) - (SELECT StockSalidaUnd) - (SELECT StockSalidaVentaUnd)) AS stock 
+
+
+            FROM Gen_Producto 
+            INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+            INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+            INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";*/
+    
+    if ($request->getParam('sumaStock')) {
+        $select = "SELECT
+            SUM(IFNULL(IngresoUnd.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0)) AS sumaStock
+
+            FROM Gen_Producto 
+            INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+            INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+            INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla 
+            LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
+            LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto ";
+    } else {
+        $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+            Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion,
+            IFNULL(IngresoUnd.cantidad, 0) AS StockIngresoUnd,
+            IFNULL(SalidaUnd.cantidad, 0) AS StockSalidaUnd,
+            IFNULL(SalidaVentaUnd.cantidad, 0) AS StockSalidaVentaUnd,
+
+            (IFNULL(IngresoUnd.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0)) AS stock
+
+            FROM Gen_Producto 
+            INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+            INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+            INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla 
+            LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
+            LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto ";
+    }
+            
+
+
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
         if(is_array($filter)) {
@@ -947,7 +1015,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
 
-    if (isset($request->getParam('filter')['stock'])) {
+    if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock')) {
         $filterStock = $request->getParam('filter')['stock'];
         if ($filterStock == 'mayor') {
             $select .= " HAVING stock > 0";

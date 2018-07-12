@@ -20,10 +20,11 @@ include_once("../clases/helpers/Modal.php");
 <script>
   function resizeIframe(obj) {
     //obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+		obj.style.height = ($( window ).height() -  70) + 'px';
   }
 </script>
 
-<iframe src="/nuevo/index.html#/productos" width="100%" height="700px" frameborder="0" scrolling="no"  onload="resizeIframe(this)"></iframe>
+<iframe src="/nuevo/index.html#/productos" width="100%" frameborder="0"  onload="resizeIframe(this)"></iframe>
 
 
 </html>
