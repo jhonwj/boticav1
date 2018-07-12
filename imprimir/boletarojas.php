@@ -3,6 +3,7 @@ include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 
 //var_dump($docVenta);
 $emision = strtotime($docVenta['FechaDoc']);
+$fecha = date("Y-m-d", strtotime($docVenta['FechaDoc']));
 $day = date("d", $emision);
 $mes = date("m", $emision);
 $meses = array(
@@ -38,16 +39,16 @@ $igv = 0;
     font-family: monospace;
   }
   .container {
-    margin-top: 27mm;
-    width: 170mm;
-    margin-left: 14px;
+    margin-top: 36mm;
+    width: 160mm;
+    /*margin-left: 14px;*/
     /*border: 1px solid red;*/
   }
   td {
     line-height: 3.5mm;
     letter-spacing: 0.5mm;
     font-size: 3.5mm;
-    font-weight: normal;
+    font-weight: bold;
     /*border: 1px solid black;*/
   }
   .emision {
@@ -73,7 +74,7 @@ $igv = 0;
     margin-left: 20mm;
   }
   .ruc {
-    width: 48mm;
+    width: 38mm;
     position: relative;
   }
   .ruc span {
@@ -90,16 +91,16 @@ $igv = 0;
     margin-top: 2mm;
   }
   .totales span {
-    margin-left: 10px;
+    margin-left: 6mm;
 
   }
 
   /* Estilos para productos */
   .productos {
-  /*  height: 8em;*/
+    height: 40mm;
   }
   .productos {
-    padding-top: 1.2em;
+    padding-top: 5mm;
     box-sizing: border-box;
   }
   .productos .cantidad {
@@ -110,10 +111,10 @@ $igv = 0;
     margin-left: 0mm;
   }
   .productos .precio {
-    width: 16mm;
+    width: 12mm;
   }
   .productos .pTotal {
-    width: 38mm;
+    width: 35mm;
   }
   .productos .pTotal span {
     margin-left: 10px;
@@ -127,7 +128,7 @@ $igv = 0;
     font-size: 13px;
   }
   .footer .user {
-    margin-top: 10px;
+    margin-top: 3mm;
     margin-left: 20px;
   }
 </style>
@@ -138,7 +139,7 @@ $igv = 0;
         <span class="cliente"><?php echo $cliente; ?></span>
       </td>
       <td class="ruc fecha">
-        <span><?php echo $docVenta['FechaDoc']; ?></span>
+        <span><?php echo $fecha; ?></span>
       </td>
     </tr>
     <tr>

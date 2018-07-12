@@ -41,48 +41,48 @@ $igv = 0;
 
   }
   .container {
-    margin-top: 50mm;
-    width: 214mm;
+    margin-top: 52mm;
+    width: 190mm;
   /*  border: 1px solid red;*/
   }
   td {
     line-height: 3.5mm;
     letter-spacing: 0.5mm;
     font-size: 3.5mm;
-    font-weight: normal;
+    font-weight: bold;
     /*border: 1px solid black;*/
   }
   .emision {
     width: 690px;
   }
   .dia span {
-    margin-left: 19mm;
+    margin-left: 13mm;
   }
   .dia {
     width: 14mm;
     text-align:center;
   }
   .mes {
-    width: 14mm;
+    width: 13mm;
     text-align:center;
   }
   .mes span {
   }
   .anio {
     /*width: 50px;*/
-    width: 14mm;
+    width: 12mm;
     text-align:center;
   }
   .anio span {
   }
   .cliente {
-    margin-left: 28mm;
+    margin-left: 18mm;
   }
   .ruc {
     /*width: 320px;*/
   }
   .ruc span {
-    margin-left: 16mm;
+    margin-left: 12mm;
   }
   .totales {
       text-align: right;
@@ -93,19 +93,20 @@ $igv = 0;
     margin-right: 5mm;
   }
   .totales td {
-      line-height: 7mm;
+      line-height: 6mm;
   }
 
   /* Estilos para productos */
   .productos {
-    height: 64mm
+    height: 58mm
   }
   .productos {
     padding-top: 7mm;
     box-sizing: border-box;
+    margin-left: -2mm;
   }
   .productos .cantidad {
-    width: 70px;
+    width: 16mm;
     text-align: center;
   }
   .productos .detalle span{
@@ -124,13 +125,12 @@ $igv = 0;
   .footer {
     width: 160mm;
     float: left;
-    margin-top: 5px;
   }
   .footer .son {
     margin-left: 80px;
   }
   .footer .user, .footer .fecha {
-    margin-left: 230px;
+    margin-left: 10mm;
   }
   .footer .small {
     display: block;
@@ -140,7 +140,7 @@ $igv = 0;
     margin-top: 16mm;
   }
   .arriba td {
-      line-height: 7mm;
+      line-height: 6mm;
   }
 </style>
 <div class="container">
