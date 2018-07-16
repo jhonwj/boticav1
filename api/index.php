@@ -1171,7 +1171,7 @@ $app->get('/ventas/total', function (Request $request, Response $response, array
     $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total 
         FROM Ve_DocVentaDet
         INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
-        WHERE Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
+        WHERE Ve_DocVenta.Anulado=0 AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
     //print_r($select);exit();
 
     if($idTipoDoc) {
@@ -1197,7 +1197,7 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
     $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total FROM Ve_DocVentaDet
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
     INNER JOIN Seg_Usuario ON Ve_DocVenta.UsuarioReg = Seg_Usuario.Usuario
-    WHERE Seg_Usuario.Usuario = '$usuario' 
+    WHERE Ve_DocVenta.Anulado=0 AND Seg_Usuario.Usuario = '$usuario' 
     AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
     //print_r($select);exit();
     
@@ -1231,11 +1231,6 @@ $app->get('/ventas', function (Request $request, Response $response) {
         $filtros .= " AND Ve_DocVenta.IdAlmacen =  $idAlmacen";
     }
 
-    $idTipoDoc = $request->getParam('idTipoDoc');
-    if ($idTipoDoc) {
-        $filtros .= " AND Ve_DocVenta.IdTipoDoc = $idTipoDoc";
-    }
-
     $filter = ($request->getParam('filter')) ? $request->getParam('filter') : [];
     if (!isset($filter['fechaInicio'])) {
         //$filter['fechaInicio'] = getNow('Y') . '-01-01';
@@ -1255,6 +1250,16 @@ $app->get('/ventas', function (Request $request, Response $response) {
             
         } else {
         }
+    }
+
+    $idTipoDoc = $request->getParam('idTipoDoc');
+    if($idTipoDoc) {
+        $filtros .= " AND Ve_DocVenta.IdTipoDoc IN (" . implode(',', $idTipoDoc) . ")";
+    }
+
+    $anulado = $request->getParam('anulado');
+    if(!is_null($anulado) && $anulado != '' && ($anulado == 0 || $anulado == 1)) {
+        $filtros .= " AND Ve_DocVenta.Anulado='$anulado'";
     }
 
     $select .= $filtros;
