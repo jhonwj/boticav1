@@ -1163,6 +1163,7 @@ $app->get('/ventas/numero', function (Request $request, Response $response, arra
 $app->get('/ventas/total', function (Request $request, Response $response, array $args) {
     $fechaInicio = $request->getParam('fechaInicio');
     $fechaFin = $request->getParam('fechaFin');
+    $idTipoDoc = $request->getParam('idTipoDoc');
     // $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y') . '-01-01';
     $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y-m-d');
     $fechaFin = $fechaFin ? $fechaFin : getNow('Y-m-d');
@@ -1172,6 +1173,11 @@ $app->get('/ventas/total', function (Request $request, Response $response, array
         INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
         WHERE Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
     //print_r($select);exit();
+
+    if($idTipoDoc) {
+        $select .= " AND Ve_DocVenta.IdTipoDoc = $idTipoDoc";
+    }
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetch();
@@ -1186,6 +1192,7 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
     $fechaFin = $request->getParam('fechaFin');
     $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y') . '-01-01';
     $fechaFin = $fechaFin ? $fechaFin : getNow('Y-m-d');
+    $idTipoDoc = $request->getParam('idTipoDoc');
 
     $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total FROM Ve_DocVentaDet
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
@@ -1193,6 +1200,11 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
     WHERE Seg_Usuario.Usuario = '$usuario' 
     AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
     //print_r($select);exit();
+    
+    if($idTipoDoc) {
+        $select .= " AND Ve_DocVenta.IdTipoDoc = $idTipoDoc";
+    }
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetch();
@@ -1217,6 +1229,11 @@ $app->get('/ventas', function (Request $request, Response $response) {
     $idAlmacen = $request->getParam('idAlmacen');
     if ($idAlmacen) {
         $filtros .= " AND Ve_DocVenta.IdAlmacen =  $idAlmacen";
+    }
+
+    $idTipoDoc = $request->getParam('idTipoDoc');
+    if ($idTipoDoc) {
+        $filtros .= " AND Ve_DocVenta.IdTipoDoc = $idTipoDoc";
     }
 
     $filter = ($request->getParam('filter')) ? $request->getParam('filter') : [];
