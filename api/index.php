@@ -1405,7 +1405,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
 
 $app->get('/preorden/count', function (Request $request, Response $response, array $args) {
-    $select = "SELECT COUNT(*) as total FROM Ve_Preorden";
+    $select = "SELECT COUNT(*) as total FROM Ve_PreOrden";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
