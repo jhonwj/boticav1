@@ -1446,8 +1446,14 @@ $app->get('/preorden/detalle', function (Request $request, Response $response) {
 
 $app->get('/cliente', function (Request $request, Response $response, array $args) {
     $idCliente = $request->getParam('idCliente');
-
-    $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente=$idCliente";
+    $dni = $request->getParam('dni');
+    
+    if ($dni) {
+        $select = "SELECT * FROM Ve_DocVentaCliente WHERE DniRuc='$dni'";
+    } else {
+        $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente='$idCliente'";
+    } 
+    
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetch();    

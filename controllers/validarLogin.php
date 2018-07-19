@@ -46,7 +46,7 @@
 			$_SESSION['permisos'] = $nuevosPermisos;
 			$_SESSION['start'] = time();
 			$_SESSION['idPerfil'] = $idUsuarioPerfil;
-      $_SESSION['expire'] = $_SESSION['start'] + (5 * 60 * 60);
+      	// $_SESSION['expire'] = $_SESSION['start'] + (5 * 60 * 60);
 
 			$isLogin = true;
 		}
