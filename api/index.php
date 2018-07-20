@@ -509,6 +509,22 @@ $app->post('/proveedores', function (Request $request, Response $response) {
 });
 
 
+$app->post('/productos/delete', function (Request $request, Response $response) {
+    $id = $request->getParam('id');
+
+    if ($id) {
+        $sql = "DELETE FROM Gen_Producto WHERE IdProducto='$id'";
+        $stmt = $this->db->prepare($sql);
+        $deleted = $stmt->execute();
+    
+        return $response->withJson(array(
+            "deleted" => $deleted,
+            "IdProducto" => $id
+        ));
+    }
+});
+
+
 $app->post('/productos', function (Request $request, Response $response) {
     $idProductoMarca = $request->getParam('marca')['IdProductoMarca'];
     $idProductoMedicion = $request->getParam('medicion')['IdProductoMedicion'];
@@ -961,6 +977,18 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto ";
+    } else if ($request->getParam('sumaValorizado')) {
+        $select = "SELECT
+            SUM(Gen_Producto.PrecioContado * (IFNULL(IngresoUnd.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0))) AS sumaValorizado
+
+            FROM Gen_Producto 
+            INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+            INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+            INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla 
+            LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
+            LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto ";
     } else {
         $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
             Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion,
@@ -1015,7 +1043,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
 
-    if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock')) {
+    if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
         $filterStock = $request->getParam('filter')['stock'];
         if ($filterStock == 'mayor') {
             $select .= " HAVING stock > 0";
@@ -1536,7 +1564,8 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
     $sheet->setCellValue('G1', 'TALLA');
     $sheet->setCellValue('H1', 'GENERO');
     $sheet->setCellValue('I1', 'BOTAPIE');
-    $sheet->setCellValue('J1', 'STOCK');
+    $sheet->setCellValue('J1', 'PRECIO CONTADO');
+    $sheet->setCellValue('K1', 'STOCK');
 
     $cont = 3;
     foreach($productos as $prod) {
@@ -1549,7 +1578,8 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
         $sheet->setCellValue('G'.$cont, $prod['ProductoTalla']);
         $sheet->setCellValue('H'.$cont, $prod['Genero']);
         $sheet->setCellValue('I'.$cont, $prod['Botapie']);
-        $sheet->setCellValue('J'.$cont, $prod['stock']);
+        $sheet->setCellValue('J'.$cont, 'S/. ' . $prod['PrecioContado']);
+        $sheet->setCellValue('K'.$cont, $prod['stock']);
         $cont += 1;
     }
 
