@@ -1703,10 +1703,81 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
     return $response->withBody(new \Slim\Http\Stream($stream));
 });
 
-$app->get('/reporte/cierrecaja', function (Request $request, Response $response, array $args) use ($app) {
-    $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL)";
-    $select .= " AND Seg_Usuario.Usuario LIKE '%" . $request->getParam('q') . "%' ";
 
+$app->post('/cierrecaja', function (Request $request, Response $response) {
+    $idTurno = $request->getParam('IdTurno');
+    $usuarioReg = $_SESSION['user'];
+    $fechaCierre = getNow();
+    
+    $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg)
+        VALUES ($fechaCierre, $idTurno, $usuarioReg)";
+    $stmt = $this->db->prepare($insert);
+    $inserted = $stmt->execute();
+    $idCierreCaja = $this->db->lastInsertId();
+    
+    // ACtualizar DocVenta
+    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL";
+    $stmt = $this->db->prepare($updateVenta);
+    $updatedVenta = $stmt->execute(); 
+
+    // Actualizar CajaBanco
+    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL";
+    $stmt = $this->db->prepare($updateCajaBanco);
+    $updatedCajaBanco = $stmt->execute();
+    //aqui me quede
+
+
+});
+
+$app->get('/cierrecaja', function (Request $request, Response $response, array $args) use ($app) {
+    $select = "SELECT
+        Ve_DocVenta.idDocVenta, Ve_DocVentaPuntoVenta.PuntoVenta, Ve_DocVentaCliente.Cliente, Ve_DocVenta.FechaDoc, Ve_DocVenta.Anulado,
+        Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVenta.Serie, Ve_DocVenta.Numero, SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) as Total,
+        Ve_DocVenta.EsCredito,
+        (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1) AS EfectivoDesc,
+        (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2) AS VisaDesc,
+        (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3) AS MastercardDesc,
+
+        IFNULL((SELECT SUM(Ve_DocVentaMetodoPagoDet.Importe) FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1), 0) AS Efectivo,
+        IFNULL((SELECT SUM(Ve_DocVentaMetodoPagoDet.Importe) FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2), 0) AS Visa,
+        IFNULL((SELECT SUM(Ve_DocVentaMetodoPagoDet.Importe) FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3), 0) AS Mastercard
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVentaTipoDoc.IdTipoDoc = Ve_DocVenta.IdTipoDoc
+        LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+        INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
+        WHERE Ve_DocVenta.IdCierre IS NULL
+        GROUP BY Ve_DocVenta.idDocVenta
+        ORDER BY Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta ASC, Ve_DocVenta.FechaDoc ASC;";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/cierrecaja/ingresos', function (Request $request, Response $response, array $args) use ($app) {
+    $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto, Cb_CajaBanco.Importe
+        FROM Cb_CajaBanco
+        INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
+        INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
+        WHERE Cb_CajaBanco.IdCierre IS NULL
+        AND Cb_TipoCajaBanco.Tipo = 0
+        ORDER BY FechaDoc ASC;";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/cierrecaja/salidas', function (Request $request, Response $response, array $args) use ($app) {
+    $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto, Cb_CajaBanco.Importe
+        FROM Cb_CajaBanco
+        INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
+        INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
+        WHERE Cb_CajaBanco.IdCierre IS NULL
+        AND Cb_TipoCajaBanco.Tipo = 1
+        ORDER BY FechaDoc ASC;";
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();    
