@@ -1705,17 +1705,22 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
 
 
 $app->post('/cierrecaja', function (Request $request, Response $response) {
-    $idTurno = $request->getParam('IdTurno');
-    $usuarioReg = $_SESSION['user'];
+    $idTurno = $request->getParam('idTurno');
+    $user = $request->getParam('user');
     $fechaCierre = getNow();
+    $usuarioReg = 'xx';
+    if(isset($_SESSION['user'])) {
+        $usuarioReg = $_SESSION['user'];
+    }
+    $usuarioReg = $user ? $user : $usuarioReg;
     
     $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg)
-        VALUES ($fechaCierre, $idTurno, $usuarioReg)";
+        VALUES ('$fechaCierre', '$idTurno', '$usuarioReg')";
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
     $idCierreCaja = $this->db->lastInsertId();
     
-    // ACtualizar DocVenta
+    // Actualizar DocVenta
     $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL";
     $stmt = $this->db->prepare($updateVenta);
     $updatedVenta = $stmt->execute(); 
@@ -1726,10 +1731,63 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
     $updatedCajaBanco = $stmt->execute();
     //aqui me quede
 
+    return $response->withJson(array(
+        "idTurno" => $idTurno,
+        "fechaCierre" => $fechaCierre,
+        "idCierraCaja" => $idCierreCaja
+    ));
+});
+$app->get('/cierrecaja', function (Request $request, Response $response, array $args) {
+    $idCierre = $request->getParam('idCierre');
+    $filter = $request->getParam('filter');
 
+    $select = "SELECT * FROM Cb_CierreCaja WHERE FechaCierre LIKE '%$filter%' OR UsuarioReg LIKE '%$filter%'";
+
+    if ($idCierre) {
+        $select .= " AND IdCierreCaja=$idCierre";
+    }
+
+    
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/cierrecaja/count', function (Request $request, Response $response, array $args) {
+
+    $select = "SELECT COUNT(*) AS total FROM Cb_CierreCaja";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
 });
 
-$app->get('/cierrecaja', function (Request $request, Response $response, array $args) use ($app) {
+
+$app->get('/cierrecaja/ventas', function (Request $request, Response $response, array $args) {
+    $idCierre = $request->getParam('idCierre');
+
     $select = "SELECT
         Ve_DocVenta.idDocVenta, Ve_DocVentaPuntoVenta.PuntoVenta, Ve_DocVentaCliente.Cliente, Ve_DocVenta.FechaDoc, Ve_DocVenta.Anulado,
         Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVenta.Serie, Ve_DocVenta.Numero, SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) as Total,
@@ -1745,9 +1803,15 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
         INNER JOIN Ve_DocVentaDet ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVentaTipoDoc.IdTipoDoc = Ve_DocVenta.IdTipoDoc
         LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
-        INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
-        WHERE Ve_DocVenta.IdCierre IS NULL
-        GROUP BY Ve_DocVenta.idDocVenta
+        INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta" ;
+    
+    if($idCierre) {
+        $select .= " WHERE Ve_DocVenta.IdCierre = $idCierre";
+    } else {
+        $select .= " WHERE Ve_DocVenta.IdCierre IS NULL";
+    }
+    
+    $select .= " GROUP BY Ve_DocVenta.idDocVenta
         ORDER BY Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta ASC, Ve_DocVenta.FechaDoc ASC;";
 
     $stmt = $this->db->query($select);
@@ -1756,14 +1820,23 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
 
     return $response->withJson($data);
 });
-$app->get('/cierrecaja/ingresos', function (Request $request, Response $response, array $args) use ($app) {
+$app->get('/cierrecaja/ingresos', function (Request $request, Response $response, array $args) {
+    $idCierre = $request->getParam('idCierre');
+    
     $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto, Cb_CajaBanco.Importe
         FROM Cb_CajaBanco
         INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
-        INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
-        WHERE Cb_CajaBanco.IdCierre IS NULL
-        AND Cb_TipoCajaBanco.Tipo = 0
+        INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta";
+    
+    if($idCierre) {
+        $select .= " WHERE Cb_CajaBanco.IdCierre=$idCierre";
+    } else {
+        $select .= " WHERE Cb_CajaBanco.IdCierre IS NULL";
+    }
+
+    $select .= " AND Cb_TipoCajaBanco.Tipo = 0
         ORDER BY FechaDoc ASC;";
+    
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();    
@@ -1771,13 +1844,22 @@ $app->get('/cierrecaja/ingresos', function (Request $request, Response $response
     return $response->withJson($data);
 });
 $app->get('/cierrecaja/salidas', function (Request $request, Response $response, array $args) use ($app) {
+    $idCierre = $request->getParam('idCierre');
+    
     $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto, Cb_CajaBanco.Importe
         FROM Cb_CajaBanco
         INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
-        INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
-        WHERE Cb_CajaBanco.IdCierre IS NULL
-        AND Cb_TipoCajaBanco.Tipo = 1
+        INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta";
+
+    if($idCierre) {
+        $select .= " WHERE Cb_CajaBanco.IdCierre=$idCierre";
+    } else {
+        $select .= " WHERE Cb_CajaBanco.IdCierre IS NULL";
+    }
+
+    $select .= " AND Cb_TipoCajaBanco.Tipo = 1
         ORDER BY FechaDoc ASC;";
+    
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();    

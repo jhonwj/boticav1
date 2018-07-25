@@ -45,5 +45,12 @@ if ($permiso) {
     include_once('error/noAcceso.php');
     exit();
   }
+
+  ?>
+  <script>
+    sessionStorage.clear();
+    sessionStorage.setItem('User', "<?php echo $_SESSION['user'] ?>");
+  </script>
+  <?php
 }
 ?>
