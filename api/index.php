@@ -336,6 +336,19 @@ $app->get('/productos/modelos', function (Request $request, Response $response, 
     return $response->withJson($data);
 });
 
+$app->get('/productosdet', function (Request $request, Response $response, array $args) {
+    $idProducto = $request->getParam('idProducto');
+
+    $select = "SELECT Gen_Producto.Producto, Gen_ProductoDet.* FROM Gen_ProductoDet 
+        INNER JOIN Gen_Producto ON Gen_ProductoDet.IdProductoDet = Gen_Producto.IdProducto 
+        WHERE Gen_ProductoDet.IdProducto=$idProducto";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
 
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
@@ -544,6 +557,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     $anulado = $request->getParam('Anulado');
     $categoria = $request->getParam('categoria')['ProductoCategoria'];
 
+    $productosDet = $request->getParam('productosDet');
+
     // Actualizamos el producto si le pasamos el ID
     if ($request->getParam('IdProducto')) {
         // aqui se actualiza el producto si existe
@@ -569,7 +584,20 @@ $app->post('/productos', function (Request $request, Response $response) {
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
         $affectedRows = $update->execute();
-        return $response->withJson(array("affectedRows" => $affectedRows));
+        // Actualizar ProductoDet
+        if ($productosDet) {
+            $sql = "DELETE FROM Gen_ProductoDet WHERE IdProducto='$idProducto'";
+            $stmt = $this->db->prepare($sql);
+            $deleted = $stmt->execute();
+            
+            foreach($productosDet as $prod) {
+                $insertDet = $this->db->insert(array('IdProducto', 'IdProductoDet', 'Cantidad'))
+                                    ->into('Gen_ProductoDet')
+                                    ->values(array($idProducto, $prod['IdProductoDet'], $prod['Cantidad']));
+                $insertDetId = $insertDet->execute();
+            }
+        }
+        return $response->withJson(array("affectedRows" => $productosDet));
     }
     // Fin actualizacion producto
 
@@ -613,6 +641,16 @@ $app->post('/productos', function (Request $request, Response $response) {
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $insertId);
     $affectedRows = $update->execute();
+
+    // Insertar productoDet
+    if ($productosDet) {
+        foreach($productosDet as $prod) {
+            $insertDet = $this->db->insert(array('IdProducto', 'IdProductoDet', 'Cantidad'))
+                                  ->into('Gen_ProductoDet')
+                                  ->values(array($insertId, $prod['IdProducto'], $prod['Cantidad']));
+            $insertDetId = $insertDet->execute();
+        }
+    }
 
     return $response->withJson(array("insertId" => $insertId));
 
