@@ -24,7 +24,7 @@ body:before {
   width: 100%;
   height: 100%;
   display: block;
-  background: url('/resources/images/ropa.jpg') no-repeat;
+  background: url('/resources/images/mini.jpg') no-repeat;
   background-size: cover;
   position: absolute;
 }
