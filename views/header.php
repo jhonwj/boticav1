@@ -131,3 +131,9 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
 
 
 <div id="loading"></div>
+
+<script>
+    sessionStorage.clear();
+    sessionStorage.setItem('User', "<?php echo $_SESSION['user'] ?>");
+  </script>
+  
