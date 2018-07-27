@@ -87,9 +87,9 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 254px"/></div><br />
-  <div class="center">ROJAS SPORT S.R.L</div>
+  <div class="center">MINIMARKET PLUS +</div>
   <div class="center">RUC: 20573209665 </div>
-  <div class="center small">VENTA DE ROPA SPORT Y DE VESTIR.</div>
+  <div class="center small">VENTA DE ....</div>
   <br />
   
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -181,9 +181,9 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">JR. HUÁNUCO N° 613</div>
+  <div class="center small">JR. HUÁNUCO N° xxx</div>
   <div class="center small">HUÁNUCO - HUÁNUCO - HUÁNUCO</div>
-  <div class="center small">TELF. 062-285043 - CEL. 999678194</div>
+  <div class="center small">TELF. xxx - CEL. xxx</div>
   <div class="center small">.</div>
   <br />
   <br />

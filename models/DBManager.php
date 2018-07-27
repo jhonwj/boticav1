@@ -5,7 +5,7 @@ header( 'Content-Type: text/html;charset=utf-8' );
 function ejecutarSQLCommand($commando){
 
   $mysqli = new mysqli("localhost", "root", '', "neurosys_mini");
-  // $mysqli = new mysqli("localhost", "neurofac_botica", '&TF{LW9m8U?I', "neurofac_botica");
+  // $mysqli = new mysqli("localhost", "neurosys_mini", 'S[W9#ZBA4,bO', "neurosys_mini");
   //$mysqli = new mysqli("localhost", "root", "", "botica");
 /* check connection */
 if ($mysqli->connect_errno) {
@@ -44,7 +44,7 @@ function getSQLResultSet($commando){
 
     // $link = mysql_connect("localhost", "root", "");
     $mysqli = new mysqli("localhost", "root", '', 'neurosys_mini');
-    // $mysqli = new mysqli("localhost", "neurofac_botica", '&TF{LW9m8U?I', "neurofac_botica");
+    // $mysqli = new mysqli("localhost", "neurosys_mini", 'S[W9#ZBA4,bO', "neurosys_mini");
 
     $mysqli->set_charset("utf8");
     // $acentos = mysql_query("SET NAMES 'utf8'");
@@ -80,6 +80,7 @@ function getSQLResultSet($commando){
 
 function getMysqliLink() {
     $mysqli = new mysqli("localhost", "root", '', 'neurosys_mini');
+    //$mysqli = new mysqli("localhost", "neurosys_mini", 'S[W9#ZBA4,bO', 'neurosys_mini');
     $mysqli->set_charset("utf8");
     if (!$mysqli) {
         die('Error de conexion ' . $mysqli->error );
