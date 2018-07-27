@@ -40,7 +40,7 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>">Rojas Sport</a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">Minimarket</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >

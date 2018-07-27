@@ -20,7 +20,7 @@ $config['db']['user']   = "root";
 // $config['db']['user']   = "neurosys_rojas";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = ")-9OkYjdiU1k";
-$config['db']['dbname'] = "neurofac_rojas";
+$config['db']['dbname'] = "neurosys_mini";
 // $config['db']['dbname'] = "neurosys_rojas";
 
 $app = new \Slim\App(["settings" => $config]);
@@ -206,13 +206,11 @@ $app->post('/tallas', function (Request $request, Response $response, array $arg
 
 
 $app->get('/productos/id/{id}', function (Request $request, Response $response, array $args) {
-    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-    Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca, Gen_ProductoMedicion.ProductoMedicion
     FROM Gen_Producto 
     INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
     INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
-    INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-    LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
+    INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
 
     $select .= " WHERE Gen_Producto.IdProducto = '" . $args['id'] . "'";
 
@@ -226,6 +224,34 @@ $app->get('/productos/id/{id}', function (Request $request, Response $response, 
 $app->get('/productos/colores', function (Request $request, Response $response, array $args) {
     $select = "SELECT DISTINCT Color FROM Gen_Producto";
     $select .= " WHERE Gen_Producto.Color LIKE '%" . $request->getParam('q') . "%' ";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+$app->get('/productos/presentaciones', function (Request $request, Response $response, array $args) {
+    $select = "SELECT DISTINCT ProductoPresentacion FROM Gen_Producto";
+    $select .= " WHERE Gen_Producto.ProductoPresentacion LIKE '%" . $request->getParam('q') . "%' ";
 
     if ($request->getParam('sortBy')) {
         $sortBy = $request->getParam('sortBy');
@@ -350,14 +376,44 @@ $app->get('/productosdet', function (Request $request, Response $response, array
     return $response->withJson($data);
 });
 
+$app->get('/productos/eshijo', function (Request $request, Response $response, array $args) {
+    $idProducto = $request->getParam('idProducto');
+
+    $select = "SELECT * FROM Gen_ProductoDet WHERE Gen_ProductoDet.IdProductoDet=$idProducto";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+    if ($data) {
+        $data = array("esHijo" => 1);
+    }else {
+        $data = array("esHijo" => 0);
+    }
+    return $response->withJson($data);
+});
+$app->get('/productos/espadre', function (Request $request, Response $response, array $args) {
+    $idProducto = $request->getParam('idProducto');
+
+    $select = "SELECT * FROM Gen_ProductoDet WHERE Gen_ProductoDet.IdProducto=$idProducto";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+    if ($data) {
+        $data = array("esPadre" => 1);
+    }else {
+        $data = array("esPadre" => 0);
+    }
+    return $response->withJson($data);
+});
+
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-        Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion
+        Gen_ProductoMedicion.ProductoMedicion
         FROM Gen_Producto 
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
-        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
     
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
@@ -371,7 +427,6 @@ $app->get('/productos', function (Request $request, Response $response, array $a
                        "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
                        "%' AND Gen_Producto.Genero LIKE '" . (isset($filter['genero']) ? addslashes($filter['genero']) : '') . 
                        "%' AND Gen_Producto.Botapie LIKE '" . (isset($filter['botapie']) ? addslashes($filter['botapie']) : '') . 
-                       "%' AND Gen_ProductoTalla.ProductoTalla LIKE '" . (isset($filter['talla']) ? addslashes($filter['talla']) : '%') . 
                        "' "; 
             
         } else {
@@ -543,7 +598,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $idProductoMedicion = $request->getParam('medicion')['IdProductoMedicion'];
     $idProductoCategoria = $request->getParam('categoria')['IdProductoCategoria'];
     // $idProductoModelo = $request->getParam('modelo')['IdProductoModelo'];
-    $idProductoTalla = $request->getParam('talla')['IdProductoTalla'];
+    // $idProductoTalla = $request->getParam('talla')['IdProductoTalla'];
     $idProductoFormaFarmaceutica = 1;
     $producto = $request->getParam('Producto');
     $productoModelo = $request->getParam('ProductoModelo') ? $request->getParam('ProductoModelo') : '';
@@ -556,6 +611,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     $botapie = $request->getParam('Botapie');
     $anulado = $request->getParam('Anulado');
     $categoria = $request->getParam('categoria')['ProductoCategoria'];
+    $productoPresentacion = $request->getParam('ProductoPresentacion');
+    $esPadre = $request->getParam('EsPadre');
 
     $productosDet = $request->getParam('productosDet');
 
@@ -574,22 +631,24 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "IdProductoMedicion" => $idProductoMedicion,
                             "IdProductoCategoria" => $idProductoCategoria,
                             // "IdProductoModelo" => $idProductoModelo,
-                            "IdProductoTalla" => $idProductoTalla,
+                            // "IdProductoTalla" => $idProductoTalla,
                             "ControlaStock" => $controlaStock,
                             "PorcentajeUtilidad" => $porcentajeUtilidad,
                             "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado,
                             "ProductoModelo" => $productoModelo,
-                            "PrecioContado" => $precioContado
+                            "PrecioContado" => $precioContado,
+                            "ProductoPresentacion" => $productoPresentacion,
+                            "EsPadre" => $esPadre
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
         $affectedRows = $update->execute();
         // Actualizar ProductoDet
-        if ($productosDet) {
-            $sql = "DELETE FROM Gen_ProductoDet WHERE IdProducto='$idProducto'";
-            $stmt = $this->db->prepare($sql);
-            $deleted = $stmt->execute();
-            
+        $sql = "DELETE FROM Gen_ProductoDet WHERE IdProducto='$idProducto'";
+        $stmt = $this->db->prepare($sql);
+        $deleted = $stmt->execute();
+        
+        if ($productosDet && $esPadre) {
             foreach($productosDet as $prod) {
                 $insertDet = $this->db->insert(array('IdProducto', 'IdProductoDet', 'Cantidad'))
                                     ->into('Gen_ProductoDet')
@@ -606,7 +665,7 @@ $app->post('/productos', function (Request $request, Response $response) {
         WHERE IdProductoMarca = '" . $idProductoMarca
         . "' AND IdProductoMedicion = '" . $idProductoMedicion
         . "' AND IdProductoCategoria = '" . $idProductoCategoria
-        . "' AND IdProductoTalla = '" . $idProductoTalla
+        //  . "' AND IdProductoTalla = '" . $idProductoTalla
         . "' AND ProductoModelo = '" . $productoModelo
         . "' AND Genero = '" . $genero
         . "' AND Botapie = '" . $botapie
@@ -629,9 +688,9 @@ $app->post('/productos', function (Request $request, Response $response) {
     }
     // Final verificar Movimiento
 
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'IdProductoTalla', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $idProductoTalla, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre));
     $insertId = $insert->execute();
     
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -663,12 +722,11 @@ $app->get('/movimiento/productos', function (Request $request, Response $respons
     $hashMovimiento = $request->getParam('hash');
     
     $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_Producto.ProductoModelo,
-        Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Gen_ProductoTalla.ProductoTalla, Lo_MovimientoDetalle.Cantidad,
+        Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Lo_MovimientoDetalle.Cantidad,
         Gen_Producto.Botapie 
         FROM Lo_MovimientoDetalle 
         INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
-        LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla
         WHERE hashMovimiento = '$hashMovimiento'";
 
     $stmt = $this->db->query($select);
@@ -1109,7 +1167,6 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla 
             LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
@@ -1124,7 +1181,6 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla 
             LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
@@ -1133,7 +1189,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     } else {
         $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-            Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion,
+            Gen_ProductoMedicion.ProductoMedicion,
             IFNULL(IngresoUnd.cantidad, 0) AS StockIngresoUnd,
             IFNULL(SalidaUnd.cantidad, 0) AS StockSalidaUnd,
             IFNULL(SalidaVentaUnd.cantidad, 0) AS StockSalidaVentaUnd,
@@ -1145,7 +1201,6 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-            LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla 
             LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
@@ -1167,7 +1222,6 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
                        "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
                        "%' AND Gen_Producto.Genero LIKE '" . (isset($filter['genero']) ? addslashes($filter['genero']) : '') . 
                        "%' AND Gen_Producto.Botapie LIKE '" . (isset($filter['botapie']) ? addslashes($filter['botapie']) : '') . 
-                       "%' AND Gen_ProductoTalla.ProductoTalla LIKE '" . (isset($filter['talla']) ? addslashes($filter['talla']) : '%') . 
                        "' "; 
             
         } else {
