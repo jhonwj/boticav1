@@ -78,7 +78,7 @@ $igv = 0;
     position: relative;
   }
   .ruc span {
-    position: absolute;
+    /*position: absolute;*/
     top: 0;
     width: 260px;
   }
@@ -97,10 +97,10 @@ $igv = 0;
 
   /* Estilos para productos */
   .productos {
-    height: 40mm;
+    height: 41mm;
   }
   .productos {
-    padding-top: 5mm;
+    padding-top: 6mm;
     box-sizing: border-box;
   }
   .productos .cantidad {
