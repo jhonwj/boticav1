@@ -608,6 +608,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     $categoria = $request->getParam('categoria')['ProductoCategoria'];
     $productoPresentacion = $request->getParam('ProductoPresentacion');
     $esPadre = $request->getParam('EsPadre');
+    $stockMinimo = $request->getParam('StockMinimo');
+    $codigoBarra = $request->getParam('CodigoBarra');
 
     $productosDet = $request->getParam('productosDet');
 
@@ -615,12 +617,13 @@ $app->post('/productos', function (Request $request, Response $response) {
     if ($request->getParam('IdProducto')) {
         // aqui se actualiza el producto si existe
         $idProducto = $request->getParam('IdProducto');
-        $codigoBarra = $request->getParam('CodigoBarra');
+        // $codigoBarra = $request->getParam('CodigoBarra');
         $precioContado = $request->getParam('PrecioContado');
 
 
         $update = $this->db->update(array(
-                            "Producto" => $producto . '-' . $codigoBarra,
+                            "CodigoBarra" => $codigoBarra,
+                            "Producto" => $producto,
                             "IdProductoMarca" => $idProductoMarca,
                             "IdProductoFormaFarmaceutica" => $idProductoFormaFarmaceutica,
                             "IdProductoMedicion" => $idProductoMedicion,
@@ -633,7 +636,8 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "ProductoModelo" => $productoModelo,
                             "PrecioContado" => $precioContado,
                             "ProductoPresentacion" => $productoPresentacion,
-                            "EsPadre" => $esPadre
+                            "EsPadre" => $esPadre,
+                            "StockMinimo" => $stockMinimo
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
@@ -657,15 +661,8 @@ $app->post('/productos', function (Request $request, Response $response) {
 
     // Inicio verificar Producto
     $select = "SELECT * FROM Gen_Producto
-        WHERE IdProductoMarca = '" . $idProductoMarca
-        . "' AND IdProductoMedicion = '" . $idProductoMedicion
-        . "' AND IdProductoCategoria = '" . $idProductoCategoria
-        //  . "' AND IdProductoTalla = '" . $idProductoTalla
-        . "' AND ProductoModelo = '" . $productoModelo
-        . "' AND Genero = '" . $genero
-        . "' AND Botapie = '" . $botapie
-        . "' AND Color = '" . $color
-        . "' AND Producto like '" . $producto . "-%'";
+        WHERE Producto = '" . $producto
+        . "' OR CodigoBarra = '" . $codigoBarra . "'";
 
     $stmt = $this->db->query($select);
     $prod = $stmt->fetch();
@@ -682,19 +679,18 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'StockMinimo', 'CodigoBarra'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra));
     $insertId = $insert->execute();
     
     // Generando codigo de barras  // actualizar el nombre para que sea unico
-    $codigoBarra = substr($categoria, 0, 2) . $insertId . substr($producto, 0, 2);
+    /* $codigoBarra = substr($categoria, 0, 2) . $insertId . substr($producto, 0, 2);
     
     $update = $this->db->update(array("CodigoBarra" => $codigoBarra, "Producto" => $producto . '-' . $codigoBarra))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $insertId);
-    $affectedRows = $update->execute();
+    $affectedRows = $update->execute(); */
 
     // Insertar productoDet
     if ($productosDet) {
@@ -1234,15 +1230,24 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
 
-    if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
-        $filterStock = $request->getParam('filter')['stock'];
-        if ($filterStock == 'mayor') {
-            $select .= " HAVING stock > 0";
+    if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+        $filterMinimo = $request->getParam('filter')['minimo'];
+        if ($filterMinimo) {
+            $select .= " HAVING stock <= Gen_Producto.StockMinimo";
         }
-        if ($filterStock == 'menor') {
-            $select .= " HAVING stock <= 0";
+    } else {
+        if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+            $filterStock = $request->getParam('filter')['stock'];
+            if ($filterStock == 'mayor') {
+                $select .= " HAVING stock > 0";
+            }
+            if ($filterStock == 'menor') {
+                $select .= " HAVING stock <= 0";
+            }
         }
     }
+
+
 
     if ($request->getParam('sortBy')) {
         $sortBy = $request->getParam('sortBy');
