@@ -212,7 +212,12 @@ $app->get('/productos/id/{id}', function (Request $request, Response $response, 
     INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
     INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
 
-    $select .= " WHERE Gen_Producto.IdProducto = '" . $args['id'] . "'";
+    
+    if ($request->getParam('codigoBarra')) {
+        $select .= " WHERE Gen_Producto.CodigoBarra = '" . $request->getParam('codigoBarra') . "'";        
+    } else {
+        $select .= " WHERE Gen_Producto.IdProducto = '" . $args['id'] . "'";
+    }
 
     $stmt = $this->db->query($select);
     $stmt->execute();
