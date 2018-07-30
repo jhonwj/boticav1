@@ -1225,7 +1225,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " LIMIT " . $limit;
         $select .= " OFFSET " . $offset;
     }
-    print_r($select);exit();
+    // print_r($select);exit();
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
