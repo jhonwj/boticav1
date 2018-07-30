@@ -1189,6 +1189,13 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
 
+    if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+        $filterMinimo = $request->getParam('filter')['minimo'];
+        if ($filterMinimo) {
+            $select .= " HAVING stock <= Gen_Producto.StockMinimo";
+        }
+    } 
+
     if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
         $filterStock = $request->getParam('filter')['stock'];
         if ($filterStock == 'mayor') {
@@ -1198,6 +1205,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             $select .= " HAVING stock <= 0";
         }
     }
+
 
     if ($request->getParam('sortBy')) {
         $sortBy = $request->getParam('sortBy');
@@ -1217,7 +1225,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $select .= " LIMIT " . $limit;
         $select .= " OFFSET " . $offset;
     }
-    // print_r($select);exit();
+    print_r($select);exit();
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
