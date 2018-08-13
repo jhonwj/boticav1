@@ -450,7 +450,7 @@ $app->get('/productos', function (Request $request, Response $response, array $a
                    "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
                    "%' ";        */
     } else {
-        $select .= " WHERE Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.ProductoModelo LIKE '" . $request->getParam('q') . "%'";
+        $select .= " WHERE Gen_Producto.Anulado=0 AND (Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.ProductoModelo LIKE '" . $request->getParam('q') . "%')";
     }
 
     if ($request->getParam('sortBy')) {
@@ -581,12 +581,16 @@ $app->post('/productos/delete', function (Request $request, Response $response) 
     $id = $request->getParam('id');
 
     if ($id) {
-        $sql = "DELETE FROM Gen_Producto WHERE IdProducto='$id'";
-        $stmt = $this->db->prepare($sql);
-        $deleted = $stmt->execute();
+        // Solo anulamos por ahora, mas adelante hacer la comprobacion si el producto existe en las relaciones antes de eliminar
+        // definitivamente.
+        // $sql = "DELETE FROM Gen_Producto WHERE IdProducto='$id'";
+        $update = "UPDATE Gen_Producto SET Anulado=1 WHERE IdProducto=$id";
+        $stmt = $this->db->prepare($update);
+        $updated = $stmt->execute();
+
     
         return $response->withJson(array(
-            "deleted" => $deleted,
+            "updated" => $updated,
             "IdProducto" => $id
         ));
     }
