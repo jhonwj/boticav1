@@ -29,11 +29,11 @@ if (isset($_GET['IdDocVenta'])) {
     <?php
       if(!isset($_GET['preview'])) {
         if (isset($_GET['redirect'])) {
-          //echo 'window.print();';
-          //echo 'window.location.href="' . $_GET['redirect'] . '";';
+          echo 'window.print();';
+          // echo 'window.location.href="' . $_GET['redirect'] . '";';
         } else {
-          //echo 'window.print();';
-          //echo 'window.location.href="/views/V_VentaForm.php";';
+          echo 'window.print();';
+          // echo 'window.location.href="/views/V_VentaForm.php";';
         }
       }
       
