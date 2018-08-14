@@ -6,6 +6,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 require 'vendor/autoload.php';
+require 'sunat/sunat.php';
 
 // EXCEL 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -860,6 +861,17 @@ $app->get('/almacenes', function (Request $request, Response $response, array $a
 });
 
 
+$app->get('/almacenes/primero', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Lo_Almacen WHERE Anulado=0 ORDER BY IdAlmacen ASC LIMIT 1 ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+
 $app->get('/consultarRUC', function (Request $request, Response $response, array $args) {
     $headers = array(
         "Content-Type: application/json; charset=UTF-8",
@@ -1446,11 +1458,31 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
 });
 
 
+$app->get('/ventas/detalle', function (Request $request, Response $response) {
+    $idDocVentas = $request->getParam('idDocVentas');
+
+    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto, ((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) AS Subtotal,
+        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
+        FROM Ve_DocVentaDet 
+        INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        WHERE IdDocVenta IN (" . implode(',', $idDocVentas) . ")";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    
+    return $response->withJson($data);
+
+});
+
 $app->get('/ventas', function (Request $request, Response $response) { 
     $filtros = '';
 
     $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv, 
         Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
+        Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
+        Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1488,6 +1520,12 @@ $app->get('/ventas', function (Request $request, Response $response) {
     $idTipoDoc = $request->getParam('idTipoDoc');
     if($idTipoDoc) {
         $filtros .= " AND Ve_DocVenta.IdTipoDoc IN (" . implode(',', $idTipoDoc) . ")";
+    }
+
+    $estado = $request->getParam('estado');
+    // var_dump($estado);exit();
+    if($estado || $estado == "0") {
+        $filtros .= " AND Ve_DocVenta.Estado=$estado";
     }
 
     $anulado = $request->getParam('anulado');
@@ -1747,6 +1785,438 @@ $app->post('/clientes', function (Request $request, Response $response) {
 
     return $response->withJson($data);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+// DATOS GLOBALES DE LA EMPRESA
+define('NRO_DOCUMENTO_EMPRESA', '20100066603');
+define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
+define('TIPO_PROCESO', '03'); //01 PRODUCCION 03 BETA
+define('RAZON_SOCIAL_EMPRESA', 'CREVPERU S.A.');
+define('NOMBRE_COMERCIAL_EMPRESA', 'CREVPERU NOMBRE COMERCIAL');
+define('CODIGO_UBIGEO_EMPRESA', "150101");
+define('DIRECCION_EMPRESA', "DIRECCION DE PRUEBA");
+define('DEPARTAMENTO_EMPRESA', "LIMA");
+define('PROVINCIA_EMPRESA', "LIMA");
+define('DISTRITO_EMPRESA', "LIMA");
+
+define('CODIGO_PAIS_EMPRESA', 'PE');
+define('USUARIO_SOL_EMPRESA', 'MODDATOS');
+define('PASS_SOL_EMPRESA', 'moddatos');
+
+$app->post('/emitirelectronico', function (Request $request, Response $response) {
+    include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
+
+    $docVenta = $request->getParam('docVenta');
+    $new = new api_sunat();
+
+    $detalle = array();
+    $json = array();
+    $n=0;
+
+    foreach ($docVenta['productos'] as $producto) {
+        $n=$n+1;
+
+        $igv = $docVenta['TieneIgv'] ? round($producto['Subtotal'] * 0.18, 2) : 0;
+        $subtotal = $docVenta['TieneIgv'] ? $producto['Subtotal'] - $igv : $producto['Subtotal'];
+
+        $json['txtITEM']=$n;
+        $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
+        $json["txtPRECIO_DET"] = $producto['Precio'];
+        $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD                       
+        $json["txtPRECIO_TIPO_CODIGO"] = "01"; // 02 valor referencial unitario en operaciones no onerosas
+        $json["txtIGV"] = $igv;
+        $json["txtISC"] = "0";
+        $json["txtIMPORTE_DET"] = $subtotal + $igv; //rowData.IMPORTE; //SUB_TOTAL + IGV
+        $json["txtCOD_TIPO_OPERACION"] = $docVenta['CodigoIgv']; //20 si es exonerado
+        $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
+        $json["txtDESCRIPCION_DET"] = $producto['Producto'];
+        //$json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
+        $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
+        $detalle[]=$json;
+    }
+
+    $subtotal = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
+
+    $data = array(
+        "txtTIPO_OPERACION"=>"0101", // corregir esto despues
+        "txtTOTAL_GRAVADAS"=> $subtotal,
+        "txtSUB_TOTAL"=> $subtotal,
+        "txtPOR_IGV"=> "0", 
+        "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
+        "txtTOTAL"=> $docVenta['Total'],
+        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true), 
+        "txtNRO_COMPROBANTE"=> $docVenta['Serie'] . "-" . $docVenta['Numero'], //
+        "txtFECHA_DOCUMENTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
+        "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
+        "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
+        "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        //==========documentos de referencia(nota credito, debito)=============
+        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['codSunatModifica']) && $docVenta['codSunatModifica'] ? $docVenta['codSunatModifica'] : "", //aqui completar
+        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['nroComprobanteModifica']) && $docVenta['nroComprobanteModifica'] ? $docVenta['nroComprobanteModifica'] : "",
+        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['notaIdMotivo']) && $docVenta['notaIdMotivo'] ? $docVenta['notaIdMotivo'] : "",
+        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['notaDescMotivo']) && $docVenta['notaDescMotivo'] ? $docVenta['notaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
+        //=================datos del cliente=================8
+         "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
+         "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
+         "txtTIPO_DOCUMENTO_CLIENTE"=> strlen($docVenta['DniRuc']) > 9 ? "6" : "1",//1 DNI 6 RUC
+         "txtDIRECCION_CLIENTE"=>$docVenta['Direccion'],
+         "txtCIUDAD_CLIENTE"=>"",
+         "txtCOD_PAIS_CLIENTE"=>"PE",
+        //=================datos de LA EMPRESA=================	
+         "txtNRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
+         "txtTIPO_DOCUMENTO_EMPRESA"=> TIPO_DOCUMENTO_EMPRESA,
+         "txtNOMBRE_COMERCIAL_EMPRESA"=> NOMBRE_COMERCIAL_EMPRESA,
+         "txtCODIGO_UBIGEO_EMPRESA"=> CODIGO_UBIGEO_EMPRESA,
+         "txtDIRECCION_EMPRESA"=> DIRECCION_EMPRESA,
+         "txtDEPARTAMENTO_EMPRESA"=> DEPARTAMENTO_EMPRESA,
+         "txtPROVINCIA_EMPRESA"=> PROVINCIA_EMPRESA,
+         "txtDISTRITO_EMPRESA"=> DISTRITO_EMPRESA,
+         "txtCODIGO_PAIS_EMPRESA"=> CODIGO_PAIS_EMPRESA,
+         "txtRAZON_SOCIAL_EMPRESA"=> RAZON_SOCIAL_EMPRESA,
+         "txtUSUARIO_SOL_EMPRESA"=> USUARIO_SOL_EMPRESA,
+         "txtPASS_SOL_EMPRESA"=> PASS_SOL_EMPRESA,
+         "txtTIPO_PROCESO"=> TIPO_PROCESO, //01 PRODUCCION 03 BETA
+         "detalle"=>$detalle,
+        //"detalle" => []
+    );
+    if ($docVenta['CodigoIgv'] == "20") { // 20 = exonerado Igv
+        $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
+    }
+    
+    $resultado = $new->sendPostCPE(json_encode($data));
+    $me = json_decode($resultado, true);
+    
+    // Datos $me
+    $me['data'] = array(
+        "txtNRO_COMPROBANTE" => $data['txtNRO_COMPROBANTE']
+    );
+
+    $estado = 1;
+    if ($me['cod_sunat'] == '0') {
+        $estado = 2;
+        // generamos PDF para su descarga
+        $data['hash_cpe'] = $me['hash_cpe'];
+        $new->creaPDF(json_encode($data));
+        
+        // Si es nota de credito/debito insertar en tabla
+        if ($docVenta['CodSunat'] == '07') { // nota de credito
+            $sqlNC = "INSERT INTO Ve_DocVentaNotaCredito (idDocVenta, Hash_cpe, Hash_cdr, Msj_sunat) VALUES 
+                ($docVenta[idDocVenta], '$me[hash_cpe]', '$me[hash_cdr]', '$me[msj_sunat]')";
+            $stmt = $this->db->prepare($sqlNC);
+            $insert = $stmt->execute();
+            $lastInsert = $this->db->lastInsertId();
+            
+            return $response->withJson($me);
+        }
+
+        if ($docVenta['CodSunat'] == '08') {
+
+        }
+    }
+
+    // Nota de credito
+    if ($docVenta['CodSunat'] == '07') {
+        
+
+    } else if($docVenta['CodSunat'] == '08') {
+
+
+    } else {
+        // Para los casos de factura y boleta
+        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+            Msj_sunat='$me[msj_sunat]' WHERE idDocVenta='$docVenta[idDocVenta]' ";
+        
+        $stmt = $this->db->prepare($sql);
+        $updated = $stmt->execute();
+        $me['Estado'] = $estado;
+    }
+
+    return $response->withJson($me);
+});
+
+$app->post('/emitirelectronicoboleta', function (Request $request, Response $response) {
+    include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
+
+    $new = new api_sunat();
+    $boletas = $request->getParam('boletas');
+    $statu = $request->getParam('statu') ? $request->getParam('statu') : 1;
+    $codSunat = $request->getParam('codSunat');
+    $codMoneda = "PEN";
+    
+    $fechaReferencia = $request->getParam('fechaReferencia'); // "2018-03-28";
+    $fechaDocumento = getNow('Y-m-d');
+    
+    $serie = getNow('Ymd');
+    // Inicio Correlativo
+    $selectSec = "SELECT Secuencia FROM Sunat_Resumen WHERE Serie=$serie AND CodSunat=$codSunat ORDER BY Secuencia DESC LIMIT 1";
+    $stmtSec = $this->db->query($selectSec);
+    $stmtSec->execute();
+    $secuencia = $stmtSec->fetch()['Secuencia'];  
+    $secuencia += 1; // cambiar correlativo
+    // Fin Correlativo
+
+    $detalle = array();
+    $json = array();
+    $n=0;
+    foreach($boletas as $boleta) {
+        $n=$n+1;
+
+        $json['ITEM'] = $n;
+        $json['TIPO_COMPROBANTE'] = "03";
+        $json['NRO_COMPROBANTE'] = $boleta['Serie'] . '-' . $boleta['Numero'];
+        $json['TIPO_DOCUMENTO'] = strlen($boleta['DniRuc']) > 9 ? "6" : "1";
+        $json['NRO_DOCUMENTO'] = $boleta['DniRuc'];
+        $json['TIPO_COMPROBANTE_REF'] = "";
+        $json['NRO_COMPROBANTE_REF'] = "";
+        $json['STATU'] = $statu ; // 1 declara boleta , 3 mandar anuladas... primero envio y luego se anula
+        $json['COD_MONEDA'] = $codMoneda;
+        $json['TOTAL'] = $boleta['Total'];
+        $json['GRAVADA'] = $boleta['Total']; // $boleta['Total'] - IGV //corregir gravada en Factura
+
+        $json['ISC'] = "0";
+        $json['IGV'] = "0";
+        $json['OTROS'] = "0";
+        $json['CARGO_X_ASIGNACION'] = "1";
+        $json['MONTO_CARGO_X_ASIG'] = "0";
+        $json['EXONERADO'] = $boleta['Total'];
+        $json['INAFECTO'] = "0";
+        $json['EXPORTACION'] = "0";
+        $json['GRATUITAS'] = "0";
+        $detalle[]=$json;
+    }
+
+    $data = array(
+        "NRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
+        "RAZON_SOCIAL" => RAZON_SOCIAL_EMPRESA,
+        "TIPO_DOCUMENTO" => TIPO_DOCUMENTO_EMPRESA,
+        "CODIGO" => "RC",
+        "SERIE" => $serie,
+        "SECUENCIA" => $secuencia, 
+        "FECHA_REFERENCIA" => $fechaReferencia,
+        "FECHA_DOCUMENTO" => $fechaDocumento,
+        "TIPO_PROCESO" => TIPO_PROCESO,
+        "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
+        "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
+        "detalle" => $detalle
+    );
+    
+    $resultado = $new->sendresumen(json_encode($data));
+    $me = json_decode($resultado, true);
+    $estado = 1;
+    $me['ticket'] = $me['msj_sunat'];
+
+    if ($me['cod_sunat'] == '0') {
+
+        // insert correlativo del resumen
+        $insert = "INSERT INTO Sunat_Resumen (Serie, Secuencia, CodSunat) VALUES ('$serie', $secuencia, '$codSunat')";
+        $stmt = $this->db->prepare($insert);
+        $inserted = $stmt->execute();
+        $lastInsert = $this->db->lastInsertId();
+        $estado = ($statu == 3) ? 0 : 2; // si se manda a anular el estado sera 0
+
+        // Inicio Consulta Ticket
+        $dataTicket = array(
+            "TIPO_PROCESO" => TIPO_PROCESO, 
+            "NRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
+            "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
+            "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
+            "TICKET" => $me['msj_sunat'],
+            "TIPO_DOCUMENTO" => "RC",
+            "NRO_DOCUMENTO" => $serie . '-' . $secuencia
+        );
+        $resTicket = $new->sendticket(json_encode($dataTicket));
+        $meTicket = json_decode($resTicket, true);
+        if ($meTicket['cod_sunat'] == '0') {
+            // $me = $meTicket;
+            $me['msj_sunat'] = $meTicket['msj_sunat'];
+            $me['hash_cdr'] = $meTicket['hash_cdr'];
+
+            // si todo es correcto generar pdf para cada boleta
+            foreach($boletas as $boleta) {
+                $detallePdf = array();
+                $json = array();
+                $n=0;
+
+                foreach ($boleta['productos'] as $producto) {
+                    $n=$n+1;
+                    $igv = $boleta['TieneIgv'] ? round($producto['Subtotal'] * 0.18, 2) : 0;
+                    $subtotal = $boleta['TieneIgv'] ? $producto['Subtotal'] - $igv : $producto['Subtotal'];
+                    $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
+                    $json["txtPRECIO_DET"] = $producto['Precio'];
+                    $json["txtIMPORTE_DET"] = $subtotal + $igv; //rowData.IMPORTE; //SUB_TOTAL + IGV
+                    $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
+                    $json["txtDESCRIPCION_DET"] = $producto['Producto'];
+                    $detallePdf[]=$json;
+                }
+                $dataPdf = array(
+                    'txtTIPO_PROCESO' => TIPO_PROCESO,
+                    'txtCOD_MONEDA' => $codMoneda,
+                    'txtNRO_DOCUMENTO_EMPRESA' => NRO_DOCUMENTO_EMPRESA,
+                    'txtCOD_TIPO_DOCUMENTO' => '03',
+                    'txtNRO_COMPROBANTE' => $boleta['Serie'] . '-' . $boleta['Numero'],
+                    'txtSUB_TOTAL' => $boleta['Total'],
+                    'txtTOTAL_IGV' => "0",
+                    'txtTOTAL' => $boleta['Total'],
+                    'txtTOTAL_LETRAS' => NumerosEnLetras::convertir(number_format($boleta['Total'], 2),'SOLES',true),
+                    'txtFECHA_DOCUMENTO' => date("Y-m-d", strtotime($boleta['FechaDoc'])),
+                    'txtTIPO_DOCUMENTO_CLIENTE' => strlen($boleta['DniRuc']) > 9 ? "6" : "1",
+                    'txtNRO_DOCUMENTO_CLIENTE' => $boleta['DniRuc'],
+                    'txtNOMBRE_COMERCIAL_EMPRESA' => NOMBRE_COMERCIAL_EMPRESA,
+                    'txtDIRECCION_EMPRESA' => DIRECCION_EMPRESA,
+                    'txtRAZON_SOCIAL_CLIENTE' => $boleta['Cliente'],
+                    'txtDIRECCION_CLIENTE' => $boleta['Direccion'],
+                    'detalle' => $detallePdf
+                );
+                
+                // generamos PDF para su descarga
+                $dataPdf['hash_cpe'] = $me['hash_cpe'];
+                $new->creaPDF(json_encode($dataPdf));
+                
+            }
+        }
+
+        // $me['dataTicket'] = $dataTicket;
+        $me['meticket'] = $meTicket;
+        // Fin Consulta Ticket
+    }
+
+    $cadenaIds = [];
+    foreach($boletas as $boleta) {
+        $cadenaIds[] = $boleta['idDocVenta'];
+    }
+    
+    if($statu == 3) { // si se manda a anular
+        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+            Msj_sunat='$me[msj_sunat]' WHERE idDocVenta IN (" . implode(',', $cadenaIds) . ")";
+    } else { //si se declara
+        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+        Msj_sunat='$me[msj_sunat]', Ticket='$me[ticket]' WHERE idDocVenta IN (" . implode(',', $cadenaIds) . ")";
+    }
+    //$me['sql'] = $sql;
+    $stmt = $this->db->prepare($sql);
+    $updated = $stmt->execute();
+    $me['Estado'] = $estado;
+    // $me['data'] = $data; // ocultar en produccion
+    
+    return $response->withJson($me);
+});
+
+$app->post('/bajaelectronico', function (Request $request, Response $response) {
+    $new = new api_sunat();
+    $facturas = $request->getParam('facturas');
+    $codSunat = $request->getParam('codSunat');
+    $descripcion = $request->getParam('descripcion');
+
+    // $fechaReferencia = $request->getParam('fechaReferencia'); // "2018-03-28";
+    $fechaReferencia = date("Y-m-d", strtotime($facturas[0]['FechaDoc']));
+    $fechaBaja = getNow('Y-m-d');
+
+    $serie = getNow('Ymd');
+    // Inicio Correlativo
+    $selectSec = "SELECT Secuencia FROM Sunat_Resumen WHERE Serie=$serie AND CodSunat=$codSunat ORDER BY Secuencia DESC LIMIT 1";
+    $stmtSec = $this->db->query($selectSec);
+    $stmtSec->execute();
+    $secuencia = $stmtSec->fetch()['Secuencia'];  
+    $secuencia += 1; // cambiar correlativo
+    // Fin Correlativo
+
+    $detalle = array();
+    $json = array();
+    $n=0;
+    foreach($facturas as $factura) {
+        $n=$n+1;
+
+        $json['ITEM'] = $n;
+        $json['TIPO_COMPROBANTE'] = "01";
+        $json['SERIE'] = $factura['Serie'];
+        $json['NUMERO'] = $factura['Numero'];
+        $json['DESCRIPCION'] = $descripcion;
+        $detalle[]=$json;
+    }
+
+    $data = array(
+        "NRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
+        "RAZON_SOCIAL" => RAZON_SOCIAL_EMPRESA,
+        "TIPO_DOCUMENTO" => TIPO_DOCUMENTO_EMPRESA,
+        "CODIGO" => "RA",
+        "SERIE" => $serie,
+        "SECUENCIA" => $secuencia, 
+        "FECHA_REFERENCIA" => $fechaReferencia,
+        "FECHA_BAJA" => $fechaBaja,
+        "TIPO_PROCESO" => TIPO_PROCESO,
+        "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
+        "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
+        "detalle" => $detalle
+    );
+
+    $resultado = $new->sendbaja(json_encode($data));
+    $me = json_decode($resultado, true);
+    $estado = 1;
+
+    if ($me['cod_sunat'] == '0') {
+        // insert correlativo del resumen
+        $insert = "INSERT INTO Sunat_Resumen (Serie, Secuencia, CodSunat) VALUES ('$serie', $secuencia, '$codSunat')";
+        $stmt = $this->db->prepare($insert);
+        $inserted = $stmt->execute();
+        $lastInsert = $this->db->lastInsertId();
+        $estado = 0; // estado 0 anulado / 1 pendiente / 2 es emitido 
+
+        // Inicio Consulta Ticket
+        $dataTicket = array(
+            "TIPO_PROCESO" => TIPO_PROCESO, 
+            "NRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
+            "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
+            "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
+            "TICKET" => $me['msj_sunat'],
+            "TIPO_DOCUMENTO" => "RA",
+            "NRO_DOCUMENTO" => $serie . '-' . $secuencia
+        );
+        $resTicket = $new->sendticket(json_encode($dataTicket));
+        $meTicket = json_decode($resTicket, true);
+        if ($meTicket['cod_sunat'] == '0') {
+            $me = $meTicket;
+        }
+
+        // $me['dataTicket'] = $dataTicket;
+        $me['meticket'] = $meTicket;
+        // Fin Consulta Ticket
+    }
+
+    $cadenaIds = [];
+    foreach($facturas as $factura) {
+        $cadenaIds[] = $factura['idDocVenta'];
+    }
+    
+    $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+        Msj_sunat='$me[msj_sunat]', AnuladoDesc='$descripcion' WHERE idDocVenta IN (" . implode(',', $cadenaIds) . ")";
+
+    //$me['sql'] = $sql;
+    $stmt = $this->db->prepare($sql);
+    $updated = $stmt->execute();
+    $me['Estado'] = $estado;
+     $me['data'] = $data; // ocultar en produccion
+    
+    return $response->withJson($me);
+    
+}); 
+
+
+
+
+
+
+
 
 
 // REPORTES 

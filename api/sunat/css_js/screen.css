@@ -1,0 +1,22 @@
+/**********************************
+
+Use: Main Screen Import
+
+***********************************/
+/*
+@import "reset.css";
+@import "core.css";
+
+@import "cmxformTemplate.css";
+*/
+@import "cmxform.css";
+
+
+input.error,
+select.error,
+textarea.error {
+    border: 1px solid red;
+    background-color:#F6CECE;
+}
+/*
+*/

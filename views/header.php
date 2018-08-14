@@ -100,6 +100,27 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
         </ul>
       </li>
 
+
+      <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Facturación
+      <span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li><a href="/views/facturacion.php"> Facturación Electrónica </a></li>
+        <li><a href="/api/sunat/pag_cliente/" target="_blank"> Página Cliente </a></li>
+      </ul>
+        
+      </li>
+
+
+      <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Reportes
+      <span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li><a href="/views/reportestockminimo.php"> Reporte Stock Mínimo </a></li>
+      </ul>
+        
+      </li>
+
       
       <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Caja y Banco
