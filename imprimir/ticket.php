@@ -38,7 +38,7 @@ $igv = 0;
 ?>
 <style>
   * {
-    font-size: 13px;
+    font-size: 12px;
     font-family: sans-serif;
   }
   body {
@@ -55,6 +55,8 @@ $igv = 0;
   .container {
     width: 100%;
     max-width: 100%;
+    padding: 0 4mm;
+    box-sizing: border-box;
   }
 
   .center {
@@ -86,10 +88,10 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 254px"/></div><br />
-  <div class="center">MINIMARKET PLUS +</div>
-  <div class="center">RUC: 20573209665 </div>
-  <div class="center small">VENTA DE ....</div>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 50mm"/></div>
+  <div class="center">INVERSIONES PLUS MAS S.R.L</div>
+  <div class="center">RUC: 20603429126 </div>
+  <!--<div class="center small">VENTA DE ....</div>-->
   <br />
   
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -117,7 +119,7 @@ $igv = 0;
           <th class="cantidad">CANT</th>
           <th class="producto">PRODUCTO</th>
           <!--<th class="unitario">P/U</th>-->
-          <th class="precio text-right">TOT</th>
+          <th class="precio text-right">TOTAL</th>
         </tr>
       </thead>
       <tbody>
@@ -181,9 +183,9 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">JR. HUÁNUCO N° xxx</div>
+  <div class="center small">JR. HERMILIO VALDIZAN N° 742</div>
   <div class="center small">HUÁNUCO - HUÁNUCO - HUÁNUCO</div>
-  <div class="center small">TELF. xxx - CEL. xxx</div>
+  <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
   <br />
   <br />
