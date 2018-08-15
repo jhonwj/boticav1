@@ -30,6 +30,7 @@ define("BuscarVencimiento", SITE_URL . "views/Lo_BuscarVencimiento.php");
 define("GenerarCodigoBarra", SITE_URL . "views/Lo_GenerarCodigoBarra.php");
 define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
 
+date_default_timezone_set('America/Lima');
  ?>
 
  <nav class="navbar navbar-default">
