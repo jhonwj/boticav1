@@ -371,7 +371,7 @@ $app->get('/productos/modelos', function (Request $request, Response $response, 
 $app->get('/productosdet', function (Request $request, Response $response, array $args) {
     $idProducto = $request->getParam('idProducto');
 
-    $select = "SELECT Gen_Producto.Producto, Gen_ProductoDet.* FROM Gen_ProductoDet 
+    $select = "SELECT Gen_Producto.Producto, Gen_Producto.PrecioCosto, Gen_Producto.PrecioContado, Gen_ProductoDet.* FROM Gen_ProductoDet 
         INNER JOIN Gen_Producto ON Gen_ProductoDet.IdProductoDet = Gen_Producto.IdProducto 
         WHERE Gen_ProductoDet.IdProducto=$idProducto";
 
@@ -622,13 +622,15 @@ $app->post('/productos', function (Request $request, Response $response) {
     $codigoBarra = $request->getParam('CodigoBarra');
 
     $productosDet = $request->getParam('productosDet');
+    $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
+    $precioContado = $request->getParam('PrecioContado') ? $request->getParam('PrecioContado') : 0;
 
     // Actualizamos el producto si le pasamos el ID
     if ($request->getParam('IdProducto')) {
         // aqui se actualiza el producto si existe
         $idProducto = $request->getParam('IdProducto');
         // $codigoBarra = $request->getParam('CodigoBarra');
-        $precioContado = $request->getParam('PrecioContado');
+        
 
 
         $update = $this->db->update(array(
@@ -644,6 +646,7 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "PorcentajeUtilidad" => $porcentajeUtilidad,
                             "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado,
                             "ProductoModelo" => $productoModelo,
+                            "PrecioCosto" => $precioCosto,
                             "PrecioContado" => $precioContado,
                             "ProductoPresentacion" => $productoPresentacion,
                             "EsPadre" => $esPadre,
@@ -689,9 +692,9 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'StockMinimo', 'CodigoBarra'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra, $precioCosto, $precioContado));
     $insertId = $insert->execute();
     
     // Generando codigo de barras  // actualizar el nombre para que sea unico
