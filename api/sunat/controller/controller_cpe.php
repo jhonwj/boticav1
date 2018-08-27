@@ -103,7 +103,8 @@ $cabecera = array(
     "txtTIPO_PROCESO" => (isset($cab['txtTIPO_PROCESO'])) ? $cab['txtTIPO_PROCESO'] : "3",    
 );
 
-$mensaje_cpe = cpe($cab['txtTIPO_PROCESO'], $cab['txtNRO_DOCUMENTO_EMPRESA'], $cab['txtUSUARIO_SOL_EMPRESA'], $cab['txtPASS_SOL_EMPRESA'], '123456', $cabecera, $detalle);
+// 123456 es el PIN
+$mensaje_cpe = cpe($cab['txtTIPO_PROCESO'], $cab['txtNRO_DOCUMENTO_EMPRESA'], $cab['txtUSUARIO_SOL_EMPRESA'], $cab['txtPASS_SOL_EMPRESA'], 'sWx8uSzKFqJ7k65p', $cabecera, $detalle);
 
 $resultado['hash_cpe'] = $mensaje_cpe['hash_cpe'];
 $resultado['cod_sunat'] = $mensaje_cpe['hash_cdr']['cod_sunat'];//str_replace("SOAP-ENV:CLIENT.", "", $mensaje_cpe['hash_cdr']['cod_sunat']);

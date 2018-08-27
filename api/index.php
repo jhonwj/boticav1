@@ -1803,20 +1803,20 @@ $app->post('/clientes', function (Request $request, Response $response) {
 
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '20100066603');
+define('NRO_DOCUMENTO_EMPRESA', '20603429126');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '03'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'CREVPERU S.A.');
-define('NOMBRE_COMERCIAL_EMPRESA', 'CREVPERU NOMBRE COMERCIAL');
+define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES PLUS MAS S.R.L');
+define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES PLUS MAS S.R.L');
 define('CODIGO_UBIGEO_EMPRESA', "150101");
-define('DIRECCION_EMPRESA', "DIRECCION DE PRUEBA");
-define('DEPARTAMENTO_EMPRESA', "LIMA");
-define('PROVINCIA_EMPRESA', "LIMA");
-define('DISTRITO_EMPRESA', "LIMA");
+define('DIRECCION_EMPRESA', "JR. HERMILIO VALDIZAN N° 742");
+define('DEPARTAMENTO_EMPRESA', "HUANUCO");
+define('PROVINCIA_EMPRESA', "HUANUCO");
+define('DISTRITO_EMPRESA', "HUANUCO");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'MODDATOS');
-define('PASS_SOL_EMPRESA', 'moddatos');
+define('USUARIO_SOL_EMPRESA', 'MODDATOS'); // cambiar cuando se pase a produccion
+define('PASS_SOL_EMPRESA', 'moddatos'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
