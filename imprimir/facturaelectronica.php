@@ -101,7 +101,7 @@ $igv = 0;
     <br />
   <?php endif; ?>
   
-  <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
+  <div class="">FACTURA ELEC. NRO: <?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
 

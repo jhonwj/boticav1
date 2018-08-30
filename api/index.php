@@ -1283,7 +1283,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     }
     
 
-    if ($request->getParam('limit')) {
+    if ($request->getParam('limit') && !$request->getParam('count')) {
         $limit = $request->getParam('limit');
         $offset = 0;
         if ($request->getParam('page')) {
@@ -1297,6 +1297,10 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
+
+    if($request->getParam('count')) {
+        $data = array('total' => $stmt->rowCount());
+    }
     
     return $response->withJson($data);
 });
@@ -1596,12 +1600,13 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $numero = $request->getParam('Numero');
     $anulado = 0;
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
+    $pagoCon = $request->getParam('PagoCon');
     
     $esCredito = $request->getParam('EsCredito');
     $fechaCredito = $request->getParam('FechaCredito');
     
-    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito)
-        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', NOW(), $anulado, now(), '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito')";
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
     
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
@@ -2239,13 +2244,9 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
     $sheet->setCellValue('B1', 'CATEGORIA');
     $sheet->setCellValue('C1', 'PRODUCTO');
     $sheet->setCellValue('D1', 'MARCA');
-    $sheet->setCellValue('E1', 'MODELO');
-    $sheet->setCellValue('F1', 'COLOR');
-    $sheet->setCellValue('G1', 'TALLA');
-    $sheet->setCellValue('H1', 'GENERO');
-    $sheet->setCellValue('I1', 'BOTAPIE');
-    $sheet->setCellValue('J1', 'PRECIO CONTADO');
-    $sheet->setCellValue('K1', 'STOCK');
+    $sheet->setCellValue('E1', 'PRESENTACION');
+    $sheet->setCellValue('F1', 'PRECIO CONTADO');
+    $sheet->setCellValue('G1', 'STOCK');
 
     $cont = 3;
     foreach($productos as $prod) {
@@ -2253,13 +2254,9 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
         $sheet->setCellValue('B'.$cont, $prod['ProductoCategoria']);
         $sheet->setCellValue('C'.$cont, $prod['Producto']);
         $sheet->setCellValue('D'.$cont, $prod['ProductoMarca']);
-        $sheet->setCellValue('E'.$cont, $prod['ProductoModelo']);
-        $sheet->setCellValue('F'.$cont, $prod['Color']);
-        $sheet->setCellValue('G'.$cont, $prod['ProductoTalla']);
-        $sheet->setCellValue('H'.$cont, $prod['Genero']);
-        $sheet->setCellValue('I'.$cont, $prod['Botapie']);
-        $sheet->setCellValue('J'.$cont, 'S/. ' . $prod['PrecioContado']);
-        $sheet->setCellValue('K'.$cont, $prod['stock']);
+        $sheet->setCellValue('E'.$cont, $prod['ProductoPresentacion']);;
+        $sheet->setCellValue('F'.$cont, 'S/. ' . $prod['PrecioContado']);
+        $sheet->setCellValue('G'.$cont, $prod['stock']);
         $cont += 1;
     }
 
@@ -2270,9 +2267,13 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
     $excelWriter->save($excelFileName);
     // For Excel2007 and above .xlsx files   
     // $response = $response->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    $response = $response->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+
+    /*$response = $response->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     $stream = fopen($excelFileName, 'r+');
-    return $response->withBody(new \Slim\Http\Stream($stream));
+    return $response->withBody(new \Slim\Http\Stream($stream));*/
+
+    echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
+    exit;
 });
 
 

@@ -16,9 +16,17 @@ if (isset($_GET['IdDocVenta'])) {
   if ($docVenta['CodSunat'] == 12) {
     include_once('ticket.php');
   } elseif ($docVenta['CodSunat'] == 03) {
-    include_once('boletarojas.php');
+    if ($docVenta['IdTipoDoc'] == 7) {
+      include_once('boletaelectronica.php');
+    } else {
+      include_once('boletarojas.php');
+    }
   } elseif ($docVenta['CodSunat'] == 01) {
-    include_once('facturarojas.php');
+    if ($docVenta['IdTipoDoc'] == 6) { // FActura Electronica
+      include_once('facturaelectronica.php');
+    } else {
+      include_once('facturarojas.php');
+    }
   }
 ?>
 
