@@ -1330,8 +1330,13 @@ $app->get('/movimientos/numero', function (Request $request, Response $response,
 // VENTAS
 
 $app->get('/ventas/tipos', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Ve_DocVentaTipoDoc')->whereLike('TipoDoc', '%' . $request->getParam('q') . '%');
-    $stmt = $select->execute();
+    //$select = $this->db->select()->from('Ve_DocVentaTipoDoc')->whereLike('TipoDoc', '%' . $request->getParam('q') . '%');
+
+
+    $select = "SELECT * FROM Ve_DocVentaTipoDoc WHERE TipoDoc LIKE '%" . $request->getParam('q') . "%' ORDER BY Orden ASC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
