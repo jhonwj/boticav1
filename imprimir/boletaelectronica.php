@@ -28,6 +28,7 @@ $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = $docVenta['LimiteItems'];
 $docVentaNro = $docVenta['Serie'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
 $fechaDoc = $docVenta['FechaDoc'];
+$fecha = date("Y-m-d", strtotime($docVenta['FechaDoc']));
 $serieMaq = $docVenta['SerieImpresora'];
 $tipoDoc = $docVenta['TipoDoc'];
 
@@ -185,6 +186,24 @@ $igv = 0;
       <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>
     <?php endif; ?>
 
+  </div>
+  <br />
+  <div class="center">
+        <?php
+        define('NRO_DOCUMENTO_EMPRESA', '20603429126');
+        $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
+        if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
+        if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }
+
+        $text = NRO_DOCUMENTO_EMPRESA . ' | ' . $tdocumento. ' | ' . $docVenta['Serie'] . ' | ' . $docVenta['Numero'].
+          ' | ' . number_format($igv, 2) . ' | ' . number_format($total - $totalDescuento, 2) . ' | ' . $fecha . 
+          ' | ' . $tipoDocCliente . ' | ' . $docVenta['DniRuc'] . ' |';        
+
+        QRcode::png($text, 'qr.png', 'Q',15, 0);
+        $imagedata = file_get_contents("qr.png");
+        $base64 = base64_encode($imagedata);
+        ?>
+        <img style="max-width: 100%; width: 200px;" src="data:image/png;base64,<?php echo $base64 ?>" />
   </div>
   <br />
   <div class="center small">JR. HERMILIO VALDIZAN N° 742</div>

@@ -1,6 +1,7 @@
 <?php
 include_once('../views/validateUser.php');
 include_once($_SERVER["DOCUMENT_ROOT"] . "/clases/BnGeneral.php");
+require '../api/sunat/plugins/phpqrcode/qrlib.php';
 
 if (isset($_GET['IdDocVenta'])) {
   $idDocVenta = $_GET['IdDocVenta'];
@@ -22,7 +23,7 @@ if (isset($_GET['IdDocVenta'])) {
       include_once('boletarojas.php');
     }
   } elseif ($docVenta['CodSunat'] == 01) {
-    if ($docVenta['IdTipoDoc'] == 6) { // FActura Electronica
+    if ($docVenta['IdTipoDoc'] == 6 || $docVenta['IdTipoDoc'] == 8) { // FActura Electronica
       include_once('facturaelectronica.php');
     } else {
       include_once('facturarojas.php');
