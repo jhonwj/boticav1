@@ -1,6 +1,6 @@
 <?php
 $ruc = "20603429126";
-$ruta = "../api_cpe/BETA/20603429126/";
+$ruta = "../api_cpe/PRODUCCION/20603429126/";
 $archivo = (isset($_GET["archivo"])) ? $_GET["archivo"] : "";
 if (file_exists($ruta . $archivo . ".XML")) {
     $validacion = "1";

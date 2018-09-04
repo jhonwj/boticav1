@@ -102,7 +102,7 @@ date_default_timezone_set('America/Lima');
       </li>
 
 
-      <!--<li class="dropdown">
+      <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Facturación
       <span class="caret"></span></a>
       <ul class="dropdown-menu">
@@ -110,7 +110,7 @@ date_default_timezone_set('America/Lima');
         <li><a href="/api/sunat/pag_cliente/" target="_blank"> Página Cliente </a></li>
       </ul>
         
-      </li>-->
+      </li>
 
 
       <li class="dropdown">
