@@ -106,8 +106,8 @@ if (file_exists($ruta . $archivo . ".XML")) {
                                                         archivo = "R-" + archivo + ".XML";
                                                     }
                                                     if (tipo == "PDF") {
-                                                        ruta = ruta + archivo + ".PDF";
-                                                        archivo = archivo + ".PDF";
+                                                        ruta = ruta + archivo + ".pdf";
+                                                        archivo = archivo + ".pdf";
                                                     }
                                                     document.location = "../funcionesGlobales/descargaArchivo.php?archivo=" + archivo + "&ruta=" + ruta;
                                                 }
