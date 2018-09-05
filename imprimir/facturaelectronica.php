@@ -182,7 +182,7 @@ $igv = 0;
       </tbody>
     </table>
     <br />
-    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></span><br/>
+    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2, '.', ''),'SOLES',true, 'asd')); ?></span><br/>
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
       <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>

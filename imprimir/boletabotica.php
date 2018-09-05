@@ -204,7 +204,7 @@ $igv = 0;
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td class="small user"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></td>
+        <td class="small user"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2, '.', ''),'SOLES',true, 'asd')); ?></td>
       </tr>
   </table>
 

@@ -209,7 +209,7 @@ $igv = 0;
   <table class="footer">
     <tr>
       <td>
-        <span class="son"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2),'SOLES',true, 'asd')); ?></span>
+        <span class="son"><?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2, '.', ''),'SOLES',true, 'asd')); ?></span>
       </td>
     </tr>
     <tr>
