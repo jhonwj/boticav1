@@ -1475,7 +1475,7 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
 $app->get('/ventas/detalle', function (Request $request, Response $response) {
     $idDocVentas = $request->getParam('idDocVentas');
 
-    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto, ((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) AS Subtotal,
+    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto, ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
         Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
         FROM Ve_DocVentaDet 
         INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
