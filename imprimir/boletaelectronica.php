@@ -39,7 +39,7 @@ $igv = 0;
 ?>
 <style>
   * {
-    font-size: 12px;
+    font-size: 3mm;
     font-family: sans-serif;
   }
   body {
@@ -89,11 +89,11 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 50mm"/></div>
-  <div class="center">INVERSIONES PLUS MAS S.R.L</div>
-  <div class="center">RUC: 20603429126 </div>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
+  <div class="center"><b>INVERSIONES PLUS MAS S.R.L</b></div>
+  <div class="center"><b>RUC: 20603429126</b> </div>
   <!--<div class="center small">VENTA DE ....</div>-->
-  <br />
+
   
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
     <div class="strike">
@@ -179,8 +179,7 @@ $igv = 0;
         </tr>
       </tbody>
     </table>
-    <br />
-    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total, 2, '.', ''),'SOLES',true, 'asd')); ?></span><br/>
+    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total - $totalDescuento, 2, '.', ''),'SOLES',true, 'asd')); ?></span><br/>
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
       <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>
@@ -203,7 +202,7 @@ $igv = 0;
         $imagedata = file_get_contents("qr.png");
         $base64 = base64_encode($imagedata);
         ?>
-        <img style="max-width: 100%; width: 200px;" src="data:image/png;base64,<?php echo $base64 ?>" />
+        <img style="max-width: 100%; width: 100px;" src="data:image/png;base64,<?php echo $base64 ?>" />
   </div>
   <br />
   <div class="center small">JR. HERMILIO VALDIZAN N° 742</div>

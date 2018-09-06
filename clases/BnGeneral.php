@@ -748,7 +748,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function fn_devolverVentas() {
 		$Ssql = " SELECT DV.idDocVenta, DV.Serie, DV.Numero, DV.FechaDoc, DVC.DniRuc, DVTD.TipoDoc, DVC.Cliente,
-				(SELECT SUM(DVD.Cantidad * DVD.Precio) FROM Ve_DocVentaDet as DVD WHERE DVD.IdDocVenta = DV.idDocVenta) as Total
+				(SELECT ROUND(SUM(DVD.Cantidad * DVD.Precio) - DVD.Descuento, 2) FROM Ve_DocVentaDet as DVD WHERE DVD.IdDocVenta = DV.idDocVenta) as Total
 			FROM Ve_DocVenta AS DV
 			INNER JOIN Ve_DocVentaCliente AS DVC ON DV.IdCliente = DVC.IdCliente
 			INNER JOIN Ve_DocVentaTipoDoc AS DVTD ON DV.IdTipoDoc = DVTD.IdTipoDoc

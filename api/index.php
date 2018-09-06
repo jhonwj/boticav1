@@ -1623,7 +1623,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $productos = $request->getParam('productos');
     $descuentoTotal = 0;
     foreach($productos as $producto) {
-        if ($producto['total'] > 0) {
+        // if ($producto['total'] > 0) {
             $idProducto = $producto['IdProducto'];
             $cantidad = $producto['cantidad'];
             $precio = $producto['precio'];
@@ -1635,7 +1635,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
             
             $insert->execute();
             $descuentoTotal += $descuento;
-        }
+        // }
     }
     // END VENTA DETALLE
     
@@ -2096,7 +2096,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
                 
                 // generamos PDF para su descarga
                 $dataPdf['hash_cpe'] = $me['hash_cpe'];
-                $new->creaPDF(json_encode($dataPdf));
+                //$new->creaPDF(json_encode($dataPdf)); // aqui crea el PDF uno a uno
                 
             }
         }
@@ -2319,7 +2319,7 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
     $idCierre = $request->getParam('idCierre');
     $filter = $request->getParam('filter');
 
-    $select = "SELECT * FROM Cb_CierreCaja WHERE FechaCierre LIKE '%$filter%' OR UsuarioReg LIKE '%$filter%'";
+    $select = "SELECT * FROM Cb_CierreCaja WHERE (FechaCierre LIKE '%$filter%' OR UsuarioReg LIKE '%$filter%')";
 
     if ($idCierre) {
         $select .= " AND IdCierreCaja=$idCierre";
@@ -2344,7 +2344,7 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
         $select .= " OFFSET " . $offset;
     }
 
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();    

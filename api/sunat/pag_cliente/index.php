@@ -2,7 +2,7 @@
 $ruc = "20603429126";
 $ruta = "../api_cpe/PRODUCCION/20603429126/";
 $archivo = (isset($_GET["archivo"])) ? $_GET["archivo"] : "";
-if (file_exists($ruta . $archivo . ".XML")) {
+if (file_exists($ruta . $archivo . ".pdf")) {
     $validacion = "1";
 } else {
     $validacion = "0";
@@ -69,9 +69,14 @@ if (file_exists($ruta . $archivo . ".XML")) {
                                     <div id="xmlComprobantes">
                                         ---------------------------------------------------------------------------------------
                                         <fieldset>
-                                            <a href="#" onclick="DescargaArchivo('CPE')"><button type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-cloud-download"></span>CPE</button></a>
+                                            <?php if (file_exists($ruta . $archivo . ".XML")): ?>
+                                                <a href="#" onclick="DescargaArchivo('CPE')"><button type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-cloud-download"></span>CPE</button></a>
+                                            <?php endif; ?>
                                             <a href="#" onclick="DescargaArchivo('PDF')"><button type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-cloud-download"></span>PDF</button></a>
-                                            <a href="#" onclick="DescargaArchivo('CDR')"><button type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-cloud-download"></span>CDR</button></a>                                                               
+                                            
+                                            <?php if (file_exists($ruta . $archivo . ".XML")): ?>                                            
+                                                <a href="#" onclick="DescargaArchivo('CDR')"><button type="button" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-cloud-download"></span>CDR</button></a>                                                               
+                                            <?php endif; ?>
                                         </fieldset>
                                     </div>
                                 </form>
