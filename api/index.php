@@ -1342,6 +1342,19 @@ $app->get('/ventas/tipos', function (Request $request, Response $response, array
     return $response->withJson($data);
 });
 
+$app->get('/ventas/tipos/electronicos', function (Request $request, Response $response, array $args) {
+    //$select = $this->db->select()->from('Ve_DocVentaTipoDoc')->whereLike('TipoDoc', '%' . $request->getParam('q') . '%');
+
+
+    $select = "SELECT * FROM Ve_DocVentaTipoDoc WHERE TipoDoc LIKE '%" . $request->getParam('q') . "%' AND EsElectronico=1 ORDER BY Orden ASC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
 $app->get('/ventas/puntos', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Ve_DocVentaPuntoVenta')->whereLike('PuntoVenta', '%' . $request->getParam('q') . '%');
     $stmt = $select->execute();
