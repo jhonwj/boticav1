@@ -232,7 +232,7 @@ Representación impresa de la '.$tdocumento.'<br>
 <tr><td class="total2"><strong>INAFECTA:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>GRATUITA:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>0.00</strong></td></tr>
+<tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>'.$cab['txtTOTAL_DESCUENTO'].'</strong></td></tr>
 <tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.$cab['txtTOTAL_IGV'].'</strong></td></tr>
 <tr><td class="total2"><strong>ISC:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>TOTAL:</strong></td><td><strong>'.$cab['txtTOTAL'].'</strong></td></tr>

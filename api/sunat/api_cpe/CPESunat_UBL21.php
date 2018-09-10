@@ -294,8 +294,18 @@ function cpeFactura($ruta, $cabecera, $detalle) {
 				</cac:RegistrationAddress>
 			</cac:PartyLegalEntity>
 		</cac:Party>
-	</cac:AccountingCustomerParty>
-	<cac:TaxTotal>
+	</cac:AccountingCustomerParty>';
+
+	if ($cabecera["TOTAL_DESCUENTO"] > 0) {
+		$xmlCPE = $xmlCPE .
+				'<cac:AllowanceCharge>
+				<cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+				<cbc:AllowanceChargeReasonCode listName="Cargo/descuento" listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo53">00</cbc:AllowanceChargeReasonCode>
+				<cbc:Amount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_DESCUENTO"] . '</cbc:Amount>
+				</cac:AllowanceCharge>';
+ }
+	$xmlCPE = $xmlCPE .
+	'<cac:TaxTotal>
 		<cbc:TaxAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_IGV"] . '</cbc:TaxAmount>
 		<cac:TaxSubtotal>
 			<cbc:TaxableAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_GRAVADAS"] . '</cbc:TaxableAmount>

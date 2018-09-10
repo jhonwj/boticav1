@@ -1488,7 +1488,9 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
 $app->get('/ventas/detalle', function (Request $request, Response $response) {
     $idDocVentas = $request->getParam('idDocVentas');
 
-    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto, ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
+    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto, 
+        ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
+        ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
         Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
         FROM Ve_DocVentaDet 
         INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
@@ -1850,12 +1852,13 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     $detalle = array();
     $json = array();
     $n=0;
+    $descuento = 0;
 
     foreach ($docVenta['productos'] as $producto) {
         $n=$n+1;
 
-        $igv = $docVenta['TieneIgv'] ? round($producto['Subtotal'] * 0.18, 2) : 0;
-        $subtotal = $docVenta['TieneIgv'] ? $producto['Subtotal'] - $igv : $producto['Subtotal'];
+        $igv = $docVenta['TieneIgv'] ? round($producto['Total'] * 0.18, 2) : 0;
+        $subtotal = $docVenta['TieneIgv'] ? $producto['Total'] - $igv : $producto['Total'];
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
@@ -1865,20 +1868,26 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtPRECIO_TIPO_CODIGO"] = "01"; // 02 valor referencial unitario en operaciones no onerosas
         $json["txtIGV"] = $igv;
         $json["txtISC"] = "0";
-        $json["txtIMPORTE_DET"] = $subtotal + $igv; //rowData.IMPORTE; //SUB_TOTAL + IGV
+        $json["txtIMPORTE_DET"] = $producto['Total']; //rowData.IMPORTE; //SUB_TOTAL + IGV
         $json["txtCOD_TIPO_OPERACION"] = $docVenta['CodigoIgv']; //20 si es exonerado
         $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
         $json["txtDESCRIPCION_DET"] = $producto['Producto'];
         //$json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
         $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
+        
         $detalle[]=$json;
+        $descuento += $producto['Descuento'];
     }
 
-    $subtotal = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
+    $gravadas = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
+    $subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
+
+    //$total = ($descuento > 0) ? $subtotal - $descuento : '0';
 
     $data = array(
         "txtTIPO_OPERACION"=>"0101", // corregir esto despues
-        "txtTOTAL_GRAVADAS"=> $subtotal,
+        "txtTOTAL_DESCUENTO" => $descuento,
+        "txtTOTAL_GRAVADAS"=> $gravadas,
         "txtSUB_TOTAL"=> $subtotal,
         "txtPOR_IGV"=> "0", 
         "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
