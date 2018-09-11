@@ -2249,7 +2249,67 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
 }); 
 
 
+$app->get('/reporte/ventas', function (Request $request, Response $response, array $args) use ($app) {
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaInicio = $request->getParam('fechaInicio');
+    $fechaFin = $request->getParam('fechaFin');
+    $declarado = $request->getParam('declarado') ? 1 : 0;
+    
+    $res = $app->subRequest('GET', '/ventas', 'idAlmacen=' . $idAlmacen . '&filter[fechaInicio]=' . $fechaInicio . '&filter[fechaFin]=' . $fechaFin . '&filter[declarado]=' . $declarado . '&sortBy=Ve_DocVenta.FechaDoc&sortDesc=DESC');
+    $ventas = (string) $res->getBody();
+    $ventas = json_decode($ventas, true);
+    // print_r($ventas);exit();
+    
+    $excel = new Spreadsheet();
+    //$sheet = $excel->setActiveSheetIndex(0);
+    $sheet = $excel->getActiveSheet();
+    $sheet->setCellValue('A1', 'ID');
+    $sheet->setCellValue('B1', 'FECHA');
+    $sheet->setCellValue('C1', 'CODSUNAT');
+    $sheet->setCellValue('D1', 'TIPO DOCUMENTO');
+    $sheet->setCellValue('E1', 'ES ANULADO');
+    $sheet->setCellValue('F1', 'SERIE');
+    $sheet->setCellValue('G1', 'NUMERO');
+    $sheet->setCellValue('H1', 'SUBTOTAL');
+    $sheet->setCellValue('I1', 'IGV');
+    $sheet->setCellValue('J1', 'TOTAL');
 
+    $cont = 3;
+    foreach($ventas as $ven) {
+        $igv = 0;
+        $subtotal = $ven['Total'];
+        if ($ven['TieneIgv']) {
+            $igv = $ven['Total'] * 0.18;
+            $subtotal = $ven['Total'] - $igv;
+        }
+        $sheet->setCellValue('A'.$cont, $ven['idDocVenta']);
+        $sheet->setCellValue('B'.$cont, $ven['FechaDoc']);
+        $sheet->setCellValue('C'.$cont, $ven['CodSunat']);
+        $sheet->setCellValue('D'.$cont, $ven['TipoDoc']);
+        $sheet->setCellValue('E'.$cont, $ven['Anulado']);;
+        $sheet->setCellValue('F'.$cont, $ven['Serie']);
+        $sheet->setCellValue('G'.$cont, $ven['Numero']);
+        $sheet->setCellValue('H'.$cont, $subtotal);
+        $sheet->setCellValue('I'.$cont, $igv);
+        $sheet->setCellValue('J'.$cont, $ven['Total']);
+        $cont += 1;
+    }
+
+    $excelWriter = new Xlsx($excel);
+
+    $fileName = 'reporteventas.xlsx';
+    $excelFileName = __DIR__ . '/reporte/' . $fileName;
+    $excelWriter->save($excelFileName);
+    // For Excel2007 and above .xlsx files   
+    // $response = $response->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    /*$response = $response->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    $stream = fopen($excelFileName, 'r+');
+    return $response->withBody(new \Slim\Http\Stream($stream));*/
+
+    echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
+    exit;
+});
 
 
 
