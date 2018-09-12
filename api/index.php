@@ -21,7 +21,7 @@ $config['db']['user']   = "root";
 // $config['db']['user']   = "neurosys_mini";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = "S[W9#ZBA4,bO";
-$config['db']['dbname'] = "neurosys_mini";
+$config['db']['dbname'] = "neurosys_hotel";
 // $config['db']['dbname'] = "neurosys_rojas";
 
 $app = new \Slim\App(["settings" => $config]);
@@ -413,6 +413,43 @@ $app->get('/productos/espadre', function (Request $request, Response $response, 
     return $response->withJson($data);
 });
 
+
+$app->get('/productos/habitaciones', function (Request $request, Response $response, array $args) {
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+        Gen_ProductoMedicion.ProductoMedicion
+        FROM Gen_Producto 
+        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
+    
+        $select .= " WHERE Gen_Producto.Anulado=0 AND Gen_Producto.EsHabitacion=1";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  0;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion
@@ -620,6 +657,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     $esPadre = $request->getParam('EsPadre');
     $stockMinimo = $request->getParam('StockMinimo');
     $codigoBarra = $request->getParam('CodigoBarra');
+    $esHabitacion = $request->getParam('EsHabitacion');
+    $piso = $request->getParam('Piso');
 
     $productosDet = $request->getParam('productosDet');
     $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
@@ -650,7 +689,9 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "PrecioContado" => $precioContado,
                             "ProductoPresentacion" => $productoPresentacion,
                             "EsPadre" => $esPadre,
-                            "StockMinimo" => $stockMinimo
+                            "StockMinimo" => $stockMinimo,
+                            "EsHabitacion" => $esHabitacion,
+                            "Piso" => $piso
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
@@ -692,9 +733,9 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra, $precioCosto, $precioContado));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso));
     $insertId = $insert->execute();
     
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -1830,7 +1871,7 @@ $app->post('/clientes', function (Request $request, Response $response) {
 // DATOS GLOBALES DE LA EMPRESA
 define('NRO_DOCUMENTO_EMPRESA', '20603429126');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
-define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
+define('TIPO_PROCESO', '03'); //01 PRODUCCION 03 BETA
 define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES PLUS MAS S.R.L');
 define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES PLUS MAS S.R.L');
 define('CODIGO_UBIGEO_EMPRESA', "150101");
@@ -1840,8 +1881,8 @@ define('PROVINCIA_EMPRESA', "HUANUCO");
 define('DISTRITO_EMPRESA', "HUANUCO");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'NEURO123'); // cambiar cuando se pase a produccion
-define('PASS_SOL_EMPRESA', 'NEURO123'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'MODDATOS'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'MODDATOS'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
