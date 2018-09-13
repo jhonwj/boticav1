@@ -413,43 +413,6 @@ $app->get('/productos/espadre', function (Request $request, Response $response, 
     return $response->withJson($data);
 });
 
-
-$app->get('/productos/habitaciones', function (Request $request, Response $response, array $args) {
-    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-        Gen_ProductoMedicion.ProductoMedicion
-        FROM Gen_Producto 
-        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
-        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
-        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
-    
-        $select .= " WHERE Gen_Producto.Anulado=0 AND Gen_Producto.EsHabitacion=1";
-
-    if ($request->getParam('sortBy')) {
-        $sortBy = $request->getParam('sortBy');
-        $sortDesc = $request->getParam('sortDesc');
-        $orientation = $sortDesc ? 'DESC' : 'ASC';
-        $select .= " ORDER BY " . $sortBy . " " . $orientation;
-    }
-
-    $limit = $request->getParam('limit') ? $request->getParam('limit') :  0;
-    if ($limit) {
-        $offset = 0;
-        if ($request->getParam('page')) {
-            $page = $request->getParam('page');
-            $offset = (--$page) * $limit;
-        }
-        $select .= " LIMIT " . $limit;
-        $select .= " OFFSET " . $offset;
-    }
-
-    $stmt = $this->db->query($select);
-    $stmt->execute();
-    $data = $stmt->fetchAll();    
-
-    return $response->withJson($data);
-});
-
-
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion
@@ -558,6 +521,102 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
 });
 
 
+
+/* HOTEL */
+$app->get('/habitaciones', function (Request $request, Response $response, array $args) {
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+        Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente
+        FROM Gen_Producto 
+        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        LEFT JOIN Ve_DocVentaCliente ON Gen_Producto.IdClienteReserva = Ve_DocVentaCliente.IdCliente ";
+    
+        $select .= " WHERE Gen_Producto.Anulado=0 AND Gen_Producto.EsHabitacion=1";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  0;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+$app->post('/habitaciones/alquilar', function (Request $request, Response $response) {
+    $idProducto = $request->getParam('IdProducto');
+    $idCliente = $request->getParam('IdCliente');
+
+    // Crear la preorden
+    $insert = $this->db->insert(array('IdCliente', 'FechaReg'))
+                       ->into('Ve_PreOrden')
+                       ->values(array($idCliente, getNow()));
+    
+    $insertId = $insert->execute();
+
+    // Insertar preorden Det
+    $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad'))
+                       ->into('Ve_PreOrdenDet')
+                       ->values(array($insertId, $idProducto, 1));
+    $insertDetId = $insertDet->execute();
+
+    // Actualizar habitacion, cambio de estado
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=3, IdPreOrden=$insertId, IdClienteReserva=$idCliente WHERE IdProducto=$idProducto";
+    $stmt = $this->db->prepare($update);
+    $updated = $stmt->execute();
+    
+    $data = array(
+        "insertId" => $insertId
+    );
+
+    return $response->withJson($data);
+});
+
+$app->post('/habitaciones/liberar', function (Request $request, Response $response) {
+    $idProducto = $request->getParam('IdProducto');
+
+    // Actualizar habitacion, cambio de estado
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, IdPreOrden=NULL, IdClienteReserva=NULL, FechaReserva=NULL WHERE IdProducto=$idProducto";
+    $stmt = $this->db->prepare($update);
+    $updated = $stmt->execute();
+    
+    return $response->withJson(array(
+        "updated" => $updated,
+        "IdProducto" => $idProducto
+    ));
+});
+
+$app->post('/habitaciones/reservar', function (Request $request, Response $response) {
+    $idProducto = $request->getParam('IdProducto');
+    $idCliente = $request->getParam('IdCliente');
+    $fechaReserva = $request->getParam('FechaReserva') ? $request->getParam('FechaReserva') : getNow();
+
+    // Actualizar habitacion, cambio de estado
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=2, IdPreOrden=NULL, IdClienteReserva=$idCliente, FechaReserva='" . $fechaReserva . "' WHERE IdProducto=$idProducto";
+    $stmt = $this->db->prepare($update);
+    $updated = $stmt->execute();
+    
+    return $response->withJson(array(
+        "updated" => $updated,
+        "IdProducto" => $idProducto
+    ));
+});
 
 
 $app->get('/proveedores', function (Request $request, Response $response, array $args) {
@@ -1776,7 +1835,9 @@ $app->get('/preorden', function (Request $request, Response $response) {
 $app->get('/preorden/detalle', function (Request $request, Response $response) {
     $idPreOrden = $request->getParam('idPreOrden');
 
-    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden=$idPreOrden";
+    $select = "SELECT Ve_PreOrdenDet.IdPreOrden, Ve_PreOrdenDet.Cantidad, Gen_Producto.* FROM Ve_PreOrdenDet  
+        INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
+        WHERE IdPreOrden=$idPreOrden";
     
     $stmt = $this->db->query($select);
     $stmt->execute();
