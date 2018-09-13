@@ -41,7 +41,7 @@ date_default_timezone_set('America/Lima');
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>">Minimarket</a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">HOTEL</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >
@@ -89,6 +89,7 @@ date_default_timezone_set('America/Lima');
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
+          <li><a href="/views/habitaciones.php">Habitaciones</a></li>
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>

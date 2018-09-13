@@ -18,11 +18,11 @@ $config['addContentLengthHeader'] = false;
 
 $config['db']['host']   = "127.0.0.1";
 $config['db']['user']   = "root";
-// $config['db']['user']   = "neurosys_mini";
+// $config['db']['user']   = "neurosys_hotel";
 $config['db']['pass']   = "";
-// $config['db']['pass']   = "S[W9#ZBA4,bO";
+// $config['db']['pass']   = "IX!!q!t(&Fc^";
 $config['db']['dbname'] = "neurosys_hotel";
-// $config['db']['dbname'] = "neurosys_rojas";
+// $config['db']['dbname'] = "neurosys_hotel";
 
 $app = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
@@ -1805,6 +1805,29 @@ $app->post('/ventas', function (Request $request, Response $response) {
 });
 
 
+$app->post('/preorden/detalle', function (Request $request, Response $response, array $args) {
+    $idPreOrden = $request->getParam('IdPreOrden');
+    $productos = $request->getParam('productos');
+    $idHabitacion = $request->getParam('IdHabitacion');
+
+    if ($idPreOrden) {
+        // Actualizar ProductoDet
+        $sql = "DELETE FROM Ve_PreOrdenDet WHERE IdPreOrden='$idPreOrden' AND IdProducto != $idHabitacion";
+        $stmt = $this->db->prepare($sql);
+        $deleted = $stmt->execute();
+
+        foreach($productos as $prod) {
+            if ($prod['IdProducto'] != $idHabitacion) {
+                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad'))
+                                    ->into('Ve_PreOrdenDet')
+                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad']));
+                $insertDetId = $insertDet->execute();
+            }
+        }
+        return $response->withJson(array("affectedRows" => $productos));
+    }
+});
+
 $app->get('/preorden/count', function (Request $request, Response $response, array $args) {
     $select = "SELECT COUNT(*) as total FROM Ve_PreOrden";
 
@@ -1837,7 +1860,7 @@ $app->get('/preorden/detalle', function (Request $request, Response $response) {
 
     $select = "SELECT Ve_PreOrdenDet.IdPreOrden, Ve_PreOrdenDet.Cantidad, Gen_Producto.* FROM Ve_PreOrdenDet  
         INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
-        WHERE IdPreOrden=$idPreOrden";
+        WHERE Ve_PreOrdenDet.IdPreOrden=$idPreOrden";
     
     $stmt = $this->db->query($select);
     $stmt->execute();
