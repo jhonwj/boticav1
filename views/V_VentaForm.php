@@ -24,7 +24,15 @@ include_once("../clases/helpers/Modal.php");
   }
 </script>
 
-<iframe id="iframeMovimiento" src="/nuevo/index.html#/ventas" width="100%" frameborder="0" onload="resizeIframe(this)"></iframe>
+<?php
+if (isset($_GET['idPreOrden']) && isset($_GET['idCliente'])) {
+    $src = "/nuevo/index.html#/ventas?idPreOrden=" . $_GET['idPreOrden'] . "&idCliente=" . $_GET['idCliente'];
+}else {
+    $src = "/nuevo/index.html#/ventas";
+}
+?>
+
+<iframe id="iframeMovimiento" src="<?php echo $src; ?>" width="100%" frameborder="0" onload="resizeIframe(this)"></iframe>
 
 
 </html>

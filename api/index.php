@@ -577,7 +577,7 @@ $app->post('/habitaciones/alquilar', function (Request $request, Response $respo
     $insertDetId = $insertDet->execute();
 
     // Actualizar habitacion, cambio de estado
-    $update = "UPDATE Gen_Producto SET EstadoHabitacion=3, IdPreOrden=$insertId, IdClienteReserva=$idCliente WHERE IdProducto=$idProducto";
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=3, IdPreOrden=$insertId, IdClienteReserva=$idCliente, FechaAlquiler='" . getNow() . "' WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
     
@@ -592,7 +592,7 @@ $app->post('/habitaciones/liberar', function (Request $request, Response $respon
     $idProducto = $request->getParam('IdProducto');
 
     // Actualizar habitacion, cambio de estado
-    $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, IdPreOrden=NULL, IdClienteReserva=NULL, FechaReserva=NULL WHERE IdProducto=$idProducto";
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, IdPreOrden=NULL, IdClienteReserva=NULL, FechaReserva=NULL, FechaAlquiler=NULL WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
     
