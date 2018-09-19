@@ -563,10 +563,15 @@ $app->post('/habitaciones/alquilar', function (Request $request, Response $respo
     $idProducto = $request->getParam('IdProducto');
     $idCliente = $request->getParam('IdCliente');
 
+    $cliente = $request->getParam('cliente');
+    $lugarProcedencia = $request->getParam('cliente')['LugarProcedencia'];
+    $medioTransporte = $request->getParam('cliente')['MedioTransporte'];
+    $proximoDestino = $request->getParam('cliente')['ProximoDestino'];
+
     // Crear la preorden
-    $insert = $this->db->insert(array('IdCliente', 'FechaReg'))
+    $insert = $this->db->insert(array('IdCliente', 'FechaReg', 'LugarProcedencia', 'MedioTransporte', 'ProximoDestino'))
                        ->into('Ve_PreOrden')
-                       ->values(array($idCliente, getNow()));
+                       ->values(array($idCliente, getNow(), $lugarProcedencia, $medioTransporte, $proximoDestino));
     
     $insertId = $insert->execute();
 
@@ -1724,10 +1729,23 @@ $app->post('/ventas', function (Request $request, Response $response) {
     
     $esCredito = $request->getParam('EsCredito');
     $fechaCredito = $request->getParam('FechaCredito');
+    $idPreOrden = $request->getParam('IdPreOrden') ? $request->getParam('IdPreOrden') : 'NULL';
     
-    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
+    if(is_numeric($idPreOrden)) {
+        $selectPre = "SELECT * FROM Ve_PreOrden WHERE IdPreOrden = $idPreOrden";
+
+        $stmt = $this->db->query($selectPre);
+        $stmt->execute();
+        $preOrden = $stmt->fetch(PDO::FETCH_ASSOC);  
+
+        $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, IdPreOrden, LugarProcedencia, MedioTransporte, ProximoDestino)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', $idPreOrden, '" . $preOrden['LugarProcedencia'] . "', '" . $preOrden['MedioTransporte'] . "', '" . $preOrden['ProximoDestino'] . "')";
+    } else {
+        $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
+    }
     
+
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
     $idDocVenta = $this->db->lastInsertId();
@@ -1926,10 +1944,14 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $direccion = $request->getParam('Direccion');
     $telefono = $request->getParam('Telefono');
     $email = $request->getParam('Email');
+    $sexo = $request->getParam('Sexo');
+    $ocupacion = $request->getParam('Ocupacion');
+    $fechaNacimiento = $request->getParam('FechaNacimiento');
+    $nacionalidad = $request->getParam('Nacionalidad');
 
-    $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Telefono', 'Email', 'Anulado', 'FechaReg'))
+    $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad'))
                        ->into('Ve_DocVentaCliente')
-                       ->values(array($cliente, $dniRuc, $direccion, $telefono, $email, '0', getNow()));
+                       ->values(array($cliente, $dniRuc, $direccion, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad));
     
     $insertId = $insert->execute();
 

@@ -8,3 +8,7 @@
 .upper {
     text-transform: uppercase;
 }
+
+.modal-cliente .modal{
+	z-index: 1070 !important;
+}
