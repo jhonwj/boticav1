@@ -619,7 +619,8 @@ $app->post('/habitaciones/reservar', function (Request $request, Response $respo
     
     return $response->withJson(array(
         "updated" => $updated,
-        "IdProducto" => $idProducto
+        "IdProducto" => $idProducto,
+        "quer" => $update
     ));
 });
 
@@ -1740,6 +1741,14 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
         $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, IdPreOrden, LugarProcedencia, MedioTransporte, ProximoDestino)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', $idPreOrden, '" . $preOrden['LugarProcedencia'] . "', '" . $preOrden['MedioTransporte'] . "', '" . $preOrden['ProximoDestino'] . "')";
+    } else if(is_array($idPreOrden)) {
+        $idPreOrdens = [];
+        foreach($idPreOrden as $pre) {
+            $idPreOrdens[] = $pre['IdPreOrden'];
+        }
+        // print_r($idPreOrdens);exit();
+        $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, IdPreOrden)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '" . serialize($idPreOrdens) . "')";
     } else {
         $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
@@ -1761,10 +1770,14 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $cantidad = $producto['cantidad'];
             $precio = $producto['precio'];
             $descuento = $producto['descuento'];
+            $fechaAlquilerInicio = isset($producto['FechaAlquilerInicio']) ? $producto['FechaAlquilerInicio'] : (isset($producto['FechaAlquiler']) ? $producto['FechaAlquiler'] : null);
+            $fechaAlquilerFin = isset($producto['FechaAlquilerFin']) ? $producto['FechaAlquilerFin'] : getNow();
+            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : null;
             
-            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento'))
+            
+            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento', 'FechaAlquilerFin', 'Descripcion', 'FechaAlquilerInicio'))
                 ->into('Ve_DocVentaDet')
-                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento));
+                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento, $fechaAlquilerFin, $descripcion, $fechaAlquilerInicio ));
             
             $insert->execute();
             $descuentoTotal += $descuento;

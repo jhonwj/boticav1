@@ -1,5 +1,11 @@
 <?php
 include_once("../clases/helpers/Modal.php");
+
+$pageWasRefreshed = isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
+if($pageWasRefreshed && isset($_GET['idPreOrden'])) {
+	header("Location: /views/V_VentaForm.php");
+   exit();
+}
 ?>
 
 <html>
@@ -25,6 +31,8 @@ include_once("../clases/helpers/Modal.php");
 </script>
 
 <?php
+
+
 if (isset($_GET['idPreOrden']) && isset($_GET['idCliente'])) {
     $src = "/nuevo/index.html#/ventas?idPreOrden=" . $_GET['idPreOrden'] . "&idCliente=" . $_GET['idCliente'];
 }else {

@@ -89,9 +89,9 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
-  <div class="center"><b>INVERSIONES PLUS MAS S.R.L</b></div>
-  <div class="center"><b>RUC: 20603429126 </b></div>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
+  <div class="center"><b>INVERSIONES VICTORIA'S E.I.R.L.</b></div>
+  <div class="center"><b>RUC: 20573014902 </b></div><br>
   <!--<div class="center small">VENTA DE ....</div>-->
   
   
@@ -132,7 +132,14 @@ $igv = 0;
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
             <td class="producto">
+              <?php if($producto['Descripcion']) : ?>
+              <span>
+              <?php echo $producto['Descripcion'] . ' (Desde: ' . 
+                date("Y-m-d", strtotime($producto['FechaAlquilerInicio'])) . ', Hasta: ' . date("Y-m-d", strtotime($producto['FechaAlquilerFin'])) . ')' ?>
+              </span>
+              <?php else : ?>
               <span><?php echo $producto['Producto'] ?></span>
+              <?php endif; ?>
             </td>
             <!--<td class="precio">
               <span>S/.<?php echo $producto['Precio'] ?></span>
@@ -207,8 +214,8 @@ $igv = 0;
         <img style="max-width: 100%; width: 100px;" src="data:image/png;base64,<?php echo $base64 ?>" />
   </div>
   <br />
-  <div class="center small">JR. HERMILIO VALDIZAN N° 742</div>
-  <div class="center small">HUÁNUCO - HUÁNUCO - HUÁNUCO</div>
+  <div class="center small">PQ. PLAZA PRINCIPAL NRO. 3 ---- BARR. CENTRO</div>
+  <div class="center small">PASCO PASCO HUAYLLAY</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
   <br />
