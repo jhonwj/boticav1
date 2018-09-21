@@ -118,6 +118,7 @@ date_default_timezone_set('America/Lima');
       <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Reportes
       <span class="caret"></span></a>
       <ul class="dropdown-menu">
+        <li><a href="/views/reportehuespedes.php"> Registro de Huéspedes </a></li>
         <li><a href="/views/reportestockminimo.php"> Reporte Stock Mínimo </a></li>
       </ul>
         
