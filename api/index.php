@@ -1730,9 +1730,9 @@ $app->post('/ventas', function (Request $request, Response $response) {
     
     $esCredito = $request->getParam('EsCredito');
     $fechaCredito = $request->getParam('FechaCredito');
-    $idPreOrden = $request->getParam('IdPreOrden') ? $request->getParam('IdPreOrden') : 'NULL';
+    $idPreOrden = $request->getParam('IdPreOrden');
     
-    if(is_numeric($idPreOrden)) {
+    /*if(is_numeric($idPreOrden)) {
         $selectPre = "SELECT * FROM Ve_PreOrden WHERE IdPreOrden = $idPreOrden";
 
         $stmt = $this->db->query($selectPre);
@@ -1744,6 +1744,10 @@ $app->post('/ventas', function (Request $request, Response $response) {
     } else if(is_array($idPreOrden)) {
         $idPreOrdens = [];
         foreach($idPreOrden as $pre) {
+            $update = "UPDATE Ve_PreOrden SET IdDocVenta=Puntos+$puntosAdicionales WHERE IdCliente=$idCliente";
+            $stmt = $this->db->prepare($update);
+            $updated = $stmt->execute();
+
             $idPreOrdens[] = $pre['IdPreOrden'];
         }
         // print_r($idPreOrdens);exit();
@@ -1752,14 +1756,24 @@ $app->post('/ventas', function (Request $request, Response $response) {
     } else {
         $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
-    }
-    
+    }*/
+
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
 
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
     $idDocVenta = $this->db->lastInsertId();
     // END INSERTAR NUEVA VENTA
     
+    // Actualizar Todas las PreOrden
+    if ($idPreOrden) {
+        foreach($idPreOrden as $pre) {
+            $update = "UPDATE Ve_PreOrden SET IdDocVenta=$idDocVenta WHERE IdPreOrden=" . $pre['IdPreOrden'];
+            $stmt = $this->db->prepare($update);
+            $updated = $stmt->execute();
+        }
+    }
     
     // START INSERTAR VENTA DETALLE
     $productos = $request->getParam('productos');
@@ -2407,6 +2421,51 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
     return $response->withJson($me);
     
 }); 
+
+
+
+$app->get('/reporte/habitaciones', function (Request $request, Response $response, array $args) use ($app) {
+    $fechaInicio = $request->getParam('fechaInicio');
+    $fechaFin = $request->getParam('fechaFin');
+
+    $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_DocVenta.idDocVenta, PreOrdenHabitacion.Producto, PreOrdenHabitacion.ProductoMarca, Ve_DocVentaCliente.Cliente, 
+        Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.DniRuc, 
+        Ve_DocVentaCliente.Sexo, Ve_DocVentaCliente.Ocupacion, Ve_DocVentaCliente.FechaNacimiento, Ve_DocVentaCliente.Nacionalidad, 
+        Ve_PreOrden.FechaReg, Ve_PreOrden.LugarProcedencia, Ve_PreOrden.MedioTransporte, Ve_PreOrden.ProximoDestino,
+        Ve_PreOrden.FechaReg AS FechaAlquilerInicio, DocVentaHabitacion.FechaAlquilerFin,  
+        (DocVentaHabitacion.Cantidad * DocVentaHabitacion.Precio) - DocVentaHabitacion.Descuento AS Tarifa
+        FROM Ve_PreOrden
+        
+        INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente
+        LEFT JOIN Ve_DocVenta ON Ve_PreOrden.IdDocVenta = Ve_DocVenta.idDocVenta
+        
+        INNER JOIN 
+        (SELECT  Ve_PreOrdenDet.IdPreOrden, Gen_Producto.EsHabitacion, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca
+        FROM Ve_PreOrdenDet
+        INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
+        LEFT JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        WHERE Gen_Producto.EsHabitacion = 1
+        GROUP BY Ve_PreOrdenDet.IdPreOrden) AS PreOrdenHabitacion ON Ve_PreOrden.IdPreOrden = PreOrdenHabitacion.IdPreOrden
+        
+        LEFT JOIN
+        (SELECT Ve_DocVentaDet.IdDocVenta, Ve_DocVentaDet.IdProducto, Ve_DocVentaDet.FechaAlquilerInicio, 
+        Ve_DocVentaDet.FechaAlquilerFin, Ve_DocVentaDet.Cantidad, Ve_DocVentaDet.Precio, Ve_DocVentaDet.Descuento
+        FROM Ve_DocVentaDet
+        INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+        WHERE Gen_Producto.EsHabitacion = 1
+        GROUP BY Ve_DocVentaDet.IdDocVenta) AS DocVentaHabitacion ON Ve_PreOrden.IdDocVenta = DocVentaHabitacion.IdDocVenta
+        
+        WHERE PreOrdenHabitacion.EsHabitacion = 1 AND Ve_PreOrden.FechaReg BETWEEN '" . $fechaInicio . " 00:00:00'" . " AND '" . $fechaFin . " 23:59:59'" . " 
+        ORDER BY Ve_PreOrden.IdPreOrden DESC";
+        
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetchAll();    
+
+        return $response->withJson($data);
+
+});
+
 
 
 $app->get('/reporte/ventas', function (Request $request, Response $response, array $args) use ($app) {
