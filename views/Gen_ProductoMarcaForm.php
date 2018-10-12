@@ -6,7 +6,7 @@ include_once("../clases/BnGeneral.php");
   <!DOCTYPE html>
  <html>
  <head>
-  <title>Minimarket - Marca</title>
+  <title>Hotel - Marca</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
