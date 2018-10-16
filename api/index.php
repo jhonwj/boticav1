@@ -2013,8 +2013,8 @@ define('DEPARTAMENTO_EMPRESA', "PASCO");
 define('PROVINCIA_EMPRESA', "PASCO");
 define('DISTRITO_EMPRESA', "PASCO");
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'MODDATOS'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'MODDATOS'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'INVER123'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'INVER123'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");

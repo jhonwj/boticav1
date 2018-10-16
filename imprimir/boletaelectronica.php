@@ -196,7 +196,7 @@ $igv = 0;
   <br />
   <div class="center">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '20603429126');
+        define('NRO_DOCUMENTO_EMPRESA', '20573014902');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }

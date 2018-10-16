@@ -1,6 +1,6 @@
 <?php
-$ruc = "20603429126";
-$ruta = "../api_cpe/PRODUCCION/20603429126/";
+$ruc = "20573014902";
+$ruta = "../api_cpe/BETA/20573014902/";
 $archivo = (isset($_GET["archivo"])) ? $_GET["archivo"] : "";
 if (file_exists($ruta . $archivo . ".pdf")) {
     $validacion = "1";
