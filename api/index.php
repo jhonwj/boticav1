@@ -2062,7 +2062,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtTOTAL_DESCUENTO" => $descuento,
         "txtTOTAL_GRAVADAS"=> $gravadas,
         "txtSUB_TOTAL"=> $subtotal,
-        "txtPOR_IGV"=> "0", 
+        "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0", 
         "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
         "txtTOTAL"=> $docVenta['Total'],
         "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true), 

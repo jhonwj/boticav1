@@ -155,7 +155,7 @@ $igv = 0;
         }
 
         if ($tieneIgv) {
-          $subtotal = $total / 1.18;
+          $subtotal = $total - ($total * 0.18);
           $igv = $total - $subtotal;
         } else {
           $igv = '0.00';
@@ -167,11 +167,13 @@ $igv = 0;
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
-        <!--<tr>
-          <td></td>
-          <td class="text-right">IGV</td>
-          <td class="text-right">S/.<?php echo number_format($igv, 2); ?></td>
-        </tr>-->
+        <?php if ($igv > 0) : ?>
+          <tr>
+            <td></td>
+            <td class="text-right">IGV</td>
+            <td class="text-right">S/.<?php echo number_format($igv, 2); ?></td>
+          </tr>
+        <?php endif; ?>
         <?php if ($totalDescuento > 0) : ?>
           <tr>
             <td></td>

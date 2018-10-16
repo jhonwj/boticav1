@@ -155,7 +155,7 @@ $igv = 0;
         }
 
         if ($tieneIgv) {
-          $subtotal = $total / 1.18;
+          $subtotal = $total - ($total * 0.18);
           $igv = $total - $subtotal;
         } else {
           $igv = '0.00';
