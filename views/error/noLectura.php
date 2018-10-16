@@ -5,7 +5,7 @@
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>Minimarket - Sin permisos de lectura</title>
+ 	<title>Hotel - Sin permisos de lectura</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once $_SERVER["DOCUMENT_ROOT"] . '/views/linker.php'; ?>

@@ -6,7 +6,7 @@ include("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
-  <title>Minimarket - Forma Farmaceutica</title>
+  <title>Hotel - Forma Farmaceutica</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">

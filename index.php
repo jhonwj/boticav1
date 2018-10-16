@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>Minimarket - </title>
+  <title>Hotel - </title>
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>
