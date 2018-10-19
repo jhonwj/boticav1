@@ -2030,7 +2030,8 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     foreach ($docVenta['productos'] as $producto) {
         $n=$n+1;
 
-        $igv = $docVenta['TieneIgv'] ? round($producto['Total'] * 0.18, 2) : 0;
+        // $igv = $docVenta['TieneIgv'] ? round($producto['Total'] * 0.18, 2) : 0;
+        $igv = $docVenta['TieneIgv'] ? round($producto['Total'] - ($producto['Total'] / 1.18) , 2) : 0;
         $subtotal = $docVenta['TieneIgv'] ? $producto['Total'] - $igv : $producto['Total'];
 
         $json['txtITEM']=$n;
@@ -2045,14 +2046,15 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtCOD_TIPO_OPERACION"] = $docVenta['CodigoIgv']; //20 si es exonerado
         $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
         $json["txtDESCRIPCION_DET"] = $producto['Producto'];
-        //$json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
+        // $json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
         $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
         
         $detalle[]=$json;
         $descuento += $producto['Descuento'];
     }
 
-    $gravadas = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
+    // $gravadas = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
+    $gravadas = $docVenta['TieneIgv'] ? round($docVenta['Total'] / 1.18, 2) : $docVenta['Total'];
     $subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
 
     //$total = ($descuento > 0) ? $subtotal - $descuento : '0';
@@ -2063,7 +2065,8 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtTOTAL_GRAVADAS"=> $gravadas,
         "txtSUB_TOTAL"=> $subtotal,
         "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0", 
-        "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
+        // "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
+        "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] - ($docVenta['Total'] / 1.18), 2) : 0,
         "txtTOTAL"=> $docVenta['Total'],
         "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true), 
         "txtNRO_COMPROBANTE"=> $docVenta['Serie'] . "-" . $docVenta['Numero'], //
@@ -2111,7 +2114,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     $me['data'] = array(
         "txtNRO_COMPROBANTE" => $data['txtNRO_COMPROBANTE']
     );
-
+    print_r($data);exit();
     $estado = 1;
     if ($me['cod_sunat'] == '0') {
         $estado = 2;
