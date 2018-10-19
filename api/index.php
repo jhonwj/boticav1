@@ -2042,7 +2042,8 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtPRECIO_TIPO_CODIGO"] = "01"; // 02 valor referencial unitario en operaciones no onerosas
         $json["txtIGV"] = $igv;
         $json["txtISC"] = "0";
-        $json["txtIMPORTE_DET"] = $producto['Total']; //rowData.IMPORTE; //SUB_TOTAL + IGV
+        // $json["txtIMPORTE_DET"] = $producto['Total']; //rowData.IMPORTE; //SUB_TOTAL + IGV
+        $json["txtIMPORTE_DET"] = $subtotal; //rowData.IMPORTE; //SUB_TOTAL + IGV
         $json["txtCOD_TIPO_OPERACION"] = $docVenta['CodigoIgv']; //20 si es exonerado
         $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
         $json["txtDESCRIPCION_DET"] = $producto['Producto'];
@@ -2114,7 +2115,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     $me['data'] = array(
         "txtNRO_COMPROBANTE" => $data['txtNRO_COMPROBANTE']
     );
-    print_r($data);exit();
+    // print_r($data);exit();
     $estado = 1;
     if ($me['cod_sunat'] == '0') {
         $estado = 2;
