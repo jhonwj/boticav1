@@ -1,6 +1,6 @@
 <?php
 $ruc = "20573014902";
-$ruta = "../api_cpe/BETA/20573014902/";
+$ruta = "../api_cpe/PRODUCCION/20573014902/";
 $archivo = (isset($_GET["archivo"])) ? $_GET["archivo"] : "";
 if (file_exists($ruta . $archivo . ".pdf")) {
     $validacion = "1";
@@ -17,7 +17,7 @@ if (file_exists($ruta . $archivo . ".pdf")) {
         <meta name="description" content="">
         <meta name="author" content="">
         <link rel="icon" href="favicon.ico">
-        <title>CONSULTA DOCUMENTO ELECTRÃ“NICO</title>
+        <title>CONSULTA DOCUMENTO ELECTRÓNICO</title>
         <link href="./css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <link href="./css/theme.css" rel="stylesheet" type="text/css"/>
     </head>
@@ -52,7 +52,7 @@ if (file_exists($ruta . $archivo . ".pdf")) {
                                     </div>
                                     <!-- 
                                     <div class="form-group">
-                                        <label class="col-lg-5 control-label">Fecha EmisiÃ³n<br>(Ej: DD-MM-AAAA)</label>
+                                        <label class="col-lg-5 control-label">Fecha Emisión<br>(Ej: DD-MM-AAAA)</label>
                                         <div class="col-lg-7"><input type="text" class="form-control" ></div>
                                     </div>
                                     <div class="form-group">
