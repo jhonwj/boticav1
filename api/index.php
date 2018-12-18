@@ -2486,34 +2486,67 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     //$sheet = $excel->setActiveSheetIndex(0);
     $sheet = $excel->getActiveSheet();
     $sheet->setCellValue('A1', 'ID');
-    $sheet->setCellValue('B1', 'FECHA');
-    $sheet->setCellValue('C1', 'CODSUNAT');
-    $sheet->setCellValue('D1', 'TIPO DOCUMENTO');
-    $sheet->setCellValue('E1', 'ES ANULADO');
-    $sheet->setCellValue('F1', 'SERIE');
-    $sheet->setCellValue('G1', 'NUMERO');
-    $sheet->setCellValue('H1', 'SUBTOTAL');
-    $sheet->setCellValue('I1', 'IGV');
-    $sheet->setCellValue('J1', 'TOTAL');
+    $sheet->setCellValue('B1', 'FECHAE');
+    $sheet->setCellValue('C1', 'FECHAV');
+    $sheet->setCellValue('D1', 'TIPOC');
+    $sheet->setCellValue('E1', 'SERIE');
+    $sheet->setCellValue('F1', 'NUMERO');
+    $sheet->setCellValue('G1', 'TIPODOC');
+    $sheet->setCellValue('H1', 'DOCUMENTO');
+    $sheet->setCellValue('I1', 'NOMBRE');
+    $sheet->setCellValue('J1', 'BASEI');
+    $sheet->setCellValue('K1', 'IGV');
+    $sheet->setCellValue('L1', 'EXONERADO');
+    $sheet->setCellValue('M1', 'RETENCION');
+    $sheet->setCellValue('N1', 'TOTAL');
+
+    // $sheet->setCellValue('N1', 'ES ANULADO');
+    
 
     $cont = 3;
     foreach($ventas as $ven) {
+        $exonerado = 0;
         $igv = 0;
         $subtotal = $ven['Total'];
         if ($ven['TieneIgv']) {
-            $igv = $ven['Total'] * 0.18;
-            $subtotal = $ven['Total'] - $igv;
+            // $igv = $ven['Total'] * 0.18;
+            // $subtotal = $ven['Total'] - $igv;
+            $subtotal = round($ven['Total'] / 1.18, 2);
+            $igv = round($ven['Total'] - $subtotal, 2);
         }
+
+        if ($ven['CodigoIgv'] == '20') {
+            $subtotal = 0;
+            $igv = 0;  
+            $exonerado = $ven['Total'];
+        }
+
+        if ($ven['Anulado']) {
+            $subtotal = 0;
+            $igv = 0;
+            $exonerado = 0;
+            $ven['Total'] = 0;
+        }
+
         $sheet->setCellValue('A'.$cont, $ven['idDocVenta']);
-        $sheet->setCellValue('B'.$cont, $ven['FechaDoc']);
-        $sheet->setCellValue('C'.$cont, $ven['CodSunat']);
-        $sheet->setCellValue('D'.$cont, $ven['TipoDoc']);
-        $sheet->setCellValue('E'.$cont, $ven['Anulado']);;
-        $sheet->setCellValue('F'.$cont, $ven['Serie']);
-        $sheet->setCellValue('G'.$cont, $ven['Numero']);
-        $sheet->setCellValue('H'.$cont, $subtotal);
-        $sheet->setCellValue('I'.$cont, $igv);
-        $sheet->setCellValue('J'.$cont, $ven['Total']);
+        $sheet->setCellValue('B'.$cont, date("d/m/Y", strtotime($ven['FechaDoc'])));
+        $sheet->setCellValue('C'.$cont, date("d/m/Y", strtotime($ven['FechaDoc'])));
+        $sheet->setCellValue('D'.$cont, $ven['CodSunat']);
+        $sheet->setCellValue('E'.$cont, $ven['Serie']);
+        $sheet->setCellValue('F'.$cont, $ven['Numero']);
+
+        // $sheet->setCellValue('F'.$cont, $ven['TipoDoc']);
+        $sheet->setCellValue('G'.$cont, strlen($ven['DniRuc']) > 9 ? "6" : "1");
+        $sheet->setCellValue('H'.$cont, $ven['DniRuc']);
+        $sheet->setCellValue('I'.$cont, $ven['Cliente']);
+        $sheet->setCellValue('J'.$cont, $subtotal);
+        $sheet->setCellValue('K'.$cont, $igv);
+        $sheet->setCellValue('L'.$cont, $exonerado);
+        $sheet->setCellValue('M'.$cont, 0);
+        $sheet->setCellValue('N'.$cont, $ven['Total']);
+        
+        // $sheet->setCellValue('N'.$cont, $ven['Anulado']);;
+        
         $cont += 1;
     }
 
@@ -2532,7 +2565,6 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
     exit;
 });
-
 
 
 
