@@ -90,8 +90,8 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>INVERSIONES VICTORIA'S E.I.R.L.</b></div>
-  <div class="center"><b>RUC: 20573014902 </b></div><br>
+  <div class="center"><b>INVERSIONES TURISTICOS JHOR BUSH S.A.C.</b></div>
+  <div class="center"><b>RUC: 20393999463 </b></div><br>
   <!--<div class="center small">VENTA DE ....</div>-->
   
   
@@ -199,7 +199,7 @@ $igv = 0;
   <br />
   <div class="center">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '20573014902');
+        define('NRO_DOCUMENTO_EMPRESA', '20393999463');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }

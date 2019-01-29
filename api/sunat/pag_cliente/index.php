@@ -17,7 +17,7 @@ if (file_exists($ruta . $archivo . ".pdf")) {
         <meta name="description" content="">
         <meta name="author" content="">
         <link rel="icon" href="favicon.ico">
-        <title>CONSULTA DOCUMENTO ELECTRÓNICO</title>
+        <title>CONSULTA DOCUMENTO ELECTRï¿½NICO</title>
         <link href="./css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <link href="./css/theme.css" rel="stylesheet" type="text/css"/>
     </head>
@@ -27,7 +27,7 @@ if (file_exists($ruta . $archivo . ".pdf")) {
                 <div class="row">
                     <div class="col-md-6 col-md-offset-2">
                         <div class="col-md-6">	    
-                            <img src="./img/tulogo.png" alt=""  width="185px"  />
+                            <img src="./img/tulogo.png" alt=""  width="160px"  />
                         </div>
                         <div class="col-md-6">	    
                             <img src="./img/cuadro01.jpg" alt="" class="img-responsive" />
@@ -52,7 +52,7 @@ if (file_exists($ruta . $archivo . ".pdf")) {
                                     </div>
                                     <!-- 
                                     <div class="form-group">
-                                        <label class="col-lg-5 control-label">Fecha Emisión<br>(Ej: DD-MM-AAAA)</label>
+                                        <label class="col-lg-5 control-label">Fecha Emisiï¿½n<br>(Ej: DD-MM-AAAA)</label>
                                         <div class="col-lg-7"><input type="text" class="form-control" ></div>
                                     </div>
                                     <div class="form-group">
