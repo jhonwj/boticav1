@@ -1874,7 +1874,7 @@ $app->post('/preorden/detalle', function (Request $request, Response $response, 
 });
 
 $app->get('/preorden/count', function (Request $request, Response $response, array $args) {
-    $select = "SELECT COUNT(*) as total FROM Ve_PreOrden";
+    $select = "SELECT COUNT(*) as total FROM Ve_PreOrden where  Anulado=0 AND IdDocVenta IS NULL";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -1888,8 +1888,8 @@ $app->get('/preorden', function (Request $request, Response $response) {
     $filter = $request->getParam('filter');
     $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_PreOrden.IdCliente, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_PreOrden.FechaReg 
         FROM Ve_PreOrden INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente";
-    $select .= " WHERE Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%' 
-                 OR Ve_DocVentaCliente.DniRuc LIKE '" . $filter . "%'";
+    $select .= " WHERE Anulado=0 AND IdDocVenta IS NULL AND (Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%' 
+                 OR Ve_DocVentaCliente.DniRuc LIKE '" . $filter . "%')";
     $select .= " ORDER BY Ve_PreOrden.IdPreOrden DESC";
 
     $stmt = $this->db->query($select);
