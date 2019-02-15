@@ -454,6 +454,10 @@ $app->get('/productos', function (Request $request, Response $response, array $a
         $select .= " WHERE Gen_Producto.Anulado=0 AND (Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.ProductoModelo LIKE '" . $request->getParam('q') . "%')";
     }
 
+    if($request->getParam('controlaStock')) {
+        $select .= " AND Gen_Producto.ControlaStock=1";
+    }
+
     if ($request->getParam('sortBy')) {
         $sortBy = $request->getParam('sortBy');
         $sortDesc = $request->getParam('sortDesc');
@@ -711,7 +715,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $productoModelo = $request->getParam('ProductoModelo') ? $request->getParam('ProductoModelo') : '';
     $fechaReg = getNow();
     $hash = time();
-    $controlaStock = 1;
+    // $controlaStock = 1;
     $porcentajeUtilidad = $request->getParam('PorcentajeUtilidad');
     $genero = $request->getParam('Genero');
     $color = $request->getParam('Color');
@@ -724,6 +728,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $codigoBarra = $request->getParam('CodigoBarra');
     $esHabitacion = $request->getParam('EsHabitacion');
     $piso = $request->getParam('Piso');
+    $controlaStock = $request->getParam('ControlaStock') ? $request->getParam('ControlaStock') : 0;
 
     $productosDet = $request->getParam('productosDet');
     $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
@@ -1361,6 +1366,8 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $idProductos = $request->getParam('idProductos');
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
+
+    $select .= "AND Gen_Producto.ControlaStock=1 ";
 
     if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
         $filterMinimo = $request->getParam('filter')['minimo'];

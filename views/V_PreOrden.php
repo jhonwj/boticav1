@@ -376,7 +376,34 @@ $("#formAddCliente").submit(function(e){
     data: {data : clienteToJson},
     dataType : "html",
     success : function(respuesta){
+      respuesta = respuesta.replace(/\s/g, '');
+
       if(respuesta == "a"){
+        $("#ModalClienteAñadir").modal("hide");
+        $("#tableCliente").DataTable().destroy();
+        $("#tableCliente tbody").empty();
+        var table4 = $("#tableCliente").DataTable({
+        "bProcessing": true,
+        "sAjaxSource": "../controllers/server_processingCliente.php",
+        "bPaginate":true,
+        "sPaginationType":"full_numbers",
+        "iDisplayLength": 5,
+        "aoColumns": [
+        { mData: 'IdCliente' } ,
+        { mData: 'Cliente' },
+        { mData: 'DniRuc' },
+        { mRender : function(data, type, row){
+          return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
+        }},
+        { mData: 'Direccion', "sClass": "idProd" },
+        { mData: 'Telefono', "sClass": "idProd"},
+        { mData: 'Email', "sClass": "idProd" },
+        ]
+      });
+      //$("#ModalCliente").modal("show");
+  }else if (respuesta == "m") {
+    
+      $("#txtCliente").val("");
       $("#ModalClienteAñadir").modal("hide");
       $("#tableCliente").DataTable().destroy();
       $("#tableCliente tbody").empty();
@@ -398,31 +425,7 @@ $("#formAddCliente").submit(function(e){
       { mData: 'Email', "sClass": "idProd" },
       ]
     });
-    //$("#ModalCliente").modal("show");
-  }else if (respuesta == "m") {
-    $("#txtCliente").val("");
-    $("#ModalClienteAñadir").modal("hide");
-    $("#tableCliente").DataTable().destroy();
-    $("#tableCliente tbody").empty();
-    var table4 = $("#tableCliente").DataTable({
-    "bProcessing": true,
-    "sAjaxSource": "../controllers/server_processingCliente.php",
-    "bPaginate":true,
-    "sPaginationType":"full_numbers",
-    "iDisplayLength": 5,
-    "aoColumns": [
-    { mData: 'IdCliente' } ,
-    { mData: 'Cliente' },
-    { mData: 'DniRuc' },
-    { mRender : function(data, type, row){
-      return "<a onclick='EditarCliente("+ row.IdCliente +");' class='btn'><i class='fa fa-pencil'></i></a>"
-    }},
-    { mData: 'Direccion', "sClass": "idProd" },
-    { mData: 'Telefono', "sClass": "idProd"},
-    { mData: 'Email', "sClass": "idProd" },
-    ]
-  });
-  $("#ModalCliente").modal("show");
+    $("#ModalCliente").modal("show");
   }
     },
   });
