@@ -208,6 +208,9 @@ $("#btnSave").click(function(event) {
         data: {idCliente : $('#txtClienteID').val(), productos : JSON.stringify(productos)},
         dataType: 'json',
         success: function(respuesta){
+          // aqui redireccionar a la preorden
+          window.open('/imprimir/preorden.php?id=' + respuesta.idPreOrden, '_blank')
+
           if (respuesta.success) {
               $.notify({
                   icon: 'fa fa-check',

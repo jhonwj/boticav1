@@ -724,6 +724,13 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		return getSQLResultSet($Ssql);
 	}
 
+	function fn_devolverPreOrden($idPreOrden) {
+		$sql = "SELECT Ve_PreOrden.*, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc FROM Ve_PreOrden 
+			INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente
+			WHERE IdPreOrden=$idPreOrden";
+		return getSQLResultSet($sql);
+	}
+
 	function fn_listarProductosPreOrden($idPreOrden) {
 		$Ssql = "SELECT PRO.IdProducto, PRO.Producto, POD.Cantidad, PRO.PrecioContado AS Precio,
 			(SELECT MD.IdLote FROM Lo_MovimientoDetalle as MD WHERE MD.IdProducto=PRO.IdProducto group by IdProducto ORDER BY FechaVen ASC) AS Lote,

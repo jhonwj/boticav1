@@ -55,7 +55,10 @@ switch ($method) {
             $productos = json_decode($_POST['productos'], true);
 
             $preOrden = fn_guardarPreOrden($idCliente, $productos);
+
+
             if ($preOrden) {
+                $result['idPreOrden'] = $preOrden;
                 $result['success'] = 'Pre orden almacenado correctamente';
             } else {
                 $result['error'] = 'Ha ocurrido un error, vuelva a intentarlo más tarde';
