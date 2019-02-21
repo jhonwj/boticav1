@@ -572,10 +572,13 @@ $app->post('/habitaciones/alquilar', function (Request $request, Response $respo
     $medioTransporte = $request->getParam('cliente')['MedioTransporte'];
     $proximoDestino = $request->getParam('cliente')['ProximoDestino'];
 
+    $fechaAlquilerInicio = $request->getParam('cliente')['FechaAlquilerInicio'];
+    $fechaAlquilerFin = $request->getParam('cliente')['FechaAlquilerFin'];
+
     // Crear la preorden
-    $insert = $this->db->insert(array('IdCliente', 'FechaReg', 'LugarProcedencia', 'MedioTransporte', 'ProximoDestino'))
+    $insert = $this->db->insert(array('IdCliente', 'FechaReg', 'LugarProcedencia', 'MedioTransporte', 'ProximoDestino', 'FechaAlquilerInicio', 'FechaAlquilerFin'))
                        ->into('Ve_PreOrden')
-                       ->values(array($idCliente, getNow(), $lugarProcedencia, $medioTransporte, $proximoDestino));
+                       ->values(array($idCliente, getNow(), $lugarProcedencia, $medioTransporte, $proximoDestino, $fechaAlquilerInicio, $fechaAlquilerFin));
     
     $insertId = $insert->execute();
 
@@ -586,7 +589,7 @@ $app->post('/habitaciones/alquilar', function (Request $request, Response $respo
     $insertDetId = $insertDet->execute();
 
     // Actualizar habitacion, cambio de estado
-    $update = "UPDATE Gen_Producto SET EstadoHabitacion=3, IdPreOrden=$insertId, IdClienteReserva=$idCliente, FechaAlquiler='" . getNow() . "' WHERE IdProducto=$idProducto";
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=3, IdPreOrden=$insertId, IdClienteReserva=$idCliente, FechaAlquilerFin='" . $fechaAlquilerFin . "', FechaAlquiler='" . $fechaAlquilerInicio . "' WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
     
@@ -615,9 +618,10 @@ $app->post('/habitaciones/reservar', function (Request $request, Response $respo
     $idProducto = $request->getParam('IdProducto');
     $idCliente = $request->getParam('IdCliente');
     $fechaReserva = $request->getParam('FechaReserva') ? $request->getParam('FechaReserva') : getNow();
+    $vuelo = $request->getParam('Vuelo') ? $request->getParam('Vuelo') : '';
 
     // Actualizar habitacion, cambio de estado
-    $update = "UPDATE Gen_Producto SET EstadoHabitacion=2, IdPreOrden=NULL, IdClienteReserva=$idCliente, FechaReserva='" . $fechaReserva . "' WHERE IdProducto=$idProducto";
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=2, Vuelo='$vuelo', IdPreOrden=NULL, IdClienteReserva=$idCliente, FechaReserva='" . $fechaReserva . "' WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
     
@@ -1779,6 +1783,36 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $update = "UPDATE Ve_PreOrden SET IdDocVenta=$idDocVenta WHERE IdPreOrden=" . $pre['IdPreOrden'];
             $stmt = $this->db->prepare($update);
             $updated = $stmt->execute();
+
+            foreach($request->getParam('productos') as $producto) {
+                $update = "UPDATE Ve_PreOrdenDet SET Cantidad=Cantidad-" . $producto['cantidad'] . " WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
+                $stmt = $this->db->prepare($update);
+                $updated = $stmt->execute();
+
+
+                $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
+                $stmt = $this->db->query($select);
+                $stmt->execute();
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (isset($data['Cantidad']) && ($producto['cantidad'] > $data['Cantidad'])) {
+                    $sql = "DELETE FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
+                    $stmt = $this->db->prepare($sql);
+                    $deleted = $stmt->execute();
+                }
+
+            }
+
+            $select = "SELECT COUNT(*) as total FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND Cantidad > 0";
+            $stmt = $this->db->query($select);
+            $stmt->execute();
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($data['total'] <= 0) {
+                $update = "UPDATE Ve_PreOrden SET Anulado=1 WHERE IdPreOrden=" . $pre['IdPreOrden'];
+                $stmt = $this->db->prepare($update);
+                $updated = $stmt->execute();
+            }
         }
     }
     
@@ -1856,6 +1890,29 @@ $app->post('/ventas', function (Request $request, Response $response) {
     return $response->withJson($data);
 });
 
+$app->post('/preorden/cajaybanco', function (Request $request, Response $response, array $args) {
+    $idPreOrden = $request->getParam('IdPreOrden');
+    $idHabitacion = $request->getParam('IdHabitacion');
+
+    if ($idPreOrden) {
+        // Actualizar ProductoDet aqui me quede 
+        /* $insert = "INSERT INTO Cb_CajaBanco VALUES()  FROM Ve_PreOrdenDet WHERE IdPreOrden='$idPreOrden' AND IdProducto != $idHabitacion";
+        $stmt = $this->db->prepare($insert);
+        $inserted = $stmt->execute();
+        $idDocVenta = $this->db->lastInsertId();
+
+        foreach($productos as $prod) {
+            if ($prod['IdProducto'] != $idHabitacion) {
+                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad'))
+                                    ->into('Ve_PreOrdenDet')
+                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad']));
+                $insertDetId = $insertDet->execute();
+            }
+        }
+        return $response->withJson(array("affectedRows" => $productos));*/ 
+    }
+});
+
 
 $app->post('/preorden/detalle', function (Request $request, Response $response, array $args) {
     $idPreOrden = $request->getParam('IdPreOrden');
@@ -1881,7 +1938,7 @@ $app->post('/preorden/detalle', function (Request $request, Response $response, 
 });
 
 $app->get('/preorden/count', function (Request $request, Response $response, array $args) {
-    $select = "SELECT COUNT(*) as total FROM Ve_PreOrden where  Anulado=0 AND IdDocVenta IS NULL";
+    $select = "SELECT COUNT(*) as total FROM Ve_PreOrden where Anulado=0";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -1895,7 +1952,7 @@ $app->get('/preorden', function (Request $request, Response $response) {
     $filter = $request->getParam('filter');
     $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_PreOrden.IdCliente, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_PreOrden.FechaReg 
         FROM Ve_PreOrden INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente";
-    $select .= " WHERE Ve_PreOrden.Anulado=0 AND Ve_PreOrden.IdDocVenta IS NULL AND (Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%' 
+    $select .= " WHERE Ve_PreOrden.Anulado=0 AND (Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%' 
                  OR Ve_DocVentaCliente.DniRuc LIKE '" . $filter . "%')";
     $select .= " ORDER BY Ve_PreOrden.IdPreOrden DESC";
 
@@ -1910,7 +1967,7 @@ $app->get('/preorden', function (Request $request, Response $response) {
 $app->get('/preorden/detalle', function (Request $request, Response $response) {
     $idPreOrden = $request->getParam('idPreOrden');
 
-    $select = "SELECT Ve_PreOrdenDet.IdPreOrden, Ve_PreOrdenDet.Cantidad, Gen_Producto.* FROM Ve_PreOrdenDet  
+    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet  
         INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
         WHERE Ve_PreOrdenDet.IdPreOrden=$idPreOrden";
     
