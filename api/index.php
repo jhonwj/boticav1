@@ -529,7 +529,7 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
 /* HOTEL */
 $app->get('/habitaciones', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-        Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente
+        Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente
         FROM Gen_Producto 
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
@@ -1893,23 +1893,39 @@ $app->post('/ventas', function (Request $request, Response $response) {
 $app->post('/preorden/cajaybanco', function (Request $request, Response $response, array $args) {
     $idPreOrden = $request->getParam('IdPreOrden');
     $idHabitacion = $request->getParam('IdHabitacion');
+    $adelanto = $request->getParam('Adelanto');
+    $producto = $request->getParam('producto');
 
     if ($idPreOrden) {
-        // Actualizar ProductoDet aqui me quede 
-        /* $insert = "INSERT INTO Cb_CajaBanco VALUES()  FROM Ve_PreOrdenDet WHERE IdPreOrden='$idPreOrden' AND IdProducto != $idHabitacion";
+        $insert = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, Anulado, IdProveedor, IdCliente, EsDelVendedor, IdPreOrden) VALUES (2, 1, '" . getNow() . "', 'Adelanto Habitación $producto[Producto]', $adelanto, 0, 0, $producto[IdCliente], 0, $idPreOrden)";
         $stmt = $this->db->prepare($insert);
         $inserted = $stmt->execute();
-        $idDocVenta = $this->db->lastInsertId();
+        $idCajaBanco = $this->db->lastInsertId();
 
-        foreach($productos as $prod) {
-            if ($prod['IdProducto'] != $idHabitacion) {
-                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad'))
-                                    ->into('Ve_PreOrdenDet')
-                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad']));
-                $insertDetId = $insertDet->execute();
-            }
+        if ($idCajaBanco) {
+            $select = "SELECT * FROM Cb_CajaBanco where IdCajaBanco=$idCajaBanco";
+
+            $stmt = $this->db->query($select);
+            $stmt->execute();
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+            return $response->withJson($data);
         }
-        return $response->withJson(array("affectedRows" => $productos));*/ 
+    }
+});
+
+
+$app->get('/preorden/cajaybanco', function (Request $request, Response $response, array $args) {
+    $idPreOrden = $request->getParam('IdPreOrden');
+
+    if ($idPreOrden) {
+        $select = "SELECT * FROM Cb_CajaBanco where IdPreOrden=$idPreOrden";
+
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetchAll();    
+
+        return $response->withJson($data);
     }
 });
 
