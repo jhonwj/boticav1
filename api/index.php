@@ -1783,33 +1783,45 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $update = "UPDATE Ve_PreOrden SET IdDocVenta=$idDocVenta WHERE IdPreOrden=" . $pre['IdPreOrden'];
             $stmt = $this->db->prepare($update);
             $updated = $stmt->execute();
+            $idHabitacion = 0;
 
             foreach($request->getParam('productos') as $producto) {
-                $update = "UPDATE Ve_PreOrdenDet SET Cantidad=Cantidad-" . $producto['cantidad'] . " WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
-                $stmt = $this->db->prepare($update);
-                $updated = $stmt->execute();
+                if (!$producto['EsHabitacion']) {
+                    $update = "UPDATE Ve_PreOrdenDet SET Cantidad=Cantidad-" . $producto['cantidad'] . " WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
+                    $stmt = $this->db->prepare($update);
+                    $updated = $stmt->execute();
 
 
-                $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
-                $stmt = $this->db->query($select);
-                $stmt->execute();
-                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
+                    $stmt = $this->db->query($select);
+                    $stmt->execute();
+                    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if (isset($data['Cantidad']) && ($producto['cantidad'] > $data['Cantidad'])) {
-                    $sql = "DELETE FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
-                    $stmt = $this->db->prepare($sql);
-                    $deleted = $stmt->execute();
+                    if (isset($data['Cantidad']) && ($producto['cantidad'] > $data['Cantidad'])) {
+                        $sql = "DELETE FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND IdProducto=" . $producto['IdProducto'];
+                        $stmt = $this->db->prepare($sql);
+                        $deleted = $stmt->execute();
+                    }
+                } else {
+                    $idHabitacion = $producto['IdProducto'];
                 }
 
             }
 
-            $select = "SELECT COUNT(*) as total FROM Ve_PreOrdenDet WHERE IdPreOrden=" . $pre['IdPreOrden'] . " AND Cantidad > 0";
+            $select = "SELECT COUNT(*) as total FROM Ve_PreOrdenDet 
+            INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto 
+            WHERE Gen_Producto.EsHabitacion = 0 AND  
+                Ve_PreOrdenDet.IdPreOrden=" . $pre['IdPreOrden'] . " AND Ve_PreOrdenDet.Cantidad > 0";
             $stmt = $this->db->query($select);
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($data['total'] <= 0) {
                 $update = "UPDATE Ve_PreOrden SET Anulado=1 WHERE IdPreOrden=" . $pre['IdPreOrden'];
+                $stmt = $this->db->prepare($update);
+                $updated = $stmt->execute();
+
+                $update = "UPDATE Gen_Producto SET EstadoHabitacion=1 WHERE IdProducto=" . $idHabitacion;
                 $stmt = $this->db->prepare($update);
                 $updated = $stmt->execute();
             }
@@ -2515,7 +2527,8 @@ $app->get('/reporte/habitaciones', function (Request $request, Response $respons
         Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.DniRuc, 
         Ve_DocVentaCliente.Sexo, Ve_DocVentaCliente.Ocupacion, Ve_DocVentaCliente.FechaNacimiento, Ve_DocVentaCliente.Nacionalidad, 
         Ve_PreOrden.FechaReg, Ve_PreOrden.LugarProcedencia, Ve_PreOrden.MedioTransporte, Ve_PreOrden.ProximoDestino,
-        Ve_PreOrden.FechaReg AS FechaAlquilerInicio, DocVentaHabitacion.FechaAlquilerFin,  
+        Ve_PreOrden.FechaAlquilerInicio AS FechaAlquilerInicio, Ve_PreOrden.FechaAlquilerFin, 
+        /* DocVentaHabitacion.FechaAlquilerFin,  */
         (DocVentaHabitacion.Cantidad * DocVentaHabitacion.Precio) - DocVentaHabitacion.Descuento AS Tarifa
         FROM Ve_PreOrden
         
@@ -2538,8 +2551,9 @@ $app->get('/reporte/habitaciones', function (Request $request, Response $respons
         WHERE Gen_Producto.EsHabitacion = 1
         GROUP BY Ve_DocVentaDet.IdDocVenta) AS DocVentaHabitacion ON Ve_PreOrden.IdDocVenta = DocVentaHabitacion.IdDocVenta
         
-        WHERE PreOrdenHabitacion.EsHabitacion = 1 AND Ve_PreOrden.FechaReg BETWEEN '" . $fechaInicio . " 00:00:00'" . " AND '" . $fechaFin . " 23:59:59'" . " 
+        WHERE PreOrdenHabitacion.EsHabitacion = 1 AND Ve_PreOrden.FechaAlquilerInicio BETWEEN '" . $fechaInicio . " 00:00:00'" . " AND '" . $fechaFin . " 23:59:59'" . " 
         ORDER BY Ve_PreOrden.IdPreOrden DESC";
+        //var_dump($select); exit();
         
         $stmt = $this->db->query($select);
         $stmt->execute();
