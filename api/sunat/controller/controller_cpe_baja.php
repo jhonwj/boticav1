@@ -17,7 +17,7 @@ $cab = json_decode($bodyRequest, true);
 $detalle = $cab['detalle'];
 
 
-$mensaje_cpe = cpeBaja($cab['TIPO_PROCESO'], $cab['NRO_DOCUMENTO_EMPRESA'], $cab['USUARIO_SOL_EMPRESA'], $cab['PASS_SOL_EMPRESA'], "CwCTbPJVRwyXG9NG", $cab, $detalle);
+$mensaje_cpe = cpeBaja($cab['TIPO_PROCESO'], $cab['NRO_DOCUMENTO_EMPRESA'], $cab['USUARIO_SOL_EMPRESA'], $cab['PASS_SOL_EMPRESA'], "5I573M452019", $cab, $detalle);
 
 $resultado['hash_cpe'] = $mensaje_cpe['hash_cpe'];
 $resultado['cod_sunat'] = $mensaje_cpe['hash_cdr']['cod_sunat'];//str_replace("SOAP-ENV:CLIENT.", "", $mensaje_cpe['hash_cdr']['cod_sunat']);

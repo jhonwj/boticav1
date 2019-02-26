@@ -2045,6 +2045,17 @@ $app->get('/usuarios', function (Request $request, Response $response, array $ar
     return $response->withJson($data);
 });
 
+$app->get('/usuarios/{usuario}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL)";
+    $select .= " AND Seg_Usuario.Usuario = '$args[usuario]' ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();    
+
+    return $response->withJson($data);
+});
+
 $app->get('/clientes', function (Request $request, Response $response, array $args) {
     $select = "SELECT *, IFNULL(CONCAT(DniRuc, ' - ', Cliente), '-') AS ClienteDniRuc FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
     $select .= " AND Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
@@ -2105,8 +2116,8 @@ define('DEPARTAMENTO_EMPRESA', "UCAYALI");
 define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
 define('DISTRITO_EMPRESA', "CALLERIA");
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'INVER123'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'INVER123'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'BUSH12JO'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'BUSH12jO'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
