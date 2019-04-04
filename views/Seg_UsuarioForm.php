@@ -68,7 +68,8 @@ $(document).ready(function(){
 				IdUsuarioPerfil : $('#IdUsuarioPerfil').val(),
 				Password : $('#Password').val(),
 				NombreUsuario: $('#NombreUsuario').val(),
-				Update: $('#Update').val()
+                Update: $('#Update').val(),
+                IdTipoDoc: $('#TipoDoc').val()
 			},
 			dataType: "json",
 			success: function(respuesta){
@@ -299,6 +300,7 @@ function EditarUsuario(user) {
 	$('#NombreUsuario').val(user.NombreUsuario)
 	$('#IdUsuarioPerfil').val(user.IdUsuarioPerfil)
 	$('#Perfil').val(user.UsuarioPerfil)
+    $('#TipoDoc').val(user.IdTipoDoc)
 }
 
 function ListarPerfil(){
@@ -409,6 +411,13 @@ function EditarPerfil(perfil,  event) {
 								<button type="button" id="btnPerfil" class="btn btn-success"><i class="fa fa-search-plus"></i></button>
 							</div>
 						</div>
+                        <div class="form-group">
+							<label for="Password">Id Tipo Documento</label>
+							<div class="form-inline">
+								<input type="number" id="TipoDoc" placeholder="Id Tipo Documento" class="form-control">
+							</div>
+						</div>
+
 					</div>
 				</div>
 			</div>

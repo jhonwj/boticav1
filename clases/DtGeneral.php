@@ -530,10 +530,14 @@ function fn_guardarPreOrden($idCliente, $productos) {
 }
 
 function fn_guardarUsuario($params) {
-	$Ssql = "INSERT INTO Seg_Usuario(Usuario, IdUsuarioPerfil, Password, NombreUsuario) VALUES('{$params['Usuario']}', {$params['IdUsuarioPerfil']}, '{$params['Password']}', '{$params['NombreUsuario']}' )
+    $params['IdTipoDoc'] = isset($params['IdTipoDoc']) ? $params['IdTipoDoc'] : 0;
+
+	$Ssql = "INSERT INTO Seg_Usuario(Usuario, IdUsuarioPerfil, Password, NombreUsuario, IdTipoDoc) VALUES('{$params['Usuario']}', {$params['IdUsuarioPerfil']}, '{$params['Password']}', '{$params['NombreUsuario']}', '{$params['IdTipoDoc']}' )
 	ON DUPLICATE KEY UPDATE IdUsuarioPerfil={$params['IdUsuarioPerfil']},
 	Password=IF(Password IS NULL, Password, '{$params['Password']}'),
-	NombreUsuario='{$params['NombreUsuario']}'";
+    NombreUsuario='{$params['NombreUsuario']}', 
+    IdTipoDoc='{$params['IdTipoDoc']}' ";
+    // var_dump($Ssql);exit();
 	$idUsuario = getSQLResultSet($Ssql);
 	return $idUsuario;
 }

@@ -2033,6 +2033,17 @@ $app->get('/cliente', function (Request $request, Response $response, array $arg
 
 
 
+$app->get('/tipodoc/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Ve_DocVentaTipoDoc WHERE ";
+    $select .= "  Ve_DocVentaTipoDoc.IdTipoDoc = '" . $args['id'] . "' ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();    
+
+    return $response->withJson($data);
+});
+
 
 $app->get('/usuarios', function (Request $request, Response $response, array $args) {
     $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL)";
