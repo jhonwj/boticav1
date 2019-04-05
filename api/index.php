@@ -19,7 +19,7 @@ $config['addContentLengthHeader'] = false;
 $config['db']['host']   = "127.0.0.1";
 $config['db']['user']   = "root";
 // $config['db']['user']   = "neurosys_hotel";
-$config['db']['pass']   = "1230";
+$config['db']['pass']   = "";
 // $config['db']['pass']   = "IX!!q!t(&Fc^";
 $config['db']['dbname'] = "neurosys_hotel";
 // $config['db']['dbname'] = "neurosys_hotel";
@@ -604,7 +604,7 @@ $app->post('/habitaciones/liberar', function (Request $request, Response $respon
     $idProducto = $request->getParam('IdProducto');
 
     // Actualizar habitacion, cambio de estado
-    $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, IdPreOrden=NULL, IdClienteReserva=NULL, FechaReserva=NULL, FechaAlquiler=NULL WHERE IdProducto=$idProducto";
+    $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, EstaSucio=0, IdPreOrden=NULL, IdClienteReserva=NULL, FechaReserva=NULL, FechaAlquiler=NULL WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
     
@@ -1821,7 +1821,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
                 $stmt = $this->db->prepare($update);
                 $updated = $stmt->execute();
 
-                $update = "UPDATE Gen_Producto SET EstadoHabitacion=1 WHERE IdProducto=" . $idHabitacion;
+                $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, EstaSucio=1 WHERE IdProducto=" . $idHabitacion;
                 $stmt = $this->db->prepare($update);
                 $updated = $stmt->execute();
             }
@@ -1907,9 +1907,10 @@ $app->post('/preorden/cajaybanco', function (Request $request, Response $respons
     $idHabitacion = $request->getParam('IdHabitacion');
     $adelanto = $request->getParam('Adelanto');
     $producto = $request->getParam('producto');
+    $concepto = $request->getParam('concepto');
 
     if ($idPreOrden) {
-        $insert = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, Anulado, IdProveedor, IdCliente, EsDelVendedor, IdPreOrden) VALUES (2, 1, '" . getNow() . "', 'Adelanto Habitación $producto[Producto]', $adelanto, 0, 0, $producto[IdCliente], 0, $idPreOrden)";
+        $insert = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, Anulado, IdProveedor, IdCliente, EsDelVendedor, IdPreOrden) VALUES (2, 1, '" . getNow() . "', '$concepto', $adelanto, 0, 0, $producto[IdCliente], 0, $idPreOrden)";
         $stmt = $this->db->prepare($insert);
         $inserted = $stmt->execute();
         $idCajaBanco = $this->db->lastInsertId();
