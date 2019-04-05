@@ -415,6 +415,14 @@ function EditarPerfil(perfil,  event) {
 							<label for="Password">Id Tipo Documento</label>
 							<div class="form-inline">
 								<input type="number" id="TipoDoc" placeholder="Id Tipo Documento" class="form-control">
+                                <ul>
+                                    <li>6 - FACTURA ELEC.</li>
+                                    <li>7 - BOLETA ELEC.</li>
+                                    <li>8 - FACTURA ELEC. SERIE 2</li>
+                                    <li>9 - BOLETA ELEC. SERIE 2</li>
+                                    <li>10 - FACTURA ELEC. SERIE 3</li>
+                                    <li>11 - BOLETA ELEC. SERIE 3</li>
+                                </ul>
 							</div>
 						</div>
 
