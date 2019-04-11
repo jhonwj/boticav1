@@ -215,8 +215,8 @@ $igv = 0;
         <img style="max-width: 100%; width: 100px;" src="data:image/png;base64,<?php echo $base64 ?>" />
   </div>
   <br />
-  <div class="center small">JR. SALAVERRY NRO. 673 UCAYALI - CORONEL PORTILLO - CALLERIA</div>
-  <div class="center small">PASCO PASCO HUAYLLAY</div>
+  <div class="center small">JR. SALAVERRY NRO. 673</div>
+  <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
   <br />
