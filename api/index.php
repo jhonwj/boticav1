@@ -1734,7 +1734,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $idTipoDoc = $request->getParam('tipoVenta')['IdTipoDoc']; 
     $idAlmacen = $request->getParam('almacen')['IdAlmacen']; 
     $serie = $request->getParam('Serie'); 
-    $numero = $request->getParam('Numero');
+    // $numero = $request->getParam('Numero');
     $anulado = 0;
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
     $pagoCon = $request->getParam('PagoCon');
@@ -1768,6 +1768,24 @@ $app->post('/ventas', function (Request $request, Response $response) {
         $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
     }*/
+
+    // OBTENER EL SIGUIENTE NUMERO
+    if ($codSunat == '07' || $codSunat == '08') { // 07 nota de credito, 08 nota de debito
+        $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
+            WHERE IdTipoDoc=$idTipoDoc AND Serie='$serie'
+            ORDER BY Numero DESC LIMIT 1";
+    } else {
+        $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
+            WHERE IdDocVentaPuntoVenta=$idDocVentaPuntoVenta AND IdTipoDoc=$idTipoDoc 
+            ORDER BY Numero DESC LIMIT 1";
+    }
+    
+
+    $stmt = $this->db->query($selectNumero);
+    $stmt->execute();
+    $selectNumero = $stmt->fetch();
+    $numero = $selectNumero['NuevoNumero'] ? $selectNumero['NuevoNumero'] : 1;
+
 
     $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon')";
