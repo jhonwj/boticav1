@@ -2102,6 +2102,8 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $cliente = $request->getParam('Cliente');
     $dniRuc = $request->getParam('DniRuc');
     $direccion = $request->getParam('Direccion');
+    $direccion2 = $request->getParam('Direccion2');
+    $direccion3 = $request->getParam('Direccion3');
     $telefono = $request->getParam('Telefono');
     $email = $request->getParam('Email');
     $sexo = $request->getParam('Sexo');
@@ -2109,11 +2111,33 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $fechaNacimiento = $request->getParam('FechaNacimiento');
     $nacionalidad = $request->getParam('Nacionalidad');
 
-    $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad'))
-                       ->into('Ve_DocVentaCliente')
-                       ->values(array($cliente, $dniRuc, $direccion, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad));
-    
-    $insertId = $insert->execute();
+    $idCliente = $request->getParam('IdCliente');
+    $insertId = $idCliente;
+    if ($idCliente) {
+        $update = $this->db->update(array(
+            "Cliente" => $cliente,
+            'DniRuc' => $dniRuc,
+            'Direccion' => $direccion,
+            'Direccion2' => $direccion2,
+            'Direccion3' => $direccion3,
+            'Telefono' => $telefono,
+            'Email' => $email,
+            "Sexo" => $sexo,
+            "Ocupacion" => $ocupacion,
+            "FechaNacimiento" => $fechaNacimiento,
+            "Nacionalidad" => $nacionalidad,
+        ))
+       ->table('Ve_DocVentaCliente')
+       ->where('IdCliente', '=', $idCliente);
+        $affectedRows = $update->execute();
+    } else {
+        $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Direccion2', 'Direccion3', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad'))
+                           ->into('Ve_DocVentaCliente')
+                           ->values(array($cliente, $dniRuc, $direccion, $direccion2, $direccion3, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad));
+        
+        $insertId = $insert->execute();
+
+    }
 
     $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente=$insertId";
     $stmt = $this->db->query($select);
