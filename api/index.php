@@ -2108,7 +2108,7 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $email = $request->getParam('Email');
     $sexo = $request->getParam('Sexo');
     $ocupacion = $request->getParam('Ocupacion');
-    $fechaNacimiento = $request->getParam('FechaNacimiento');
+    $fechaNacimiento = $request->getParam('FechaNacimiento') ? $request->getParam('FechaNacimiento') : NULL;
     $nacionalidad = $request->getParam('Nacionalidad');
 
     $idCliente = $request->getParam('IdCliente');
