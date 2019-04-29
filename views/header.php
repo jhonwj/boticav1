@@ -120,6 +120,8 @@ date_default_timezone_set('America/Lima');
       <ul class="dropdown-menu">
         <li><a href="/views/reportehuespedes.php"> Registro de Huéspedes </a></li>
         <li><a href="/views/reportestockminimo.php"> Reporte Stock Mínimo </a></li>
+        <li><a href="/views/reportesdeudacliente.php"> Reporte Deuda Clientes </a></li>
+        <li><a href="/views/reportesdeudaproveedor.php"> Reporte Deuda Proveedores </a></li>
       </ul>
         
       </li>

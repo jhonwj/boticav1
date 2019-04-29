@@ -11,7 +11,7 @@
 <script src="../resources/js/jquery.dataTables.js"></script>
 <script src="../resources/js/dataTables.bootstrap.js"></script>
 <script src="../resources/js/bootstrap-notify.js"></script>
-<script src="../resources/js/jquery.print.js"></script>
+<!-- <script src="../resources/js/jquery.print.js"></script> -->
 <script src="../resources/js/jspdf.min.js"></script>
 <script src="../resources/js/jspdf.plugin.autotable.js"></script>
 <script src="../resources/js/FileSaver.js"></script>

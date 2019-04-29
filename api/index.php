@@ -2043,7 +2043,286 @@ $app->get('/cliente', function (Request $request, Response $response, array $arg
     return $response->withJson($data);
 });
 
+$app->get('/cliente/deudas', function (Request $request, Response $response, array $args) {
+    $idCliente = $request->getParam('idCliente');
+    if ($idCliente) {
+    $select = "SELECT
+        Ve_DocVenta.IdDocVenta,
+        Ve_DocVenta.FechaDoc,
+        Ve_DocVenta.FechaCredito,
+        CONCAT(CASE WHEN Ve_DocVentaTipoDoc.CodSunat ='01' THEN
+            'F'
+        ELSE
+            CASE WHEN Ve_DocVentaTipoDoc.CodSunat='03' THEN
+                'B'
+            ELSE
+                CASE WHEN Ve_DocVentaTipoDoc.CodSunat='12' THEN
+                    'T'
+                ELSE
+                    'OTRO'
+                END
+            END
+        END,Ve_DocVenta.Serie,'-' , convert(Ve_DocVenta.Numero, char) )as Correlativo,
+        Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento ),2) as Total,
+        Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2) as Aplicado,
+        Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento ),2) -
+        Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2) as Saldo
+        From Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
+        Where EsCredito=1 and Ve_DocVenta.IdCliente=$idCliente
+        
+        Group by
+        Ve_DocVenta.IdDocVenta,
+        Ve_DocVenta.FechaDoc,
+        Ve_DocVenta.FechaCredito,
+        Ve_DocVentaTipoDoc.CodSunat,
+        Ve_DocVenta.Serie,
+        Ve_DocVenta.Numero
+        HAVING Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento),2) -
+        Round((SELECT IfNull((SElect Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2)>0
+        Order by FechaDoc;";
 
+    } else {
+    $select = "SELECT
+        Ve_DocVentaCliente.DniRuc,
+        Ve_DocVentaCliente.Cliente,
+        Ve_DocVenta.IdDocVenta,
+        Ve_DocVenta.FechaDoc,
+        Ve_DocVenta.FechaCredito,
+        CONCAT(CASE WHEN Ve_DocVentaTipoDoc.CodSunat ='01' THEN
+            'F'
+        ELSE
+            CASE WHEN Ve_DocVentaTipoDoc.CodSunat='03' THEN
+                'B'
+            ELSE
+                CASE WHEN Ve_DocVentaTipoDoc.CodSunat='12' THEN
+                    'T'
+                ELSE
+                    'OTRO'
+                END
+            END
+        END,Ve_DocVenta.Serie,'-' , convert(Ve_DocVenta.Numero, char) )as Correlativo,
+        Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento ),2) as Total,
+        Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2) as Aplicado,
+        Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento ),2) -
+        Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2) as Saldo
+        From Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
+        INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+        WHERE EsCredito=1";
+        
+            $select .= " AND (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
+            $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";
+
+        $select .="
+        Group by
+        Ve_DocVenta.IdDocVenta,
+        Ve_DocVenta.FechaDoc,
+        Ve_DocVenta.FechaCredito,
+        Ve_DocVentaTipoDoc.CodSunat,
+        Ve_DocVenta.Serie,
+        Ve_DocVenta.Numero
+        HAVING Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento),2) -
+        Round((SELECT IfNull((SElect Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2)>0
+        Order by FechaDoc;";
+    }
+
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+$app->get('/clientes/deuda/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) as total
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
+        INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+        WHERE EsCredito=1
+        GROUP BY
+        Ve_DocVenta.IdDocVenta,
+        Ve_DocVenta.FechaDoc,
+        Ve_DocVenta.FechaCredito,
+        Ve_DocVentaTipoDoc.CodSunat,
+        Ve_DocVenta.Serie,
+        Ve_DocVenta.Numero
+        HAVING ROUND(SUM((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento),2) -
+        ROUND((SELECT IFNULL((SELECT SUM(Cb_CajaBancoDet.Importe) FROM Cb_CajaBancoDet WHERE Tipo='VE' AND Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2)>0
+        ORDER BY FechaDoc;";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
+$app->get('/proveedores/deuda/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) AS total
+    From Lo_Movimiento
+    INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.Hash=Lo_MovimientoDetalle.hashMovimiento
+    INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo=Lo_MovimientoTipo.IdMovimientoTipo
+    INNER JOIN Lo_Proveedor ON Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
+    Where EsCredito=1
+    Group by
+    Lo_Movimiento.Hash,
+    Lo_Movimiento.MovimientoFecha,
+    Lo_Movimiento.FechaVenCredito,
+    Lo_MovimientoTipo.CodSunat,
+    Lo_Movimiento.Serie,
+    Lo_Movimiento.Numero
+    HAVING Round(Sum(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) -
+    Round((SELECT IfNull((Select Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2)>0
+    Order by MovimientoFecha;";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
+$app->get('/proveedores/deudas', function (Request $request, Response $response, array $args) {
+    $select = "SELECT
+    Lo_Movimiento.Hash as Id,
+    Lo_Proveedor.Ruc,
+    Lo_Proveedor.Proveedor,
+    Lo_Movimiento.MovimientoFecha as FechaDoc,
+    Lo_Movimiento.FechaVenCredito as FechaCredito,
+    CONCAT(CASE WHEN Lo_MovimientoTipo.CodSunat ='01' THEN
+        'F'
+    ELSE
+        CASE WHEN Lo_MovimientoTipo.CodSunat='03' THEN
+            'B'
+        ELSE
+            CASE WHEN Lo_MovimientoTipo.CodSunat='12' THEN
+                'T'
+            ELSE
+                'OTRO'
+            END
+        END
+    END,Lo_Movimiento.Serie,'-' , convert(Lo_Movimiento.Numero, char) )as Correlativo,
+    Round(Sum(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) as Total,
+    Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2) as Aplicado,
+    Round(SUM(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) -
+    Round((SELECT IfNull((SELECT Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2) as Saldo
+    From Lo_Movimiento
+    Inner Join Lo_MovimientoDetalle On Lo_Movimiento.Hash=Lo_MovimientoDetalle.hashMovimiento
+    Inner Join Lo_MovimientoTipo On Lo_Movimiento.IdMovimientoTipo=Lo_MovimientoTipo.IdMovimientoTipo
+    INNER JOIN Lo_Proveedor On Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
+    Where EsCredito=1";
+
+            $select .= " AND (Lo_Proveedor.Ruc LIKE '%" . $request->getParam('q') . "%'";
+            $select .= " OR Lo_Proveedor.Proveedor LIKE '%" . $request->getParam('q') . "%') ";
+
+    $select .= "        
+    Group by
+    Lo_Movimiento.Hash,
+    Lo_Movimiento.MovimientoFecha,
+    Lo_Movimiento.FechaVenCredito,
+    Lo_MovimientoTipo.CodSunat,
+    Lo_Movimiento.Serie,
+    Lo_Movimiento.Numero
+    HAVING Round(Sum(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) -
+    Round((SELECT IfNull((Select Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2)>0
+    Order by MovimientoFecha";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+$app->get('/reporte/deudaclientes2', function (Request $request, Response $response, array $args) use ($app) {
+
+    $res = $app->subRequest('GET', 'cliente/deudas');
+
+    
+    $deudacliente = (string) $res->getBody();
+    $deudacliente = json_decode($deudacliente, true);
+    
+    $excel = new Spreadsheet();
+    //$sheet = $excel->setActiveSheetIndex(0);
+    $sheet = $excel->getActiveSheet();
+    $sheet->setCellValue('A1', 'DNI / RUC');
+    $sheet->setCellValue('B1', 'CLIENTE');
+    $sheet->setCellValue('C1', 'SERIE');
+    $sheet->setCellValue('D1', 'TOTAL');
+    $sheet->setCellValue('E1', 'APLICADO');
+    $sheet->setCellValue('F1', 'SALDO');
+    $sheet->setCellValue('G1', 'FECHA EMISION');
+    $sheet->setCellValue('H1', 'FECHA VENCIMIENTO');
+    $cont = 3;
+    foreach($deudacliente as $prod) {
+        $sheet->setCellValue('A'.$cont, $prod['DniRuc']);
+        $sheet->setCellValue('B'.$cont, $prod['Cliente']);
+        $sheet->setCellValue('C'.$cont, $prod['Correlativo']);
+        $sheet->setCellValue('D'.$cont, 'S/. ' . $prod['Total']);
+        $sheet->setCellValue('E'.$cont, 'S/. ' . $prod['Aplicado']);
+        $sheet->setCellValue('F'.$cont, 'S/. ' . $prod['Saldo']);
+        $sheet->setCellValue('G'.$cont, date("d/m/Y", strtotime($prod['FechaDoc'])));
+        $sheet->setCellValue('H'.$cont, date("d/m/Y", strtotime($prod['FechaCredito'])));
+        $cont += 1;
+    }
+
+    $excelWriter = new Xlsx($excel);
+
+    $fileName = 'deudacliente2' . getNow('Y-m-d-H-i-s').  '.xlsx';
+    $excelFileName = __DIR__ . '/reporte/' . $fileName;
+    $excelWriter->save($excelFileName);
+
+    echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
+    exit;
+});
+
+$app->get('/reporte/deudaproveedores', function (Request $request, Response $response, array $args) use ($app) {
+
+    $res = $app->subRequest('GET', 'proveedores/deudas');
+
+    
+    $deudacliente = (string) $res->getBody();
+    $deudacliente = json_decode($deudacliente, true);
+    
+    $excel = new Spreadsheet();
+    //$sheet = $excel->setActiveSheetIndex(0);
+    $sheet = $excel->getActiveSheet();
+    $sheet->setCellValue('A1', 'DNI / RUC');
+    $sheet->setCellValue('B1', 'PROVEEDOR');
+    $sheet->setCellValue('C1', 'SERIE');
+    $sheet->setCellValue('D1', 'TOTAL');
+    $sheet->setCellValue('E1', 'APLICADO');
+    $sheet->setCellValue('F1', 'SALDO');
+    $sheet->setCellValue('G1', 'FECHA EMISION');
+    $sheet->setCellValue('H1', 'FECHA VENCIMIENTO');
+
+    $cont = 3;
+    foreach($deudacliente as $prod) {
+        $sheet->setCellValue('A'.$cont, $prod['Ruc']);
+        $sheet->setCellValue('B'.$cont, $prod['Proveedor']);
+        $sheet->setCellValue('C'.$cont, $prod['Correlativo']);
+        $sheet->setCellValue('D'.$cont, 'S/. ' . $prod['Total']);
+        $sheet->setCellValue('E'.$cont, 'S/. ' . $prod['Aplicado']);
+        $sheet->setCellValue('F'.$cont, 'S/. ' . $prod['Saldo']);
+        $sheet->setCellValue('G'.$cont, date("d/m/Y", strtotime($prod['FechaDoc'])));
+        $sheet->setCellValue('H'.$cont, date("d/m/Y", strtotime($prod['FechaCredito'])));
+        $cont += 1;
+    }
+
+    $excelWriter = new Xlsx($excel);
+
+    $fileName = 'deudaproveedores' . getNow('Y-m-d-H-i-s').  '.xlsx';
+    $excelFileName = __DIR__ . '/reporte/' . $fileName;
+    $excelWriter->save($excelFileName);
+
+    echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
+    exit;
+});
 
 
 
