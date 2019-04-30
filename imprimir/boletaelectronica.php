@@ -22,7 +22,7 @@ $meses = array(
 );
 $lastAnio = substr(date("Y", $emision), -1);
 $cliente = strtoupper($docVenta['Cliente']);
-$direccion = strtoupper($docVenta['Direccion']);
+// $direccion = strtoupper($docVenta['Direccion']);
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = $docVenta['LimiteItems'];
@@ -36,6 +36,13 @@ $subtotal = 0;
 $total = 0;
 $totalDescuento = 0;
 $igv = 0;
+
+if ($docVenta['CampoDireccion']) {
+  $direccion = strtoupper($docVenta[$docVenta['CampoDireccion']]);
+} else {
+  $direccion = strtoupper($docVenta['Direccion']);
+}
+
 ?>
 <style>
   * {
