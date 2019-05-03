@@ -1733,7 +1733,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $idCliente = $request->getParam('cliente')['IdCliente'];
     $idTipoDoc = $request->getParam('tipoVenta')['IdTipoDoc']; 
     $idAlmacen = $request->getParam('almacen')['IdAlmacen']; 
-    $serie = $request->getParam('Serie'); 
+    // $serie = $request->getParam('Serie'); 
     // $numero = $request->getParam('Numero');
     $anulado = 0;
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
@@ -1743,6 +1743,14 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
+    
+    // OBTENER SERIE
+    $selectSerie = "SELECT Serie FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idDocVentaPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
+    
+    $stmt = $this->db->query($selectSerie);
+    $stmt->execute();
+    $selectSerie = $stmt->fetch();
+    $serie = $selectSerie['Serie'] ? $selectSerie['Serie'] : $request->getParam('Serie');
     
     /*if(is_numeric($idPreOrden)) {
         $selectPre = "SELECT * FROM Ve_PreOrden WHERE IdPreOrden = $idPreOrden";
