@@ -1732,6 +1732,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $idDocVentaPuntoVenta = $request->getParam('puntoVenta')['IdDocVentaPuntoVenta'];
     $idCliente = $request->getParam('cliente')['IdCliente'];
     $idTipoDoc = $request->getParam('tipoVenta')['IdTipoDoc']; 
+    $codSunat = $request->getParam('tipoVenta')['CodSunat'];
     $idAlmacen = $request->getParam('almacen')['IdAlmacen']; 
     // $serie = $request->getParam('Serie'); 
     // $numero = $request->getParam('Numero');
@@ -3082,15 +3083,16 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
     $idCierreCaja = $this->db->lastInsertId();
     
     // Actualizar DocVenta
-    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL";
+    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL 
+        AND UsuarioReg='" . $usuarioReg . "'";
     $stmt = $this->db->prepare($updateVenta);
     $updatedVenta = $stmt->execute(); 
 
-    // Actualizar CajaBanco
-    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL";
+    // Actualizar CajaBanco asignando cierre solo de un vendedor
+    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
+        AND EsDelVendedor=1 AND UsuarioReg='" . $usuarioReg . "'";
     $stmt = $this->db->prepare($updateCajaBanco);
     $updatedCajaBanco = $stmt->execute();
-    //aqui me quede
 
     return $response->withJson(array(
         "idTurno" => $idTurno,
@@ -3098,6 +3100,8 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
         "idCierraCaja" => $idCierreCaja
     ));
 });
+
+
 $app->get('/cierrecaja', function (Request $request, Response $response, array $args) {
     $idCierre = $request->getParam('idCierre');
     $filter = $request->getParam('filter');
@@ -3127,13 +3131,15 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
         $select .= " OFFSET " . $offset;
     }
 
-
+    
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();    
 
     return $response->withJson($data);
 });
+
+
 $app->get('/cierrecaja/count', function (Request $request, Response $response, array $args) {
 
     $select = "SELECT COUNT(*) AS total FROM Cb_CierreCaja";
@@ -3144,7 +3150,6 @@ $app->get('/cierrecaja/count', function (Request $request, Response $response, a
 
     return $response->withJson($data);
 });
-
 
 $app->get('/cierrecaja/ventas', function (Request $request, Response $response, array $args) {
     $idCierre = $request->getParam('idCierre');
@@ -3171,14 +3176,18 @@ $app->get('/cierrecaja/ventas', function (Request $request, Response $response, 
     } else {
         $select .= " WHERE Ve_DocVenta.IdCierre IS NULL";
     }
+
+    if($request->getParam('usuario')) {
+        $select .= " AND Ve_DocVenta.UsuarioReg = '" . $request->getParam('usuario') . "'";
+    }
     
     $select .= " GROUP BY Ve_DocVenta.idDocVenta
         ORDER BY Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta ASC, Ve_DocVenta.FechaDoc ASC;";
-
+    // print_r($select); exit();
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();    
-
+    
     return $response->withJson($data);
 });
 $app->get('/cierrecaja/ingresos', function (Request $request, Response $response, array $args) {
@@ -3193,6 +3202,10 @@ $app->get('/cierrecaja/ingresos', function (Request $request, Response $response
         $select .= " WHERE Cb_CajaBanco.IdCierre=$idCierre";
     } else {
         $select .= " WHERE Cb_CajaBanco.IdCierre IS NULL";
+    }
+
+    if($request->getParam('usuario')) {
+        $select .= " AND EsDelVendedor=1 AND Cb_CajaBanco.UsuarioReg = '" . $request->getParam('usuario') . "'";
     }
 
     $select .= " AND Cb_TipoCajaBanco.Tipo = 0
@@ -3218,6 +3231,10 @@ $app->get('/cierrecaja/salidas', function (Request $request, Response $response,
         $select .= " WHERE Cb_CajaBanco.IdCierre IS NULL";
     }
 
+    if($request->getParam('usuario')) {
+        $select .= " AND EsDelVendedor=1 AND Cb_CajaBanco.UsuarioReg = '" . $request->getParam('usuario') . "'";
+    }
+
     $select .= " AND Cb_TipoCajaBanco.Tipo = 1
         ORDER BY FechaDoc ASC;";
     
@@ -3227,7 +3244,6 @@ $app->get('/cierrecaja/salidas', function (Request $request, Response $response,
 
     return $response->withJson($data);
 });
-
 
 
 

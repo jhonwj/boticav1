@@ -12,8 +12,12 @@ function fn_guardarCajaBanco($data) {
     $aplicadoDocVenta = isset($data['AplicadoDocVenta']) ? $data['AplicadoDocVenta'] : false;
     $idCliente = isset($data['IdCliente']) ? $data['IdCliente'] : 0;
     $idProveedor = isset($data['IdProveedor']) ? $data['IdProveedor'] : 0;
+    $usuarioReg = 'xx';
+    if(isset($_SESSION['user'])) {
+        $usuarioReg = $_SESSION['user'];
+    }
 
-    $Ssql = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, IdProveedor, IdCliente) VALUES ($idTipo, $idCuenta, '$fechaDoc', '$concepto', $importe, $idProveedor, $idCliente)";
+    $Ssql = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, IdProveedor, IdCliente, UsuarioReg) VALUES ($idTipo, $idCuenta, '$fechaDoc', '$concepto', $importe, $idProveedor, $idCliente, '$usuarioReg')";
     $idCajaBanco = getSQLResultSet($Ssql);
 
     if ($idCajaBanco && $aplicadoDocVenta) {
