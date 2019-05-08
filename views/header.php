@@ -122,6 +122,7 @@ date_default_timezone_set('America/Lima');
         <li><a href="/views/reportestockminimo.php"> Reporte Stock Mínimo </a></li>
         <li><a href="/views/reportesdeudacliente.php"> Reporte Deuda Clientes </a></li>
         <li><a href="/views/reportesdeudaproveedor.php"> Reporte Deuda Proveedores </a></li>
+        <li><a href="/views/reportesrankingclientes.php"> Reporte Ranking Clientes </a></li>
       </ul>
         
       </li>

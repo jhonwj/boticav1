@@ -2334,6 +2334,43 @@ $app->get('/reporte/deudaproveedores', function (Request $request, Response $res
     exit;
 });
 
+$app->get('/ranking/clientes', function (Request $request, Response $response, array $args) {
+    $dni = $request->getParam('q');
+    $select = "SELECT
+        Ve_DocVentaCliente.DniRuc,
+        Ve_DocVentaCliente.Cliente,
+        Ve_DocVentaCliente.Puntos,
+        Ve_DocVentaCliente.FechaNacimiento,
+        Ve_DocVenta.IdDocVenta,
+        Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento ),2) as Total
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente =Ve_DocVentaCliente.IdCliente";
+
+        $select .= " WHERE (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
+        $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";       
+
+        $select .= "GROUP BY Ve_DocVentaCliente.DniRuc
+                     ORDER BY Total DESC, Ve_DocVentaCliente.Puntos DESC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+
+});
+
+$app->get('/ranking/clientes/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) as total FROM Ve_DocVentaCliente";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+
+});
 
 
 
@@ -2399,6 +2436,7 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $ocupacion = $request->getParam('Ocupacion');
     $fechaNacimiento = $request->getParam('FechaNacimiento') ? $request->getParam('FechaNacimiento') : NULL;
     $nacionalidad = $request->getParam('Nacionalidad');
+    $esVIP = $request->getParam('EsVIP');
 
     $idCliente = $request->getParam('IdCliente');
     $insertId = $idCliente;
@@ -2415,14 +2453,15 @@ $app->post('/clientes', function (Request $request, Response $response) {
             "Ocupacion" => $ocupacion,
             "FechaNacimiento" => $fechaNacimiento,
             "Nacionalidad" => $nacionalidad,
+            "EsVIP" => $esVIP,
         ))
        ->table('Ve_DocVentaCliente')
        ->where('IdCliente', '=', $idCliente);
         $affectedRows = $update->execute();
     } else {
-        $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Direccion2', 'Direccion3', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad'))
+        $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Direccion2', 'Direccion3', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad', 'EsVIP'))
                            ->into('Ve_DocVentaCliente')
-                           ->values(array($cliente, $dniRuc, $direccion, $direccion2, $direccion3, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad));
+                           ->values(array($cliente, $dniRuc, $direccion, $direccion2, $direccion3, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad, $esVIP));
         
         $insertId = $insert->execute();
 
@@ -3014,7 +3053,42 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     exit;
 });
 
+$app->get('/reporte/rankingclientes', function (Request $request, Response $response, array $args) use ($app) {
 
+    $res = $app->subRequest('GET', 'ranking/clientes');
+
+    
+    $deudacliente = (string) $res->getBody();
+    $deudacliente = json_decode($deudacliente, true);
+    
+    $excel = new Spreadsheet();
+    //$sheet = $excel->setActiveSheetIndex(0);
+    $sheet = $excel->getActiveSheet();
+    $sheet->setCellValue('A1', 'DNI / RUC');
+    $sheet->setCellValue('B1', 'CLIENTE');
+    $sheet->setCellValue('C1', 'FECHA NACIMIENTO');
+    $sheet->setCellValue('D1', 'PUNTOS');
+    $sheet->setCellValue('E1', 'TOTAL');
+
+    $cont = 3;
+    foreach($deudacliente as $prod) {
+        $sheet->setCellValue('A'.$cont, $prod['DniRuc']);
+        $sheet->setCellValue('B'.$cont, $prod['Cliente']);
+        $sheet->setCellValue('C'.$cont, date("d/m/Y", strtotime($prod['FechaNacimiento'])));
+        $sheet->setCellValue('D'.$cont, $prod['Puntos']);
+        $sheet->setCellValue('E'.$cont, 'S/. ' . $prod['Total']);
+        $cont += 1;
+    }
+
+    $excelWriter = new Xlsx($excel);
+
+    $fileName = 'rankingclientes' . getNow('Y-m-d-H-i-s').  '.xlsx';
+    $excelFileName = __DIR__ . '/reporte/' . $fileName;
+    $excelWriter->save($excelFileName);
+
+    echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
+    exit;
+});
 
 
 
