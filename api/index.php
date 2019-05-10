@@ -2136,7 +2136,19 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
         Ve_DocVenta.Numero
         HAVING Round(Sum((Ve_DocVentaDet.Precio*Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento),2) -
         Round((SELECT IfNull((SElect Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='VE' And Cb_CajaBancoDet.IdDocDet=Ve_DocVenta.IdDocVenta),0)),2)>0
-        Order by FechaDoc;";
+        Order by FechaDoc";
+
+        $limit = $request->getParam('limit') ? $request->getParam('limit') :  15;
+        if ($limit) {
+            $offset = 0;
+            if ($request->getParam('page')) {
+                $page = $request->getParam('page');
+                $offset = (--$page) * $limit;
+            }
+            $select .= " LIMIT " . $limit;
+            $select .= " OFFSET " . $offset;
+        }
+
     }
 
 
@@ -2241,6 +2253,17 @@ $app->get('/proveedores/deudas', function (Request $request, Response $response,
     HAVING Round(Sum(Lo_MovimientoDetalle.Precio*Lo_MovimientoDetalle.Cantidad),2) -
     Round((SELECT IfNull((Select Sum(Cb_CajaBancoDet.Importe) From Cb_CajaBancoDet Where Tipo='MO' And Cb_CajaBancoDet.Hash=Lo_Movimiento.Hash),0)),2)>0
     Order by MovimientoFecha";
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  15;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
 
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -2352,6 +2375,17 @@ $app->get('/ranking/clientes', function (Request $request, Response $response, a
 
         $select .= "GROUP BY Ve_DocVentaCliente.DniRuc
                      ORDER BY Total DESC, Ve_DocVentaCliente.Puntos DESC";
+
+        $limit = $request->getParam('limit') ? $request->getParam('limit') :  15;
+        if ($limit) {
+            $offset = 0;
+            if ($request->getParam('page')) {
+                $page = $request->getParam('page');
+                $offset = (--$page) * $limit;
+            }
+            $select .= " LIMIT " . $limit;
+            $select .= " OFFSET " . $offset;
+        }
 
     $stmt = $this->db->query($select);
     $stmt->execute();
