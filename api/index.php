@@ -3291,6 +3291,31 @@ $app->get('/cierrecaja/ingresos', function (Request $request, Response $response
 
     return $response->withJson($data);
 });
+
+$app->get('/cierrecaja/ingresos/adelantos', function (Request $request, Response $response, array $args) {
+    $idDocVentas = $request->getParam('idDocVentas');
+
+    $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto  , Cb_CajaBanco.Importe, Ve_DocVenta.idDocVenta, Ve_DocVenta.Serie, Ve_DocVenta.Numero 
+          FROM Cb_CajaBanco
+          INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
+          INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
+          LEFT JOIN Ve_PreOrden ON Cb_CajaBanco.IdPreOrden = Ve_PreOrden.IdPreOrden
+          LEFT JOIN Ve_DocVenta ON Ve_PreOrden.IdDocVenta = Ve_DocVenta.idDocVenta";
+    
+      if($idDocVentas) {
+          $select .= " WHERE Ve_DocVenta.idDocVenta IN ( " . implode(',', $idDocVentas) . " )";
+      }                                                                                                                                                                                                               
+      $select .= " AND Cb_TipoCajaBanco.Tipo = 0
+          ORDER BY FechaDoc ASC;";
+    
+      $stmt = $this->db->query($select);
+      $stmt->execute();
+      $data = $stmt->fetchAll();
+   
+      return $response->withJson($data);
+
+});
+
 $app->get('/cierrecaja/salidas', function (Request $request, Response $response, array $args) use ($app) {
     $idCierre = $request->getParam('idCierre');
     
