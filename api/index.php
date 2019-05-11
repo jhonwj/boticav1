@@ -2122,7 +2122,7 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
         INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
         INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
         WHERE EsCredito=1";
-        
+            $select .= " AND Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen');
             $select .= " AND (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
             $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";
 
@@ -2165,7 +2165,9 @@ $app->get('/clientes/deuda/count', function (Request $request, Response $respons
         INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
         INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
-        WHERE EsCredito=1
+        WHERE EsCredito=1";
+        $select .= " AND Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen'); 
+        $select .="
         GROUP BY
         Ve_DocVenta.IdDocVenta,
         Ve_DocVenta.FechaDoc,
@@ -2273,8 +2275,8 @@ $app->get('/proveedores/deudas', function (Request $request, Response $response,
 });
 
 $app->get('/reporte/deudaclientes2', function (Request $request, Response $response, array $args) use ($app) {
-
-    $res = $app->subRequest('GET', 'cliente/deudas');
+    $idalmacen = $request->getParam('idalmacen');
+    $res = $app->subRequest('GET', 'cliente/deudas', 'idalmacen=' . $idalmacen);
 
     
     $deudacliente = (string) $res->getBody();
@@ -2358,7 +2360,6 @@ $app->get('/reporte/deudaproveedores', function (Request $request, Response $res
 });
 
 $app->get('/ranking/clientes', function (Request $request, Response $response, array $args) {
-    $dni = $request->getParam('q');
     $select = "SELECT
         Ve_DocVentaCliente.DniRuc,
         Ve_DocVentaCliente.Cliente,
@@ -2369,8 +2370,8 @@ $app->get('/ranking/clientes', function (Request $request, Response $response, a
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente =Ve_DocVentaCliente.IdCliente";
-
-        $select .= " WHERE (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
+        $select .= " WHERE Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen') ;
+        $select .= " AND (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
         $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";       
 
         $select .= "GROUP BY Ve_DocVentaCliente.DniRuc
@@ -2396,8 +2397,13 @@ $app->get('/ranking/clientes', function (Request $request, Response $response, a
 });
 
 $app->get('/ranking/clientes/count', function (Request $request, Response $response, array $args) {
-    $select = "SELECT COUNT(*) as total FROM Ve_DocVentaCliente";
-
+    $select  = "SELECT COUNT(*) as total
+                FROM Ve_DocVenta
+                INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
+                INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente =Ve_DocVentaCliente.IdCliente";
+    $select .= " WHERE Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen');
+    $select .= " GROUP BY Ve_DocVentaCliente.DniRuc
+                ORDER BY Total DESC, Ve_DocVentaCliente.Puntos DESC";
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetch(PDO::FETCH_ASSOC);    
@@ -3088,9 +3094,8 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
 });
 
 $app->get('/reporte/rankingclientes', function (Request $request, Response $response, array $args) use ($app) {
-
-    $res = $app->subRequest('GET', 'ranking/clientes');
-
+    $idalmacen = $request->getParam('idalmacen');
+    $res = $app->subRequest('GET', "ranking/clientes", 'idalmacen=' . $idalmacen );
     
     $deudacliente = (string) $res->getBody();
     $deudacliente = json_decode($deudacliente, true);
@@ -3123,7 +3128,6 @@ $app->get('/reporte/rankingclientes', function (Request $request, Response $resp
     echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
     exit;
 });
-
 
 
 // REPORTES 
