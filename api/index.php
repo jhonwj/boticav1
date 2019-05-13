@@ -3351,9 +3351,12 @@ $app->get('/cierrecaja/ingresos/adelantos', function (Request $request, Response
       $stmt->execute();
       $data = $stmt->fetchAll();
    
-      return $response->withJson($data);
+      
+    } else {
+        $data = [];
     }
 
+    return $response->withJson($data);
 });
 
 $app->get('/cierrecaja/salidas', function (Request $request, Response $response, array $args) use ($app) {
