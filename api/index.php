@@ -2684,6 +2684,40 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     return $response->withJson($me);
 });
 
+
+$app->post('/moveraemitidos', function (Request $request, Response $response) {
+    $idDocVenta = $request->getParam('idDocVenta');
+    
+    if ($idDocVenta) {
+        $update = "UPDATE Ve_DocVenta SET Estado=2 WHERE idDocVenta=$idDocVenta";
+        $stmt = $this->db->prepare($update);
+        $updated = $stmt->execute();
+
+    
+        return $response->withJson(array(
+            "updated" => $updated,
+            "IdDocVenta" => $idDocVenta
+        ));
+    }
+});
+
+$app->post('/cambiaraanonimo', function (Request $request, Response $response) {
+    $idDocVenta = $request->getParam('idDocVenta');
+    
+    if ($idDocVenta) {
+        $update = "UPDATE Ve_DocVenta SET IdCliente=(SELECT IdCliente FROM `Ve_DocVentaCliente` WHERE DniRuc='00000000' LIMIT 1) WHERE idDocVenta=$idDocVenta";
+        $stmt = $this->db->prepare($update);
+        $updated = $stmt->execute();
+
+    
+        return $response->withJson(array(
+            "updated" => $updated,
+            "IdDocVenta" => $idDocVenta
+        ));
+    }
+});
+
+
 $app->post('/emitirelectronicoboleta', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
 
