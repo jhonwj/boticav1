@@ -1724,8 +1724,8 @@ $app->get('/ventas/count', function (Request $request, Response $response) {
 
 $app->post('/ventas', function (Request $request, Response $response) { 
     $vendedor = 'xx';
-    if(isset($_SESSION['user'])) {
-        $vendedor = $_SESSION['user'];
+    if(isset($_SESSION['User'])) {
+        $vendedor = $_SESSION['User'];
     }
 
     // START INSERTAR NUEVA VENTA
@@ -1936,9 +1936,16 @@ $app->post('/preorden/cajaybanco', function (Request $request, Response $respons
     $adelanto = $request->getParam('Adelanto');
     $producto = $request->getParam('producto');
     $concepto = $request->getParam('concepto');
+    $usuario = $request->getParam('Usuario');
+
+    $vendedor = 'xx';
+    if(isset($_SESSION['User'])) {
+        $vendedor = $_SESSION['User'];
+    }
+    $usuarioReg = isset($usuario) ? $request->getParam('Usuario') : $vendedor;
 
     if ($idPreOrden) {
-        $insert = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, Anulado, IdProveedor, IdCliente, EsDelVendedor, IdPreOrden) VALUES (2, 1, '" . getNow() . "', '$concepto', $adelanto, 0, 0, $producto[IdCliente], 0, $idPreOrden)";
+        $insert = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, Anulado, IdProveedor, IdCliente, EsDelVendedor, IdPreOrden, UsuarioReg) VALUES (2, 1, '" . getNow() . "', '$concepto', $adelanto, 0, 0, $producto[IdCliente], 1, $idPreOrden, '$usuarioReg')";
         $stmt = $this->db->prepare($insert);
         $inserted = $stmt->execute();
         $idCajaBanco = $this->db->lastInsertId();
