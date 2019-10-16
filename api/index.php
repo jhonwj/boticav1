@@ -992,14 +992,23 @@ $app->get('/almacenes/primero', function (Request $request, Response $response, 
 });
 
 
-$app->get('/consultarRUC', function (Request $request, Response $response, array $args) {
+$app->get('/consultarRUC', function (Request $request, Response $response, array $args) use ($app) {
+    $res = $app->subRequest('GET', 'empresa/id/1');
+    $empresa = (string) $res->getBody();
+    $empresa = json_decode($empresa, true);
+    if ($_GET['type'] == "RUC") {
+        $ch = curl_init($empresa['CONSULTARUCURL'].'ruc/'.$_GET['numero'].'?token='.$empresa['CONSULTARUCTOKEN']);
+    } else {
+        $ch = curl_init($empresa['CONSULTARUCURL'].'dni/'.$_GET['numero'].'?token='.$empresa['CONSULTARUCTOKEN']);
+    }
+
     $headers = array(
         "Content-Type: application/json; charset=UTF-8",
         "Cache-Control: no-cache",
         "Pragma: no-cache"
     );
     //var_dump("https://www.facturacionelectronica.us/facturacion/controller/ws_consulta_rucdni_v2.php?usuario=20573027125&password=5i573m45&documento=" . $_GET['type'] . "&nro_documento=" . $_GET['numero']);
-    $ch = curl_init("https://www.facturacionelectronica.us/facturacion/controller/ws_consulta_rucdni_v2.php?usuario=20573027125&password=5i573m45&documento=" . $_GET['type'] . "&nro_documento=" . $_GET['numero']);
+    // $ch = curl_init("https://www.facturacionelectronica.us/facturacion/controller/ws_consulta_rucdni_v2.php?usuario=20573027125&password=5i573m45&documento=" . $_GET['type'] . "&nro_documento=" . $_GET['numero']);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -2428,6 +2437,17 @@ $app->get('/ranking/clientes/count', function (Request $request, Response $respo
 $app->get('/tipodoc/{id}', function (Request $request, Response $response, array $args) {
     $select = "SELECT * FROM Ve_DocVentaTipoDoc WHERE ";
     $select .= "  Ve_DocVentaTipoDoc.IdTipoDoc = '" . $args['id'] . "' ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();    
+
+    return $response->withJson($data);
+});
+
+
+$app->get('/empresa/id/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM GEN_EMPRESA WHERE IDEMPRESA=$args[id]";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
