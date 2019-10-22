@@ -89,18 +89,18 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 50mm"/></div>
-  <div class="center">INVERSIONES PLUS MAS S.R.L</div>
-  <div class="center">RUC: 20603429126 </div>
+  <div class="center">INVERSIONES MARTINEZ E.I.R.L</div>
+  <div class="center">RUC: 20351977451 </div>
   <!--<div class="center small">VENTA DE ....</div>-->
   <br />
-  
+
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
     <div class="strike">
       <span><?php echo str_replace('TICKET ', '', $tipoDoc); ?></span>
     </div>
     <br />
   <?php endif; ?>
-  
+
   <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
@@ -187,8 +187,8 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">JR. HERMILIO VALDIZAN N° 742</div>
-  <div class="center small">HUÁNUCO - HUÁNUCO - HUÁNUCO</div>
+  <div class="center small">AV. ALFONSO UGARTE NRO. 1030</div>
+  <div class="center small">PUCALLPA-UCAYALI</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
   <br />

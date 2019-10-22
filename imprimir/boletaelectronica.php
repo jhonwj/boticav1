@@ -96,19 +96,19 @@ if ($docVenta['CampoDireccion']) {
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>INVERSIONES TURISTICOS JHOR BUSH S.A.C.</b></div>
-  <div class="center"><b>RUC: 20393999463</b> </div><br>
+ <!--<div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br> -->
+  <div class="center"><b>INVERSIONES MARTINEZ E.I.R.L</b></div>
+  <div class="center"><b>RUC: 20351977451</b> </div><br>
   <!--<div class="center small">VENTA DE ....</div>-->
 
-  
+
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
     <div class="strike">
       <span><?php echo str_replace('TICKET ', '', $tipoDoc); ?></span>
     </div>
     <br />
   <?php endif; ?>
-  
+
   <div class="">BOLETA ELEC. NRO: <?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
@@ -141,7 +141,7 @@ if ($docVenta['CampoDireccion']) {
             <td class="producto">
               <?php if($producto['Descripcion']) : ?>
               <span>
-              <?php echo $producto['Descripcion'] . ' (Desde: ' . 
+              <?php echo $producto['Descripcion'] . ' (Desde: ' .
                 date("Y-m-d", strtotime($producto['FechaAlquilerInicio'])) . ', Hasta: ' . date("Y-m-d", strtotime($producto['FechaAlquilerFin'])) . ')' ?>
               </span>
               <?php else : ?>
@@ -212,8 +212,8 @@ if ($docVenta['CampoDireccion']) {
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }
 
         $text = NRO_DOCUMENTO_EMPRESA . ' | ' . $tdocumento. ' | ' . $docVenta['Serie'] . ' | ' . $docVenta['Numero'].
-          ' | ' . number_format($igv, 2) . ' | ' . number_format($total - $totalDescuento, 2) . ' | ' . $fecha . 
-          ' | ' . $tipoDocCliente . ' | ' . $docVenta['DniRuc'] . ' |';        
+          ' | ' . number_format($igv, 2) . ' | ' . number_format($total - $totalDescuento, 2) . ' | ' . $fecha .
+          ' | ' . $tipoDocCliente . ' | ' . $docVenta['DniRuc'] . ' |';
 
         QRcode::png($text, 'qr.png', 'Q',15, 0);
         $imagedata = file_get_contents("qr.png");
@@ -222,7 +222,7 @@ if ($docVenta['CampoDireccion']) {
         <img style="max-width: 100%; width: 100px;" src="data:image/png;base64,<?php echo $base64 ?>" />
   </div>
   <br />
-  <div class="center small">JR. SALAVERRY NRO. 673</div>
+  <div class="center small">AV. ALFONSO UGARTE NRO. 1030</div>
   <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
