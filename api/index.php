@@ -8,7 +8,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require 'vendor/autoload.php';
 require 'sunat/sunat.php';
 
-// EXCEL 
+// EXCEL
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -18,18 +18,18 @@ $config['addContentLengthHeader'] = false;
 
 $config['db']['host']   = "127.0.0.1";
 $config['db']['user']   = "root";
-// $config['db']['user']   = "neurosys_hotel";
+// $config['db']['user']   = "neurosys_NEUROSOFT";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = "IX!!q!t(&Fc^";
 $config['db']['dbname'] = "neurosys_hotel";
-// $config['db']['dbname'] = "neurosys_hotel";
+// $config['db']['dbname'] = "neurosys_NEUROSOFT";
 
 $app = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
 
 $container['db'] = function ($c) {
     $db = $c['settings']['db'];
-    
+
     $dsn = 'mysql:host=' .  $db['host'] . ';dbname=' . $db['dbname'] . ';charset=utf8';
     $usr = $db['user'];
     $pwd = $db['pass'];
@@ -59,9 +59,9 @@ function getNow($format = "Y-m-d H:i:s") {
 $app->get('/categorias', function (Request $request, Response $response, array $args) {
     $q = $request->getParam('q');
     $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
-    
+
     $select = "SELECT * FROM Gen_ProductoCategoria";
-    $select .= " WHERE ProductoCategoria LIKE '" . $q . "%' ";    
+    $select .= " WHERE ProductoCategoria LIKE '" . $q . "%' ";
 
     if ($limit) {
         // $limit = $request->getParam('limit');
@@ -76,13 +76,13 @@ $app->get('/categorias', function (Request $request, Response $response, array $
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();  
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
 
 $app->post('/categorias', function (Request $request, Response $response, array $args) {
-    
+
     $productoCategoria = $request->getParam('ProductoCategoria');
     $anulado = 0;
 
@@ -90,7 +90,7 @@ $app->post('/categorias', function (Request $request, Response $response, array 
                        ->into('Gen_ProductoCategoria')
                        ->values(array($productoCategoria, $anulado, getNow()));
     $insertId = $insert->execute();
-    
+
     return $response->withJson(array("insertId" => $insertId, "ProductoCategoria" => $productoCategoria));
 });
 
@@ -115,13 +115,13 @@ $app->get('/marcas', function (Request $request, Response $response, array $args
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();  
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
 
 $app->post('/marcas', function (Request $request, Response $response, array $args) {
-    
+
     $productoMarca = $request->getParam('ProductoMarca');
     $anulado = 0;
 
@@ -129,7 +129,7 @@ $app->post('/marcas', function (Request $request, Response $response, array $arg
                        ->into('Gen_ProductoMarca')
                        ->values(array($productoMarca, $anulado, getNow()));
     $insertId = $insert->execute();
-    
+
     return $response->withJson(array("insertId" => $insertId, "ProductoMarca" => $productoMarca));
 });
 
@@ -153,7 +153,7 @@ $app->get('/mediciones', function (Request $request, Response $response, array $
 }); */
 
 /* $app->post('/modelos', function (Request $request, Response $response, array $args) {
-    
+
     $productoModelo = $request->getParam('ProductoModelo');
     $anulado = 0;
 
@@ -161,7 +161,7 @@ $app->get('/mediciones', function (Request $request, Response $response, array $
                        ->into('Gen_ProductoModelo')
                        ->values(array($productoModelo, $anulado, getNow()));
     $insertId = $insert->execute();
-    
+
     return $response->withJson(array("insertId" => $insertId, "ProductoModelo" => $productoModelo));
 }); */
 
@@ -187,13 +187,13 @@ $app->get('/tallas', function (Request $request, Response $response, array $args
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();  
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
 
 $app->post('/tallas', function (Request $request, Response $response, array $args) {
-    
+
     $productoTalla = $request->getParam('ProductoTalla');
     $anulado = 0;
 
@@ -201,28 +201,28 @@ $app->post('/tallas', function (Request $request, Response $response, array $arg
                        ->into('Gen_ProductoTalla')
                        ->values(array($productoTalla, $anulado, getNow()));
     $insertId = $insert->execute();
-    
+
     return $response->withJson(array("insertId" => $insertId, "ProductoTalla" => $productoTalla));
 });
 
 
 $app->get('/productos/id/{id}', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca, Gen_ProductoMedicion.ProductoMedicion
-    FROM Gen_Producto 
+    FROM Gen_Producto
     INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
     INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
     INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
 
-    
+
     if ($request->getParam('codigoBarra')) {
-        $select .= " WHERE Gen_Producto.CodigoBarra = '" . $request->getParam('codigoBarra') . "'";        
+        $select .= " WHERE Gen_Producto.CodigoBarra = '" . $request->getParam('codigoBarra') . "'";
     } else {
         $select .= " WHERE Gen_Producto.IdProducto = '" . $args['id'] . "'";
     }
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();    
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -251,7 +251,7 @@ $app->get('/productos/colores', function (Request $request, Response $response, 
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -279,7 +279,7 @@ $app->get('/productos/presentaciones', function (Request $request, Response $res
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -307,7 +307,7 @@ $app->get('/productos/generos', function (Request $request, Response $response, 
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -335,7 +335,7 @@ $app->get('/productos/botapies', function (Request $request, Response $response,
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -363,7 +363,7 @@ $app->get('/productos/modelos', function (Request $request, Response $response, 
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -371,13 +371,13 @@ $app->get('/productos/modelos', function (Request $request, Response $response, 
 $app->get('/productosdet', function (Request $request, Response $response, array $args) {
     $idProducto = $request->getParam('idProducto');
 
-    $select = "SELECT Gen_Producto.Producto, Gen_Producto.PrecioCosto, Gen_Producto.PrecioContado, Gen_ProductoDet.* FROM Gen_ProductoDet 
-        INNER JOIN Gen_Producto ON Gen_ProductoDet.IdProductoDet = Gen_Producto.IdProducto 
+    $select = "SELECT Gen_Producto.Producto, Gen_Producto.PrecioCosto, Gen_Producto.PrecioContado, Gen_ProductoDet.* FROM Gen_ProductoDet
+        INNER JOIN Gen_Producto ON Gen_ProductoDet.IdProductoDet = Gen_Producto.IdProducto
         WHERE Gen_ProductoDet.IdProducto=$idProducto";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -416,39 +416,39 @@ $app->get('/productos/espadre', function (Request $request, Response $response, 
 $app->get('/productos', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion
-        FROM Gen_Producto 
+        FROM Gen_Producto
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion ";
-    
+
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
 
         if(is_array($filter)) {
-            $select .= " WHERE Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') . 
-                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') . 
-                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') . 
-                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') . 
-                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
-                       "%' "; 
-            
+            $select .= " WHERE Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') .
+                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') .
+                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') .
+                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') .
+                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') .
+                       "%' ";
+
         } else {
-            $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
-                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
-                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
-                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
-                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
-                       "%' ";        
+            $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter .
+                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter .
+                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter .
+                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter .
+                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter .
+                       "%' ";
         }
 
 
-       /* $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter . 
-                   "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
-                   "%' OR Gen_Producto.Color LIKE '%" . $filter . 
-                   "%' OR Gen_Producto.Genero LIKE '%" . $filter . 
-                   "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
-                   "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
-                   "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
+       /* $select .= " WHERE Gen_Producto.Producto LIKE '%" . $filter .
+                   "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter .
+                   "%' OR Gen_Producto.Color LIKE '%" . $filter .
+                   "%' OR Gen_Producto.Genero LIKE '%" . $filter .
+                   "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter .
+                   "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter .
+                   "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter .
                    "%' ";        */
     } else {
         $select .= " WHERE Gen_Producto.Anulado=0 AND (Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' OR Gen_Producto.ProductoModelo LIKE '" . $request->getParam('q') . "%')";
@@ -478,7 +478,7 @@ $app->get('/productos', function (Request $request, Response $response, array $a
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -488,7 +488,7 @@ $app->get('/productos/count', function (Request $request, Response $response, ar
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
@@ -503,9 +503,9 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
     $strSalidas = stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta);
     $strVentas = stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta);
 
-    $select = $strIngresos . ' UNION ALL ' . $strSalidas . ' UNION ALL ' . $strVentas; 
+    $select = $strIngresos . ' UNION ALL ' . $strSalidas . ' UNION ALL ' . $strVentas;
     $select .= ' ORDER BY Fecha ASC';
-    
+
     $limit = $request->getParam('limit') ? $request->getParam('limit') :  0;
     if ($limit) {
         $offset = 0;
@@ -526,16 +526,16 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
 
 
 
-/* HOTEL */
+/* NEUROSOFT */
 $app->get('/habitaciones', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente
-        FROM Gen_Producto 
+        FROM Gen_Producto
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
         LEFT JOIN Ve_DocVentaCliente ON Gen_Producto.IdClienteReserva = Ve_DocVentaCliente.IdCliente ";
-    
+
         $select .= " WHERE Gen_Producto.Anulado=0 AND Gen_Producto.EsHabitacion=1";
 
     if ($request->getParam('sortBy')) {
@@ -558,7 +558,7 @@ $app->get('/habitaciones', function (Request $request, Response $response, array
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -579,7 +579,7 @@ $app->post('/habitaciones/alquilar', function (Request $request, Response $respo
     $insert = $this->db->insert(array('IdCliente', 'FechaReg', 'LugarProcedencia', 'MedioTransporte', 'ProximoDestino', 'FechaAlquilerInicio', 'FechaAlquilerFin'))
                        ->into('Ve_PreOrden')
                        ->values(array($idCliente, getNow(), $lugarProcedencia, $medioTransporte, $proximoDestino, $fechaAlquilerInicio, $fechaAlquilerFin));
-    
+
     $insertId = $insert->execute();
 
     // Insertar preorden Det
@@ -592,7 +592,7 @@ $app->post('/habitaciones/alquilar', function (Request $request, Response $respo
     $update = "UPDATE Gen_Producto SET EstadoHabitacion=3, IdPreOrden=$insertId, IdClienteReserva=$idCliente, FechaAlquilerFin='" . $fechaAlquilerFin . "', FechaAlquiler='" . $fechaAlquilerInicio . "' WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
-    
+
     $data = array(
         "insertId" => $insertId
     );
@@ -607,7 +607,7 @@ $app->post('/habitaciones/liberar', function (Request $request, Response $respon
     $update = "UPDATE Gen_Producto SET EstadoHabitacion=1, EstaSucio=0, IdPreOrden=NULL, IdClienteReserva=NULL, FechaReserva=NULL, FechaAlquiler=NULL WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
-    
+
     return $response->withJson(array(
         "updated" => $updated,
         "IdProducto" => $idProducto
@@ -624,7 +624,7 @@ $app->post('/habitaciones/reservar', function (Request $request, Response $respo
     $update = "UPDATE Gen_Producto SET EstadoHabitacion=2, Vuelo='$vuelo', IdPreOrden=NULL, IdClienteReserva=$idCliente, FechaReserva='" . $fechaReserva . "' WHERE IdProducto=$idProducto";
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
-    
+
     return $response->withJson(array(
         "updated" => $updated,
         "IdProducto" => $idProducto,
@@ -652,7 +652,7 @@ $app->get('/proveedores', function (Request $request, Response $response, array 
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();  
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -662,7 +662,7 @@ $app->get('/proveedores/count', function (Request $request, Response $response, 
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
@@ -677,7 +677,7 @@ $app->post('/proveedores', function (Request $request, Response $response) {
     $insert = $this->db->insert(array('Proveedor', 'Ruc', 'Direccion', 'Observacion', 'FechaReg'))
                        ->into('Lo_Proveedor')
                        ->values(array($proveedor, $ruc, $direccion, $observacion, getNow()));
-    
+
     $insertId = $insert->execute();
 
     $data = array(
@@ -699,7 +699,7 @@ $app->post('/productos/delete', function (Request $request, Response $response) 
         $stmt = $this->db->prepare($update);
         $updated = $stmt->execute();
 
-    
+
         return $response->withJson(array(
             "updated" => $updated,
             "IdProducto" => $id
@@ -743,7 +743,7 @@ $app->post('/productos', function (Request $request, Response $response) {
         // aqui se actualiza el producto si existe
         $idProducto = $request->getParam('IdProducto');
         // $codigoBarra = $request->getParam('CodigoBarra');
-        
+
 
 
         $update = $this->db->update(array(
@@ -774,7 +774,7 @@ $app->post('/productos', function (Request $request, Response $response) {
         $sql = "DELETE FROM Gen_ProductoDet WHERE IdProducto='$idProducto'";
         $stmt = $this->db->prepare($sql);
         $deleted = $stmt->execute();
-        
+
         if ($productosDet && $esPadre) {
             foreach($productosDet as $prod) {
                 $insertDet = $this->db->insert(array('IdProducto', 'IdProductoDet', 'Cantidad'))
@@ -797,7 +797,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $stmt->execute();
 
     //return $response->withJson(array('select' => empty($prod)));
-    
+
     if (!empty($prod)) {
         $data = array(
             'error' => 'Producto ya existe',
@@ -811,10 +811,10 @@ $app->post('/productos', function (Request $request, Response $response) {
                        ->into('Gen_Producto')
                        ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso));
     $insertId = $insert->execute();
-    
+
     // Generando codigo de barras  // actualizar el nombre para que sea unico
     /* $codigoBarra = substr($categoria, 0, 2) . $insertId . substr($producto, 0, 2);
-    
+
     $update = $this->db->update(array("CodigoBarra" => $codigoBarra, "Producto" => $producto . '-' . $codigoBarra))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $insertId);
@@ -839,18 +839,18 @@ $app->post('/productos', function (Request $request, Response $response) {
 $app->get('/movimiento/productos', function (Request $request, Response $response, array $args) {
     $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
     $hashMovimiento = $request->getParam('hash');
-    
+
     $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_Producto.ProductoModelo,
         Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Lo_MovimientoDetalle.Cantidad,
-        Gen_Producto.Botapie 
-        FROM Lo_MovimientoDetalle 
+        Gen_Producto.Botapie
+        FROM Lo_MovimientoDetalle
         INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         WHERE hashMovimiento = '$hashMovimiento'";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -871,7 +871,7 @@ $app->get('/movimientos/tipos', function (Request $request, Response $response, 
 
 
 
-$app->post('/movimientos', function (Request $request, Response $response) { 
+$app->post('/movimientos', function (Request $request, Response $response) {
     //return  $response->withJson($request->getParam('productos'));exit();
     // start verificar Movimiento
     $select = "SELECT * FROM Lo_Movimiento
@@ -882,7 +882,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    
+
     if (count($stmt->fetchAll())) {
         $data = array(
             "error" => 'Error: Movimiento duplicado'
@@ -912,22 +912,22 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     $fechaPeriodoTributario = $request->getParam('movimiento')['FechaPeriodoTributario'];
     $tipoCambio = $request->getParam('movimiento')['TipoCambio'];
     $moneda = $request->getParam('movimiento')['Moneda'];
-   
+
     $insert = $this->db->insert(array('IdMovimientoTipo', 'IdProveedor', 'Serie', 'Numero', 'MovimientoFecha', 'IdAlmacenOrigen',
                         'IdAlmacenDestino', 'Anulado', 'FechaReg', 'UsuarioReg', 'Hash', 'FechaStock', 'Percepcion', 'EsCredito',
                         'FechaVenCredito', 'FechaPeriodoTributario', 'TipoCambio', 'Moneda'))
                        ->into('Lo_Movimiento')
-                       ->values(array($idMovimientoTipo, $idProveedor, $serie, $numero, $movimientoFecha, $almacenOrigen, 
+                       ->values(array($idMovimientoTipo, $idProveedor, $serie, $numero, $movimientoFecha, $almacenOrigen,
                        $almacenDestino, $anulado, $fechaReg, $usuarioReg, $hash, $fechaStock, $percepcion, $esCredito, $fechaVenCredito,
                        $fechaPeriodoTributario, $tipoCambio, $moneda));
-    
+
     $insertId = $insert->execute();
 
     $data = array(
         "hash" => $hash
     );
     // end insertar Movimiento
-    
+
     // start Movimiento Detalle
     $productos = $request->getParam('productos');
     foreach($productos as $producto) {
@@ -938,12 +938,12 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $precio = $producto['precio'];
             $nuevoPrecioContado = $producto['nuevoPrecioContado'];
             $idLote = isset($producto['IdLote']) ? $producto['IdLote'] : 0;
-            
+
             $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote'))
             ->into('Lo_MovimientoDetalle')
             ->values(array($hash, $idProducto, $cantidad, $tieneIgv, $precio, $idLote));
             $insert->execute();
-            
+
             // start actualizar precioventa producto
             $alterarProductos = $request->getParam('movimiento')['alterarProductos'];
             if ($alterarProductos) {
@@ -957,7 +957,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     }
     // end Movimiento Detalle
 
-    
+
     return $response->withJson($data);
 });
 
@@ -1034,38 +1034,38 @@ $app->get('/consultarRUC', function (Request $request, Response $response, array
 
 
 function stringIngresoUndProducto($idProducto, $idAlmacen, $fechaHasta) {
-    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres, 
-    Lo_MovimientoDetalle.Cantidad AS IngresoCantidad, Lo_MovimientoDetalle.Precio AS IngresoPrecio, 
-    '0' AS SalidaCantidad, '0' AS SalidaPrecio, 
+    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    Lo_MovimientoDetalle.Cantidad AS IngresoCantidad, Lo_MovimientoDetalle.Precio AS IngresoPrecio,
+    '0' AS SalidaCantidad, '0' AS SalidaPrecio,
     '0' AS Descuento FROM Lo_Movimiento
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         LEFT JOIN Lo_Proveedor ON Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
 
     return $select;
 }
 function stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
-    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres, 
-    '0' AS IngresoCantidad, '0' AS IngresoPrecio, 
-    Lo_MovimientoDetalle.Cantidad as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio, 
+    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    '0' AS IngresoCantidad, '0' AS IngresoPrecio,
+    Lo_MovimientoDetalle.Cantidad as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio,
     '0' AS Descuento FROM Lo_Movimiento
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         LEFT JOIN Lo_Proveedor ON Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
 
     return $select;
 }
 function stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
-    $select = "(SELECT Ve_DocVenta.FechaDoc AS Fecha, CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero, 
-    Ve_DocVentaCliente.Cliente AS Nombres, 
-    '0' AS IngresoCantidad, '0' AS IngresoPrecio, 
-    Ve_DocVentaDet.Cantidad as SalidaCantidad, Ve_DocVentaDet.Precio AS SalidaPrecio, 
+    $select = "(SELECT Ve_DocVenta.FechaDoc AS Fecha, CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
+    Ve_DocVentaCliente.Cliente AS Nombres,
+    '0' AS IngresoCantidad, '0' AS IngresoPrecio,
+    Ve_DocVentaDet.Cantidad as SalidaCantidad, Ve_DocVentaDet.Precio AS SalidaPrecio,
     Ve_DocVentaDet.Descuento FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1085,15 +1085,15 @@ function stringIngresoUnd($idProducto, $idAlmacen, $fechaHasta) {
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
-    
+
     if (!$idProducto) {
         $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
             WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-                AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.Anulado=0
                 AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
             GROUP BY Lo_MovimientoDetalle.IdProducto)";
     }
@@ -1106,17 +1106,17 @@ function stringIngresoCaja($idProducto, $idAlmacen, $fechaHasta) {
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-            AND Gen_ProductoDet.IdProductoDet=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Gen_ProductoDet.IdProductoDet=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
-    
+
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad), 0) AS cantidad 
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad), 0) AS cantidad
             FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
             INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
             WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
-                AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.Anulado=0
                 AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
             GROUP BY Gen_ProductoDet.IdProductoDet)";
     }
@@ -1130,17 +1130,17 @@ function stringSalidaCaja($idProducto, $idAlmacen, $fechaHasta) {
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-            AND Gen_ProductoDet.IdProductoDet=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Gen_ProductoDet.IdProductoDet=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
-    
+
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad), 0) AS cantidad 
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad), 0) AS cantidad
             FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
             INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
             WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-                AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.Anulado=0
                 AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
             GROUP BY Gen_ProductoDet.IdProductoDet)";
     }
@@ -1153,15 +1153,15 @@ function stringSalidaUnd($idProducto, $idAlmacen, $fechaHasta) {
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
-    
+
     if (!$idProducto) {
         $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
             WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
-                AND Lo_Movimiento.Anulado=0 
+                AND Lo_Movimiento.Anulado=0
                 AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
             GROUP BY Lo_MovimientoDetalle.IdProducto)";
     }
@@ -1205,7 +1205,7 @@ function stringSalidaVentaCaja($idProducto, $idAlmacen, $fechaHasta) {
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad), 0) AS cantidad 
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad), 0) AS cantidad
             FROM Ve_DocVenta
             INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
             INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1225,15 +1225,15 @@ function stringSalidaVentaCaja($idProducto, $idAlmacen, $fechaHasta) {
 SELECT Lo_MovimientoDetalle.IdProducto, Gen_ProductoDet.IdProductoDet, (Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad) AS cantidad
 /*IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad */
 /*
-FROM Lo_Movimiento 
-INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento 
-INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo 
+FROM Lo_Movimiento
+INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
 INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
 
-WHERE Lo_MovimientoTipo.VaRegCompra = 1 
-	AND Lo_Movimiento.IdAlmacenDestino = 1 
-	AND Lo_Movimiento.Anulado=0 
-	AND Lo_Movimiento.MovimientoFecha < '2018-07-23 17:25:36' 
+WHERE Lo_MovimientoTipo.VaRegCompra = 1
+	AND Lo_Movimiento.IdAlmacenDestino = 1
+	AND Lo_Movimiento.Anulado=0
+	AND Lo_Movimiento.MovimientoFecha < '2018-07-23 17:25:36'
 
 GROUP BY Gen_ProductoDet.IdProductoDet
 
@@ -1275,7 +1275,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     // $strIngresoUnd = stringIngresoUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaUnd = stringSalidaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaVentaUnd = stringSalidaVentaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
-    
+
     $strIngresoUnd = stringIngresoUnd(false, $idAlmacen, $fechaHasta);
     $strSalidaUnd = stringSalidaUnd(false, $idAlmacen, $fechaHasta);
 
@@ -1284,27 +1284,27 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
 
     $strSalidaVentaUnd = stringSalidaVentaUnd(false, $idAlmacen, $fechaHasta);
     $strSalidaVentaCaja = stringSalidaVentaCaja(false, $idAlmacen, $fechaHasta);
-    
+
     /*$select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
             Gen_ProductoTalla.ProductoTalla, Gen_ProductoMedicion.ProductoMedicion,
-            
-            $strIngresoUnd AS StockIngresoUnd, 
+
+            $strIngresoUnd AS StockIngresoUnd,
             $strSalidaUnd AS StockSalidaUnd,
-            $strSalidaVentaUnd AS StockSalidaVentaUnd,  
-            ((SELECT StockIngresoUnd) - (SELECT StockSalidaUnd) - (SELECT StockSalidaVentaUnd)) AS stock 
+            $strSalidaVentaUnd AS StockSalidaVentaUnd,
+            ((SELECT StockIngresoUnd) - (SELECT StockSalidaUnd) - (SELECT StockSalidaVentaUnd)) AS stock
 
 
-            FROM Gen_Producto 
+            FROM Gen_Producto
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
             LEFT JOIN Gen_ProductoTalla ON Gen_Producto.IdProductoTalla = Gen_ProductoTalla.IdProductoTalla ";*/
-    
+
     if ($request->getParam('sumaStock')) {
         $select = "SELECT
             SUM(IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0)) AS sumaStock
 
-            FROM Gen_Producto 
+            FROM Gen_Producto
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
@@ -1312,13 +1312,13 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
             LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     } else if ($request->getParam('sumaValorizado')) {
         $select = "SELECT
             SUM(Gen_Producto.PrecioContado * (IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0))) AS sumaValorizado
 
-            FROM Gen_Producto 
+            FROM Gen_Producto
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
@@ -1326,7 +1326,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
             LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     } else {
         $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
@@ -1338,7 +1338,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
 
             (IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0)) AS stock
 
-            FROM Gen_Producto 
+            FROM Gen_Producto
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
@@ -1346,36 +1346,36 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
             LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     }
-            
+
 
 
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
         if(is_array($filter)) {
-            $select .= " WHERE Gen_Producto.EsPadre = 0 AND ( Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') . 
-                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') . 
-                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') . 
-                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') . 
-                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
-                       "%' ) "; 
-            
+            $select .= " WHERE Gen_Producto.EsPadre = 0 AND ( Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') .
+                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') .
+                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') .
+                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') .
+                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') .
+                       "%' ) ";
+
         } else {
-            $select .= " WHERE Gen_Producto.EsPadre = 0 AND ( Gen_Producto.Producto LIKE '%" . $filter . 
-                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
-                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
-                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
-                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
-                       "%' ) ";        
+            $select .= " WHERE Gen_Producto.EsPadre = 0 AND ( Gen_Producto.Producto LIKE '%" . $filter .
+                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter .
+                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter .
+                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter .
+                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter .
+                       "%' ) ";
         }
     } else {
         $select .= " WHERE Gen_Producto.EsPadre = 0 AND Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
     }
 
     if ($request->getParam('idProductos')) {
-        // mandar array de IDS 
+        // mandar array de IDS
         $idProductos = $request->getParam('idProductos');
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
@@ -1407,7 +1407,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
         $orientation = $sortDesc ? 'DESC' : 'ASC';
         $select .= " ORDER BY " . $sortBy . " " . $orientation;
     }
-    
+
 
     if ($request->getParam('limit') && !$request->getParam('count')) {
         $limit = $request->getParam('limit');
@@ -1427,7 +1427,7 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
     if($request->getParam('count')) {
         $data = array('total' => $stmt->rowCount());
     }
-    
+
     return $response->withJson($data);
 });
 
@@ -1445,7 +1445,7 @@ $app->get('/movimientos/numero', function (Request $request, Response $response,
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();    
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -1515,10 +1515,10 @@ $app->post('/ventas/descuento', function (Request $request, Response $response) 
     $porCada = $request->getParam('porCada');
     $puntos = $request->getParam('puntos');
     $valorPunto = $request->getParam('valorPunto');
-    
-    $update = "UPDATE Ve_DocVentaDescuento SET PorCada=$porCada, Puntos=$puntos, ValorPunto=$valorPunto 
+
+    $update = "UPDATE Ve_DocVentaDescuento SET PorCada=$porCada, Puntos=$puntos, ValorPunto=$valorPunto
         WHERE IdDocVentaDescuento=$id";
-    
+
     $stmt = $this->db->prepare($update);
     $updated = $stmt->execute();
 
@@ -1537,15 +1537,15 @@ $app->get('/ventas/numero', function (Request $request, Response $response, arra
 
     // Obtener Serie
     $selectSerie = "SELECT Serie FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
-    
+
     $stmt = $this->db->query($selectSerie);
     $stmt->execute();
     $selectSerie = $stmt->fetch();
     $serie = $selectSerie['Serie'];
-    
+
     // Obtener siguiente Numero
-    $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
-        WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdTipoDoc=$idTipoDoc 
+    $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta
+        WHERE IdDocVentaPuntoVenta=$idPuntoVenta AND IdTipoDoc=$idTipoDoc
         ORDER BY Numero DESC LIMIT 1";
     $stmt = $this->db->query($selectNumero);
     $stmt->execute();
@@ -1566,7 +1566,7 @@ $app->get('/ventas/total', function (Request $request, Response $response, array
     $fechaInicio = $fechaInicio ? $fechaInicio : getNow('Y-m-d');
     $fechaFin = $fechaFin ? $fechaFin : getNow('Y-m-d');
 
-    $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total 
+    $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total
         FROM Ve_DocVentaDet
         INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
         WHERE Ve_DocVenta.Anulado=0 AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
@@ -1595,10 +1595,10 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
     $select = "SELECT ROUND(SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento), 2) AS total FROM Ve_DocVentaDet
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
     INNER JOIN Seg_Usuario ON Ve_DocVenta.UsuarioReg = Seg_Usuario.Usuario
-    WHERE Ve_DocVenta.Anulado=0 AND Seg_Usuario.Usuario = '$usuario' 
+    WHERE Ve_DocVenta.Anulado=0 AND Seg_Usuario.Usuario = '$usuario'
     AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "',' 23:59:59')";
     //print_r($select);exit();
-    
+
     if($idTipoDoc) {
         $select .= " AND Ve_DocVenta.IdTipoDoc = $idTipoDoc";
     }
@@ -1614,11 +1614,11 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
 $app->get('/ventas/detalle', function (Request $request, Response $response) {
     $idDocVentas = $request->getParam('idDocVentas');
 
-    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto, 
+    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto,
         ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
         ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
         Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
-        FROM Ve_DocVentaDet 
+        FROM Ve_DocVentaDet
         INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
         WHERE IdDocVenta IN (" . implode(',', $idDocVentas) . ")";
@@ -1626,15 +1626,15 @@ $app->get('/ventas/detalle', function (Request $request, Response $response) {
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
-    
+
     return $response->withJson($data);
 
 });
 
-$app->get('/ventas', function (Request $request, Response $response) { 
+$app->get('/ventas', function (Request $request, Response $response) {
     $filtros = '';
 
-    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv, 
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
         Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
@@ -1642,10 +1642,10 @@ $app->get('/ventas', function (Request $request, Response $response) {
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
         LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente";
-    
+
     $select .= " WHERE CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $request->getParam('q') . "%' ";
-    
-    
+
+
     $idAlmacen = $request->getParam('idAlmacen');
     if ($idAlmacen) {
         $filtros .= " AND Ve_DocVenta.IdAlmacen =  $idAlmacen";
@@ -1660,14 +1660,14 @@ $app->get('/ventas', function (Request $request, Response $response) {
     if (!isset($filter['fechaFin'])) {
         $filter['fechaFin'] = getNow('Y-m-d');
     }
-    
+
     if ($filter) {
         if(is_array($filter)) {
 
             if (isset($filter['vendedor']) && $filter['vendedor']) $filtros .= " AND Ve_DocVenta.UsuarioReg = '" . $filter['vendedor'] . "'";
             if (isset($filter['declarado'])) $filtros .= " AND Ve_DocVentaTipoDoc.VaRegVenta = " . $filter['declarado'];
             if (isset($filter['fechaInicio']) && isset($filter['fechaFin'])) $filtros .= " AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $filter['fechaInicio'] . "' AS DATETIME) AND CONCAT('" . $filter['fechaFin'] . "',' 23:59:59')";
-            
+
         } else {
         }
     }
@@ -1696,7 +1696,7 @@ $app->get('/ventas', function (Request $request, Response $response) {
         $orientation = $sortDesc ? 'DESC' : 'ASC';
         $select .= " ORDER BY " . $sortBy . " " . $orientation;
     }
-    
+
 
     if ($request->getParam('limit')) {
         $limit = $request->getParam('limit');
@@ -1713,7 +1713,7 @@ $app->get('/ventas', function (Request $request, Response $response) {
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
-    
+
     return $response->withJson($data);
 
 });
@@ -1725,13 +1725,13 @@ $app->get('/ventas/count', function (Request $request, Response $response) {
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
 
 
-$app->post('/ventas', function (Request $request, Response $response) { 
+$app->post('/ventas', function (Request $request, Response $response) {
     $vendedor = 'xx';
     if(isset($_SESSION['User'])) {
         $vendedor = $_SESSION['User'];
@@ -1740,34 +1740,34 @@ $app->post('/ventas', function (Request $request, Response $response) {
     // START INSERTAR NUEVA VENTA
     $idDocVentaPuntoVenta = $request->getParam('puntoVenta')['IdDocVentaPuntoVenta'];
     $idCliente = $request->getParam('cliente')['IdCliente'];
-    $idTipoDoc = $request->getParam('tipoVenta')['IdTipoDoc']; 
+    $idTipoDoc = $request->getParam('tipoVenta')['IdTipoDoc'];
     $codSunat = $request->getParam('tipoVenta')['CodSunat'];
-    $idAlmacen = $request->getParam('almacen')['IdAlmacen']; 
-    // $serie = $request->getParam('Serie'); 
+    $idAlmacen = $request->getParam('almacen')['IdAlmacen'];
+    // $serie = $request->getParam('Serie');
     // $numero = $request->getParam('Numero');
     $anulado = 0;
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
     $pagoCon = $request->getParam('PagoCon');
-    
+
     $esCredito = $request->getParam('EsCredito');
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
-    
+
     // OBTENER SERIE
     $selectSerie = "SELECT Serie FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idDocVentaPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
-    
+
     $stmt = $this->db->query($selectSerie);
     $stmt->execute();
     $selectSerie = $stmt->fetch();
     $serie = $selectSerie['Serie'] ? $selectSerie['Serie'] : $request->getParam('Serie');
-    
+
     /*if(is_numeric($idPreOrden)) {
         $selectPre = "SELECT * FROM Ve_PreOrden WHERE IdPreOrden = $idPreOrden";
 
         $stmt = $this->db->query($selectPre);
         $stmt->execute();
-        $preOrden = $stmt->fetch(PDO::FETCH_ASSOC);  
+        $preOrden = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, IdPreOrden, LugarProcedencia, MedioTransporte, ProximoDestino)
         VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', $idPreOrden, '" . $preOrden['LugarProcedencia'] . "', '" . $preOrden['MedioTransporte'] . "', '" . $preOrden['ProximoDestino'] . "')";
@@ -1790,15 +1790,15 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
     // OBTENER EL SIGUIENTE NUMERO
     if ($codSunat == '07' || $codSunat == '08') { // 07 nota de credito, 08 nota de debito
-        $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
+        $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta
             WHERE IdTipoDoc=$idTipoDoc AND Serie='$serie'
             ORDER BY Numero DESC LIMIT 1";
     } else {
-        $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
-            WHERE IdDocVentaPuntoVenta=$idDocVentaPuntoVenta AND IdTipoDoc=$idTipoDoc 
+        $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta
+            WHERE IdDocVentaPuntoVenta=$idDocVentaPuntoVenta AND IdTipoDoc=$idTipoDoc
             ORDER BY Numero DESC LIMIT 1";
     }
-    
+
 
     $stmt = $this->db->query($selectNumero);
     $stmt->execute();
@@ -1813,7 +1813,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $inserted = $stmt->execute();
     $idDocVenta = $this->db->lastInsertId();
     // END INSERTAR NUEVA VENTA
-    
+
     // Actualizar Todas las PreOrden
     if ($idPreOrden) {
         foreach($idPreOrden as $pre) {
@@ -1845,9 +1845,9 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
             }
 
-            $select = "SELECT COUNT(*) as total FROM Ve_PreOrdenDet 
-            INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto 
-            WHERE Gen_Producto.EsHabitacion = 0 AND  
+            $select = "SELECT COUNT(*) as total FROM Ve_PreOrdenDet
+            INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
+            WHERE Gen_Producto.EsHabitacion = 0 AND
                 Ve_PreOrdenDet.IdPreOrden=" . $pre['IdPreOrden'] . " AND Ve_PreOrdenDet.Cantidad > 0";
             $stmt = $this->db->query($select);
             $stmt->execute();
@@ -1864,7 +1864,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
             }
         }
     }
-    
+
     // START INSERTAR VENTA DETALLE
     $productos = $request->getParam('productos');
     $descuentoTotal = 0;
@@ -1877,18 +1877,18 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $fechaAlquilerInicio = isset($producto['FechaAlquilerInicio']) ? $producto['FechaAlquilerInicio'] : (isset($producto['FechaAlquiler']) ? $producto['FechaAlquiler'] : null);
             $fechaAlquilerFin = isset($producto['FechaAlquilerFin']) ? $producto['FechaAlquilerFin'] : getNow();
             $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : null;
-            
-            
+
+
             $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento', 'FechaAlquilerFin', 'Descripcion', 'FechaAlquilerInicio'))
                 ->into('Ve_DocVentaDet')
                 ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento, $fechaAlquilerFin, $descripcion, $fechaAlquilerInicio ));
-            
+
             $insert->execute();
             $descuentoTotal += $descuento;
         // }
     }
     // END VENTA DETALLE
-    
+
     // START INSERTAR PAGO DETALLE
     $pagos = $request->getParam('pago');
     if (!$esCredito) {
@@ -1907,14 +1907,14 @@ $app->post('/ventas', function (Request $request, Response $response) {
     // END PAGO DETALLE
 
     // START AÑADIR PUNTOS CLIENTE
-    $puntosAplicados = $request->getParam('puntosAplicados'); 
-    $totalCart = $request->getParam('totalCart'); 
+    $puntosAplicados = $request->getParam('puntosAplicados');
+    $totalCart = $request->getParam('totalCart');
     if(!$descuentoTotal) { // quitar condicional si siempre se otorgarán puntos
         // actualizar si la venta se pago en su totalidad, sin descuentos
         $select = "SELECT * FROM Ve_DocVentaDescuento WHERE IdDocVentaDescuento=1";
         $stmt = $this->db->query($select);
         $stmt->execute();
-        $tablaDescuento = $stmt->fetch(); 
+        $tablaDescuento = $stmt->fetch();
 
         if ($totalCart >= $tablaDescuento['PorCada']) {
             $puntosAdicionales = ($totalCart / $tablaDescuento['PorCada']) * $tablaDescuento['Puntos'];
@@ -1931,11 +1931,11 @@ $app->post('/ventas', function (Request $request, Response $response) {
     // END PUNTOS CLIENTE
 
     // return $response->withJson(array('insertId' => $nroTarjeta));
-    
+
     $data = array(
         'insertId' => $idDocVenta
     );
-    
+
     return $response->withJson($data);
 });
 
@@ -1964,7 +1964,7 @@ $app->post('/preorden/cajaybanco', function (Request $request, Response $respons
 
             $stmt = $this->db->query($select);
             $stmt->execute();
-            $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return $response->withJson($data);
         }
@@ -1980,7 +1980,7 @@ $app->get('/preorden/cajaybanco', function (Request $request, Response $response
 
         $stmt = $this->db->query($select);
         $stmt->execute();
-        $data = $stmt->fetchAll();    
+        $data = $stmt->fetchAll();
 
         return $response->withJson($data);
     }
@@ -2015,7 +2015,7 @@ $app->get('/preorden/count', function (Request $request, Response $response, arr
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
@@ -2023,48 +2023,48 @@ $app->get('/preorden/count', function (Request $request, Response $response, arr
 
 $app->get('/preorden', function (Request $request, Response $response) {
     $filter = $request->getParam('filter');
-    $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_PreOrden.IdCliente, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_PreOrden.FechaReg 
+    $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_PreOrden.IdCliente, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_PreOrden.FechaReg
         FROM Ve_PreOrden INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente";
-    $select .= " WHERE Ve_PreOrden.Anulado=0 AND (Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%' 
+    $select .= " WHERE Ve_PreOrden.Anulado=0 AND (Ve_DocVentaCliente.Cliente LIKE '%". $filter ."%'
                  OR Ve_DocVentaCliente.DniRuc LIKE '" . $filter . "%')";
     $select .= " ORDER BY Ve_PreOrden.IdPreOrden DESC";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
-    
+
 });
 
 $app->get('/preorden/detalle', function (Request $request, Response $response) {
     $idPreOrden = $request->getParam('idPreOrden');
 
-    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet  
+    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet
         INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
         WHERE Ve_PreOrdenDet.IdPreOrden=$idPreOrden";
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
-    
+
 });
 
 $app->get('/cliente', function (Request $request, Response $response, array $args) {
     $idCliente = $request->getParam('idCliente');
     $dni = $request->getParam('dni');
-    
+
     if ($dni) {
         $select = "SELECT * FROM Ve_DocVentaCliente WHERE DniRuc='$dni'";
     } else {
         $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente='$idCliente'";
-    } 
-    
+    }
+
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();    
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -2097,7 +2097,7 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
         INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
         Where EsCredito=1 and Ve_DocVenta.IdCliente=$idCliente
-        
+
         Group by
         Ve_DocVenta.IdDocVenta,
         Ve_DocVenta.FechaDoc,
@@ -2170,7 +2170,7 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -2182,7 +2182,7 @@ $app->get('/clientes/deuda/count', function (Request $request, Response $respons
         INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
         INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
         WHERE EsCredito=1";
-        $select .= " AND Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen'); 
+        $select .= " AND Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen');
         $select .="
         GROUP BY
         Ve_DocVenta.IdDocVenta,
@@ -2197,7 +2197,7 @@ $app->get('/clientes/deuda/count', function (Request $request, Response $respons
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
@@ -2222,7 +2222,7 @@ $app->get('/proveedores/deuda/count', function (Request $request, Response $resp
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
@@ -2260,7 +2260,7 @@ $app->get('/proveedores/deudas', function (Request $request, Response $response,
             $select .= " AND (Lo_Proveedor.Ruc LIKE '%" . $request->getParam('q') . "%'";
             $select .= " OR Lo_Proveedor.Proveedor LIKE '%" . $request->getParam('q') . "%') ";
 
-    $select .= "        
+    $select .= "
     Group by
     Lo_Movimiento.Hash,
     Lo_Movimiento.MovimientoFecha,
@@ -2285,7 +2285,7 @@ $app->get('/proveedores/deudas', function (Request $request, Response $response,
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -2294,10 +2294,10 @@ $app->get('/reporte/deudaclientes2', function (Request $request, Response $respo
     $idalmacen = $request->getParam('idalmacen');
     $res = $app->subRequest('GET', 'cliente/deudas', 'idalmacen=' . $idalmacen);
 
-    
+
     $deudacliente = (string) $res->getBody();
     $deudacliente = json_decode($deudacliente, true);
-    
+
     $excel = new Spreadsheet();
     //$sheet = $excel->setActiveSheetIndex(0);
     $sheet = $excel->getActiveSheet();
@@ -2336,10 +2336,10 @@ $app->get('/reporte/deudaproveedores', function (Request $request, Response $res
 
     $res = $app->subRequest('GET', 'proveedores/deudas');
 
-    
+
     $deudacliente = (string) $res->getBody();
     $deudacliente = json_decode($deudacliente, true);
-    
+
     $excel = new Spreadsheet();
     //$sheet = $excel->setActiveSheetIndex(0);
     $sheet = $excel->getActiveSheet();
@@ -2388,7 +2388,7 @@ $app->get('/ranking/clientes', function (Request $request, Response $response, a
         INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente =Ve_DocVentaCliente.IdCliente";
         $select .= " WHERE Ve_DocVenta.IdAlmacen = " . $request->getParam('idalmacen') ;
         $select .= " AND (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
-        $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";       
+        $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";
 
         $select .= "GROUP BY Ve_DocVentaCliente.DniRuc
                      ORDER BY Total DESC, Ve_DocVentaCliente.Puntos DESC";
@@ -2422,7 +2422,7 @@ $app->get('/ranking/clientes/count', function (Request $request, Response $respo
                 ORDER BY Total DESC, Ve_DocVentaCliente.Puntos DESC";
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 
@@ -2440,7 +2440,7 @@ $app->get('/tipodoc/{id}', function (Request $request, Response $response, array
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();    
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -2451,7 +2451,7 @@ $app->get('/empresa/id/{id}', function (Request $request, Response $response, ar
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();    
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -2463,7 +2463,7 @@ $app->get('/usuarios', function (Request $request, Response $response, array $ar
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -2474,7 +2474,7 @@ $app->get('/usuarios/{usuario}', function (Request $request, Response $response,
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();    
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -2486,7 +2486,7 @@ $app->get('/clientes', function (Request $request, Response $response, array $ar
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -2529,7 +2529,7 @@ $app->post('/clientes', function (Request $request, Response $response) {
         $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Direccion2', 'Direccion3', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad', 'EsVIP'))
                            ->into('Ve_DocVentaCliente')
                            ->values(array($cliente, $dniRuc, $direccion, $direccion2, $direccion3, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad, $esVIP));
-        
+
         $insertId = $insert->execute();
 
     }
@@ -2537,7 +2537,7 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $select = "SELECT * FROM Ve_DocVentaCliente WHERE IdCliente=$insertId";
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch();  
+    $data = $stmt->fetch();
 
     return $response->withJson($data);
 });
@@ -2590,7 +2590,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = $producto['Precio'];
-        $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD                       
+        $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD
         $json["txtPRECIO_TIPO_CODIGO"] = "01"; // 02 valor referencial unitario en operaciones no onerosas
         $json["txtIGV"] = $igv;
         $json["txtISC"] = "0";
@@ -2601,7 +2601,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtDESCRIPCION_DET"] = $producto['Producto'];
         // $json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
         $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
-        
+
         $detalle[]=$json;
         $descuento += $producto['Descuento'];
     }
@@ -2617,11 +2617,11 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtTOTAL_DESCUENTO" => $descuento,
         "txtTOTAL_GRAVADAS"=> $gravadas,
         "txtSUB_TOTAL"=> $subtotal,
-        "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0", 
+        "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0",
         // "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
         "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] - ($docVenta['Total'] / 1.18), 2) : 0,
         "txtTOTAL"=> $docVenta['Total'],
-        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true), 
+        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true),
         "txtNRO_COMPROBANTE"=> $docVenta['Serie'] . "-" . $docVenta['Numero'], //
         "txtFECHA_DOCUMENTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
@@ -2639,7 +2639,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
          "txtDIRECCION_CLIENTE"=>$docVenta['Direccion'],
          "txtCIUDAD_CLIENTE"=>"",
          "txtCOD_PAIS_CLIENTE"=>"PE",
-        //=================datos de LA EMPRESA=================	
+        //=================datos de LA EMPRESA=================
          "txtNRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
          "txtTIPO_DOCUMENTO_EMPRESA"=> TIPO_DOCUMENTO_EMPRESA,
          "txtNOMBRE_COMERCIAL_EMPRESA"=> NOMBRE_COMERCIAL_EMPRESA,
@@ -2659,10 +2659,10 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     if ($docVenta['CodigoIgv'] == "20") { // 20 = exonerado Igv
         $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
     }
-    
+
     $resultado = $new->sendPostCPE(json_encode($data));
     $me = json_decode($resultado, true);
-    
+
     // Datos $me
     $me['data'] = array(
         "txtNRO_COMPROBANTE" => $data['txtNRO_COMPROBANTE']
@@ -2674,15 +2674,15 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         // generamos PDF para su descarga
         $data['hash_cpe'] = $me['hash_cpe'];
         $new->creaPDF(json_encode($data));
-        
+
         // Si es nota de credito/debito insertar en tabla
         if ($docVenta['CodSunat'] == '07') { // nota de credito
-            $sqlNC = "INSERT INTO Ve_DocVentaNotaCredito (idDocVenta, Hash_cpe, Hash_cdr, Msj_sunat) VALUES 
+            $sqlNC = "INSERT INTO Ve_DocVentaNotaCredito (idDocVenta, Hash_cpe, Hash_cdr, Msj_sunat) VALUES
                 ($docVenta[idDocVenta], '$me[hash_cpe]', '$me[hash_cdr]', '$me[msj_sunat]')";
             $stmt = $this->db->prepare($sqlNC);
             $insert = $stmt->execute();
             $lastInsert = $this->db->lastInsertId();
-            
+
             return $response->withJson($me);
         }
 
@@ -2693,16 +2693,16 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
     // Nota de credito
     if ($docVenta['CodSunat'] == '07') {
-        
+
 
     } else if($docVenta['CodSunat'] == '08') {
 
 
     } else {
         // Para los casos de factura y boleta
-        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
             Msj_sunat='$me[msj_sunat]' WHERE idDocVenta='$docVenta[idDocVenta]' ";
-        
+
         $stmt = $this->db->prepare($sql);
         $updated = $stmt->execute();
         $me['Estado'] = $estado;
@@ -2714,13 +2714,13 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
 $app->post('/moveraemitidos', function (Request $request, Response $response) {
     $idDocVenta = $request->getParam('idDocVenta');
-    
+
     if ($idDocVenta) {
         $update = "UPDATE Ve_DocVenta SET Estado=2 WHERE idDocVenta=$idDocVenta";
         $stmt = $this->db->prepare($update);
         $updated = $stmt->execute();
 
-    
+
         return $response->withJson(array(
             "updated" => $updated,
             "IdDocVenta" => $idDocVenta
@@ -2730,13 +2730,13 @@ $app->post('/moveraemitidos', function (Request $request, Response $response) {
 
 $app->post('/cambiaraanonimo', function (Request $request, Response $response) {
     $idDocVenta = $request->getParam('idDocVenta');
-    
+
     if ($idDocVenta) {
         $update = "UPDATE Ve_DocVenta SET IdCliente=(SELECT IdCliente FROM `Ve_DocVentaCliente` WHERE DniRuc='00000000' LIMIT 1) WHERE idDocVenta=$idDocVenta";
         $stmt = $this->db->prepare($update);
         $updated = $stmt->execute();
 
-    
+
         return $response->withJson(array(
             "updated" => $updated,
             "IdDocVenta" => $idDocVenta
@@ -2753,16 +2753,16 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
     $statu = $request->getParam('statu') ? $request->getParam('statu') : 1;
     $codSunat = $request->getParam('codSunat');
     $codMoneda = "PEN";
-    
+
     $fechaReferencia = $request->getParam('fechaReferencia'); // "2018-03-28";
     $fechaDocumento = getNow('Y-m-d');
-    
+
     $serie = getNow('Ymd');
     // Inicio Correlativo
     $selectSec = "SELECT Secuencia FROM Sunat_Resumen WHERE Serie=$serie AND CodSunat=$codSunat ORDER BY Secuencia DESC LIMIT 1";
     $stmtSec = $this->db->query($selectSec);
     $stmtSec->execute();
-    $secuencia = $stmtSec->fetch()['Secuencia'];  
+    $secuencia = $stmtSec->fetch()['Secuencia'];
     $secuencia += 1; // cambiar correlativo
     // Fin Correlativo
 
@@ -2802,7 +2802,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
         "TIPO_DOCUMENTO" => TIPO_DOCUMENTO_EMPRESA,
         "CODIGO" => "RC",
         "SERIE" => $serie,
-        "SECUENCIA" => $secuencia, 
+        "SECUENCIA" => $secuencia,
         "FECHA_REFERENCIA" => $fechaReferencia,
         "FECHA_DOCUMENTO" => $fechaDocumento,
         "TIPO_PROCESO" => TIPO_PROCESO,
@@ -2810,7 +2810,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
         "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
         "detalle" => $detalle
     );
-    
+
     $resultado = $new->sendresumen(json_encode($data));
     $me = json_decode($resultado, true);
     $estado = 1;
@@ -2827,7 +2827,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
 
         // Inicio Consulta Ticket
         $dataTicket = array(
-            "TIPO_PROCESO" => TIPO_PROCESO, 
+            "TIPO_PROCESO" => TIPO_PROCESO,
             "NRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
             "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
             "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
@@ -2878,11 +2878,11 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
                     'txtDIRECCION_CLIENTE' => $boleta['Direccion'],
                     'detalle' => $detallePdf
                 );
-                
+
                 // generamos PDF para su descarga
                 $dataPdf['hash_cpe'] = $me['hash_cpe'];
                 //$new->creaPDF(json_encode($dataPdf)); // aqui crea el PDF uno a uno
-                
+
             }
         }
 
@@ -2895,12 +2895,12 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
     foreach($boletas as $boleta) {
         $cadenaIds[] = $boleta['idDocVenta'];
     }
-    
+
     if($statu == 3) { // si se manda a anular
-        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
             Msj_sunat='$me[msj_sunat]' WHERE idDocVenta IN (" . implode(',', $cadenaIds) . ")";
     } else { //si se declara
-        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
         Msj_sunat='$me[msj_sunat]', Ticket='$me[ticket]' WHERE idDocVenta IN (" . implode(',', $cadenaIds) . ")";
     }
     //$me['sql'] = $sql;
@@ -2908,7 +2908,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
     $updated = $stmt->execute();
     $me['Estado'] = $estado;
     // $me['data'] = $data; // ocultar en produccion
-    
+
     return $response->withJson($me);
 });
 
@@ -2927,7 +2927,7 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
     $selectSec = "SELECT Secuencia FROM Sunat_Resumen WHERE Serie=$serie AND CodSunat=$codSunat ORDER BY Secuencia DESC LIMIT 1";
     $stmtSec = $this->db->query($selectSec);
     $stmtSec->execute();
-    $secuencia = $stmtSec->fetch()['Secuencia'];  
+    $secuencia = $stmtSec->fetch()['Secuencia'];
     $secuencia += 1; // cambiar correlativo
     // Fin Correlativo
 
@@ -2951,7 +2951,7 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
         "TIPO_DOCUMENTO" => TIPO_DOCUMENTO_EMPRESA,
         "CODIGO" => "RA",
         "SERIE" => $serie,
-        "SECUENCIA" => $secuencia, 
+        "SECUENCIA" => $secuencia,
         "FECHA_REFERENCIA" => $fechaReferencia,
         "FECHA_BAJA" => $fechaBaja,
         "TIPO_PROCESO" => TIPO_PROCESO,
@@ -2970,11 +2970,11 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
         $stmt = $this->db->prepare($insert);
         $inserted = $stmt->execute();
         $lastInsert = $this->db->lastInsertId();
-        $estado = 0; // estado 0 anulado / 1 pendiente / 2 es emitido 
+        $estado = 0; // estado 0 anulado / 1 pendiente / 2 es emitido
 
         // Inicio Consulta Ticket
         $dataTicket = array(
-            "TIPO_PROCESO" => TIPO_PROCESO, 
+            "TIPO_PROCESO" => TIPO_PROCESO,
             "NRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
             "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
             "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
@@ -2997,8 +2997,8 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
     foreach($facturas as $factura) {
         $cadenaIds[] = $factura['idDocVenta'];
     }
-    
-    $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]', 
+
+    $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
         Msj_sunat='$me[msj_sunat]', AnuladoDesc='$descripcion' WHERE idDocVenta IN (" . implode(',', $cadenaIds) . ")";
 
     //$me['sql'] = $sql;
@@ -3006,10 +3006,10 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
     $updated = $stmt->execute();
     $me['Estado'] = $estado;
      $me['data'] = $data; // ocultar en produccion
-    
+
     return $response->withJson($me);
-    
-}); 
+
+});
 
 
 
@@ -3017,41 +3017,41 @@ $app->get('/reporte/habitaciones', function (Request $request, Response $respons
     $fechaInicio = $request->getParam('fechaInicio');
     $fechaFin = $request->getParam('fechaFin');
 
-    $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_DocVenta.idDocVenta, PreOrdenHabitacion.Producto, PreOrdenHabitacion.ProductoMarca, Ve_DocVentaCliente.Cliente, 
-        Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.DniRuc, 
-        Ve_DocVentaCliente.Sexo, Ve_DocVentaCliente.Ocupacion, Ve_DocVentaCliente.FechaNacimiento, Ve_DocVentaCliente.Nacionalidad, 
+    $select = "SELECT Ve_PreOrden.IdPreOrden, Ve_DocVenta.idDocVenta, PreOrdenHabitacion.Producto, PreOrdenHabitacion.ProductoMarca, Ve_DocVentaCliente.Cliente,
+        Ve_DocVentaCliente.Direccion, Ve_DocVentaCliente.DniRuc,
+        Ve_DocVentaCliente.Sexo, Ve_DocVentaCliente.Ocupacion, Ve_DocVentaCliente.FechaNacimiento, Ve_DocVentaCliente.Nacionalidad,
         Ve_PreOrden.FechaReg, Ve_PreOrden.LugarProcedencia, Ve_PreOrden.MedioTransporte, Ve_PreOrden.ProximoDestino,
-        Ve_PreOrden.FechaAlquilerInicio AS FechaAlquilerInicio, Ve_PreOrden.FechaAlquilerFin, 
+        Ve_PreOrden.FechaAlquilerInicio AS FechaAlquilerInicio, Ve_PreOrden.FechaAlquilerFin,
         /* DocVentaHabitacion.FechaAlquilerFin,  */
         (DocVentaHabitacion.Cantidad * DocVentaHabitacion.Precio) - DocVentaHabitacion.Descuento AS Tarifa
         FROM Ve_PreOrden
-        
+
         INNER JOIN Ve_DocVentaCliente ON Ve_PreOrden.IdCliente = Ve_DocVentaCliente.IdCliente
         LEFT JOIN Ve_DocVenta ON Ve_PreOrden.IdDocVenta = Ve_DocVenta.idDocVenta
-        
-        INNER JOIN 
+
+        INNER JOIN
         (SELECT  Ve_PreOrdenDet.IdPreOrden, Gen_Producto.EsHabitacion, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca
         FROM Ve_PreOrdenDet
         INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
         LEFT JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         WHERE Gen_Producto.EsHabitacion = 1
         GROUP BY Ve_PreOrdenDet.IdPreOrden) AS PreOrdenHabitacion ON Ve_PreOrden.IdPreOrden = PreOrdenHabitacion.IdPreOrden
-        
+
         LEFT JOIN
-        (SELECT Ve_DocVentaDet.IdDocVenta, Ve_DocVentaDet.IdProducto, Ve_DocVentaDet.FechaAlquilerInicio, 
+        (SELECT Ve_DocVentaDet.IdDocVenta, Ve_DocVentaDet.IdProducto, Ve_DocVentaDet.FechaAlquilerInicio,
         Ve_DocVentaDet.FechaAlquilerFin, Ve_DocVentaDet.Cantidad, Ve_DocVentaDet.Precio, Ve_DocVentaDet.Descuento
         FROM Ve_DocVentaDet
         INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
         WHERE Gen_Producto.EsHabitacion = 1
         GROUP BY Ve_DocVentaDet.IdDocVenta) AS DocVentaHabitacion ON Ve_PreOrden.IdDocVenta = DocVentaHabitacion.IdDocVenta
-        
-        WHERE PreOrdenHabitacion.EsHabitacion = 1 AND Ve_PreOrden.FechaAlquilerInicio BETWEEN '" . $fechaInicio . " 00:00:00'" . " AND '" . $fechaFin . " 23:59:59'" . " 
+
+        WHERE PreOrdenHabitacion.EsHabitacion = 1 AND Ve_PreOrden.FechaAlquilerInicio BETWEEN '" . $fechaInicio . " 00:00:00'" . " AND '" . $fechaFin . " 23:59:59'" . "
         ORDER BY Ve_PreOrden.IdPreOrden DESC";
         //var_dump($select); exit();
-        
+
         $stmt = $this->db->query($select);
         $stmt->execute();
-        $data = $stmt->fetchAll();    
+        $data = $stmt->fetchAll();
 
         return $response->withJson($data);
 
@@ -3064,12 +3064,12 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     $fechaInicio = $request->getParam('fechaInicio');
     $fechaFin = $request->getParam('fechaFin');
     $declarado = $request->getParam('declarado') ? 1 : 0;
-    
+
     $res = $app->subRequest('GET', '/ventas', 'idAlmacen=' . $idAlmacen . '&filter[fechaInicio]=' . $fechaInicio . '&filter[fechaFin]=' . $fechaFin . '&filter[declarado]=' . $declarado . '&sortBy=Ve_DocVenta.FechaDoc&sortDesc=DESC');
     $ventas = (string) $res->getBody();
     $ventas = json_decode($ventas, true);
     // print_r($ventas);exit();
-    
+
     $excel = new Spreadsheet();
     //$sheet = $excel->setActiveSheetIndex(0);
     $sheet = $excel->getActiveSheet();
@@ -3089,7 +3089,7 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     $sheet->setCellValue('N1', 'TOTAL');
 
     // $sheet->setCellValue('N1', 'ES ANULADO');
-    
+
 
     $cont = 3;
     foreach($ventas as $ven) {
@@ -3105,7 +3105,7 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
 
         if ($ven['CodigoIgv'] == '20') {
             $subtotal = 0;
-            $igv = 0;  
+            $igv = 0;
             $exonerado = $ven['Total'];
         }
 
@@ -3132,9 +3132,9 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
         $sheet->setCellValue('L'.$cont, $exonerado);
         $sheet->setCellValue('M'.$cont, 0);
         $sheet->setCellValue('N'.$cont, $ven['Total']);
-        
+
         // $sheet->setCellValue('N'.$cont, $ven['Anulado']);;
-        
+
         $cont += 1;
     }
 
@@ -3143,7 +3143,7 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     $fileName = 'reporteventas.xlsx';
     $excelFileName = __DIR__ . '/reporte/' . $fileName;
     $excelWriter->save($excelFileName);
-    // For Excel2007 and above .xlsx files   
+    // For Excel2007 and above .xlsx files
     // $response = $response->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
     /*$response = $response->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"');
@@ -3157,10 +3157,10 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
 $app->get('/reporte/rankingclientes', function (Request $request, Response $response, array $args) use ($app) {
     $idalmacen = $request->getParam('idalmacen');
     $res = $app->subRequest('GET', "ranking/clientes", 'idalmacen=' . $idalmacen );
-    
+
     $deudacliente = (string) $res->getBody();
     $deudacliente = json_decode($deudacliente, true);
-    
+
     $excel = new Spreadsheet();
     //$sheet = $excel->setActiveSheetIndex(0);
     $sheet = $excel->getActiveSheet();
@@ -3191,14 +3191,14 @@ $app->get('/reporte/rankingclientes', function (Request $request, Response $resp
 });
 
 
-// REPORTES 
+// REPORTES
 $app->get('/reporte/stock', function (Request $request, Response $response, array $args) use ($app) {
     $idAlmacen = $request->getParam('idAlmacen');
-    
+
     $res = $app->subRequest('GET', '/productos/stock', 'idAlmacen=' . $idAlmacen);
     $productos = (string) $res->getBody();
     $productos = json_decode($productos, true);
-    
+
     $excel = new Spreadsheet();
     //$sheet = $excel->setActiveSheetIndex(0);
     $sheet = $excel->getActiveSheet();
@@ -3227,7 +3227,7 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
     $fileName = 'stock' . getNow('Y-m-d-H-i-s').  '.xlsx';
     $excelFileName = __DIR__ . '/reporte/' . $fileName;
     $excelWriter->save($excelFileName);
-    // For Excel2007 and above .xlsx files   
+    // For Excel2007 and above .xlsx files
     // $response = $response->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
     /*$response = $response->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"');
@@ -3248,18 +3248,18 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
         $usuarioReg = $_SESSION['user'];
     }
     $usuarioReg = $user ? $user : $usuarioReg;
-    
+
     $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg)
         VALUES ('$fechaCierre', '$idTurno', '$usuarioReg')";
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
     $idCierreCaja = $this->db->lastInsertId();
-    
+
     // Actualizar DocVenta
-    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL 
+    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
         AND UsuarioReg='" . $usuarioReg . "'";
     $stmt = $this->db->prepare($updateVenta);
-    $updatedVenta = $stmt->execute(); 
+    $updatedVenta = $stmt->execute();
 
     // Actualizar CajaBanco asignando cierre solo de un vendedor
     $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
@@ -3285,7 +3285,7 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
         $select .= " AND IdCierreCaja=$idCierre";
     }
 
-    
+
     if ($request->getParam('sortBy')) {
         $sortBy = $request->getParam('sortBy');
         $sortDesc = $request->getParam('sortDesc');
@@ -3304,10 +3304,10 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
         $select .= " OFFSET " . $offset;
     }
 
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -3319,7 +3319,7 @@ $app->get('/cierrecaja/count', function (Request $request, Response $response, a
 
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
 });
@@ -3343,7 +3343,7 @@ $app->get('/cierrecaja/ventas', function (Request $request, Response $response, 
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVentaTipoDoc.IdTipoDoc = Ve_DocVenta.IdTipoDoc
         LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
         INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta" ;
-    
+
     if($idCierre) {
         $select .= " WHERE Ve_DocVenta.IdCierre = $idCierre";
     } else {
@@ -3353,24 +3353,24 @@ $app->get('/cierrecaja/ventas', function (Request $request, Response $response, 
     if($request->getParam('usuario')) {
         $select .= " AND Ve_DocVenta.UsuarioReg = '" . $request->getParam('usuario') . "'";
     }
-    
+
     $select .= " GROUP BY Ve_DocVenta.idDocVenta
         ORDER BY Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta ASC, Ve_DocVenta.FechaDoc ASC;";
     // print_r($select); exit();
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
-    
+    $data = $stmt->fetchAll();
+
     return $response->withJson($data);
 });
 $app->get('/cierrecaja/ingresos', function (Request $request, Response $response, array $args) {
     $idCierre = $request->getParam('idCierre');
-    
+
     $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto, Cb_CajaBanco.Importe
         FROM Cb_CajaBanco
         INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
         INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta";
-    
+
     if($idCierre) {
         $select .= " WHERE Cb_CajaBanco.IdCierre=$idCierre";
     } else {
@@ -3383,10 +3383,10 @@ $app->get('/cierrecaja/ingresos', function (Request $request, Response $response
 
     $select .= " AND Cb_TipoCajaBanco.Tipo = 0
         ORDER BY FechaDoc ASC;";
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -3395,24 +3395,24 @@ $app->get('/cierrecaja/ingresos/adelantos', function (Request $request, Response
     $idDocVentas = $request->getParam('idDocVentas');
 
     if($idDocVentas) {
-        $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto  , Cb_CajaBanco.Importe, Ve_DocVenta.idDocVenta, Ve_DocVenta.Serie, Ve_DocVenta.Numero 
+        $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto  , Cb_CajaBanco.Importe, Ve_DocVenta.idDocVenta, Ve_DocVenta.Serie, Ve_DocVenta.Numero
           FROM Cb_CajaBanco
           INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
           INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
           LEFT JOIN Ve_PreOrden ON Cb_CajaBanco.IdPreOrden = Ve_PreOrden.IdPreOrden
           LEFT JOIN Ve_DocVenta ON Ve_PreOrden.IdDocVenta = Ve_DocVenta.idDocVenta";
-    
-     
+
+
           $select .= " WHERE Ve_DocVenta.idDocVenta IN ( " . implode(',', $idDocVentas) . " )";
-                                                                                                                                                                                                                    
+
       $select .= " AND Cb_TipoCajaBanco.Tipo = 0
           ORDER BY FechaDoc ASC;";
-    
+
       $stmt = $this->db->query($select);
       $stmt->execute();
       $data = $stmt->fetchAll();
-   
-      
+
+
     } else {
         $data = [];
     }
@@ -3422,7 +3422,7 @@ $app->get('/cierrecaja/ingresos/adelantos', function (Request $request, Response
 
 $app->get('/cierrecaja/salidas', function (Request $request, Response $response, array $args) use ($app) {
     $idCierre = $request->getParam('idCierre');
-    
+
     $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto, Cb_CajaBanco.Importe
         FROM Cb_CajaBanco
         INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
@@ -3440,10 +3440,10 @@ $app->get('/cierrecaja/salidas', function (Request $request, Response $response,
 
     $select .= " AND Cb_TipoCajaBanco.Tipo = 1
         ORDER BY FechaDoc ASC;";
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
-    $data = $stmt->fetchAll();    
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });

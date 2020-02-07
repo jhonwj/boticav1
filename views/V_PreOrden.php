@@ -8,7 +8,7 @@ include_once("../clases/helpers/Modal.php");
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>Hotel - Producto</title>
+  <title>NEUROSOFT - Producto</title>
 
  </head>
 <?php include_once 'linker.php'; ?>
@@ -405,7 +405,7 @@ $("#formAddCliente").submit(function(e){
       });
       //$("#ModalCliente").modal("show");
   }else if (respuesta == "m") {
-    
+
       $("#txtCliente").val("");
       $("#ModalClienteAñadir").modal("hide");
       $("#tableCliente").DataTable().destroy();

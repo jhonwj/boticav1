@@ -41,7 +41,7 @@ date_default_timezone_set('America/Lima');
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>">HOTEL</a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">NEUROSOFT</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >
@@ -110,7 +110,7 @@ date_default_timezone_set('America/Lima');
         <li><a href="/views/facturacion.php"> Facturación Electrónica </a></li>
         <li><a href="/api/sunat/pag_cliente/" target="_blank"> Página Cliente </a></li>
       </ul>
-        
+
       </li>
 
 
@@ -124,10 +124,10 @@ date_default_timezone_set('America/Lima');
         <li><a href="/views/reportesdeudaproveedor.php"> Reporte Deuda Proveedores </a></li>
         <li><a href="/views/reportesrankingclientes.php"> Reporte Ranking Clientes </a></li>
       </ul>
-        
+
       </li>
 
-      
+
       <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Caja y Banco
       <span class="caret"></span></a>
@@ -135,7 +135,7 @@ date_default_timezone_set('America/Lima');
         <li><a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a></li>
         <li><a href="<?php echo CajaYBancoBuscador; ?>">Buscador de Caja y Banco</a></li>
       </ul>
-        
+
       </li>
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Seguridad
@@ -163,4 +163,3 @@ date_default_timezone_set('America/Lima');
     sessionStorage.clear();
     sessionStorage.setItem('User', "<?php echo $_SESSION['user'] ?>");
   </script>
-  

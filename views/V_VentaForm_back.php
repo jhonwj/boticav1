@@ -8,7 +8,7 @@ include_once("../clases/helpers/Modal.php");
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>Hotel - Producto</title>
+  <title>NEUROSOFT - Producto</title>
 
  </head>
 <?php include_once 'linker.php'; ?>
@@ -33,7 +33,7 @@ include_once("../clases/helpers/Modal.php");
         $('#txtPuntoVenta').val(value);
         $('#txtIdPuntoVenta').val(row[0])
       }
-    }) 
+    })
 
 	 table2
     .column( 1 )
@@ -63,7 +63,7 @@ include_once("../clases/helpers/Modal.php");
         }
     } );
 
-   
+
     /*table4
     .column( 1 )
     .data()
@@ -109,7 +109,7 @@ $("#FechaVen").hide();
         ListarProducto($("#txtAlmacen").val(), true);
       }
       $("#ModalBuscarProducto").modal("show");
-        
+
     });
     $('#tableTipoDocVenta tbody').on('click', 'tr', function () {
         var data = table2.row( this ).data();
@@ -134,7 +134,7 @@ $("#FechaVen").hide();
         obtenerSerie($('#txtIdPuntoVenta').val(), data[0])
 
     });
-    
+
     $('#tableAlmacen tbody').on('click', 'tr', function () {
         var data = table3.row( this ).data();
         $("#txtAlmacen").val(data[1]);
@@ -172,12 +172,12 @@ $("#FechaVen").hide();
       $('#ModalPuntoVenta').modal('hide');
 
       obtenerSerie(data[0], $('#txtTipoVenta').attr('data-id'))
-      
+
     })
-    
+
     $('.spinner .btn:first-of-type').on('click', function() {
       $('.spinner input').val( parseInt($('.spinner input').val(), 10) + 1);
-      
+
       if (parseInt($('.spinner input').val()) >= parseInt($('#tempStockMayor').val()) && parseInt($('#tempStockMayor').val()) > 0) {
         $('#txtPrecio').val($('#tempPrecioMayor').val())
       }else {
@@ -203,8 +203,8 @@ $("#FechaVen").hide();
     if($('#txtCantidad').val()<="1"){
       $("#btnCaretDown").prop("disabled", true);
       $('#txtCantidad').val("1");
-    } 
-    
+    }
+
     if (parseInt($('#txtCantidad').val()) >= parseInt($('#tempStockMayor').val()) && parseInt($('#tempStockMayor').val()) > 0) {
       $('#txtPrecio').val($('#tempPrecioMayor').val())
     }else {
@@ -472,7 +472,7 @@ $("#btnGuardarMetPago").click(function(){
         }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-        $('#btnGuardarMetPago').attr('disabled', false)        
+        $('#btnGuardarMetPago').attr('disabled', false)
         alert("Status: " + textStatus); alert("Error: " + errorThrown);
     }
       });
@@ -712,7 +712,7 @@ function ListarProducto(almacen, serverSide = false){
               var mes =  dt.getMonth() + 1
               var dia = dt.getDate()
               var fechaVen = new Date(data.FechaVen).getTime()
-              
+
               var hoy = anio + "-" + mes + "-" + dia
               hoy = new Date(hoy).getTime()
               var en4meses = anio + '-' + (mes + 4) + '-' + dia
@@ -731,7 +731,7 @@ function ListarProducto(almacen, serverSide = false){
               window.isLoadStock = true;
             }
         });
-        
+
       $('#tableProducto tbody').off("click").on('click', 'tr', function () {
         var id = $(this).children("td").eq(0).text();
         // $("#txtPrecio").prop("readonly", true);
@@ -749,7 +749,7 @@ function ListarProducto(almacen, serverSide = false){
         $("#tempLaboratorio").val($(this).attr('data-laboratorio'));
         $("#tempLote").val($(this).children("td").eq(11).text());
         $("#tempFechaVen").val($(this).children("td").eq(12).text());
-        
+
         $("#tempPrecioContado").val($(this).attr('data-preciocontado'))
 
         // stock por mayor
@@ -816,7 +816,7 @@ function cargarProducto(codigoBarra) {
         var producto = producto[0]
         var cantidad = 1;
         var existeProducto = false;
-        
+
         $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
           console.log($(this).find('td').eq(0).text())
           console.log(producto)
@@ -828,17 +828,17 @@ function cargarProducto(codigoBarra) {
             existeProducto = true
           }
         });
-  
+
         if (!existeProducto) {
           var fila = "<tr><td class='idProd'>"+producto.IdProducto+"</td><td class='nombreProducto'>"+producto.Producto+"</td><td>"+cantidad+ "</td><td>" +producto.PrecioContado+ "</td><td>"+parseFloat(producto.PrecioContado)*parseFloat(cantidad)+"</td><td class='nombreProducto'>"+ ((producto.Lote === null)?'':producto.Lote) + "</td><td class='nombreProducto'>"+ ((producto.FechaVen === null)?'':producto.FechaVen) +"</td><td><a id='EliminarVenta' class='btn' onclick='fn_EliminarVenta(this);' ><i class='fa fa-trash'></i></a></td></tr>";
             $("#tablePuntoVentaDet tbody").append(fila);
         }
-  
-        
-  
+
+
+
          var Total = 0;
          $("#tablePuntoVentaDet tbody tr").each(function(index, el) {
-  
+
            //console.log($(this).find('td').eq(4).html());
            var Tot = $(this).find('td').eq(4).html();
            Total = parseFloat(Total) + parseFloat(Tot);

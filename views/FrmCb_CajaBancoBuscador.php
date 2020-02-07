@@ -8,7 +8,7 @@ include_once("../clases/helpers/Modal.php");
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>Hotel - Producto</title>
+  <title>NEUROSOFT - Producto</title>
 
  </head>
 <?php include_once 'linker.php'; ?>
@@ -116,7 +116,7 @@ function listarCajaBanco(){
              "aoColumns": [
                { mData: 'IdCajaBanco' },
                { mData: 'FechaDoc' },
-               { mData: 'Proveedor', 
+               { mData: 'Proveedor',
                  visible: (window.tipoCajaBanco == "1")?true:false
                },
                { mData: 'Cliente',
@@ -126,10 +126,10 @@ function listarCajaBanco(){
                { mData: 'Importe' }
              ],
              "rowCallback": function( row, data, index ) {
-               
+
              },
              "drawCallback": function( settings ) {
-               
+
               }
          });
    }
@@ -166,7 +166,7 @@ function listarCajaBanco(){
            });
    }
 
-   
+
 
 </script>
 
