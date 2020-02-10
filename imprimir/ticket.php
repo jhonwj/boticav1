@@ -38,7 +38,7 @@ $igv = 0;
 ?>
 <style>
   * {
-    font-size: 12px;
+    font-size: 3mm;
     font-family: sans-serif;
   }
   body {
@@ -88,9 +88,9 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 50mm"/></div>
-  <div class="center">INVERSIONES MARTINEZ E.I.R.L</div>
-  <div class="center">RUC: 20351977451 </div>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
+  <div class="center"><b>CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.</b></div>
+  <div class="center"><b>RUC: 20573027125</b> </div>
   <!--<div class="center small">VENTA DE ....</div>-->
   <br />
 
@@ -103,7 +103,7 @@ $igv = 0;
 
   <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
-  <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
+  <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
 
   <div class="separar"></div>
   <div>SR(ES) : <?php echo $cliente ?></div>
@@ -179,7 +179,13 @@ $igv = 0;
       </tbody>
     </table>
     <br />
+    <?php if ($docVenta['Puntos']): ?>
+      <span style="text-transform: uppercase">Usted tiene <b><?php echo $docVenta['Puntos']?></b> Puntos</span><br>
+    <?php endif; ?>
     <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total - $totalDescuento, 2, '.', ''),'SOLES',true, 'asd')); ?></span><br/>
+    <span style="text-transform: uppercase">VENDEDOR: <?php echo $docVenta['UsuarioReg']; ?></span><br>
+    
+
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
       <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>
@@ -187,8 +193,9 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">AV. ALFONSO UGARTE NRO. 1030</div>
-  <div class="center small">PUCALLPA-UCAYALI</div>
+
+  <div class="center small">JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES)</div>
+  <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
   <br />

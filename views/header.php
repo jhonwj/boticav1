@@ -89,7 +89,7 @@ date_default_timezone_set('America/Lima');
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
-          <li><a href="/views/habitaciones.php">Habitaciones</a></li>
+          <li><a href="/views/habitaciones.php">Proyectos</a></li>
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>
@@ -118,7 +118,7 @@ date_default_timezone_set('America/Lima');
       <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Reportes
       <span class="caret"></span></a>
       <ul class="dropdown-menu">
-        <li><a href="/views/reportehuespedes.php"> Registro de Huéspedes </a></li>
+        <li><a href="/views/reportehuespedes.php"> Registro de Proyectos </a></li>
         <li><a href="/views/reportestockminimo.php"> Reporte Stock Mínimo </a></li>
         <li><a href="/views/reportesdeudacliente.php"> Reporte Deuda Clientes </a></li>
         <li><a href="/views/reportesdeudaproveedor.php"> Reporte Deuda Proveedores </a></li>

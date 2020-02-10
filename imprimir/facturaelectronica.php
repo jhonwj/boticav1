@@ -96,9 +96,9 @@ if ($docVenta['CampoDireccion']) {
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <!--<div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br> -->
-  <div class="center"><b>INVERSIONES MARTINEZ E.I.R.L</b></div>
-  <div class="center"><b>RUC: 20351977451 </b></div><br>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
+  <div class="center"><b>CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.</b></div>
+  <div class="center"><b>RUC: 20573027125</b></div><br>
   <!--<div class="center small">VENTA DE ....</div>-->
 
 
@@ -111,7 +111,7 @@ if ($docVenta['CampoDireccion']) {
 
   <div class="">FACTURA ELEC. NRO: <?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
-  <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div>
+  <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
 
   <div class="separar"></div>
   <div>SR(ES) : <?php echo $cliente ?></div>
@@ -196,7 +196,13 @@ if ($docVenta['CampoDireccion']) {
         </tr>
       </tbody>
     </table>
+    
+    <?php if ($docVenta['Puntos']): ?>
+      <span style="text-transform: uppercase">Usted tiene <b><?php echo $docVenta['Puntos']?></b> Puntos</span><br>
+    <?php endif; ?>
     <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total - $totalDescuento, 2, '.', ''),'SOLES',true, 'asd')); ?></span><br/>
+    <span style="text-transform: uppercase">VENDEDOR: <?php echo $docVenta['UsuarioReg']; ?></span><br>
+
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
       <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>
@@ -222,8 +228,15 @@ if ($docVenta['CampoDireccion']) {
         <img style="max-width: 100%; width: 100px;" src="data:image/png;base64,<?php echo $base64 ?>" />
   </div>
   <br />
-  <div class="center small">AV. ALFONSO UGARTE NRO. 1030</div>
-  <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
+  <div class="center small">Autorizado mediante Resolución de Oficina Zonal</div>
+  <div class="center small">N° 192-005-0000020/SUNAT</div>
+  <div class="center small">Representación impresa de la Factura Electrónica</div><br>
+  <div class="center small">Consulte su comprobante en:</div>
+  <div class="center small"><b>http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div>
+  <div class="center small">http://neurosystemperu.com/</div><br />
+
+  <div class="center small">JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES)</div>
+  <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">.</div>
   <br />
