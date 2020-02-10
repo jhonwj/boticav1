@@ -971,6 +971,15 @@ $app->get('/monedas', function (Request $request, Response $response, array $arg
     return $response->withJson($data);
 });
 
+$app->get('/almacenes/id/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Lo_Almacen WHERE Anulado=0 AND IdAlmacen=$args[id]";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
 
 $app->get('/almacenes', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Lo_Almacen');
@@ -983,6 +992,26 @@ $app->get('/almacenes', function (Request $request, Response $response, array $a
 
 $app->get('/almacenes/primero', function (Request $request, Response $response, array $args) {
     $select = "SELECT * FROM Lo_Almacen WHERE Anulado=0 ORDER BY IdAlmacen ASC LIMIT 1 ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+$app->get('/puntoventa/id/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Ve_DocVentaPuntoVenta WHERE Anulado=0 AND IdDocVentaPuntoVenta=$args[id]";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+$app->get('/puntoventa/primero', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Ve_DocVentaPuntoVenta WHERE Anulado=0 ORDER BY IdDocVentaPuntoVenta ASC LIMIT 1 ";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
