@@ -819,6 +819,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $insertId);
     $affectedRows = $update->execute(); */
+    $codigoBarra = $insertId;
+
+    $update = $this->db->update(array("CodigoBarra" => $codigoBarra))
+                       ->table('Gen_Producto')
+                       ->where('IdProducto', '=', $insertId);
+    $affectedRows = $update->execute(); 
 
     // Insertar productoDet
     if ($productosDet) {
