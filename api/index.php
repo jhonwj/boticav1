@@ -2589,19 +2589,19 @@ $app->post('/clientes', function (Request $request, Response $response) {
 
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '20393999463');
+define('NRO_DOCUMENTO_EMPRESA', '20573027125');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES TURISTICOS JHOR BUSH S.A.C');
-define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES TURISTICOS JHOR BUSH S.A.C');
+define('RAZON_SOCIAL_EMPRESA', 'CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.');
+define('NOMBRE_COMERCIAL_EMPRESA', 'CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "JR. SALAVERRY NRO. 673 UCAYALI - CORONEL PORTILLO - CALLERIA");
-define('DEPARTAMENTO_EMPRESA', "UCAYALI");
-define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
-define('DISTRITO_EMPRESA', "CALLERIA");
+define('DIRECCION_EMPRESA', "JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES) HUANUCO - HUANUCO - HUANUCO");
+define('DEPARTAMENTO_EMPRESA', "HUANUCO");
+define('PROVINCIA_EMPRESA', "HUANUCO");
+define('DISTRITO_EMPRESA', "HUANUCO");
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'BUSH12JO'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'BUSH12jO'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'NEUR0515'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'Neur0515'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
