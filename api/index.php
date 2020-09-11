@@ -2645,8 +2645,10 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     $gravadas = $docVenta['TieneIgv'] ? round($docVenta['Total'] / 1.18, 2) : $docVenta['Total'];
     $subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
 
-    //$total = ($descuento > 0) ? $subtotal - $descuento : '0';
+    //ELIMINAR ESPACIOS EN BLANCO DNI/RUC
+    $docVenta['DniRuc'] = trim($docVenta['DniRuc']);
 
+    //$total = ($descuento > 0) ? $subtotal - $descuento : '0';
     $data = array(
         "txtTIPO_OPERACION"=>"0101", // corregir esto despues
         "txtTOTAL_DESCUENTO" => $descuento,
