@@ -2633,7 +2633,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtIMPORTE_DET"] = $subtotal; //rowData.IMPORTE; //SUB_TOTAL + IGV
         $json["txtCOD_TIPO_OPERACION"] = $docVenta['CodigoIgv']; //20 si es exonerado
         $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
-        $json["txtDESCRIPCION_DET"] = $producto['Producto'];
+        $json["txtDESCRIPCION_DET"] = trim($producto['Producto']);
         // $json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
         $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
 
@@ -2889,11 +2889,11 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
                     $n=$n+1;
                     $igv = $boleta['TieneIgv'] ? round($producto['Subtotal'] * 0.18, 2) : 0;
                     $subtotal = $boleta['TieneIgv'] ? $producto['Subtotal'] - $igv : $producto['Subtotal'];
-                    $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
-                    $json["txtPRECIO_DET"] = $producto['Precio'];
+                    $json["txtCANTIDAD_DET"] = trim($producto['Cantidad']);
+                    $json["txtPRECIO_DET"] = trim($producto['Precio']);
                     $json["txtIMPORTE_DET"] = $subtotal + $igv; //rowData.IMPORTE; //SUB_TOTAL + IGV
-                    $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
-                    $json["txtDESCRIPCION_DET"] = $producto['Producto'];
+                    $json["txtCODIGO_DET"] = trim($producto['CodigoBarra']);
+                    $json["txtDESCRIPCION_DET"] = trim($producto['Producto']);
                     $detallePdf[]=$json;
                 }
                 $dataPdf = array(
