@@ -2697,6 +2697,16 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
     }
 
+    if($request->getParam('generarXml'))
+    {
+        $data['generarXml'] = true;
+        $resultado = $new->sendPostCPE(json_encode($data));
+        return $response->withJson([
+            'success' => true
+        ]);
+    }
+    $data['generarXml'] = false;
+    
     $resultado = $new->sendPostCPE(json_encode($data));
     $me = json_decode($resultado, true);
 
