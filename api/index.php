@@ -1650,6 +1650,7 @@ $app->get('/ventas/detalle', function (Request $request, Response $response) {
     $idDocVentas = $request->getParam('idDocVentas');
 
     $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto,
+        ROUND(Ve_DocVentaDet.Descuento, 2) AS Descuento,
         ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
         ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
         Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
