@@ -1494,7 +1494,10 @@ $app->get('/ventas/tipos', function (Request $request, Response $response, array
     //$select = $this->db->select()->from('Ve_DocVentaTipoDoc')->whereLike('TipoDoc', '%' . $request->getParam('q') . '%');
 
 
-    $select = "SELECT * FROM Ve_DocVentaTipoDoc WHERE TipoDoc LIKE '%" . $request->getParam('q') . "%' ORDER BY Orden ASC";
+    $select = "SELECT * FROM Ve_DocVentaTipoDoc 
+        WHERE TipoDoc LIKE '%" . $request->getParam('q') . "%' 
+        AND Oculto=0 
+        ORDER BY Orden ASC";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
