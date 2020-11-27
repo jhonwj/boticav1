@@ -144,6 +144,11 @@ date_default_timezone_set('America/Lima');
           <li><a href="<?php echo Usuarios; ?>" >Usuarios</a></li>
         </ul>
       </li>
+      <?php if ($_SESSION['idPerfil'] == 1): ?>
+        <li class="dropdown">
+          <a href="#" onclick="window.open('http://app.factura.vip/client/login/20573027125','winname','directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=600,height=700');"><b>APP</b></a>
+        </li>
+      <?php endif; ?>
       <li class="dropdown">
         <a href="<?php echo Logout; ?>"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>
       </li>
