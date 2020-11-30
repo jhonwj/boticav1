@@ -206,10 +206,20 @@ function SumarTotalIgvSub(){
             <label><input id="declarado" type="checkbox">Declarado</label>
         </div>
       </div>
+      <div class="col-md-4 form-group">
+        <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
+      </div>
     </div>
-  </div>
-  <div class="pull-right">
-    <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
+    <hr>
+    <div class="row">
+      <div class="col-md-4 form-group">
+        <label>Buscar detalle del movimiento</label>
+        <input type="date" id="fechaFinal" class="form-control">
+      </div>
+      <div class="col-md-4 form-group">
+        <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
+      </div>
+    </div>
   </div>
   <br>
   <hr>

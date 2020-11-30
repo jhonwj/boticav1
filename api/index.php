@@ -914,7 +914,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     $fechaStock = getNow();
     $percepcion = 0;
     $esCredito = $request->getParam('movimiento')['EsCredito'];
-    $fechaVenCredito = $request->getParam('movimiento')['FechaVenCredito'];
+    $fechaVenCredito = $request->getParam('movimiento')['FechaVenCredito'] ? $request->getParam('movimiento')['FechaVenCredito'] : NULL;
     $fechaPeriodoTributario = $request->getParam('movimiento')['FechaPeriodoTributario'];
     $tipoCambio = $request->getParam('movimiento')['TipoCambio'];
     $moneda = $request->getParam('movimiento')['Moneda'];
@@ -944,10 +944,11 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $precio = $producto['precio'];
             $nuevoPrecioContado = $producto['nuevoPrecioContado'];
             $idLote = isset($producto['IdLote']) ? $producto['IdLote'] : 0;
+            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : NULL;
 
-            $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote'))
+            $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote', 'Descripcion'))
             ->into('Lo_MovimientoDetalle')
-            ->values(array($hash, $idProducto, $cantidad, $tieneIgv, $precio, $idLote));
+            ->values(array($hash, $idProducto, $cantidad, $tieneIgv, $precio, $idLote, $descripcion));
             $insert->execute();
 
             // start actualizar precioventa producto
