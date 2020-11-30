@@ -1978,6 +1978,167 @@ $app->post('/ventas', function (Request $request, Response $response) {
     return $response->withJson($data);
 });
 
+$app->post('/proformas', function (Request $request, Response $response) {
+    $idCliente = $request->getParam('cliente')['IdCliente'];
+    $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : 'xx';
+
+    // Verificar si existe la proforma
+    $select = "SELECT Numero, Anio FROM Ve_Proforma WHERE Anio='" . getNow("Y") . "' ORDER BY Numero DESC LIMIT 1";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $proforma = $stmt->fetch(); 
+
+	$numero = $proforma['Numero'];
+	$anio = $proforma['Anio'];
+
+	$newNumero = 1;
+	$newAnio = getNow("Y");
+
+	if ($numero && $anio) {
+		$newNumero = $numero + 1;
+    }
+    
+    // START INSERTAR NUEVA PROFORMA
+	$insert = "INSERT INTO Ve_Proforma(Anio, Numero, IdCliente, FechaReg, UsuarioReg) VALUES($newAnio, $newNumero, $idCliente, '" . getNow() . "', '$usuarioReg')";
+    
+    $stmt = $this->db->prepare($insert);
+    $inserted = $stmt->execute();
+    $idProforma = $this->db->lastInsertId();
+    // END INSERTAR NUEVA PROFORMA
+
+
+    // START INSERTAR PROFORMA DETALLE
+    $productos = $request->getParam('productos');
+    //$descuentoTotal = 0;
+    foreach($productos as $producto) {
+        if ($producto['total'] > 0) {
+            $idProducto = $producto['IdProducto'];
+            $cantidad = $producto['cantidad'];
+            $precio = $producto['precio'];
+            $descuento = $producto['descuento'];
+            
+            $insert = $this->db->insert(array('IdProforma', 'IdProducto', 'Cantidad', 'Precio', 'Descuento'))
+                ->into('Ve_ProformaDet')
+                ->values(array($idProforma, $idProducto, $cantidad, $precio, $descuento));
+            
+            $insert->execute();
+            //$descuentoTotal += $descuento;
+        }
+    }
+    // END PROFORMA DETALLE
+
+    $data = array(
+        'insertId' => $idProforma
+    );
+    
+    return $response->withJson($data);
+});
+
+$app->get('/proformas/id/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT Ve_Proforma.*, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.Direccion AS ClienteDireccion, Ve_DocVentaCliente.Email AS ClienteEmail
+    
+        FROM Ve_Proforma
+        INNER JOIN Ve_DocVentaCliente ON Ve_Proforma.IdCliente = Ve_DocVentaCliente.IdCliente
+        WHERE Ve_Proforma.IdProforma = '" . $args['id'] . "' ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $proforma = $stmt->fetch();
+
+    $select = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.Cantidad, Ve_ProformaDet.Precio, Ve_ProformaDet.Descuento, Gen_Producto.* FROM Ve_ProformaDet
+    INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto
+    WHERE Ve_ProformaDet.IdProforma = '" . $args['id'] . "'";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $proformaDet = $stmt->fetchAll();    
+
+    $proforma['productos'] = $proformaDet;
+    
+    return $response->withJson($proforma);
+});
+
+
+$app->get('/proformas/productos/{id}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.Cantidad, Ve_ProformaDet.Precio, Gen_Producto.* FROM Ve_ProformaDet
+    INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto
+    WHERE Ve_ProformaDet.IdProforma = '" . $args['id'] . "'";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+
+$app->get('/proformas', function (Request $request, Response $response) {
+    $filter = $request->getParam('filter');
+    $select = "SELECT Ve_Proforma.IdProforma, Ve_Proforma.IdCliente, Ve_Proforma.Anio, Ve_Proforma.Numero, Ve_Proforma.FechaReg, Ve_Proforma.UsuarioReg,  Ve_DocVentaCliente.Cliente,
+        Ve_DocVentaCliente.DniRuc
+        FROM Ve_Proforma
+        LEFT JOIN Ve_DocVentaCliente ON Ve_Proforma.IdCliente = Ve_DocVentaCliente.IdCliente
+        WHERE Ve_Proforma.Anulado = 0
+        AND (Ve_DocVentaCliente.Cliente LIKE '%$filter%'
+        OR Ve_DocVentaCliente.DniRuc LIKE '%$filter%'
+        OR Ve_Proforma.Anio LIKE '%$filter%'
+        OR Ve_Proforma.Numero LIKE '%$filter%'
+        OR Ve_Proforma.FechaReg LIKE '%$filter%'
+        OR Ve_Proforma.UsuarioReg LIKE '%$filter%') ";
+
+    $select .= " ORDER BY Ve_Proforma.IdProforma DESC";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+    
+});
+
+
+$app->get('/proformas/count', function (Request $request, Response $response, array $args) {
+    $select = "SELECT COUNT(*) as total FROM Ve_Proforma";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
+$app->get('/proformas/detalle', function (Request $request, Response $response) {
+    $idProforma = $request->getParam('idProforma');
+
+    $select = "SELECT * FROM Ve_ProformaDet WHERE IdProforma=$idProforma";
+    // $select = "SELECT * FROM Ve_ProformaDet AS proDet JOIN Ve_Proforma AS pro WHERE IdProforma=$idProforma";
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+    
+});
+
 $app->post('/preorden/cajaybanco', function (Request $request, Response $response, array $args) {
     $idPreOrden = $request->getParam('IdPreOrden');
     $idHabitacion = $request->getParam('IdHabitacion');
