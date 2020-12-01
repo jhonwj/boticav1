@@ -1917,11 +1917,12 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $fechaAlquilerInicio = isset($producto['FechaAlquilerInicio']) ? $producto['FechaAlquilerInicio'] : (isset($producto['FechaAlquiler']) ? $producto['FechaAlquiler'] : null);
             $fechaAlquilerFin = isset($producto['FechaAlquilerFin']) ? $producto['FechaAlquilerFin'] : getNow();
             $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : null;
+            $esManoDeObra = isset($producto['EsManoDeObra']) ? $producto['EsManoDeObra'] : 0;
 
 
-            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento', 'FechaAlquilerFin', 'Descripcion', 'FechaAlquilerInicio'))
+            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento', 'FechaAlquilerFin', 'Descripcion', 'FechaAlquilerInicio', 'EsManoDeObra'))
                 ->into('Ve_DocVentaDet')
-                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento, $fechaAlquilerFin, $descripcion, $fechaAlquilerInicio ));
+                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento, $fechaAlquilerFin, $descripcion, $fechaAlquilerInicio, $esManoDeObra ));
 
             $insert->execute();
             $descuentoTotal += $descuento;
@@ -2201,9 +2202,9 @@ $app->post('/preorden/detalle', function (Request $request, Response $response, 
 
         foreach($productos as $prod) {
             if ($prod['IdProducto'] != $idHabitacion) {
-                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad'))
+                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad', 'Precio'))
                                     ->into('Ve_PreOrdenDet')
-                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad']));
+                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad'], $prod['Precio']));
                 $insertDetId = $insertDet->execute();
             }
         }
@@ -2241,7 +2242,7 @@ $app->get('/preorden', function (Request $request, Response $response) {
 $app->get('/preorden/detalle', function (Request $request, Response $response) {
     $idPreOrden = $request->getParam('idPreOrden');
 
-    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet
+    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, IFNULL(Ve_PreOrdenDet.Precio, Gen_Producto.PrecioContado) AS Precio, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet
         INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
         WHERE Ve_PreOrdenDet.IdPreOrden=$idPreOrden";
 
