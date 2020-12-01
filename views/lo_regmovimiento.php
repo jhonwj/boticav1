@@ -14,7 +14,7 @@ $(document).ready(function(e){
     var xhr = $.ajax({
       url: "../controllers/listarRegMov.php",
       type: "get",
-      data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked")},
+      data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked"), descripcion: $('#descripcion').val()},
       dataType: "html",
       success: function(res){
         console.log(res)
@@ -115,6 +115,7 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
           // "</td><td>"+value.ProductoFormaFarmaceutica+
           "</td><td>"+value.ProductoMarca+
           "</td><td>"+value.Producto+
+          "</td><td style='white-space: pre-wrap;'>"+value.Descripcion+
           // "</td><td>"+value.PrecioContado+
           "</td><td>"+value.ProductoMedicion+
           "</td><td>"+value.Cantidad+
@@ -210,14 +211,10 @@ function SumarTotalIgvSub(){
         <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
       </div>
     </div>
-    <hr>
     <div class="row">
       <div class="col-md-4 form-group">
-        <label>Buscar detalle del movimiento</label>
-        <input type="date" id="fechaFinal" class="form-control">
-      </div>
-      <div class="col-md-4 form-group">
-        <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
+        <label>Buscar detalle del movimiento (buscar serie)</label>
+        <input type="text" id="descripcion" name="descripcion" class="form-control" value="<?php echo $_GET['descripcion']; ?>">
       </div>
     </div>
   </div>
@@ -324,6 +321,7 @@ function SumarTotalIgvSub(){
             <th>Codigo Barra</th>
             <th>Marca</th>
             <th>Producto</th>
+            <th>Descripción</th>
             <!-- <th>Precio Venta</th> -->
             <th>Medida</th>
             <th>Cantidad</th>

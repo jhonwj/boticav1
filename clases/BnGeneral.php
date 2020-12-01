@@ -570,9 +570,9 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		//exit();
 		return getSQLResultSet($Ssql);
 	}
-	function ListarRegNov($fechaIni, $fechaFin, $declarado)
+	function ListarRegNov($fechaIni, $fechaFin, $declarado, $descripcion = "")
 	{
-		$Ssql = "call SbLo_RegMovimiento($declarado, '$fechaIni', '$fechaFin');";
+		$Ssql = "call SbLo_RegMovimiento($declarado, '$fechaIni', '$fechaFin', '$descripcion');";
 		//echo $Ssql;
 		//exit();
 		return getSQLResultSet($Ssql);
@@ -627,7 +627,7 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 	function devolverProductosRegMov($idMov)
 	{
-		$Ssql = "Select Lo_MovimientoDetalle.hashMovimiento, Gen_Producto.Codigo, Gen_Producto.CodigoBarra, 
+		$Ssql = "Select Lo_MovimientoDetalle.hashMovimiento, Lo_MovimientoDetalle.Descripcion, Gen_Producto.Codigo, Gen_Producto.CodigoBarra, 
 		Gen_ProductoFormaFarmaceutica.ProductoFormaFarmaceutica, Gen_Producto.Producto, 
 		Gen_Producto.PrecioContado, Gen_ProductoMedicion.ProductoMedicion, Lo_MovimientoDetalle.Cantidad,
 		Lo_MovimientoDetalle.TieneIgv, Lo_MovimientoDetalle.Precio, Gen_ProductoMarca.ProductoMarca, Lo_MovimientoDetalle.ISC

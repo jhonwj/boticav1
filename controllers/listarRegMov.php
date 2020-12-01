@@ -5,6 +5,7 @@ include_once '../clases/BnGeneral.php';
 		$fechaIni = $_GET["fechaIni"];
 		$fechaFin = $_GET["fechaFin"];
 		$declarado = $_GET["declarado"];
+		$descripcion = $_GET["descripcion"];
 		//echo "adasdd   ".$declarado;
 
 		if($declarado == "true"){
@@ -13,7 +14,7 @@ include_once '../clases/BnGeneral.php';
 			$declarado = 0;
 		}
 
-		$result = ListarRegNov($fechaIni, $fechaFin, $declarado);
+		$result = ListarRegNov($fechaIni, $fechaFin, $declarado, $descripcion);
 		$data = array();
 		while ($rows = mysqli_fetch_assoc($result)) {
 				$data[] = $rows;
