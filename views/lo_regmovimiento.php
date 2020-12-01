@@ -119,9 +119,9 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
           // "</td><td>"+value.PrecioContado+
           "</td><td>"+value.ProductoMedicion+
           "</td><td>"+value.Cantidad+
-          "</td><td>"+igv+
+          "</td><td>"+igv.toFixed(2)+
           // "</td><td>"+value.ISC+
-          "</td><td>"+value.Precio+
+          "</td><td>"+value.Precio.toFixed(2)+
           "</td><td>"+totalGeneral.toFixed(2)+
           "</td></tr>";
           $("#tableProducto tbody").append(fila);
