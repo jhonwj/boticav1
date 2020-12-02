@@ -954,6 +954,17 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             // start actualizar precioventa producto
             $alterarProductos = $request->getParam('movimiento')['alterarProductos'];
             if ($alterarProductos) {
+
+                if ($request->getParam('movimiento')['Moneda'] === 'USD') {
+                    $select = "SELECT * FROM Gen_Moneda WHERE Moneda='USD'";
+                    $stmt = $this->db->query($select);
+                    $stmt->execute();
+                    $moneda = $stmt->fetch();
+
+                    $precio *= $moneda['TipoCambio'];
+                    $nuevoPrecioContado *= $moneda['TipoCambio'];
+                }
+
                 $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
                                    ->table('Gen_Producto')
                                    ->where('IdProducto', '=', $idProducto);

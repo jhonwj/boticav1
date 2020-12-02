@@ -121,8 +121,8 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
           "</td><td>"+value.Cantidad+
           "</td><td>"+igv.toFixed(2)+
           // "</td><td>"+value.ISC+
-          "</td><td>"+value.Precio.toFixed(2)+
-          "</td><td>"+totalGeneral.toFixed(2)+
+          "</td><td>"+parseFloat(value.Precio).toFixed(2)+
+          "</td><td>"+parseFloat(totalGeneral).toFixed(2)+
           "</td></tr>";
           $("#tableProducto tbody").append(fila);
         });
