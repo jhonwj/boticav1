@@ -130,6 +130,7 @@ Ve_DocVentaDet.Descuento,
 Ve_DocVentaDet.EsManoDeObra,
 Gen_Producto.ProductoDesc,
 Gen_Producto.Producto,
+Gen_Producto.CodigoBarra,
 Ve_DocVentaDet.Cantidad,
 Ve_DocVentaDet.Precio,
 Round(Ve_DocVentaDet.Cantidad*

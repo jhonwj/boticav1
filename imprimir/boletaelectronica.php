@@ -132,6 +132,13 @@ if ($docVenta['CampoDireccion']) {
       </thead>
       <tbody>
         <?php
+        $sumManoDeObra = 0;
+        foreach ($productos as $key => $producto) {
+          if ($producto['EsManoDeObra']) {
+            $sumManoDeObra += $producto['TOTAL'];
+          }
+        }
+
         $filas = 0;
         foreach ($productos as $key => $producto) { ?>
           <?php if (empty($producto['EsManoDeObra'])) : ?>
@@ -153,7 +160,12 @@ if ($docVenta['CampoDireccion']) {
                 <span>S/.<?php echo $producto['Precio'] ?></span>
               </td>-->
               <td class="text-right">
-                <span>S/.<?php echo $producto['TOTAL'] ?></span>
+                <?php 
+                  if ($producto['CodigoBarra'] === "MANODEOBRA") {
+                    $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
+                  }
+                ?>
+                <span>S/.<?php echo $producto['TOTAL']; ?></span>
               </td>
             </tr>
             <?php

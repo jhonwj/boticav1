@@ -944,7 +944,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $precio = $producto['precio'];
             $nuevoPrecioContado = $producto['nuevoPrecioContado'];
             $idLote = isset($producto['IdLote']) ? $producto['IdLote'] : 0;
-            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : NULL;
+            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : '';
 
             $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote', 'Descripcion'))
             ->into('Lo_MovimientoDetalle')
@@ -1364,7 +1364,25 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
             LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
-    } else {
+        }  else if ($request->getParam('sumaValorizadoSin')) {
+            $select = "SELECT
+                SUM(Gen_Producto.PrecioCosto * (IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0))) AS sumaValorizadoSin
+    
+                FROM Gen_Producto 
+            FROM Gen_Producto
+                FROM Gen_Producto 
+                INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+                INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+                INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+                LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
+                LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
+                LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
+                LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
+                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+                LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
+        } else {
         $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
             Gen_ProductoMedicion.ProductoMedicion,
             IFNULL(IngresoUnd.cantidad, 0) AS StockIngresoUnd,
@@ -1418,13 +1436,13 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
 
     $select .= "AND Gen_Producto.ControlaStock=1 ";
 
-    if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+    if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado') && !$request->getParam('sumaValorizadoSin')) {
         $filterMinimo = $request->getParam('filter')['minimo'];
         if ($filterMinimo) {
             $select .= " HAVING stock <= Gen_Producto.StockMinimo";
         }
     } else {
-        if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+        if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado') && !$request->getParam('sumaValorizadoSin')) {
             $filterStock = $request->getParam('filter')['stock'];
             if ($filterStock == 'mayor') {
                 $select .= " HAVING stock > 0";
@@ -1916,7 +1934,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $descuento = $producto['descuento'];
             $fechaAlquilerInicio = isset($producto['FechaAlquilerInicio']) ? $producto['FechaAlquilerInicio'] : (isset($producto['FechaAlquiler']) ? $producto['FechaAlquiler'] : null);
             $fechaAlquilerFin = isset($producto['FechaAlquilerFin']) ? $producto['FechaAlquilerFin'] : getNow();
-            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : null;
+            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : '';
             $esManoDeObra = isset($producto['EsManoDeObra']) ? $producto['EsManoDeObra'] : 0;
 
 
