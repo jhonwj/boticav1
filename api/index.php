@@ -783,7 +783,7 @@ $app->post('/productos', function (Request $request, Response $response) {
                 $insertDetId = $insertDet->execute();
             }
         }
-        return $response->withJson(array("affectedRows" => $productosDet));
+        return $response->withJson(array("insertId" => $idProducto));
     }
     // Fin actualizacion producto
 
@@ -838,6 +838,26 @@ $app->post('/productos', function (Request $request, Response $response) {
 
     return $response->withJson(array("insertId" => $insertId));
 
+});
+
+$app->post('/producto/imagen/{id}', function (Request $request, Response $response, array $args) {
+
+    $nombreImagen   = $_FILES['imagen']['name'];
+    $archivo        = $_FILES['imagen']['tmp_name'];
+    $ruta           = '../resources/images/productos';
+    $extension      = end(explode('.', $nombreImagen));
+    
+    $nombreImagen = time() . '.' . $extension;
+    $ruta = $ruta . '/' . $nombreImagen;
+    
+    move_uploaded_file($archivo, $ruta);
+    
+    $select = "UPDATE Gen_Producto SET Imagen='$nombreImagen' WHERE IdProducto=$args[id]";
+
+    $stmt = $this->db->prepare($select);
+    $data = $stmt->execute();
+
+    return $response->withJson(array("insertId" => $args[id]));
 });
 
 
