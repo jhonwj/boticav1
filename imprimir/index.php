@@ -70,7 +70,7 @@ if (isset($_GET['IdDocVenta'])) {
     $movimientoDet = mysqli_fetch_all($resultDet, MYSQLI_ASSOC);
     //var_dump($movimiento);
     //var_dump($movimientoDet);
-    include_once('remision.php');
+    include_once('remisionticket.php');
 
 ?>
 <script>

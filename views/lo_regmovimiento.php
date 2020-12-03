@@ -22,9 +22,9 @@ $(document).ready(function(e){
         var tableBody = "";
         $.each(respuesta, function(data, value){
           var btnImprimir = ''
-          if (value.Tipo == "1" || value.Tipo == "2") {
+          // if (value.Tipo == "1" || value.Tipo == "2") {
             btnImprimir = "<a class='btn' href='/imprimir/index.php?hashMovimiento="+ value.IdMovimiento +"'><i class='fa fa-print'></i></a>"
-          }
+          // }
 
           console.log(data)
           console.log(value)
@@ -119,10 +119,10 @@ $("#tableRegMov tbody").on("click", "tr", function(e){
           // "</td><td>"+value.PrecioContado+
           "</td><td>"+value.ProductoMedicion+
           "</td><td>"+value.Cantidad+
-          "</td><td>"+igv+
+          "</td><td>"+igv.toFixed(2)+
           // "</td><td>"+value.ISC+
-          "</td><td>"+value.Precio+
-          "</td><td>"+totalGeneral.toFixed(2)+
+          "</td><td>"+parseFloat(value.Precio).toFixed(2)+
+          "</td><td>"+parseFloat(totalGeneral).toFixed(2)+
           "</td></tr>";
           $("#tableProducto tbody").append(fila);
         });

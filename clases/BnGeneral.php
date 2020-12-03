@@ -127,8 +127,10 @@ Ve_DocVentaDet.FechaAlquilerInicio,
 Ve_DocVentaDet.FechaAlquilerFin,
 Ve_DocVentaDet.Descripcion,
 Ve_DocVentaDet.Descuento,
+Ve_DocVentaDet.EsManoDeObra,
 Gen_Producto.ProductoDesc,
 Gen_Producto.Producto,
+Gen_Producto.CodigoBarra,
 Ve_DocVentaDet.Cantidad,
 Ve_DocVentaDet.Precio,
 Round(Ve_DocVentaDet.Cantidad*
@@ -891,8 +893,9 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 
 
 	function fn_devolverMovimiento($hash) {
-		$Ssql = "SELECT Lo_Movimiento.*, Ve_DocVenta.Serie AS DocVentaSerie, Ve_DocVenta.Numero as DocVentaNumero FROM Lo_Movimiento 
+		$Ssql = "SELECT Lo_Movimiento.*, Gen_Moneda.Simbolo AS Moneda, Ve_DocVenta.Serie AS DocVentaSerie, Ve_DocVenta.Numero as DocVentaNumero FROM Lo_Movimiento 
 		LEFT JOIN Ve_DocVenta ON Lo_Movimiento.IdDocVenta = Ve_DocVenta.idDocVenta
+		LEFT JOIN Gen_Moneda ON Lo_Movimiento.Moneda = Gen_Moneda.Moneda
 		WHERE Lo_Movimiento.Hash='$hash';";
 		return getSQLResultSet($Ssql);
 	}

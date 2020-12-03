@@ -132,33 +132,48 @@ if ($docVenta['CampoDireccion']) {
       </thead>
       <tbody>
         <?php
+        $sumManoDeObra = 0;
+        foreach ($productos as $key => $producto) {
+          if ($producto['EsManoDeObra']) {
+            $sumManoDeObra += $producto['TOTAL'];
+          }
+        }
+
         $filas = 0;
         foreach ($productos as $key => $producto) { ?>
-          <tr>
-            <td class="cantidad">
-              <span><?php echo $producto['Cantidad']; ?></span>
-            </td>
-            <td class="producto">
-              <?php if($producto['Descripcion']) : ?>
-              <span>
-              <?php echo $producto['Descripcion'] . ' (Desde: ' .
-                date("Y-m-d", strtotime($producto['FechaAlquilerInicio'])) . ', Hasta: ' . date("Y-m-d", strtotime($producto['FechaAlquilerFin'])) . ')' ?>
-              </span>
-              <?php else : ?>
-              <span><?php echo $producto['Producto'] ?></span>
-              <?php endif; ?>
-            </td>
-            <!--<td class="precio">
-              <span>S/.<?php echo $producto['Precio'] ?></span>
-            </td>-->
-            <td class="text-right">
-              <span>S/.<?php echo $producto['TOTAL'] ?></span>
-            </td>
-          </tr>
-          <?php
-          $filas += 1;
-          $totalDescuento += floatval($producto['Descuento']);
-          $total += floatval($producto['TOTAL']);
+          <?php if (empty($producto['EsManoDeObra'])) : ?>
+            <tr>
+              <td class="cantidad">
+                <span><?php echo $producto['Cantidad']; ?></span>
+              </td>
+              <td class="producto">
+                <?php if($producto['Descripcion']) : ?>
+                <span>
+                <?php echo $producto['Descripcion'] . ' (Desde: ' .
+                  date("Y-m-d", strtotime($producto['FechaAlquilerInicio'])) . ', Hasta: ' . date("Y-m-d", strtotime($producto['FechaAlquilerFin'])) . ')' ?>
+                </span>
+                <?php else : ?>
+                <span><?php echo $producto['Producto'] ?></span>
+                <?php endif; ?>
+              </td>
+              <!--<td class="precio">
+                <span>S/.<?php echo $producto['Precio'] ?></span>
+              </td>-->
+              <td class="text-right">
+                <?php 
+                  if ($producto['CodigoBarra'] === "MANODEOBRA") {
+                    $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
+                  }
+                ?>
+                <span>S/.<?php echo $producto['TOTAL']; ?></span>
+              </td>
+            </tr>
+            <?php
+            $filas += 1;
+            $totalDescuento += floatval($producto['Descuento']);
+            $total += floatval($producto['TOTAL']);
+          
+          endif;
         }
 
         if ($tieneIgv) {

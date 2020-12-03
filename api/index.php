@@ -964,7 +964,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $precio = $producto['precio'];
             $nuevoPrecioContado = $producto['nuevoPrecioContado'];
             $idLote = isset($producto['IdLote']) ? $producto['IdLote'] : 0;
-            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : NULL;
+            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : '';
 
             $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote', 'Descripcion'))
             ->into('Lo_MovimientoDetalle')
@@ -974,6 +974,17 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             // start actualizar precioventa producto
             $alterarProductos = $request->getParam('movimiento')['alterarProductos'];
             if ($alterarProductos) {
+
+                if ($request->getParam('movimiento')['Moneda'] === 'USD') {
+                    $select = "SELECT * FROM Gen_Moneda WHERE Moneda='USD'";
+                    $stmt = $this->db->query($select);
+                    $stmt->execute();
+                    $moneda = $stmt->fetch();
+
+                    $precio *= $moneda['TipoCambio'];
+                    $nuevoPrecioContado *= $moneda['TipoCambio'];
+                }
+
                 $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
                                    ->table('Gen_Producto')
                                    ->where('IdProducto', '=', $idProducto);
@@ -1091,12 +1102,14 @@ $app->get('/consultarRUC', function (Request $request, Response $response, array
 
 function stringIngresoUndProducto($idProducto, $idAlmacen, $fechaHasta) {
     $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    Gen_Moneda.Simbolo AS Moneda,
     Lo_MovimientoDetalle.Cantidad AS IngresoCantidad, Lo_MovimientoDetalle.Precio AS IngresoPrecio,
     '0' AS SalidaCantidad, '0' AS SalidaPrecio,
     '0' AS Descuento FROM Lo_Movimiento
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
         LEFT JOIN Lo_Proveedor ON Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
+        LEFT JOIN Gen_Moneda ON Lo_Movimiento.Moneda = Gen_Moneda.Moneda
         WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
             AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
@@ -1105,6 +1118,7 @@ function stringIngresoUndProducto($idProducto, $idAlmacen, $fechaHasta) {
 }
 function stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
     $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    'S/' AS Moneda,
     '0' AS IngresoCantidad, '0' AS IngresoPrecio,
     Lo_MovimientoDetalle.Cantidad as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio,
     '0' AS Descuento FROM Lo_Movimiento
@@ -1120,6 +1134,7 @@ function stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
 function stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
     $select = "(SELECT Ve_DocVenta.FechaDoc AS Fecha, CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
     Ve_DocVentaCliente.Cliente AS Nombres,
+    'S/' AS Moneda,
     '0' AS IngresoCantidad, '0' AS IngresoPrecio,
     Ve_DocVentaDet.Cantidad as SalidaCantidad, Ve_DocVentaDet.Precio AS SalidaPrecio,
     Ve_DocVentaDet.Descuento FROM Ve_DocVenta
@@ -1384,6 +1399,36 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
             LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
             LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
+    }  else if ($request->getParam('sumaValorizadoSin')) {
+        $select = "SELECT
+            SUM(Gen_Producto.PrecioCosto * (IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0))) AS sumaValorizadoSin
+
+            FROM Gen_Producto
+                FROM Gen_Producto 
+            FROM Gen_Producto
+                FROM Gen_Producto 
+            FROM Gen_Producto
+                FROM Gen_Producto 
+            FROM Gen_Producto
+                FROM Gen_Producto 
+            FROM Gen_Producto
+            INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+            INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+            INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+            LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
+            LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
+            LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
+            LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
+            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+            LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     } else {
         $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
             Gen_ProductoMedicion.ProductoMedicion,
@@ -1438,13 +1483,13 @@ $app->get('/productos/stock', function (Request $request, Response $response, ar
 
     $select .= "AND Gen_Producto.ControlaStock=1 ";
 
-    if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+    if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado') && !$request->getParam('sumaValorizadoSin')) {
         $filterMinimo = $request->getParam('filter')['minimo'];
         if ($filterMinimo) {
             $select .= " HAVING stock <= Gen_Producto.StockMinimo";
         }
     } else {
-        if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado')) {
+        if (isset($request->getParam('filter')['stock']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado') && !$request->getParam('sumaValorizadoSin')) {
             $filterStock = $request->getParam('filter')['stock'];
             if ($filterStock == 'mayor') {
                 $select .= " HAVING stock > 0";
@@ -1936,12 +1981,13 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $descuento = $producto['descuento'];
             $fechaAlquilerInicio = isset($producto['FechaAlquilerInicio']) ? $producto['FechaAlquilerInicio'] : (isset($producto['FechaAlquiler']) ? $producto['FechaAlquiler'] : null);
             $fechaAlquilerFin = isset($producto['FechaAlquilerFin']) ? $producto['FechaAlquilerFin'] : getNow();
-            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : null;
+            $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : '';
+            $esManoDeObra = isset($producto['EsManoDeObra']) ? $producto['EsManoDeObra'] : 0;
 
 
-            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento', 'FechaAlquilerFin', 'Descripcion', 'FechaAlquilerInicio'))
+            $insert = $this->db->insert(array('IdDocVenta', 'IdProducto', 'Cantidad', 'Precio', 'Descuento', 'FechaAlquilerFin', 'Descripcion', 'FechaAlquilerInicio', 'EsManoDeObra'))
                 ->into('Ve_DocVentaDet')
-                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento, $fechaAlquilerFin, $descripcion, $fechaAlquilerInicio ));
+                ->values(array($idDocVenta, $idProducto, $cantidad, $precio, $descuento, $fechaAlquilerFin, $descripcion, $fechaAlquilerInicio, $esManoDeObra ));
 
             $insert->execute();
             $descuentoTotal += $descuento;
@@ -2221,9 +2267,9 @@ $app->post('/preorden/detalle', function (Request $request, Response $response, 
 
         foreach($productos as $prod) {
             if ($prod['IdProducto'] != $idHabitacion) {
-                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad'))
+                $insertDet = $this->db->insert(array('IdPreOrden', 'IdProducto', 'Cantidad', 'Precio'))
                                     ->into('Ve_PreOrdenDet')
-                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad']));
+                                    ->values(array($idPreOrden, $prod['IdProducto'], $prod['Cantidad'], $prod['Precio']));
                 $insertDetId = $insertDet->execute();
             }
         }
@@ -2261,7 +2307,7 @@ $app->get('/preorden', function (Request $request, Response $response) {
 $app->get('/preorden/detalle', function (Request $request, Response $response) {
     $idPreOrden = $request->getParam('idPreOrden');
 
-    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet
+    $select = "SELECT Ve_PreOrdenDet.Cantidad, Gen_Producto.*, IFNULL(Ve_PreOrdenDet.Precio, Gen_Producto.PrecioContado) AS Precio, Ve_PreOrdenDet.IdPreOrden FROM Ve_PreOrdenDet
         INNER JOIN Gen_Producto ON Ve_PreOrdenDet.IdProducto = Gen_Producto.IdProducto
         WHERE Ve_PreOrdenDet.IdPreOrden=$idPreOrden";
 
