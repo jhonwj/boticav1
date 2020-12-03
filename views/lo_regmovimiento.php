@@ -22,9 +22,9 @@ $(document).ready(function(e){
         var tableBody = "";
         $.each(respuesta, function(data, value){
           var btnImprimir = ''
-          if (value.Tipo == "1" || value.Tipo == "2") {
+          // if (value.Tipo == "1" || value.Tipo == "2") {
             btnImprimir = "<a class='btn' href='/imprimir/index.php?hashMovimiento="+ value.IdMovimiento +"'><i class='fa fa-print'></i></a>"
-          }
+          // }
 
           console.log(data)
           console.log(value)
