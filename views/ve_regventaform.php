@@ -74,7 +74,7 @@ $(document).ready(function(e){
 
 	$("#btnExcel").click(function(){
 		//window.location.href="reporteExcel5.php?fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked");
-		window.open("/api/index.php/reporte/ventas?idAlmacen=1&fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0));
+		window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0));
 	});
 
 });
