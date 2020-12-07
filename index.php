@@ -146,7 +146,7 @@ body:before {
         success: function(res){
             res = $.parseJSON(res);
             if (res.isLogin) {
-              window.location = "/views/Gen_ProductoForm.php";
+              window.location = "/views/V_VentaForm.php";
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
