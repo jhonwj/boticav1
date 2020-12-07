@@ -940,7 +940,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     $esCredito = $request->getParam('movimiento')['EsCredito'];
     $fechaVenCredito = $request->getParam('movimiento')['FechaVenCredito'] ? $request->getParam('movimiento')['FechaVenCredito'] : NULL;
     $fechaPeriodoTributario = $request->getParam('movimiento')['FechaPeriodoTributario'];
-    $tipoCambio = $request->getParam('movimiento')['TipoCambio'];
+    $tipoCambio = $request->getParam('movimiento')['TipoCambio'] ? $request->getParam('movimiento')['TipoCambio'] : 1;
     $moneda = $request->getParam('movimiento')['Moneda'];
 
     $insert = $this->db->insert(array('IdMovimientoTipo', 'IdProveedor', 'Serie', 'Numero', 'MovimientoFecha', 'IdAlmacenOrigen',
@@ -979,15 +979,18 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $alterarProductos = $request->getParam('movimiento')['alterarProductos'];
             if ($alterarProductos) {
 
-                if ($request->getParam('movimiento')['Moneda'] === 'USD') {
-                    $select = "SELECT * FROM Gen_Moneda WHERE Moneda='USD'";
-                    $stmt = $this->db->query($select);
-                    $stmt->execute();
-                    $moneda = $stmt->fetch();
+                // if ($request->getParam('movimiento')['Moneda'] === 'USD') {
+                //     $select = "SELECT * FROM Gen_Moneda WHERE Moneda='USD'";
+                //     $stmt = $this->db->query($select);
+                //     $stmt->execute();
+                //     $moneda = $stmt->fetch();
 
-                    $precio *= $moneda['TipoCambio'];
-                    $nuevoPrecioContado *= $moneda['TipoCambio'];
-                }
+                //     $precio *= $moneda['TipoCambio'];
+                //     $nuevoPrecioContado *= $moneda['TipoCambio'];
+                // }
+
+                $precio *= $tipoCambio;
+                $nuevoPrecioContado *= $tipoCambio;
 
                 $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
                                    ->table('Gen_Producto')
