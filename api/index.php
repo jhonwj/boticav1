@@ -730,6 +730,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $esPadre = $request->getParam('EsPadre');
     $stockMinimo = $request->getParam('StockMinimo');
     $codigoBarra = $request->getParam('CodigoBarra');
+    $precioPorMayor = $request->getParam('PrecioPorMayor') ? $request->getParam('PrecioPorMayor') : null;
     $esHabitacion = $request->getParam('EsHabitacion');
     $piso = $request->getParam('Piso');
     $controlaStock = $request->getParam('ControlaStock') ? $request->getParam('ControlaStock') : 0;
@@ -743,6 +744,7 @@ $app->post('/productos', function (Request $request, Response $response) {
         // aqui se actualiza el producto si existe
         $idProducto = $request->getParam('IdProducto');
         // $codigoBarra = $request->getParam('CodigoBarra');
+        $precioConvenio = $request->getParam('precioConvenio');
 
 
 
@@ -761,9 +763,11 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "ProductoModelo" => $productoModelo,
                             "PrecioCosto" => $precioCosto,
                             "PrecioContado" => $precioContado,
+                            "precioConvenio" => $precioConvenio,
                             "ProductoPresentacion" => $productoPresentacion,
                             "EsPadre" => $esPadre,
                             "StockMinimo" => $stockMinimo,
+                            "PrecioPorMayor" => $precioPorMayor,
                             "EsHabitacion" => $esHabitacion,
                             "Piso" => $piso
                         ))
@@ -807,9 +811,9 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'precioConvenio', 'PrecioPorMayor', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $precioConvenio, $precioPorMayor, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso));
     $insertId = $insert->execute();
 
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -2742,6 +2746,17 @@ $app->get('/usuarios/{usuario}', function (Request $request, Response $response,
     $select = "SELECT * FROM Seg_Usuario WHERE (Anulado != 1 OR Anulado IS NULL)";
     $select .= " AND Seg_Usuario.Usuario = '$args[usuario]' ";
 
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+$app->get('/clientes/{dni}', function (Request $request, Response $response, array $args) {
+    $select = "SELECT * FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
+    $select .= " AND Ve_DocVentaCliente.DniRuc = '" . $args[dni] . "' LIMIT 1";
+    
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetch();
