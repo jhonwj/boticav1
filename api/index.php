@@ -990,7 +990,7 @@ $app->post('/movimientos', function (Request $request, Response $response) {
                 // }
 
                 $precio *= $tipoCambio;
-                $nuevoPrecioContado *= $tipoCambio;
+                // $nuevoPrecioContado *= $tipoCambio;
 
                 $update = $this->db->update(array("PrecioCosto" => $precio, "PrecioContado" => $nuevoPrecioContado))
                                    ->table('Gen_Producto')
