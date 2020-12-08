@@ -2449,6 +2449,17 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
     return $response->withJson($data);
 });
 
+$app->get('/cliente/pagos', function (Request $request, Response $response, array $args) {
+    $idCliente = $request->getParam('idCliente');
+    $select = "SELECT * FROM Cb_CajaBanco WHERE IdCliente=$idCliente AND EsDelVendedor=1 ORDER BY Cb_CajaBanco.FechaDoc DESC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
 $app->get('/clientes/deuda/count', function (Request $request, Response $response, array $args) {
     $select = "SELECT COUNT(*) as total
         FROM Ve_DocVenta
@@ -2474,6 +2485,44 @@ $app->get('/clientes/deuda/count', function (Request $request, Response $respons
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     return $response->withJson($data);
+});
+
+$app->post('/cliente/deudas/pagar', function (Request $request, Response $response) {
+    $cajaBanco = $request->getParam('cajaBanco');
+    $documentos = $request->getParam('documentos');
+    $vendedor = 'xx';
+    if(isset($_SESSION['user'])) {
+        $vendedor = $_SESSION['user'];
+    }
+    $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
+
+    $importe = 0;
+    foreach($documentos as $doc) {
+        if (isset($doc['aplicar']) && $doc['aplicar'] > 0) {
+            $importe += $doc['aplicar'];
+        }
+    }
+
+    if ($importe > 0) {
+        $insert = $this->db->insert(array('IdTipoCajaBanco', 'IdCuenta', 'FechaDoc', 'Concepto', 'Importe', 'Anulado', 'UsuarioReg', 'IdCliente', 'EsDelVendedor'))
+                        ->into('Cb_CajaBanco')
+                        ->values(array(2, 1, getNow(), $cajaBanco['Concepto'], $importe, '0', $usuarioReg, $cajaBanco['cliente']['IdCliente'], 1));
+
+        $insertId = $insert->execute();
+        foreach($documentos as $doc) {
+            if (isset($doc['aplicar']) && $doc['aplicar'] > 0) {
+                $insertDet = $this->db->insert(array('IdCajaBanco', 'IdDocDet', 'Importe', 'Tipo'))
+                    ->into('Cb_CajaBancoDet')
+                    ->values(array($insertId, $doc['IdDocVenta'], $doc['aplicar'], 'VE'));
+                $insertDetId = $insertDet->execute();
+            }
+        }
+
+        return $response->withJson(array(
+            "idCajaBanco" => $insertId
+        ));
+    }
+
 });
 
 $app->get('/proveedores/deuda/count', function (Request $request, Response $response, array $args) {
