@@ -2202,7 +2202,9 @@ $app->get('/proformas/count', function (Request $request, Response $response, ar
 $app->get('/proformas/detalle', function (Request $request, Response $response) {
     $idProforma = $request->getParam('idProforma');
 
-    $select = "SELECT * FROM Ve_ProformaDet WHERE IdProforma=$idProforma";
+    $select = "SELECT Ve_ProformaDet.*, Gen_Producto.Producto FROM Ve_ProformaDet 
+        INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto     
+        WHERE IdProforma=$idProforma ";
     // $select = "SELECT * FROM Ve_ProformaDet AS proDet JOIN Ve_Proforma AS pro WHERE IdProforma=$idProforma";
     
     $stmt = $this->db->query($select);
@@ -2245,12 +2247,46 @@ $app->post('/preorden/cajaybanco', function (Request $request, Response $respons
     }
 });
 
+$app->post('/preorden/cajaybanco/gasto', function (Request $request, Response $response, array $args) {
+    $idPreOrden = $request->getParam('IdPreOrden');
+    $idHabitacion = $request->getParam('IdHabitacion');
+    $gasto = $request->getParam('Gasto');
+    $producto = $request->getParam('producto');
+    $concepto = $request->getParam('concepto');
+    $usuario = $request->getParam('Usuario');
+
+    $vendedor = 'xx';
+    if(isset($_SESSION['User'])) {
+        $vendedor = $_SESSION['User'];
+    }
+    $usuarioReg = isset($usuario) ? $request->getParam('Usuario') : $vendedor;
+
+    if ($idPreOrden) {
+        $insert = "INSERT INTO Cb_CajaBanco (IdTipoCajaBanco, IdCuenta, FechaDoc, Concepto, Importe, Anulado, IdProveedor, IdCliente, EsDelVendedor, IdPreOrden, UsuarioReg) VALUES (3, 1, '" . getNow() . "', '$concepto', $gasto, 0, 0, $producto[IdCliente], 1, $idPreOrden, '$usuarioReg')";
+        
+        $stmt = $this->db->prepare($insert);
+        $inserted = $stmt->execute();
+        $idCajaBanco = $this->db->lastInsertId();
+        if ($idCajaBanco) {
+            $select = "SELECT * FROM Cb_CajaBanco where IdCajaBanco=$idCajaBanco";
+
+            $stmt = $this->db->query($select);
+            $stmt->execute();
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $response->withJson($data);
+        }
+    }
+});
+
 
 $app->get('/preorden/cajaybanco', function (Request $request, Response $response, array $args) {
     $idPreOrden = $request->getParam('IdPreOrden');
 
     if ($idPreOrden) {
-        $select = "SELECT * FROM Cb_CajaBanco where IdPreOrden=$idPreOrden";
+        $select = "SELECT Cb_CajaBanco.*, Cb_TipoCajaBanco.Tipo FROM Cb_CajaBanco 
+            INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco=Cb_TipoCajaBanco.IdTipoCajaBanco
+            WHERE IdPreOrden=$idPreOrden ";
 
         $stmt = $this->db->query($select);
         $stmt->execute();
