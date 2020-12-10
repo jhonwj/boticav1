@@ -179,6 +179,9 @@ foreach ($movimientoDet as $key => $producto) {
       </tbody>
     </table>
     <br />
+    <div style="text-transform: uppercase;">
+        Usuario: <?= $movimiento['UsuarioReg'] ?>
+    </div>
     <!--<span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total - $totalDescuento, 2, '.', ''),'SOLES',true, 'asd')); ?></span>
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
