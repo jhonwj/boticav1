@@ -970,6 +970,10 @@ $app->post('/movimientos', function (Request $request, Response $response) {
             $idLote = isset($producto['IdLote']) ? $producto['IdLote'] : 0;
             $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : '';
 
+            if ($tieneIgv === 1) {
+                $precio += $precio * 0.18;
+            }
+
             $insert = $this->db->insert(array('hashMovimiento', 'IdProducto', 'Cantidad', 'TieneIgv', 'Precio', 'IdLote', 'Descripcion'))
             ->into('Lo_MovimientoDetalle')
             ->values(array($hash, $idProducto, $cantidad, $tieneIgv, $precio, $idLote, $descripcion));
