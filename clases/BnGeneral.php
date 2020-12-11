@@ -961,4 +961,11 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		$Ssql = "SELECT Numero, Anio FROM Ve_Proforma WHERE Anio='" . date("Y") . "' ORDER BY Numero DESC LIMIT 1";
 		return getSQLResultSet($Ssql);
 	}
+
+	function fn_devolverCajaBanco($idCajaBanco) {
+		$Ssql = "SELECT Cb_CajaBanco.*, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion FROM Cb_CajaBanco 
+			INNER JOIN Ve_DocVentaCliente ON Cb_CajaBanco.IdCliente = Ve_DocVentaCliente.IdCliente
+			WHERE IdCajaBanco=$idCajaBanco";
+		return getSQLResultSet($Ssql);
+	}
  ?>
