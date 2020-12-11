@@ -124,8 +124,16 @@ $igv = 0;
       </thead>
       <tbody>
         <?php
+        $sumManoDeObra = 0;
+        foreach ($productos as $key => $producto) {
+          if ($producto['EsManoDeObra']) {
+            $sumManoDeObra += $producto['TOTAL'];
+          }
+        }
+
         $filas = 0;
         foreach ($productos as $key => $producto) { ?>
+        <?php if (empty($producto['EsManoDeObra'])) : ?>
           <tr>
             <td class="cantidad">
               <span><?php echo $producto['Cantidad']; ?></span>
@@ -137,6 +145,11 @@ $igv = 0;
               <span>S/.<?php echo $producto['Precio'] ?></span>
             </td>-->
             <td class="text-right">
+              <?php 
+                if ($producto['CodigoBarra'] === "MANODEOBRA") {
+                  $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
+                }
+              ?>
               <span>S/.<?php echo $producto['TOTAL'] ?></span>
             </td>
           </tr>
@@ -144,6 +157,8 @@ $igv = 0;
           $filas += 1;
           $totalDescuento += floatval($producto['Descuento']);
           $total += floatval($producto['TOTAL']);
+
+          endif;
         }
 
         if ($tieneIgv) {
