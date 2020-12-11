@@ -149,8 +149,7 @@ if ($docVenta['CampoDireccion']) {
               <td class="producto">
                 <?php if($producto['Descripcion']) : ?>
                 <span>
-                <?php echo $producto['Descripcion'] . ' (Desde: ' .
-                  date("Y-m-d", strtotime($producto['FechaAlquilerInicio'])) . ', Hasta: ' . date("Y-m-d", strtotime($producto['FechaAlquilerFin'])) . ')' ?>
+                <?php echo $producto['Producto'] . ' (' . $producto['Descripcion'] . ') ' ?>
                 </span>
                 <?php else : ?>
                 <span><?php echo $producto['Producto'] ?></span>
