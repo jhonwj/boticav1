@@ -1010,6 +1010,16 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     return $response->withJson($data);
 });
 
+$app->post('/movimientos/granTotal/{id}', function (Request $request, Response $response, array $args) {
+
+    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden = $args[id]";
+
+    $stmt = $this->db->prepare($select);
+    $data = $stmt->execute();
+
+    return $response->withJson(array("insertId" => $args[id]));
+});
+
 
 
 $app->get('/monedas', function (Request $request, Response $response, array $args) {
