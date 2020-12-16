@@ -739,6 +739,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
     $precioContado = $request->getParam('PrecioContado') ? $request->getParam('PrecioContado') : 0;
 
+    $preciosPorProducto = json_encode($request->getParam('PreciosPorProducto'));
+
     // Actualizamos el producto si le pasamos el ID
     if ($request->getParam('IdProducto')) {
         // aqui se actualiza el producto si existe
@@ -769,7 +771,8 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "StockMinimo" => $stockMinimo,
                             "PrecioPorMayor" => $precioPorMayor,
                             "EsHabitacion" => $esHabitacion,
-                            "Piso" => $piso
+                            "Piso" => $piso,
+                            "PreciosPorProducto" => $preciosPorProducto
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
@@ -811,9 +814,9 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'precioConvenio', 'PrecioPorMayor', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'precioConvenio', 'PrecioPorMayor', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso', 'PreciosPorProducto'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $precioConvenio, $precioPorMayor, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $precioConvenio, $precioPorMayor, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso, $preciosPorProducto));
     $insertId = $insert->execute();
 
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -861,7 +864,7 @@ $app->post('/producto/imagen/{id}', function (Request $request, Response $respon
     $stmt = $this->db->prepare($select);
     $data = $stmt->execute();
 
-    return $response->withJson(array("insertId" => $args[id]));
+    return $response->withJson(array("insertId" => $args['id']));
 });
 
 
