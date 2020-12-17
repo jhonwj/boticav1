@@ -853,13 +853,13 @@ $app->post('/producto/imagen/{id}', function (Request $request, Response $respon
     $archivo        = $_FILES['imagen']['tmp_name'];
     $ruta           = '../resources/images/productos';
     $extension      = end(explode('.', $nombreImagen));
-    
+
     $nombreImagen = time() . '.' . $extension;
     $ruta = $ruta . '/' . $nombreImagen;
     
     move_uploaded_file($archivo, $ruta);
     
-    $select = "UPDATE Gen_Producto SET Imagen='$nombreImagen' WHERE IdProducto=$args[id]";
+    $select = "UPDATE Gen_Producto SET Imagen='$nombreImagen' WHERE IdProducto='$args[id]'";
 
     $stmt = $this->db->prepare($select);
     $data = $stmt->execute();
@@ -1013,14 +1013,21 @@ $app->post('/movimientos', function (Request $request, Response $response) {
     return $response->withJson($data);
 });
 
-$app->post('/movimientos/granTotal/{id}', function (Request $request, Response $response, array $args) {
+$app->get('/movimientos/granTotal', function (Request $request, Response $response) {
 
-    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden = $args[id]";
+    $IdPreOrden = $request->getParam('idPreOrden');
 
-    $stmt = $this->db->prepare($select);
-    $data = $stmt->execute();
+    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden = $IdPreOrden";
+    // var_dump($select); exit();
 
-    return $response->withJson(array("insertId" => $args[id]));
+    // $stmt = $this->db->prepare($select);
+    // $data = $stmt->execute();
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
 });
 
 
@@ -2219,9 +2226,10 @@ $app->get('/proformas/count', function (Request $request, Response $response, ar
 $app->get('/proformas/detalle', function (Request $request, Response $response) {
     $idProforma = $request->getParam('idProforma');
 
-    $select = "SELECT Ve_ProformaDet.*, Gen_Producto.Producto FROM Ve_ProformaDet 
-        INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto     
-        WHERE IdProforma=$idProforma ";
+    $select = "SELECT * FROM Ve_ProformaDet WHERE IdProforma=$idProforma";
+    // $select = "SELECT Ve_ProformaDet.*, Gen_Producto.Producto FROM Ve_ProformaDet 
+    //     INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto     
+    //     WHERE IdProforma=$idProforma ";
     // $select = "SELECT * FROM Ve_ProformaDet AS proDet JOIN Ve_Proforma AS pro WHERE IdProforma=$idProforma";
     
     $stmt = $this->db->query($select);
