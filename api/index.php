@@ -848,7 +848,11 @@ $app->post('/productos', function (Request $request, Response $response) {
 });
 
 $app->post('/producto/imagen/{id}', function (Request $request, Response $response, array $args) {
-
+    
+    if( empty($_FILES) ) {
+        return;
+    }
+    
     $nombreImagen   = $_FILES['imagen']['name'];
     $archivo        = $_FILES['imagen']['tmp_name'];
     $ruta           = '../resources/images/productos';
@@ -1017,11 +1021,8 @@ $app->get('/movimientos/granTotal', function (Request $request, Response $respon
 
     $IdPreOrden = $request->getParam('idPreOrden');
 
-    $select = "SELECT * FROM Ve_PreOrdenDet WHERE IdPreOrden = $IdPreOrden";
-    // var_dump($select); exit();
-
-    // $stmt = $this->db->prepare($select);
-    // $data = $stmt->execute();
+    // $select = "SELECT IdPreOrden, SUM(Cantidad * Precio) AS granTotal FROM Ve_PreOrdenDet WHERE IdPreOrden = $IdPreOrden";
+    $select = "SELECT IdPreOrden, SUM(Cantidad * Precio) AS granTotal FROM Ve_PreOrdenDet WHERE IdPreOrden = $IdPreOrden";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
