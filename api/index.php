@@ -796,8 +796,11 @@ $app->post('/productos', function (Request $request, Response $response) {
 
     // Inicio verificar Producto
     $select = "SELECT * FROM Gen_Producto
-        WHERE Producto = '" . $producto
-        . "' OR CodigoBarra = '" . $codigoBarra . "'";
+        WHERE Producto = '" . $producto . "'";
+    
+    if ($codigoBarra) { 
+        $select .= " OR CodigoBarra = '" . $codigoBarra . "'";
+    }
 
     $stmt = $this->db->query($select);
     $prod = $stmt->fetch();
