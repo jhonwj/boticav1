@@ -529,12 +529,33 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
 /* NEUROSOFT */
 $app->get('/habitaciones', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
-        Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente
+        Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente,
+        -- Ve_PreOrdenTotal.granTotal, Cb_CajaBancoAdelanto.sumAdelanto, Cb_CajaBancoGasto.sumGasto 
+        (Ve_PreOrdenTotal.granTotal - Cb_CajaBancoAdelanto.sumAdelanto + Cb_CajaBancoGasto.sumGasto) AS granTotalCalculado 
         FROM Gen_Producto
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
-        LEFT JOIN Ve_DocVentaCliente ON Gen_Producto.IdClienteReserva = Ve_DocVentaCliente.IdCliente ";
+        LEFT JOIN Ve_DocVentaCliente ON Gen_Producto.IdClienteReserva = Ve_DocVentaCliente.IdCliente
+        LEFT JOIN (
+            SELECT Ve_PreOrdenDet.IdPreOrden, SUM(Ve_PreOrdenDet.Cantidad * Ve_PreOrdenDet.Precio) AS granTotal 
+            FROM Ve_PreOrdenDet, Gen_Producto 
+            WHERE Ve_PreOrdenDet.IdPreOrden = Gen_Producto.IdPreOrden GROUP BY Ve_PreOrdenDet.IdPreOrden
+        ) Ve_PreOrdenTotal ON Ve_PreOrdenTotal.IdPreOrden = Gen_Producto.IdPreOrden
+        LEFT JOIN (
+            SELECT Cb_CajaBanco.IdCajaBanco, Cb_CajaBanco.IdPreOrden, SUM(Cb_CajaBanco.Importe) AS sumAdelanto 
+            FROM Gen_Producto, Cb_CajaBanco  
+            INNER JOIN Cb_TipoCajaBanco ON Cb_TipoCajaBanco.IdTipoCajaBanco = Cb_CajaBanco.IdTipoCajaBanco 
+            WHERE Cb_TipoCajaBanco.Tipo = 0 AND Cb_CajaBanco.IdPreOrden = Gen_Producto.IdPreOrden 
+            GROUP BY Cb_CajaBanco.IdPreOrden
+        ) Cb_CajaBancoAdelanto ON Cb_CajaBancoAdelanto.IdPreOrden = Gen_Producto.IdPreOrden
+        LEFT JOIN (
+            SELECT Cb_CajaBanco.IdCajaBanco, Cb_CajaBanco.IdPreOrden, SUM(Cb_CajaBanco.Importe) AS sumGasto 
+            FROM Gen_Producto, Cb_CajaBanco  
+            INNER JOIN Cb_TipoCajaBanco ON Cb_TipoCajaBanco.IdTipoCajaBanco = Cb_CajaBanco.IdTipoCajaBanco 
+            WHERE Cb_TipoCajaBanco.Tipo = 1 AND Cb_CajaBanco.IdPreOrden = Gen_Producto.IdPreOrden 
+            GROUP BY Cb_CajaBanco.IdPreOrden
+        ) Cb_CajaBancoGasto ON Cb_CajaBancoGasto.IdPreOrden = Gen_Producto.IdPreOrden";
 
         $select .= " WHERE Gen_Producto.Anulado=0 AND Gen_Producto.EsHabitacion=1";
 
