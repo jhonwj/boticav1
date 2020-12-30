@@ -465,7 +465,7 @@ $app->get('/productos', function (Request $request, Response $response, array $a
         $select .= " ORDER BY " . $sortBy . " " . $orientation;
     }
 
-    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  20;
     if ($limit) {
         $offset = 0;
         if ($request->getParam('page')) {
@@ -1394,10 +1394,14 @@ $app->get('/productos/stock/salidas', function (Request $request, Response $resp
 
 
 
-$app->get('/productos/stock', function (Request $request, Response $response, array $args) {
+$app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response $response, array $args) {
 
     $idAlmacen = $request->getParam('idAlmacen');
     $fechaHasta = $request->getParam('fechaHasta') ? $request->getParam('fechaHasta') : getNow();
+
+    if(isset($args['idAlmacen'])) {
+        $idAlmacen = $args['idAlmacen'];
+    }
 
     // $strIngresoUnd = stringIngresoUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaUnd = stringSalidaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
@@ -1690,6 +1694,29 @@ $app->post('/ventas/descuento', function (Request $request, Response $response) 
     ));
 });
 
+$app->get('/ventas/comision', function (Request $request, Response $response, array $args) {
+    $select = $this->db->select()->from('GEN_EMPRESA')->where('IDEMPRESA', '=', 1);
+    $stmt = $select->execute();
+    $data = $stmt->fetch();
+
+    return $response->withJson($data);
+});
+
+$app->post('/ventas/comision', function (Request $request, Response $response) {
+    $id = 1;
+    $valorComision = $request->getParam('valorComision');
+    
+    $update = "UPDATE GEN_EMPRESA SET valorComision=$valorComision 
+        WHERE IDEMPRESA=$id";
+    
+    $stmt = $this->db->prepare($update);
+    $updated = $stmt->execute();
+
+    return $response->withJson(array(
+        "IDEMPRESA" => $id,
+        "valorComision" => $valorComision
+    ));
+});
 
 $app->get('/ventas/numero', function (Request $request, Response $response, array $args) {
     $idPuntoVenta = $request->getParam('idPuntoVenta');
@@ -1894,6 +1921,7 @@ $app->get('/ventas/count', function (Request $request, Response $response) {
 
 $app->post('/ventas', function (Request $request, Response $response) {
     $vendedor = 'xx';
+    $idComisionista = 0 ;
     if(isset($_SESSION['User'])) {
         $vendedor = $_SESSION['User'];
     }
@@ -1914,6 +1942,17 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
+
+    $idComisionista = isset($request->getParam('comisionista')['IdCliente']) ? $request->getParam('comisionista')['IdCliente'] : $idComisionista;
+    // $valorComision = $request->getParam('valorComision'); 
+    if ($idComisionista <> 0) {
+        $selectValorComision = "SELECT valorComision FROM GEN_EMPRESA 
+            WHERE IDEMPRESA=1 LIMIT 1";
+            $stmt = $this->db->query($selectValorComision);
+            $stmt->execute();
+            $selectValorComision = $stmt->fetch();
+    }
+    $valorComision = $selectValorComision['valorComision'] ? $selectValorComision['valorComision'] : 0;
 
     // OBTENER SERIE
     $selectSerie = "SELECT Serie FROM Ve_DocVentaPuntoVentaDet WHERE IdDocVentaPuntoVenta=$idDocVentaPuntoVenta AND IdDocVentaTipoDoc=$idTipoDoc";
@@ -1967,8 +2006,8 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $numero = $selectNumero['NuevoNumero'] ? $selectNumero['NuevoNumero'] : 1;
 
 
-    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion)
-        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion')";
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista)";
 
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
@@ -2837,6 +2876,121 @@ $app->get('/ranking/clientes/count', function (Request $request, Response $respo
 
 });
 
+$app->get('/clientes/count', function (Request $request, Response $response, array $args) {
+
+    $select = "SELECT COUNT(*) AS total FROM Ve_DocVentaCliente";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
+$app->get('/clientes/comisionistas/count', function (Request $request, Response $response, array $args) {
+    $idAlmacen = $request->getParam('idAlmacen');
+
+    $select = "SELECT
+	    COUNT(DISTINCT(Ve_DocVentaCliente.IdCliente)) AS total
+        FROM
+            Ve_DocVentaCliente
+        INNER JOIN Ve_DocVenta ON
+            Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+        WHERE
+            Ve_DocVentaCliente.esComisionista = 1
+            AND Ve_DocVenta.valorComision IS NOT NULL ";
+    
+    if ($idAlmacen) {
+
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);    
+
+    return $response->withJson($data);
+});
+
+$app->get('/cliente/comisionistas', function (Request $request, Response $response, array $args) {
+    $idAlmacen = $request->getParam('idAlmacen');
+
+    $select = "SELECT Ve_DocVentaCliente.IdCliente, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.DniRuc, 
+        ROUND(
+            (SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) * (Ve_DocVenta.valorComision / 100))
+            -
+            IFNULL((SELECT SUM(Importe) FROM Cb_CajaBanco
+            WHERE IdCliente = Ve_DocVentaCliente.IdCliente AND Cb_CajaBanco.IdTipoCajaBanco = 5 AND Cb_CajaBanco.Anulado = 0), 0)
+        , 2) as Comision
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta = Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdComisionista = Ve_DocVentaCliente.IdCliente
+        WHERE Ve_DocVentaCliente.esComisionista = 1 AND Ve_DocVenta.valorComision IS NOT NULL ";
+    
+    if ($idAlmacen) {
+        $select .= " AND Ve_DocVenta.IdAlmacen = $idAlmacen ";
+    }
+        
+    $select .= " GROUP BY Ve_DocVentaCliente.IdCliente";
+
+    $limit = $request->getParam('limit');
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+$app->get('/cliente/comisionistas/pagos', function (Request $request, Response $response, array $args) {
+    $idComisionista = $request->getParam('idComisionista');
+
+    $select = "SELECT Cb_CajaBanco.*, Cb_TipoCajaBanco.TipoCajaBanco, Cb_CajaBanco.FechaDoc AS Fecha FROM Cb_CajaBanco
+        INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajabanco
+        WHERE IdCliente = $idComisionista AND Cb_CajaBanco.Anulado = 0 ";
+
+    // $limit = $request->getParam('limit') ? $request->getParam('limit') :  15;
+    // if ($limit) {
+    //     $offset = 0;
+    //     if ($request->getParam('page')) {
+    //         $page = $request->getParam('page');
+    //         $offset = (--$page) * $limit;
+    //     }
+    //     $select .= " LIMIT " . $limit;
+    //     $select .= " OFFSET " . $offset;
+    // }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
+
+
+$app->post('/cliente/comisionistas/pagar', function (Request $request, Response $response) {
+    $cliente = $request->getParam('cliente');
+    $importe = $request->getParam('importe');
+    $usuario = $_SESSION['user'];
+    
+    $insert = $this->db->insert(array('IdTipoCajaBanco', 'IdCuenta', 'FechaDoc', 'Concepto', 'Importe', 'Anulado', 'UsuarioReg', 'IdCliente'))
+                    ->into('Cb_CajaBanco')
+                    ->values(array(5, 1, getNow(), 'Pago a comisionista '. $cliente['Cliente'] , $importe, '0', $usuario, $cliente['IdCliente']));
+    
+    $insertId = $insert->execute();
+
+    return $response->withJson(array(
+        "idCajaBanco" => $insertId
+    ));
+});
 
 
 
@@ -2904,9 +3058,50 @@ $app->get('/clientes', function (Request $request, Response $response, array $ar
     $select .= " AND Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
     $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%'";
 
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit && !$request->getParam('noLimit')) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+$app->get('/comisionistas', function (Request $request, Response $response, array $args) {
+    $select = "SELECT *, IFNULL(CONCAT(DniRuc, ' - ', Cliente), '-') AS ClienteDniRuc FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL) AND esComisionista=1";
+    $select .= " AND (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
+    $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%') ";
+
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+    if ($limit && !$request->getParam('noLimit')) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
 
     return $response->withJson($data);
 });

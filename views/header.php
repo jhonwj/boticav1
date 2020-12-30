@@ -6,6 +6,7 @@ define("Medicion", SITE_URL . "views/Gen_ProductoMedicionForm.php");
 define("Marca", SITE_URL . "views/Gen_ProductoMarcaForm.php");
 define("Categoria", SITE_URL . "views/Gen_ProductoCategoriaForm.php");
 define("Compuesto", SITE_URL . "views/Gen_ProductoCompuestoForm.php");
+define("Clientes", SITE_URL . "views/V_VentaCliente.php");
 define("PuntoVenta", SITE_URL . "views/V_VentaForm.php");
 define("PreOrden", SITE_URL . "views/V_PreOrden.php");
 define("Experto", SITE_URL . "views/V_ExpertoForm.php");
@@ -88,6 +89,7 @@ date_default_timezone_set('America/Lima');
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
+          <li><a href="<?php echo Clientes; ?>">Clientes </a></li>
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
           <li><a href="/views/habitaciones.php">Proyectos</a></li>
           <li role="separator" class="divider"></li>
