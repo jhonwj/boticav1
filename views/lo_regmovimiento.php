@@ -214,7 +214,7 @@ function SumarTotalIgvSub(){
     <div class="row">
       <div class="col-md-4 form-group">
         <label>Buscar detalle del movimiento (buscar serie)</label>
-        <input type="text" id="descripcion" name="descripcion" class="form-control" value="<?php echo $_GET['descripcion']; ?>">
+        <input type="text" id="descripcion" name="descripcion" class="form-control" value="<?php echo isset($_GET['descripcion']) ? $_GET['descripcion'] : ''; ?>">
       </div>
     </div>
   </div>
