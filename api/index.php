@@ -531,11 +531,13 @@ $app->get('/habitaciones', function (Request $request, Response $response, array
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente,
         -- Ve_PreOrdenTotal.granTotal, Cb_CajaBancoAdelanto.sumAdelanto, Cb_CajaBancoGasto.sumGasto 
-        (Ve_PreOrdenTotal.granTotal - Cb_CajaBancoAdelanto.sumAdelanto + Cb_CajaBancoGasto.sumGasto) AS granTotalCalculado 
+        (Ve_PreOrdenTotal.granTotal - Cb_CajaBancoAdelanto.sumAdelanto + Cb_CajaBancoGasto.sumGasto) AS granTotalCalculado,
+        Ve_PreOrden.IdProforma
         FROM Gen_Producto
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        LEFT JOIN Ve_PreOrden ON Gen_Producto.IdPreOrden = Ve_PreOrden.IdPreOrden
         LEFT JOIN Ve_DocVentaCliente ON Gen_Producto.IdClienteReserva = Ve_DocVentaCliente.IdCliente
         LEFT JOIN (
             SELECT Ve_PreOrdenDet.IdPreOrden, SUM(Ve_PreOrdenDet.Cantidad * Ve_PreOrdenDet.Precio) AS granTotal 
@@ -2352,6 +2354,15 @@ $app->post('/preorden/detalle', function (Request $request, Response $response, 
     $productos = $request->getParam('productos');
     $idHabitacion = $request->getParam('IdHabitacion');
 
+    $idProforma = $request->getParam('IdProforma');
+
+    if ($idProforma) {
+        $sql = "UPDATE Ve_PreOrden SET IdProforma=$idProforma WHERE IdPreOrden=$idPreOrden ";
+
+        $stmt = $this->db->prepare($sql);
+        $updated = $stmt->execute();
+    }
+
     if ($idPreOrden) {
         // Actualizar ProductoDet
         $sql = "DELETE FROM Ve_PreOrdenDet WHERE IdPreOrden='$idPreOrden' AND IdProducto != $idHabitacion";
@@ -2411,6 +2422,25 @@ $app->get('/preorden/detalle', function (Request $request, Response $response) {
     return $response->withJson($data);
 
 });
+
+$app->get('/preorden/proforma', function (Request $request, Response $response) {
+    $idProforma = $request->getParam('idProforma');
+
+    if ($idProforma) {
+        $select = "SELECT Ve_Proforma.*, SUM(Ve_ProformaDet.Cantidad * Ve_ProformaDet.Precio) AS Total
+            FROM Ve_Proforma
+            INNER JOIN Ve_ProformaDet ON Ve_Proforma.IdProforma = Ve_ProformaDet.IdProforma
+            WHERE Ve_Proforma.IdProforma=$idProforma
+            GROUP BY Ve_Proforma.IdProforma";
+    
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetch();
+    
+        return $response->withJson($data);
+    }
+});
+
 
 $app->get('/cliente', function (Request $request, Response $response, array $args) {
     $idCliente = $request->getParam('idCliente');
