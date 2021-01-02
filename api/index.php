@@ -1078,8 +1078,17 @@ $app->get('/almacenes/id/{id}', function (Request $request, Response $response, 
 });
 
 $app->get('/almacenes', function (Request $request, Response $response, array $args) {
-    $select = $this->db->select()->from('Lo_Almacen');
-    $stmt = $select->execute();
+    // $select = $this->db->select()->from('Lo_Almacen');
+    // $stmt = $select->execute();
+    // $data = $stmt->fetchAll();
+
+    // return $response->withJson($data);
+
+
+    $select = "SELECT * FROM Lo_Almacen WHERE Anulado=0";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
     $data = $stmt->fetchAll();
 
     return $response->withJson($data);
@@ -3969,6 +3978,26 @@ $app->get('/cierrecaja', function (Request $request, Response $response, array $
     return $response->withJson($data);
 });
 
+$app->get('/cierrecaja/reporte', function (Request $request, Response $response, array $args) {
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaDesde = $request->getParam('fechaDesde');
+    $fechaHasta = $request->getParam('fechaHasta');
+    $select = "SELECT Cb_CierreCaja.*, Seg_Usuario.IdAlmacen, Lo_Almacen.Almacen FROM Cb_CierreCaja 
+        INNER JOIN Seg_Usuario ON Cb_CierreCaja.UsuarioReg = Seg_Usuario.Usuario 
+        INNER JOIN Lo_Almacen ON Seg_Usuario.IdAlmacen = Lo_Almacen.IdAlmacen";
+    if ($idAlmacen) {
+        $select .= " WHERE Cb_CierreCaja.UsuarioReg IN ( SELECT Usuario FROM Seg_Usuario WHERE IdAlmacen = '$idAlmacen' ) ";
+    } else {
+        $select .= " WHERE Cb_CierreCaja.UsuarioReg IN ( SELECT Usuario FROM Seg_Usuario ) ";
+    }
+    $select .= " AND FechaCierre >= '$fechaDesde' AND FechaCierre <= '$fechaHasta' ORDER BY IdCierreCaja DESC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();    
+
+    return $response->withJson($data);
+});
 
 $app->get('/cierrecaja/count', function (Request $request, Response $response, array $args) {
 

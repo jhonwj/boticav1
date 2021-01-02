@@ -13,6 +13,7 @@ define("Experto", SITE_URL . "views/V_ExpertoForm.php");
 define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
 define("Cierre", SITE_URL . "views/ve_cierreform.php");
+define("CierreReporte", SITE_URL . "/views/v_cierrereporte.php");
 define("CambioPrecioBloque", SITE_URL . "views/ve_cambiopreciobloque.php");
 define("Reimpresion", SITE_URL . "views/ve_reimpresionDocumentos.php");
 define("ReporteUtilidadBruta", SITE_URL . "views/ve_reporteUtilidadBruta.php");
@@ -96,6 +97,7 @@ date_default_timezone_set('America/Lima');
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
+          <li><a href="<?php echo CierreReporte; ?>">Reporte Cierre de Caja</a></li>
           <!--<li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
