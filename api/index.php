@@ -3093,9 +3093,13 @@ $app->get('/clientes/{dni}', function (Request $request, Response $response, arr
 });
 
 $app->get('/clientes', function (Request $request, Response $response, array $args) {
-    $select = "SELECT *, IFNULL(CONCAT(DniRuc, ' - ', Cliente), '-') AS ClienteDniRuc FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
-    $select .= " AND Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
-    $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%'";
+    $select = "SELECT *, IFNULL(CONCAT(DniRuc, ' - ', Cliente, ' - ', IFNULL(NombreComercial, '')), '-') AS ClienteDniRuc FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
+    $select .= " AND (Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%' OR Ve_DocVentaCliente.NombreComercial LIKE '%" . $request->getParam('q') . "%'";
+    $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%')  ";
+
+    // $select = "SELECT *, IFNULL(CONCAT(DniRuc, ' - ', Cliente), '-') AS ClienteDniRuc FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
+    // $select .= " AND Ve_DocVentaCliente.Cliente LIKE '%" . $request->getParam('q') . "%'";
+    // $select .= " OR Ve_DocVentaCliente.DniRuc LIKE '%" . $request->getParam('q') . "%'";
 
     $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
     if ($limit && !$request->getParam('noLimit')) {
@@ -3158,6 +3162,8 @@ $app->post('/clientes', function (Request $request, Response $response) {
     $fechaNacimiento = $request->getParam('FechaNacimiento') ? $request->getParam('FechaNacimiento') : NULL;
     $nacionalidad = $request->getParam('Nacionalidad');
     $esVIP = $request->getParam('EsVIP');
+    $esComisionista = $request->getParam('esComisionista');
+    $nombreComercial = $request->getParam('NombreComercial');
 
     $idCliente = $request->getParam('IdCliente');
     $insertId = $idCliente;
@@ -3175,14 +3181,16 @@ $app->post('/clientes', function (Request $request, Response $response) {
             "FechaNacimiento" => $fechaNacimiento,
             "Nacionalidad" => $nacionalidad,
             "EsVIP" => $esVIP,
+            "esComisionista" => $esComisionista,
+            "NombreComercial" => $nombreComercial
         ))
        ->table('Ve_DocVentaCliente')
        ->where('IdCliente', '=', $idCliente);
         $affectedRows = $update->execute();
     } else {
-        $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Direccion2', 'Direccion3', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad', 'EsVIP'))
+        $insert = $this->db->insert(array('Cliente', 'DniRuc', 'Direccion', 'Direccion2', 'Direccion3', 'Telefono', 'Email', 'Anulado', 'FechaReg', 'Sexo', 'Ocupacion', 'FechaNacimiento', 'Nacionalidad', 'EsVIP', 'NombreComercial', 'esComisionista'))
                            ->into('Ve_DocVentaCliente')
-                           ->values(array($cliente, $dniRuc, $direccion, $direccion2, $direccion3, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad, $esVIP));
+                           ->values(array($cliente, $dniRuc, $direccion, $direccion2, $direccion3, $telefono, $email, '0', getNow(), $sexo, $ocupacion, $fechaNacimiento, $nacionalidad, $esVIP, $nombreComercial, $esComisionista));
 
         $insertId = $insert->execute();
 
@@ -3906,17 +3914,21 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
 
 
 $app->post('/cierrecaja', function (Request $request, Response $response) {
-    $idTurno = $request->getParam('idTurno');
-    $user = $request->getParam('user');
-    $fechaCierre = getNow();
+    $idTurno        = $request->getParam('idTurno');
+    $user           = $request->getParam('user');
+    $fechaCierre    = getNow();
+    $ingresos       = $request->getParam('ingresos') ? $request->getParam('ingresos') : 0;
+    $salidas        = $request->getParam('salidas') ? $request->getParam('salidas') : 0;
+    $total          = $request->getParam('total') ? $request->getParam('total') :0;
+
     $usuarioReg = 'xx';
     if(isset($_SESSION['user'])) {
         $usuarioReg = $_SESSION['user'];
     }
     $usuarioReg = $user ? $user : $usuarioReg;
 
-    $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg)
-        VALUES ('$fechaCierre', '$idTurno', '$usuarioReg')";
+    $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg, Ingresos, Salidas, Total)
+        VALUES ('$fechaCierre', '$idTurno', '$usuarioReg', $ingresos, $salidas, $total)";
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
     $idCierreCaja = $this->db->lastInsertId();
