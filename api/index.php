@@ -3083,7 +3083,7 @@ $app->get('/usuarios/{usuario}', function (Request $request, Response $response,
 
 $app->get('/clientes/{dni}', function (Request $request, Response $response, array $args) {
     $select = "SELECT * FROM Ve_DocVentaCliente WHERE (Anulado != 1 OR Anulado IS NULL)";
-    $select .= " AND Ve_DocVentaCliente.DniRuc = '" . $args[dni] . "' LIMIT 1";
+    $select .= " AND Ve_DocVentaCliente.DniRuc = '" . $args['dni'] . "' LIMIT 1";
     
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -3920,6 +3920,7 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
     $ingresos       = $request->getParam('ingresos') ? $request->getParam('ingresos') : 0;
     $salidas        = $request->getParam('salidas') ? $request->getParam('salidas') : 0;
     $total          = $request->getParam('total') ? $request->getParam('total') :0;
+    $totalVentas    = $request->getParam('totalVentas') ? $request->getParam('totalVentas') : 0;
 
     $usuarioReg = 'xx';
     if(isset($_SESSION['user'])) {
@@ -3927,8 +3928,8 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
     }
     $usuarioReg = $user ? $user : $usuarioReg;
 
-    $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg, Ingresos, Salidas, Total)
-        VALUES ('$fechaCierre', '$idTurno', '$usuarioReg', $ingresos, $salidas, $total)";
+    $insert = "INSERT INTO Cb_CierreCaja (FechaCierre, IdTurno, UsuarioReg, Ingresos, Salidas, Ventas, Total)
+        VALUES ('$fechaCierre', '$idTurno', '$usuarioReg', $ingresos, $salidas, $totalVentas, $total)";
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
     $idCierreCaja = $this->db->lastInsertId();
