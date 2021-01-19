@@ -739,6 +739,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     // $idProductoTalla = $request->getParam('talla')['IdProductoTalla'];
     $idProductoFormaFarmaceutica = 1;
     $producto = $request->getParam('Producto');
+    $productoDesc = $request->getParam('ProductoDesc');
     $productoModelo = $request->getParam('ProductoModelo') ? $request->getParam('ProductoModelo') : '';
     $fechaReg = getNow();
     $hash = time();
@@ -776,6 +777,7 @@ $app->post('/productos', function (Request $request, Response $response) {
         $update = $this->db->update(array(
                             "CodigoBarra" => $codigoBarra,
                             "Producto" => $producto,
+                            "ProductoDesc" => $productoDesc,
                             "IdProductoMarca" => $idProductoMarca,
                             "IdProductoFormaFarmaceutica" => $idProductoFormaFarmaceutica,
                             "IdProductoMedicion" => $idProductoMedicion,
@@ -813,7 +815,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                 $insertDetId = $insertDet->execute();
             }
         }
-        return $response->withJson(array("insertId" => $idProducto));
+        // return $response->withJson(array("insertId" => $idProducto));
+
+        return $response->withJson(array("affectedRows" => $productosDet));
+
+
+
     }
     // Fin actualizacion producto
 
@@ -840,9 +847,9 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'precioConvenio', 'PrecioPorMayor', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso', 'PreciosPorProducto'))
+    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'ProductoDesc', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'precioConvenio', 'PrecioPorMayor', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso', 'PreciosPorProducto'))
                        ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $precioConvenio, $precioPorMayor, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso, $preciosPorProducto));
+                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $productoDesc, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $precioConvenio, $precioPorMayor, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso, $preciosPorProducto));
     $insertId = $insert->execute();
 
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -903,10 +910,11 @@ $app->get('/movimiento/productos', function (Request $request, Response $respons
     $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
     $hashMovimiento = $request->getParam('hash');
 
-    $select = "SELECT Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_Producto.ProductoModelo,
+    $select = "SELECT DATE_FORMAT(Lo_Movimiento.FechaReg, '%d%m%Y') as Fecha, Lo_MovimientoDetalle.IdProducto, Gen_Producto.Producto, Gen_ProductoMarca.ProductoMarca, Gen_Producto.ProductoModelo,
         Gen_Producto.Color, Gen_Producto.CodigoBarra, Gen_Producto.PrecioContado, Lo_MovimientoDetalle.Cantidad,
         Gen_Producto.Botapie
         FROM Lo_MovimientoDetalle
+        INNER JOIN Lo_Movimiento ON Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.Hash
         INNER JOIN Gen_Producto ON Lo_MovimientoDetalle.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         WHERE hashMovimiento = '$hashMovimiento'";
@@ -2381,12 +2389,13 @@ $app->post('/preorden/cajaybanco/gasto', function (Request $request, Response $r
 
 
 $app->get('/preorden/cajaybanco', function (Request $request, Response $response, array $args) {
-    $idPreOrden = $request->getParam('IdPreOrden');
+    $idPreOrden     = $request->getParam('IdPreOrden');
+    $tipoCajaBanco  = $request->getParam('TipoCajaBanco');
 
     if ($idPreOrden) {
         $select = "SELECT Cb_CajaBanco.*, Cb_TipoCajaBanco.Tipo FROM Cb_CajaBanco 
             INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco=Cb_TipoCajaBanco.IdTipoCajaBanco
-            WHERE IdPreOrden=$idPreOrden ";
+            WHERE IdPreOrden=$idPreOrden AND Cb_TipoCajaBanco.Tipo = $tipoCajaBanco";
 
         $stmt = $this->db->query($select);
         $stmt->execute();
