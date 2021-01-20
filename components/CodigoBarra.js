@@ -3,7 +3,7 @@ export default {
     <div class="barcode-box">
       <div class="code text-right">{{ producto.Fecha }}</div>
       <!--<div class="text-right direccion">URUBAMBA MZA. 11<br> LOTE. 3D </div>-->
-      <div class="barcode-logo"><img src="/resources/images/logo-ticket.svg"  style="height:25px; margin: .5mm"/></div>
+      <div class="barcode-logo"><img src="/resources/images/logo-ticket.svg"  style="height:6mm; margin: .5mm"/></div>
       <div class="barcode-right">
           <p>PRECIO S/.</p>
           <label>{{ (producto.PrecioContado || 0).toFixed(2) }}</label>

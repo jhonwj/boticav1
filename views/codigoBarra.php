@@ -18,7 +18,7 @@
             }
             /* ESTILOS COMPONENTES */
             #barcode {
-                width: 106mm;
+                width: 110mm;
                 margin-left: 1mm;
             }
             #barcode .negro {
@@ -31,7 +31,7 @@
                 font-weight: bold !important;
             }
             #barcode .code {
-                margin-bottom: 2.5mm;
+                margin-bottom: 0.7mm;
                 height: 2mm;
             }
             #barcode .direccion {
@@ -51,12 +51,12 @@
             }
             .barcode-box {
                 border-radius: 2mm;
-                margin: .9mm 1.5mm .3mm;
+                margin: 1.2mm 1.7mm .3mm;
                 padding: 0.2mm;
                 border: .5mm solid #000;
                 display: inline-block;
-                width: 32mm;
-                height: 20mm;
+                width: 33mm;
+                height: 18mm;
                 overflow: hidden;
                 position: relative;
             }
