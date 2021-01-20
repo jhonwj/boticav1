@@ -13,7 +13,7 @@
             body {
                 color: #000000!important;
                 margin: 0;
-                font-size: 1.8mm!important;
+                font-size: 1.7mm!important;
                 font-family: sans-serif !important;
             }
             /* ESTILOS COMPONENTES */
@@ -95,7 +95,7 @@
                 box-sizing: border-box;
             }
             #barcode .item.derecha {
-                width: 15mm;
+                width: 19mm;
             }
             @media print { 
                 body {
