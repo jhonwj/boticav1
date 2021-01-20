@@ -2193,14 +2193,15 @@ $app->post('/proformas', function (Request $request, Response $response) {
     //$descuentoTotal = 0;
     foreach($productos as $producto) {
         if ($producto['total'] > 0) {
-            $idProducto = $producto['IdProducto'];
-            $cantidad = $producto['cantidad'];
-            $precio = $producto['precio'];
-            $descuento = $producto['descuento'];
+            $idProducto     = $producto['IdProducto'];
+            $descripcion    = $producto['Descripcion'];
+            $cantidad       = $producto['cantidad'];
+            $precio         = $producto['precio'];
+            $descuento      = $producto['descuento'];
             
-            $insert = $this->db->insert(array('IdProforma', 'IdProducto', 'Cantidad', 'Precio', 'Descuento'))
+            $insert = $this->db->insert(array('IdProforma', 'IdProducto', 'Descripcion', 'Cantidad', 'Precio', 'Descuento'))
                 ->into('Ve_ProformaDet')
-                ->values(array($idProforma, $idProducto, $cantidad, $precio, $descuento));
+                ->values(array($idProforma, $idProducto, $descripcion, $cantidad, $precio, $descuento));
             
             $insert->execute();
             //$descuentoTotal += $descuento;
@@ -3877,8 +3878,13 @@ $app->get('/reporte/rankingclientes', function (Request $request, Response $resp
 // REPORTES
 $app->get('/reporte/stock', function (Request $request, Response $response, array $args) use ($app) {
     $idAlmacen = $request->getParam('idAlmacen');
+    $filter = $request->getParam('filter');
 
-    $res = $app->subRequest('GET', '/productos/stock', 'idAlmacen=' . $idAlmacen);
+    $filterStr = http_build_query(array(
+        'filter' => $filter
+    ));
+
+    $res = $app->subRequest('GET', '/productos/stock', 'idAlmacen=' . $idAlmacen . '&' . $filterStr );
     $productos = (string) $res->getBody();
     $productos = json_decode($productos, true);
 

@@ -12,9 +12,9 @@ export default {
       </div>
 
       <div class="barcode-left">
-        <!--<div class="item negro">ART.</div>--><div class="item derecha">{{ producto.Producto.substring(0, 19).toUpperCase() }}</div><br />
-        <!--<div class="item negro">MAR.</div><div class="item derecha">{{ producto.ProductoMarca }}</div><br />
-        <div class="item negro">MOD.</div><div class="item derecha">{{ producto.ProductoModelo }}</div><br />-->
+        <!--<div class="item negro">ART.</div>--><div class="item derecha">{{ producto.Producto.substring(0, 12).toUpperCase() }}</div><br />
+        <!--<div class="item negro">MOD.</div>--><div class="item derecha">{{ producto.ProductoModelo.substring(0, 12).toUpperCase() }}</div><br />
+        <!--<div class="item negro">MAR.</div><div class="item derecha" style = "float: left">{{ producto.ProductoMarca }}</div><br />-->
         <!--<div class="item negro">COLOR</div><div class="item derecha">{{ producto.Color }}</div>
         <div class="item negro">PLAZA</div><div class="item derecha">{{ producto.Botapie }}</div>-->
         <div class="barcode-image">
