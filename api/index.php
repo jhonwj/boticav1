@@ -133,6 +133,43 @@ $app->post('/marcas', function (Request $request, Response $response, array $arg
     return $response->withJson(array("insertId" => $insertId, "ProductoMarca" => $productoMarca));
 });
 
+// $app->get('/codigobarra', function (Request $request, Response $response, array $args) {
+//     $q = $request->getParam('q');
+//     $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+
+//     $select = "SELECT * FROM Gen_Producto";
+//     $select .= " WHERE CodigoBarra LIKE '" . $q . "%' ";
+
+//     if ($limit) {
+//         // $limit = $request->getParam('limit');
+//         $offset = 0;
+//         if ($request->getParam('page')) {
+//             $page = $request->getParam('page');
+//             $offset = (--$page) * $limit;
+//         }
+//         $select .= " LIMIT " . $limit;
+//         $select .= " OFFSET " . $offset;
+//     }
+
+//     $stmt = $this->db->query($select);
+//     $stmt->execute();
+//     $data = $stmt->fetchAll();
+
+//     return $response->withJson($data);
+// });
+
+// $app->post('/codigobarra', function (Request $request, Response $response, array $args) {
+
+//     $productoMarca = $request->getParam('ProductoMarca');
+//     $anulado = 0;
+
+//     $insert = $this->db->insert(array('ProductoMarca', 'Anulado', 'FechaReg'))
+//                        ->into('Gen_ProductoMarca')
+//                        ->values(array($productoMarca, $anulado, getNow()));
+//     $insertId = $insert->execute();
+
+//     return $response->withJson(array("insertId" => $insertId, "ProductoMarca" => $productoMarca));
+// });
 
 $app->get('/mediciones', function (Request $request, Response $response, array $args) {
     $select = $this->db->select()->from('Gen_ProductoMedicion');
