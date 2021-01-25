@@ -1352,7 +1352,7 @@ function stringSalidaUnd($idProducto, $idAlmacen, $fechaHasta) {
     return $select;
 }
 
-function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta) {
+function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta, $fechaDesde = false) {
     $select = "(SELECT IFNULL(SUM(Ve_DocVentaDet.Cantidad), 0) AS cantidad FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1368,7 +1368,9 @@ function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta) {
             INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
             WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
                 AND Ve_DocVenta.Anulado = 0
-                AND Ve_DocVentaTipoDoc.VaRegVenta = 1
+                AND Ve_DocVentaTipoDoc.VaRegVenta = 1 " .
+                ($fechaDesde ? " AND Ve_DocVenta.FechaDoc > '$fechaDesde' " : "")
+                . " AND Ve_DocVenta.FechaDoc < '$fechaHasta'
                 AND Ve_DocVenta.FechaDoc < '$fechaHasta'
             GROUP BY Ve_DocVentaDet.IdProducto)";
     }
@@ -1455,10 +1457,6 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
     $idAlmacen = $request->getParam('idAlmacen');
     $fechaHasta = $request->getParam('fechaHasta') ? $request->getParam('fechaHasta') : getNow();
 
-    if(isset($args['idAlmacen'])) {
-        $idAlmacen = $args['idAlmacen'];
-    }
-
     // $strIngresoUnd = stringIngresoUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaUnd = stringSalidaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaVentaUnd = stringSalidaVentaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
@@ -1520,14 +1518,6 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
             SUM(Gen_Producto.PrecioCosto * (IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0))) AS sumaValorizadoSin
 
             FROM Gen_Producto
-                FROM Gen_Producto 
-            FROM Gen_Producto
-                FROM Gen_Producto 
-            FROM Gen_Producto
-                FROM Gen_Producto 
-            FROM Gen_Producto
-                FROM Gen_Producto 
-            FROM Gen_Producto
             INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
             INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
             INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
@@ -1535,14 +1525,6 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
             LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
             LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
             LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
-                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
-                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
-                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
-            LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
-                LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto 
             LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     } else {
@@ -1567,25 +1549,24 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
             LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto";
     }
 
-
-
     if ($request->getParam('filter')) {
         $filter = $request->getParam('filter');
         if(is_array($filter)) {
-            $select .= " WHERE Gen_Producto.EsPadre = 0 AND ( Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') .
-                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') .
-                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') .
-                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') .
-                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') .
-                       "%' ) ";
-
+            $select .= " WHERE Gen_Producto.EsPadre = 0 AND (Gen_Producto.Producto LIKE '%" . (isset($filter['producto']) ? addslashes($filter['producto']) : '') . 
+                       "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') . 
+                       "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') . 
+                       "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') . 
+                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
+                       "'  ) "; 
+            
         } else {
-            $select .= " WHERE Gen_Producto.EsPadre = 0 AND ( Gen_Producto.Producto LIKE '%" . $filter .
-                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter .
-                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter .
-                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter .
-                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter .
-                       "%' ) ";
+            $select .= " WHERE Gen_Producto.EsPadre = 0 AND (Gen_Producto.Producto LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.CodigoBarra LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.Color LIKE '%" . $filter . 
+                       "%' OR Gen_ProductoMarca.ProductoMarca LIKE '%" . $filter . 
+                       "%' OR Gen_Producto.ProductoModelo LIKE '%" . $filter . 
+                       "%' OR Gen_ProductoCategoria.ProductoCategoria LIKE '%" . $filter . 
+                       "%' ) ";        
         }
     } else {
         $select .= " WHERE Gen_Producto.EsPadre = 0 AND Gen_Producto.Producto LIKE '%" . $request->getParam('q') . "%' ";
@@ -1637,6 +1618,7 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
         $select .= " OFFSET " . $offset;
     }
     // print_r($select);exit();
+    $this->db->query('SET SQL_BIG_SELECTS=1');
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
