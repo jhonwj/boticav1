@@ -76,6 +76,8 @@ date_default_timezone_set('America/Lima');
             <li><a href="<?php echo ReporteKardex."?Tipo=1"; ?>">1. KARDEX</a></li>
             <li><a href="<?php echo ReporteKardexValorizado."?Tipo=1"; ?>">2. KARDEX VALORIZADO</a></li>
           <li role="separator" class="divider"></li>
+          <li><a href="/views/lo_kardex.php">NUEVO KARDEX</a></li>
+          <li role="separator" class="divider"></li>
           <li><a href="<?php echo ReporteStock; ?>"></a></li>
           <li><a href="<?php echo ReporteStock; ?>">STOCK</a></li>
           <li><a href="<?php echo RegMovimiento; ?>">REGISTRO DE MOVIMIENTO</a></li>
@@ -127,6 +129,7 @@ date_default_timezone_set('America/Lima');
         <li><a href="/views/reportesdeudacliente.php"> Reporte Deuda Clientes </a></li>
         <li><a href="/views/reportesdeudaproveedor.php"> Reporte Deuda Proveedores </a></li>
         <li><a href="/views/reportesrankingclientes.php"> Reporte Ranking Clientes </a></li>
+        <li><a href="/views/reportes.php">REPORTES</a></li>
       </ul>
 
       </li>

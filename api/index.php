@@ -3946,6 +3946,441 @@ $app->get('/reporte/stock', function (Request $request, Response $response, arra
     exit;
 });
 
+$app->get('/reporte/stockmensual', function (Request $request, Response $response, array $args) use ($app) {
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/stockmensual.xlsx');
+    $sheet = $spreadsheet->getSheet(0);
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaHasta = $request->getParam('fechaHasta') ? $request->getParam('fechaHasta') : getNow();
+    
+    // if ($request->getParam('controlaStock')) {
+    //     $res = $app->subRequest('GET', '/productos/stock', 'controlaStock=1&idAlmacen=' . $idAlmacen . '&noLimit=1');
+    // } else {
+        $res = $app->subRequest('GET', '/productos/stock', 'idAlmacen=' . $idAlmacen . '&noLimit=1' . '&fechaHasta=' . $fechaHasta);
+    // }
+    
+    $productos = (string) $res->getBody();
+    $productos = json_decode($productos, true);
+
+    $sheet->getCell('E1')->setValue($fechaHasta);
+
+    $init = 3;
+    foreach($productos as $prod) {
+        $sheet->getCell('A'.$init)->setValue($prod['CodigoBarra']);
+        $sheet->getCell('B'.$init)->setValue($prod['Producto']);
+        $sheet->getCell('L'.$init)->setValue($prod['stock']);
+        $sheet->getCell('M'.$init)->setValue($prod['PrecioCosto']);
+        $sheet->getCell('N'.$init)->setValue($prod['stock'] * $prod['PrecioCosto']);
+        $init += 1;
+    }
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/stockmensual.xlsx');
+    
+    echo "<script>window.location.href = '/api/reporte/stockmensual.xlsx'</script>";
+    exit;
+    // return $response->withRedirect('/api/reporte/stockmensual.xlsx'); 
+});
+
+
+function kardexSaldo($kardex) {
+    $newKardex = [];
+    $saldo = 0;
+    $saldoCostoTotal = 0;
+    $saldoCostoUnitario = 0;
+    foreach($kardex as $kar) {
+        $saldo += ($kar['IngresoCantidad'] - $kar['SalidaCantidad']);
+        $kar['saldo'] = $saldo;
+        if ($kar['IngresoCantidad'] > 0) {
+            $saldoCostoTotal = $saldoCostoTotal + ($kar['IngresoCantidad'] * $kar['IngresoPrecio']);
+            // dxerror division por cero
+            if ($saldo == 0) {
+                $saldoCostoUnitario = $saldoCostoTotal;                
+            } else {
+                $saldoCostoUnitario = $saldoCostoTotal / $saldo;
+            }
+        } else {
+            // la salida Precio es el ultimo costo unitario de saldo
+            $kar['SalidaPrecio'] = round($saldoCostoUnitario, 2);
+
+            $saldoCostoTotal = $saldo * $kar['SalidaPrecio'];
+            $saldoCostoUnitario = $kar['SalidaPrecio'];
+        }
+        $kar['saldoCostoUnitario'] = round($saldoCostoUnitario, 2);
+        $kar['saldoCostoTotal'] = round($saldoCostoTotal, 2);
+
+        array_push($newKardex, $kar);
+    }
+    return $newKardex;
+}
+function kardexSaldoFecha ($kardex, $fechaDesde) {
+    $inicialEntradas = 0; 
+    $inicialSalidas = 0;
+    $inicialSaldoCostoTotal = 0;
+    $inicialSaldoCostoUnitario = 0;
+
+    /*$filtro = function($item) use ($fechaDesde, $inicialEntradas, $inicialSalidas, $inicialSaldoCostoTotal, $inicialSaldoCostoUnitario) {
+        if ($item['Fecha'] >= $fechaDesde) {
+            return true;
+        } else {
+            $inicialEntradas += (float)($item['IngresoCantidad']);
+            $inicialSalidas += (float)($item['SalidaCantidad']);
+            $inicialSaldoCostoTotal = $item['saldoCostoTotal'];
+            $inicialSaldoCostoUnitario = $item['saldoCostoUnitario'];
+            return false;
+        }
+    };*/
+    $newKardex = [];
+    $kardexSaldo = kardexSaldo($kardex);
+    foreach ($kardexSaldo as $item) {
+        if ($item['Fecha'] >= $fechaDesde) {
+            array_push($newKardex, $item);
+        } else {
+            $inicialEntradas += (float)($item['IngresoCantidad']);
+            $inicialSalidas += (float)($item['SalidaCantidad']);
+            $inicialSaldoCostoTotal = $item['saldoCostoTotal'];
+            $inicialSaldoCostoUnitario = $item['saldoCostoUnitario'];
+        }
+    }
+    
+    // $newKardex = array_filter(kardexSaldo($kardex), $filtro);
+
+    array_unshift($newKardex, array(
+        'Fecha' => $fechaDesde,
+        'TipoDocSunat' => 1 ,
+        'IngresoCantidad' => $inicialEntradas,
+        'IngresoPrecio' => 0,
+        'SalidaCantidad' => $inicialSalidas,
+        'SalidaPrecio' => 0,
+        'saldo' => $inicialEntradas - $inicialSalidas,
+        'saldoCostoTotal' => round($inicialSaldoCostoTotal, 2),
+        'saldoCostoUnitario' => round($inicialSaldoCostoUnitario, 2)
+    ));
+
+    return $newKardex;
+}
+
+
+
+// TEMPLATE XLXS
+$app->get('/reporte/kardexsimple', function (Request $request, Response $response, array $args) use ($app) {
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/formato12.1.xlsx');
+    $formato = $spreadsheet->getSheet(0);
+    // $formato->getColumnDimension('B')->setAutoSize(true);
+    $idProducto = $request->getParam('idProducto');
+    $producto = $request->getParam('producto');
+    $codigoBarra = $request->getParam('codigoBarra');
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaDesde = $request->getParam('fechaDesde');
+    $fechaHasta = $request->getParam('fechaHasta');
+
+    $res = $app->subRequest('GET', '/productos/kardex/' . $idProducto, 'idAlmacen=' . $idAlmacen . '&fechaHasta=' . $fechaHasta);
+    $kardex = (string) $res->getBody();
+    $kardex = json_decode($kardex, true);
+    
+    $kardex = kardexSaldoFecha($kardex, $fechaDesde);
+    $init = 16;
+
+    foreach($kardex as $kar) {
+        $formato->getCell('A'.$init)->setValue($kar['Fecha']);
+        $formato->duplicateStyle($formato->getStyle('A'.$init),'A'.($init+1));
+
+        $formato->getCell('B'.$init)->setValue(@$kar['CodSunat']);
+        $formato->duplicateStyle($formato->getStyle('B'.$init),'B'.($init+1));
+
+        $formato->getCell('C'.$init)->setValue(@$kar['Serie']);
+        $formato->duplicateStyle($formato->getStyle('C'.$init),'C'.($init+1));
+
+        $formato->getCell('D'.$init)->setValue(@$kar['Numero']);
+        $formato->duplicateStyle($formato->getStyle('D'.$init),'D'.($init+1));
+
+        $formato->getCell('E'.$init)->setValue($kar['TipoDocSunat']);
+        $formato->duplicateStyle($formato->getStyle('E'.$init),'E'.($init+1));
+
+        $formato->getCell('F'.$init)->setValue($kar['IngresoCantidad']);
+        $formato->duplicateStyle($formato->getStyle('F'.$init),'F'.($init+1));
+        
+        $formato->getCell('G'.$init)->setValue($kar['SalidaCantidad']);
+        $formato->duplicateStyle($formato->getStyle('G'.$init),'G'.($init+1));
+
+        $formato->getCell('H'.$init)->setValue($kar['saldo']);
+        $formato->duplicateStyle($formato->getStyle('H'.$init),'H'.($init+1));
+
+        $init += 1;
+    }
+    $formato->getCell('A'.($init+2))->setValue('(1) Dirección del Establecimiento o Código según el Registro Único de Contribuyentes.');    
+
+    $formato->getCell('E'.$init)->setValue('TOTALES');    
+    $formato->getCell('F'.$init)->setValue('=SUM(F16:F'.($init-1).')');
+    $formato->getCell('G'.$init)->setValue('=SUM(G16:G'.($init-1).')');
+    $formato->getStyle('E'.$init)->getFont()->setBold( true );
+    $formato->getStyle('F'.$init)->getFont()->setBold( true );
+    $formato->getStyle('G'.$init)->getFont()->setBold( true );
+    
+    $formato->getCell('D4')->setValue('Del ' . $fechaDesde . ' al ' . $fechaHasta);
+    $formato->getCell('D8')->setValue($codigoBarra);
+    $formato->getCell('D10')->setValue($producto);
+
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/formato12.1.xlsx');
+
+    echo '<script type="text/javascript">
+        location.href = "/api/reporte/formato12.1.xlsx";
+    </script>';
+
+    // return $response->withRedirect('/api/reporte/formato12.1.xlsx');
+});
+
+$app->get('/reporte/kardexvalorizado', function (Request $request, Response $response, array $args) use ($app) {
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/formato13.1.xlsx');
+    $formato = $spreadsheet->getSheet(0);
+    // $formato->getColumnDimension('B')->setAutoSize(true);
+    $idProducto = $request->getParam('idProducto');
+    $producto = $request->getParam('producto');
+    $codigoBarra = $request->getParam('codigoBarra');
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaDesde = $request->getParam('fechaDesde');
+    $fechaHasta = $request->getParam('fechaHasta');
+
+    $res = $app->subRequest('GET', '/productos/kardex/' . $idProducto, 'idAlmacen=' . $idAlmacen . '&fechaHasta=' . $fechaHasta);
+    $kardex = (string) $res->getBody();
+    $kardex = json_decode($kardex, true);
+    
+    $kardex = kardexSaldoFecha($kardex, $fechaDesde);
+    $init = 17;
+
+    $saldoCostoUnitario = 0;
+    
+    foreach($kardex as $kar) {
+        $formato->getCell('A'.$init)->setValue($kar['Fecha']);
+        $formato->duplicateStyle($formato->getStyle('A'.$init),'A'.($init+1));
+
+        $formato->getCell('B'.$init)->setValue(@$kar['CodSunat']);
+        $formato->duplicateStyle($formato->getStyle('B'.$init),'B'.($init+1));
+
+        $formato->getCell('C'.$init)->setValue(@$kar['Serie']);
+        $formato->duplicateStyle($formato->getStyle('C'.$init),'C'.($init+1));
+
+        $formato->getCell('D'.$init)->setValue(@$kar['Numero']);
+        $formato->duplicateStyle($formato->getStyle('D'.$init),'D'.($init+1));
+
+        $formato->getCell('E'.$init)->setValue($kar['TipoDocSunat']);
+        $formato->duplicateStyle($formato->getStyle('E'.$init),'E'.($init+1));
+
+        $formato->getCell('F'.$init)->setValue($kar['IngresoCantidad']);
+        $formato->duplicateStyle($formato->getStyle('F'.$init),'F'.($init+1));
+
+        $formato->getCell('G'.$init)->setValue(@$kar['IngresoPrecio']);
+        $formato->duplicateStyle($formato->getStyle('G'.$init),'G'.($init+1));
+        
+        $formato->getCell('H'.$init)->setValue($kar['IngresoCantidad'] * $kar['IngresoPrecio']);
+        $formato->duplicateStyle($formato->getStyle('H'.$init),'H'.($init+1));
+
+        $formato->getCell('I'.$init)->setValue($kar['SalidaCantidad']);
+        $formato->duplicateStyle($formato->getStyle('I'.$init),'I'.($init+1));
+
+        $formato->getCell('J'.$init)->setValue(@$kar['SalidaPrecio']);
+        $formato->duplicateStyle($formato->getStyle('J'.$init),'J'.($init+1));
+
+        $formato->getCell('K'.$init)->setValue($kar['SalidaCantidad'] * $kar['SalidaPrecio']);
+        $formato->duplicateStyle($formato->getStyle('K'.$init),'K'.($init+1));
+
+        $formato->getCell('L'.$init)->setValue($kar['saldo']);
+        $formato->duplicateStyle($formato->getStyle('L'.$init),'L'.($init+1));
+
+        $formato->getCell('M'.$init)->setValue($kar['saldoCostoUnitario']);
+        $formato->duplicateStyle($formato->getStyle('M'.$init),'M'.($init+1));
+
+        $formato->getCell('N'.$init)->setValue(@$kar['saldoCostoTotal']);
+        $formato->duplicateStyle($formato->getStyle('N'.$init),'N'.($init+1));
+
+        $saldoCostoUnitario = $kar['saldoCostoUnitario'];
+
+        $init += 1;
+    }
+    $formato->getCell('A'.($init+2))->setValue('(1) Dirección del Establecimiento o Código según el Registro Único de Contribuyentes.');    
+
+    $formato->getCell('E'.$init)->setValue('TOTALES');    
+    $formato->getCell('F'.$init)->setValue('=SUM(F17:F'.($init-1).')');
+    $formato->getCell('H'.$init)->setValue('=SUM(H17:H'.($init-1).')');
+    $formato->getCell('I'.$init)->setValue('=SUM(I17:I'.($init-1).')');
+    $formato->getCell('K'.$init)->setValue('=SUM(K17:K'.($init-1).')');
+
+
+    $formato->getStyle('E'.$init)->getFont()->setBold( true );
+    $formato->getStyle('F'.$init)->getFont()->setBold( true );
+    $formato->getStyle('H'.$init)->getFont()->setBold( true );
+    $formato->getStyle('I'.$init)->getFont()->setBold( true );
+    $formato->getStyle('K'.$init)->getFont()->setBold( true );
+    
+    $formato->getCell('D3')->setValue('Del ' . $fechaDesde . ' al ' . $fechaHasta);
+    $formato->getCell('D7')->setValue($codigoBarra);
+    $formato->getCell('D9')->setValue($producto);
+
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/formato13.1.xlsx');
+
+    echo '<script type="text/javascript">
+        location.href = "/api/reporte/formato13.1.xlsx";
+    </script>';
+
+    //return $response->withRedirect('/api/reporte/formato13.1.xlsx');
+});
+
+$app->get('/reporte/formato37/exportar', function (Request $request, Response $response, array $args) use ($app) {
+    /* $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/formato3.7.xlsx');
+    $formato = $spreadsheet->getSheet(0);
+
+    $anio = $request->getParam('anio');
+
+    $select = "SELECT * FROM tmp_formato37";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();  
+
+    $init = 12;
+
+    foreach($data as $kar) {
+        $formato->getCell('A'.$init)->setValue($kar['CodigoBarra']);
+        $formato->duplicateStyle($formato->getStyle('A'.$init),'A'.($init+1));
+
+        $formato->getCell('B'.$init)->setValue('01');
+        $formato->duplicateStyle($formato->getStyle('B'.$init),'B'.($init+1));
+
+        $formato->getCell('C'.$init)->setValue($kar['Producto']);
+        $formato->duplicateStyle($formato->getStyle('C'.$init),'C'.($init+1));
+
+        $formato->getCell('D'.$init)->setValue('07');
+        $formato->duplicateStyle($formato->getStyle('D'.$init),'D'.($init+1));
+
+        $formato->getCell('E'.$init)->setValue($kar['Saldo']);
+        $formato->duplicateStyle($formato->getStyle('E'.$init),'E'.($init+1));
+
+        $formato->getCell('F'.$init)->setValue($kar['SaldoCostoUnitario']);
+        $formato->duplicateStyle($formato->getStyle('F'.$init),'F'.($init+1));
+
+        $formato->getCell('G'.$init)->setValue($kar['SaldoCostoTotal']);
+        $formato->duplicateStyle($formato->getStyle('G'.$init),'G'.($init+1));
+
+        $init += 1;
+    }
+
+    $formato->getCell('F'.$init)->setValue('COSTO TOTAL GENERAL');    
+    $formato->getCell('G'.$init)->setValue('=SUM(G12:G'.($init-1).')');
+
+    $formato->getStyle('F'.$init)->getFont()->setBold( true );
+    $formato->getStyle('G'.$init)->getFont()->setBold( true );
+    
+    $formato->getCell('E4')->setValue($anio);
+
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/formato3.7.xlsx'); */
+
+    echo '<script type="text/javascript">
+        location.href = "/api/reporte/formato3.7.xlsx";
+    </script>';
+});
+
+$app->post('/reporte/formato37', function (Request $request, Response $response, array $args) use ($app) {
+    $row = $request->getParam('row');
+    // var_dump($row);exit();
+    $idProductos = $request->getParam('idProductos');
+    $idAlmacen = $request->getParam('idAlmacen');
+    $anio = $request->getParam('anio');
+
+
+    $fechaDesde = $anio . '-01-01';
+    $fechaHasta = $anio . '-12-31';
+    // $fechaDesde = $request->getParam('fechaDesde');
+    // $fechaHasta = $request->getParam('fechaHasta');
+
+    
+    if (!$row) {
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/formato3.7.xlsx');
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('reporte/formato3.7.xlsx');
+    }
+
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('reporte/formato3.7.xlsx');
+    $formato = $spreadsheet->getSheet(0);
+    $init = 12;
+    $init += $row;
+    
+    
+    if ($idProductos) {
+        $select = "SELECT * FROM Gen_Producto WHERE ControlaStock=1 AND IdProducto IN (" . implode(',', $idProductos) . ")";
+        $stmt = $this->db->query($select);
+        $stmt->execute();
+        $data = $stmt->fetchAll();  
+        $productosSaldo = [];
+    
+        $productosSaldo = array_map(function($prod) use ($app, $idAlmacen, $fechaDesde, $fechaHasta) {
+            $idProducto = $prod['IdProducto'];
+            $res = $app->subRequest('GET', '/productos/kardex/' . $idProducto, 'idAlmacen=' . $idAlmacen . '&fechaHasta=' . $fechaHasta);
+            $kardex = (string) $res->getBody();
+            $kardex = json_decode($kardex, true);
+            $kardex = kardexSaldoFecha($kardex, $fechaDesde);
+            $final = array_merge($prod, end($kardex));
+            return $final;
+        }, $data); 
+    
+        foreach($productosSaldo as $kar) {
+            /* $insert = "INSERT INTO tmp_formato37 (IdProducto, Producto, CodigoBarra, Saldo, SaldoCostoUnitario, SaldoCostoTotal)
+                VALUES ('$kar[IdProducto]', '$kar[Producto]', '$kar[CodigoBarra]', '$kar[saldo]', '$kar[saldoCostoUnitario]', '$kar[saldoCostoTotal]')
+                ON DUPLICATE KEY UPDATE Saldo='$kar[saldo]', SaldoCostoUnitario='$kar[saldoCostoUnitario]', SaldoCostoTotal='$kar[saldoCostoTotal]'";
+            $stmt = $this->db->prepare($insert);
+            $inserted = $stmt->execute();
+            $idFormato = $this->db->lastInsertId();*/ 
+
+            $formato->getCell('A'.$init)->setValue($kar['CodigoBarra']);
+            $formato->duplicateStyle($formato->getStyle('A'.$init),'A'.($init+1));
+
+            $formato->getCell('B'.$init)->setValue('01');
+            $formato->duplicateStyle($formato->getStyle('B'.$init),'B'.($init+1));
+
+            $formato->getCell('C'.$init)->setValue($kar['Producto']);
+            $formato->duplicateStyle($formato->getStyle('C'.$init),'C'.($init+1));
+
+            $formato->getCell('D'.$init)->setValue('07');
+            $formato->duplicateStyle($formato->getStyle('D'.$init),'D'.($init+1));
+
+            $formato->getCell('E'.$init)->setValue(@$kar['saldo']);
+            $formato->duplicateStyle($formato->getStyle('E'.$init),'E'.($init+1));
+
+            $formato->getCell('F'.$init)->setValue(@$kar['saldoCostoUnitario']);
+            $formato->duplicateStyle($formato->getStyle('F'.$init),'F'.($init+1));
+
+            $formato->getCell('G'.$init)->setValue(@$kar['saldoCostoTotal']);
+            $formato->duplicateStyle($formato->getStyle('G'.$init),'G'.($init+1));
+
+            $init += 1;
+        }
+
+        $formato->getCell('F'.$init)->setValue('COSTO TOTAL GENERAL');    
+        $formato->getCell('G'.$init)->setValue('=SUM(G12:G'.($init-1).')');
+
+
+        $config = array('SUMA_VALORIZADO' => $formato->getCell('G'.$init)->getCalculatedValue());
+        $insert = "UPDATE GEN_EMPRESA SET CONFIG='" . serialize($config) . "' where IDEMPRESA=1";
+        $stmt = $this->db->prepare($insert);
+        $stmt->execute();
+
+
+        // $formato->getStyle('F'.$init)->getFont()->setBold( true );
+        // $formato->getStyle('G'.$init)->getFont()->setBold( true );
+        
+        $formato->getCell('E4')->setValue($anio);
+
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('reporte/formato3.7.xlsx');
+    }
+
+    return;
+    //return $response->withRedirect('/api/reporte/formato13.1.xlsx');
+});
 
 $app->post('/cierrecaja', function (Request $request, Response $response) {
     $idTurno        = $request->getParam('idTurno');
