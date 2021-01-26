@@ -1556,8 +1556,8 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
                        "%' AND Gen_Producto.CodigoBarra LIKE '" . (isset($filter['codigo']) ? addslashes($filter['codigo']) : '') . 
                        "%' ANd Gen_ProductoMarca.ProductoMarca LIKE '" . (isset($filter['marca']) ? addslashes($filter['marca']) : '') . 
                        "%' ANd Gen_Producto.ProductoModelo LIKE '" . (isset($filter['modelo']) ? addslashes($filter['modelo']) : '') . 
-                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
-                       "'  ) "; 
+                       "%' AND Gen_ProductoCategoria.ProductoCategoria LIKE '%" . (isset($filter['categoria']) ? addslashes($filter['categoria']) : '') . 
+                       "%'  ) "; 
             
         } else {
             $select .= " WHERE Gen_Producto.EsPadre = 0 AND (Gen_Producto.Producto LIKE '%" . $filter . 
