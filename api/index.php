@@ -1457,6 +1457,10 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
     $idAlmacen = $request->getParam('idAlmacen');
     $fechaHasta = $request->getParam('fechaHasta') ? $request->getParam('fechaHasta') : getNow();
 
+    if(isset($args['idAlmacen'])) {
+        $idAlmacen = $args['idAlmacen'];
+    }
+
     // $strIngresoUnd = stringIngresoUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaUnd = stringSalidaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
     // $strSalidaVentaUnd = stringSalidaVentaUnd('Gen_Producto.IdProducto', $idAlmacen, $fechaHasta);
