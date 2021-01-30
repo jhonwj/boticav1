@@ -537,10 +537,13 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
     $fechaHasta = $request->getParam('fechaHasta');
 
     $strIngresos = stringIngresoUndProducto($idProducto, $idAlmacen, $fechaHasta);
+    $strIngresosCajas = stringIngresoCajaProducto($idProducto, $idAlmacen, $fechaHasta);
     $strSalidas = stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta);
+    $strSalidasCajas = stringSalidaCajaProducto($idProducto, $idAlmacen, $fechaHasta);
     $strVentas = stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta);
+    $strVentasCajas = stringSalidaVentaCajaProducto($idProducto, $idAlmacen, $fechaHasta);
 
-    $select = $strIngresos . ' UNION ALL ' . $strSalidas . ' UNION ALL ' . $strVentas;
+    $select = $strIngresos . ' UNION ALL ' . $strIngresosCajas . ' UNION ALL ' . $strSalidas . ' UNION ALL ' .  $strSalidasCajas . ' UNION ALL ' . $strVentas . ' UNION ALL ' . $strVentasCajas; 
     $select .= ' ORDER BY Fecha ASC';
 
     $limit = $request->getParam('limit') ? $request->getParam('limit') :  0;
@@ -1213,7 +1216,8 @@ $app->get('/consultarRUC', function (Request $request, Response $response, array
 
 
 function stringIngresoUndProducto($idProducto, $idAlmacen, $fechaHasta) {
-    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha,  Lo_MovimientoTipo.CodSunat, Lo_MovimientoTipo.TipoMovSunat as TipoDocSunat,
+     Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
     Gen_Moneda.Simbolo AS Moneda,
     Lo_MovimientoDetalle.Cantidad AS IngresoCantidad, Lo_MovimientoDetalle.Precio AS IngresoPrecio,
     '0' AS SalidaCantidad, '0' AS SalidaPrecio,
@@ -1228,8 +1232,27 @@ function stringIngresoUndProducto($idProducto, $idAlmacen, $fechaHasta) {
 
     return $select;
 }
+function stringIngresoCajaProducto($idProducto, $idAlmacen, $fechaHasta) {
+    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.CodSunat, Lo_MovimientoTipo.TipoMovSunat as TipoDocSunat,
+    Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres, 
+    Gen_Moneda.Simbolo AS Moneda,
+    (Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad) AS IngresoCantidad, Lo_MovimientoDetalle.Precio AS IngresoPrecio, 
+    '0' AS SalidaCantidad, '0' AS SalidaPrecio, 
+    '0' AS Descuento FROM Lo_Movimiento
+        INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+        INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+        INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
+        LEFT JOIN Lo_Proveedor ON Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
+        LEFT JOIN Gen_Moneda ON Lo_Movimiento.Moneda = Gen_Moneda.Moneda
+        WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+            AND Gen_ProductoDet.IdProductoDet=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
+
+    return $select;
+}
 function stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
-    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.CodSunat, Lo_MovimientoTipo.TipoMovSunat as TipoDocSunat,
+    Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
     'S/' AS Moneda,
     '0' AS IngresoCantidad, '0' AS IngresoPrecio,
     Lo_MovimientoDetalle.Cantidad as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio,
@@ -1243,8 +1266,26 @@ function stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
 
     return $select;
 }
+function stringSalidaCajaProducto($idProducto, $idAlmacen, $fechaHasta) {
+    $select = "(SELECT Lo_Movimiento.MovimientoFecha AS Fecha, Lo_MovimientoTipo.CodSunat, Lo_MovimientoTipo.TipoMovSunat as TipoDocSunat,
+    Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
+    'S/' AS Moneda, 
+    '0' AS IngresoCantidad, '0' AS IngresoPrecio, 
+    (Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad) as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio, 
+    '0' AS Descuento FROM Lo_Movimiento
+        INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+        INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+        INNER JOIN Gen_ProductoDet ON Lo_MovimientoDetalle.IdProducto = Gen_ProductoDet.IdProducto
+        LEFT JOIN Lo_Proveedor ON Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
+        WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
+            AND Gen_ProductoDet.IdProductoDet=$idProducto AND Lo_Movimiento.Anulado=0 
+            AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
+
+    return $select;
+}
 function stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
-    $select = "(SELECT Ve_DocVenta.FechaDoc AS Fecha, CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
+    $select = "(SELECT Ve_DocVenta.FechaDoc AS Fecha, Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaTipoDoc.TipoDocSunat,
+    CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
     Ve_DocVentaCliente.Cliente AS Nombres,
     'S/' AS Moneda,
     '0' AS IngresoCantidad, '0' AS IngresoPrecio,
@@ -1260,6 +1301,28 @@ function stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
 
     return $select;
 }
+
+function stringSalidaVentaCajaProducto($idProducto, $idAlmacen, $fechaHasta) {
+    $select = "(SELECT Ve_DocVenta.FechaDoc AS Fecha, Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaTipoDoc.TipoDocSunat,
+    CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero, 
+    Ve_DocVentaCliente.Cliente AS Nombres, 
+    'S/' AS Moneda,
+    '0' AS IngresoCantidad, '0' AS IngresoPrecio, 
+    (Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad) as SalidaCantidad, Ve_DocVentaDet.Precio AS SalidaPrecio, 
+    Ve_DocVentaDet.Descuento FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+        LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente= Ve_DocVentaCliente.IdCliente
+        INNER JOIN Gen_ProductoDet ON Ve_DocVentaDet.IdProducto=Gen_ProductoDet.IdProducto
+        WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
+            AND Gen_ProductoDet.IdProductoDet = $idProducto 
+            AND Ve_DocVenta.Anulado = 0
+            AND Ve_DocVentaTipoDoc.VaRegVenta = 1
+            AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
+
+    return $select;
+}
+
 
 
 
