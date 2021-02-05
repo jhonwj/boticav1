@@ -55,6 +55,18 @@ function getNow($format = "Y-m-d H:i:s") {
     return date_create('now', timezone_open('America/Lima'))->format($format);
 }
 
+$app->post('/login', function (Request $request, Response $response, array $args) {
+    
+    $user = $request->getParam('user');
+    $pass = $request->getParam('password');
+
+    $select = "SELECT * FROM Seg_Usuario WHERE Usuario='$user' AND Password='$pass'";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetch();  
+
+    return $response->withJson($data);
+});
 
 $app->get('/categorias', function (Request $request, Response $response, array $args) {
     $q = $request->getParam('q');
@@ -780,6 +792,8 @@ $app->post('/productos', function (Request $request, Response $response) {
     $idProductoFormaFarmaceutica = 1;
     $producto = $request->getParam('Producto');
     $productoDesc = $request->getParam('ProductoDesc');
+    $productoDesc2 = $request->getParam('ProductoDesc2');
+    $productoDesc3 = $request->getParam('ProductoDesc3');
     $productoModelo = $request->getParam('ProductoModelo') ? $request->getParam('ProductoModelo') : '';
     $fechaReg = getNow();
     $hash = time();
@@ -815,29 +829,34 @@ $app->post('/productos', function (Request $request, Response $response) {
 
 
         $update = $this->db->update(array(
-                            "CodigoBarra" => $codigoBarra,
-                            "Producto" => $producto,
-                            "ProductoDesc" => $productoDesc,
-                            "IdProductoMarca" => $idProductoMarca,
-                            "IdProductoFormaFarmaceutica" => $idProductoFormaFarmaceutica,
-                            "IdProductoMedicion" => $idProductoMedicion,
-                            "IdProductoCategoria" => $idProductoCategoria,
+                            "CodigoBarra" =>                    $codigoBarra,
+                            "Producto" =>                       $producto,
+                            "ProductoDesc" =>                   $productoDesc,
+                            "ProductoDesc2" =>                  $productoDesc2,
+                            "ProductoDesc3" =>                  $productoDesc3,
+                            "IdProductoMarca" =>                $idProductoMarca,
+                            "IdProductoFormaFarmaceutica" =>    $idProductoFormaFarmaceutica,
+                            "IdProductoMedicion" =>             $idProductoMedicion,
+                            "IdProductoCategoria" =>            $idProductoCategoria,
                             // "IdProductoModelo" => $idProductoModelo,
                             // "IdProductoTalla" => $idProductoTalla,
-                            "ControlaStock" => $controlaStock,
-                            "PorcentajeUtilidad" => $porcentajeUtilidad,
-                            "Genero" => $genero, "Color" => $color, "Botapie" => $botapie, "Anulado" => $anulado,
-                            "ProductoModelo" => $productoModelo,
-                            "PrecioCosto" => $precioCosto,
-                            "PrecioContado" => $precioContado,
-                            "precioConvenio" => $precioConvenio,
-                            "ProductoPresentacion" => $productoPresentacion,
-                            "EsPadre" => $esPadre,
-                            "StockMinimo" => $stockMinimo,
-                            "PrecioPorMayor" => $precioPorMayor,
-                            "EsHabitacion" => $esHabitacion,
-                            "Piso" => $piso,
-                            "PreciosPorProducto" => $preciosPorProducto
+                            "ControlaStock" =>                  $controlaStock,
+                            "PorcentajeUtilidad" =>             $porcentajeUtilidad,
+                            "Genero" =>                         $genero, 
+                            "Color" =>                          $color, 
+                            "Botapie" =>                        $botapie, 
+                            "Anulado" =>                        $anulado,
+                            "ProductoModelo" =>                 $productoModelo,
+                            "PrecioCosto" =>                    $precioCosto,
+                            "PrecioContado" =>                  $precioContado,
+                            "precioConvenio" =>                 $precioConvenio,
+                            "ProductoPresentacion" =>           $productoPresentacion,
+                            "EsPadre" =>                        $esPadre,
+                            "StockMinimo" =>                    $stockMinimo,
+                            "PrecioPorMayor" =>                 $precioPorMayor,
+                            "EsHabitacion" =>                   $esHabitacion,
+                            "Piso" =>                           $piso,
+                            "PreciosPorProducto" =>             $preciosPorProducto
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
@@ -887,9 +906,65 @@ $app->post('/productos', function (Request $request, Response $response) {
         return $response->withJson($data);
     }
     // Final verificar Movimiento
-    $insert = $this->db->insert(array('IdProductoMarca', 'IdProductoFormaFarmaceutica', 'IdProductoMedicion', 'IdProductoCategoria', 'Producto', 'ProductoDesc', 'FechaReg', 'Hash', 'ControlaStock', 'PorcentajeUtilidad', 'Genero', 'Color', 'Botapie', 'Anulado', 'ProductoModelo', 'ProductoPresentacion', 'EsPadre', 'precioConvenio', 'PrecioPorMayor', 'StockMinimo', 'CodigoBarra', 'PrecioCosto', 'PrecioContado', 'EsHabitacion', 'Piso', 'PreciosPorProducto'))
-                       ->into('Gen_Producto')
-                       ->values(array($idProductoMarca, $idProductoFormaFarmaceutica, $idProductoMedicion, $idProductoCategoria, $producto, $productoDesc, $fechaReg, $hash, $controlaStock, $porcentajeUtilidad, $genero, $color, $botapie, $anulado, $productoModelo, $productoPresentacion, $esPadre, $precioConvenio, $precioPorMayor, $stockMinimo, $codigoBarra, $precioCosto, $precioContado, $esHabitacion, $piso, $preciosPorProducto));
+    $insert = $this->db
+        ->insert(
+            array(
+                'IdProductoMarca', 
+                'IdProductoFormaFarmaceutica', 
+                'IdProductoMedicion', 
+                'IdProductoCategoria', 
+                'Producto', 'ProductoDesc', 
+                'ProductoDesc2', 
+                'ProductoDesc3', 
+                'FechaReg', 
+                'Hash', 
+                'ControlaStock', 
+                'PorcentajeUtilidad', 
+                'Genero', 
+                'Color', 
+                'Botapie', 
+                'Anulado', 
+                'ProductoModelo', 
+                'ProductoPresentacion', 
+                'EsPadre', 
+                'PrecioPorMayor', 
+                'StockMinimo', 
+                'CodigoBarra', 
+                'PrecioCosto', 
+                'PrecioContado', 
+                'EsHabitacion', 
+                'Piso', 
+                'PreciosPorProducto'))
+        ->into('Gen_Producto')
+        ->values(
+            array(
+                $idProductoMarca, 
+                $idProductoFormaFarmaceutica, 
+                $idProductoMedicion, 
+                $idProductoCategoria, 
+                $producto, 
+                $productoDesc, 
+                $productoDesc2, 
+                $productoDesc3, 
+                $fechaReg, 
+                $hash, 
+                $controlaStock, 
+                $porcentajeUtilidad, 
+                $genero, 
+                $color, 
+                $botapie, 
+                $anulado, 
+                $productoModelo, 
+                $productoPresentacion, 
+                $esPadre, 
+                $precioPorMayor, 
+                $stockMinimo, 
+                $codigoBarra, 
+                $precioCosto, 
+                $precioContado, 
+                $esHabitacion, 
+                $piso, 
+                $preciosPorProducto));
     $insertId = $insert->execute();
 
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -921,7 +996,7 @@ $app->post('/productos', function (Request $request, Response $response) {
 });
 
 $app->post('/producto/imagen/{id}', function (Request $request, Response $response, array $args) {
-    
+
     if( empty($_FILES) ) {
         return;
     }
