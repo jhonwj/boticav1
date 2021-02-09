@@ -75,7 +75,7 @@ color:#000;
 }
 
 .cabecera2 table { border-collapse: collapse; border: solid 1px #000000;}
-.cabecera2 th, .cabecera2 td { text-align: center; border-collapse: collapse; border: solid 1px #000000; font-size:12px; } 
+.cabecera2 th, .cabecera2 td { text-align: center; border-collapse: separate; border: solid 1px #000000; font-size:12px; padding: 8px; } 
 .cabeza{ text-align: left; }
 .nfactura{ background-color: #D8D8D8; }
 .cuerpo table { border-collapse: collapse; margin-top:1px; border: solid 1px #000000; }
@@ -113,8 +113,8 @@ th,td { padding: 3pt; }
 <td width="6%"><img src="../../images/logo.png" width="123" height="60" /></td>
 	
 <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
-  <strong>SUCURSAL:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>
-  <strong>TELF. PRINCIPAL:</strong> '. '' .'<br>
+  <!--<strong>SUCURSAL:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>-->
+  <strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
 </td>
 		
       <td width="30%">
@@ -228,9 +228,9 @@ Representación impresa de la '.$tdocumento.'<br>
 <table width="100%" border="0" cellspacing="0"  class="total"  >
         <tbody>
 <tr><td class="total2" width="50%"><strong>SUB.TOTAL:</strong></td><td><strong>'.$cab['txtSUB_TOTAL'].'</strong></td></tr>
-<tr><td class="total2"><strong>GRAVADAS:</strong></td><td><strong>'.$cab['txtSUB_TOTAL'].'</strong></td></tr>
+<tr><td class="total2"><strong>GRAVADAS:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>INAFECTA:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>0.00</strong></td></tr>
+<tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>'.$cab['txtSUB_TOTAL'].'</strong></td></tr>
 <tr><td class="total2"><strong>GRATUITA:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>'.$cab['txtTOTAL_DESCUENTO'].'</strong></td></tr>
 <tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.$cab['txtTOTAL_IGV'].'</strong></td></tr>
@@ -252,7 +252,7 @@ Representación impresa de la '.$tdocumento.'<br>
 <tr><td>---</td></tr>
 <tr>  
 <td>
-Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00
+<!-- Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00 -->
   </td>
 </tr>
    
@@ -271,7 +271,7 @@ Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno
  ';
 
  $dompdf = new DOMPDF();
- $dompdf->set_paper('letter','landscape');
+ $dompdf->set_paper('letter','portrait');
  //$dompdf->set_paper('legal','landscape');
  $dompdf->load_html($html);
  $dompdf->render();

@@ -131,6 +131,28 @@ if (isset($_GET['IdDocVenta'])) {
   }
 ?>
 
+
+<!-- OPEN PRINTER -->
+<div id="printer">
+  <a class="print no-print" href='/api/index.php/imprimirpdf/<?php echo $_GET['IdDocVenta']; ?>'>¡IMPRIMIR PDF!</a>
+</div>
+<style>
+  #printer {
+    width: 100%;
+    text-align: center; 
+  }
+  #printer .print {
+    font-size: 4mm;
+  }
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+</style>
+
+
+
 <style>
 .strike {
   display: block;

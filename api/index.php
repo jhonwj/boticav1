@@ -3397,6 +3397,8 @@ define('DIRECCION_EMPRESA', "JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE A
 define('DEPARTAMENTO_EMPRESA', "HUANUCO");
 define('PROVINCIA_EMPRESA', "HUANUCO");
 define('DISTRITO_EMPRESA', "HUANUCO");
+define('TELEFONOS_EMPRESA', "");
+
 define('CODIGO_PAIS_EMPRESA', 'PE');
 define('USUARIO_SOL_EMPRESA', 'NEUR0515'); // cambiar cuando se pase a produccion //NEURO123
 define('PASS_SOL_EMPRESA', 'Neur0515'); // cambiar cuando se pase a produccion
@@ -3555,6 +3557,164 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
     return $response->withJson($me);
 });
+
+
+$app->post('/generarpdfelectronico', function (Request $request, Response $response) {
+    include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
+
+    $docVenta = $request->getParam('docVenta');
+    $new = new api_sunat();
+
+    $detalle = array();
+    $json = array();
+    $n=0;
+    $descuento = 0;
+
+    foreach ($docVenta['productos'] as $producto) {
+        $n=$n+1;
+
+        $igv = $docVenta['TieneIgv'] ? round($producto['Total'] * 0.18, 2) : 0;
+        $subtotal = $docVenta['TieneIgv'] ? $producto['Total'] - $igv : $producto['Total'];
+
+        $json['txtITEM']=$n;
+        $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
+        $json["txtPRECIO_DET"] = $producto['Precio'];
+        $json["txtPRECIO_DESC_DET"] = $producto['Descuento'];
+        $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD
+        $json["txtPRECIO_TIPO_CODIGO"] = "01"; // 02 valor referencial unitario en operaciones no onerosas
+        $json["txtIGV"] = $igv;
+        $json["txtISC"] = "0";
+        $json["txtIMPORTE_DET"] = $producto['Total']; //rowData.IMPORTE; //SUB_TOTAL + IGV
+        $json["txtCOD_TIPO_OPERACION"] = $docVenta['CodigoIgv']; //20 si es exonerado
+        $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
+        $json["txtDESCRIPCION_DET"] = trim($producto['Producto']);
+
+        $json["txtMEDICION"] = $producto['ProductoMedicion'];
+        $json["txtLABORATORIO"] = $producto['ProductoMarca'];
+        $json["txtLOTE"] = isset($producto['IdLote']) ? $producto['IdLote'] : '';
+        $json["txtFECHAVEN"] = isset($producto['FechaVen']) ? $producto['FechaVen'] : '';
+        $json["txtFECHAVENCIMIENTO"] = isset($producto['FechaVencimiento']) ? $producto['FechaVencimiento'] : '';
+
+        //$json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
+        $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
+
+        $detalle[]=$json;
+        $descuento += $producto['Descuento'];
+    }
+
+    $gravadas = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
+    $subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
+
+    //ELIMINAR ESPACIOS EN BLANCO DNI/RUC
+    $docVenta['DniRuc'] = trim($docVenta['DniRuc']);
+    
+    //$total = ($descuento > 0) ? $subtotal - $descuento : '0';
+    $data = array(
+        "txtTIPO_OPERACION"=>"0101", // corregir esto despues
+        "txtTOTAL_DESCUENTO" => $descuento,
+        "txtTOTAL_GRAVADAS"=> $gravadas,
+        "txtSUB_TOTAL"=> $subtotal,
+        "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0",
+        "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
+        "txtTOTAL"=> $docVenta['Total'],
+        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true),
+        "txtNRO_COMPROBANTE"=> $docVenta['Serie'] . "-" . $docVenta['Numero'], //
+        "txtFECHA_DOCUMENTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
+        "txtFECHA_CREDITO"=> date("Y-m-d", strtotime($docVenta['FechaCredito'])),
+        "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
+        "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
+        "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        "txtALMACEN"=> $docVenta['Almacen'],
+        "txtALMACEN_DIRECCION" => $docVenta['DireccionAlmacen'],
+        "txtALMACEN_ES_PRINCIPAL" => $docVenta['EsAlmacenPrincipal'],
+        //==========documentos de referencia(nota credito, debito)=============
+        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['codSunatModifica']) && $docVenta['codSunatModifica'] ? $docVenta['codSunatModifica'] : "", //aqui completar
+        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['nroComprobanteModifica']) && $docVenta['nroComprobanteModifica'] ? $docVenta['nroComprobanteModifica'] : "",
+        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['notaIdMotivo']) && $docVenta['notaIdMotivo'] ? $docVenta['notaIdMotivo'] : "",
+        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['notaDescMotivo']) && $docVenta['notaDescMotivo'] ? $docVenta['notaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
+        //=================datos del cliente=================8
+         "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
+         "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
+         "txtNOMBRE_COMERCIAL_CLIENTE"=> $docVenta['NombreComercial'],
+         "txtTIPO_DOCUMENTO_CLIENTE"=> strlen($docVenta['DniRuc']) > 9 ? "6" : "1",//1 DNI 6 RUC
+         "txtDIRECCION_CLIENTE"=>$docVenta['Direccion'],
+         "txtCIUDAD_CLIENTE"=>"",
+         "txtCOD_PAIS_CLIENTE"=>"PE",
+        //=================datos de LA EMPRESA=================
+         "txtNRO_DOCUMENTO_EMPRESA" => NRO_DOCUMENTO_EMPRESA,
+         "txtTIPO_DOCUMENTO_EMPRESA"=> TIPO_DOCUMENTO_EMPRESA,
+         "txtNOMBRE_COMERCIAL_EMPRESA"=> NOMBRE_COMERCIAL_EMPRESA,
+         "txtCODIGO_UBIGEO_EMPRESA"=> CODIGO_UBIGEO_EMPRESA,
+         "txtDIRECCION_EMPRESA"=> DIRECCION_EMPRESA,
+         "txtDEPARTAMENTO_EMPRESA"=> DEPARTAMENTO_EMPRESA,
+         "txtPROVINCIA_EMPRESA"=> PROVINCIA_EMPRESA,
+         "txtDISTRITO_EMPRESA"=> DISTRITO_EMPRESA,
+         "txtCODIGO_PAIS_EMPRESA"=> CODIGO_PAIS_EMPRESA,
+         "txtRAZON_SOCIAL_EMPRESA"=> RAZON_SOCIAL_EMPRESA,
+         "txtTELEFONOS_EMPRESA" => TELEFONOS_EMPRESA,
+         "txtUSUARIO_SOL_EMPRESA"=> USUARIO_SOL_EMPRESA,
+         "txtPASS_SOL_EMPRESA"=> PASS_SOL_EMPRESA,
+         "txtTIPO_PROCESO"=> TIPO_PROCESO, //01 PRODUCCION 03 BETA
+         "detalle"=>$detalle,
+        //"detalle" => []
+    );
+    if ($docVenta['CodigoIgv'] == "20") { // 20 = exonerado Igv
+        $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
+    }
+
+    $data['hash_cpe'] = isset($docVenta['Hash_cpe']) ? $docVenta['Hash_cpe'] : '';
+    $new->creaPDF(json_encode($data));
+
+});
+
+$app->get('/imprimirpdf/{id}', function (Request $request, Response $response, array $args) use ($app) {
+    $id = $args['id'];
+
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
+        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
+        Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
+        Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
+        Ve_DocVenta.FechaCredito, Lo_Almacen.Almacen, Lo_Almacen.Direccion DireccionAlmacen, Lo_Almacen.EsPrincipal EsAlmacenPrincipal,
+        Ve_DocVentaCliente.NombreComercial,
+        IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+        LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente 
+        INNER JOIN Lo_Almacen ON Ve_DocVenta.IdAlmacen = Lo_Almacen.IdAlmacen
+        WHERE idDocVenta = $id ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $venta = $stmt->fetch();
+
+    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto,
+        ROUND(Ve_DocVentaDet.Descuento, 2) AS Descuento,
+        ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
+        ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
+        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion,
+        Gen_ProductoMedicion.ProductoMedicion, Gen_ProductoMarca.ProductoMarca
+        FROM Ve_DocVentaDet
+        INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        WHERE IdDocVenta = $id";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $productos = $stmt->fetchAll();
+
+    $venta['productos'] = $productos;
+
+    // Generar el PDF como archivo
+    $res = $app->subRequest('POST', '/generarpdfelectronico', http_build_query(['docVenta' => $venta]));
+    
+    // Buscar el pdf y mostrarlo
+    $response = $this->response->withHeader( 'Content-type', 'application/pdf' );
+    $content = file_get_contents(dirname(__FILE__) . '/sunat/api_cpe/PRODUCCION/' . NRO_DOCUMENTO_EMPRESA . '/' . NRO_DOCUMENTO_EMPRESA . '-' . $venta['CodSunat'] . '-' . $venta['Serie'] . '-' . $venta['Numero'] . '.pdf');
+    return $response->write($content);
+});
+
 
 
 $app->post('/moveraemitidos', function (Request $request, Response $response) {
