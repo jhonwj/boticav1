@@ -584,12 +584,19 @@ $app->get('/habitaciones', function (Request $request, Response $response, array
         Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente,
         -- Ve_PreOrdenTotal.granTotal, Cb_CajaBancoAdelanto.sumAdelanto, Cb_CajaBancoGasto.sumGasto 
         (Ve_PreOrdenTotal.granTotal - Cb_CajaBancoAdelanto.sumAdelanto + Cb_CajaBancoGasto.sumGasto) AS granTotalCalculado,
-        Ve_PreOrden.IdProforma
+        Ve_PreOrden.IdProforma, Ve_ProformaTotal.TotalProf 
         FROM Gen_Producto
         INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
         INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
         LEFT JOIN Ve_PreOrden ON Gen_Producto.IdPreOrden = Ve_PreOrden.IdPreOrden
+        LEFT JOIN (
+            SELECT Ve_Proforma.*, SUM(Ve_ProformaDet.Cantidad * Ve_ProformaDet.Precio) AS TotalProf
+            FROM Ve_Proforma
+            INNER JOIN Ve_ProformaDet ON Ve_Proforma.IdProforma = Ve_ProformaDet.IdProforma
+            WHERE Ve_Proforma.IdProforma=Ve_Proforma.IdProforma
+            GROUP BY Ve_Proforma.IdProforma
+        ) Ve_ProformaTotal ON Ve_ProformaTotal.IdProforma = Ve_PreOrden.IdProforma 
         LEFT JOIN Ve_DocVentaCliente ON Gen_Producto.IdClienteReserva = Ve_DocVentaCliente.IdCliente
         LEFT JOIN (
             SELECT Ve_PreOrdenDet.IdPreOrden, SUM(Ve_PreOrdenDet.Cantidad * Ve_PreOrdenDet.Precio) AS granTotal 
@@ -705,6 +712,67 @@ $app->post('/habitaciones/reservar', function (Request $request, Response $respo
         "IdProducto" => $idProducto,
         "quer" => $update
     ));
+});
+
+$app->get('/productos/masrotacion', function (Request $request, Response $response, array $args) {
+
+    $idProducto = 1;
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaDesde = $request->getParam('fechaDesde') ? $request->getParam('fechaDesde') : '2017-01-01T00:00:00' ;
+    $fechaHasta = $request->getParam('fechaHasta');
+
+    $strIngresoUnd = stringIngresoUnd(false, $idAlmacen, $fechaHasta, $fechaDesde);
+    $strSalidaUnd = stringSalidaUnd(false, $idAlmacen, $fechaHasta, $fechaDesde);
+
+    $strIngresoCaja = stringIngresoCaja(false, $idAlmacen, $fechaHasta, $fechaDesde);
+    $strSalidaCaja = stringSalidaCaja(false, $idAlmacen, $fechaHasta, $fechaDesde);
+
+    $strSalidaVentaUnd = stringSalidaVentaUnd(false, $idAlmacen, $fechaHasta, $fechaDesde);
+    $strSalidaVentaCaja = stringSalidaVentaCaja(false, $idAlmacen, $fechaHasta, $fechaDesde);
+
+    $strIngresoUndCount = stringIngresoUndCount(false, $idAlmacen, $fechaHasta, $fechaDesde);
+
+    $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
+        Gen_ProductoMedicion.ProductoMedicion,
+        IFNULL(IngresoUnd.cantidad, 0) AS StockIngresoUnd,
+        IFNULL(SalidaUnd.cantidad, 0) AS StockSalidaUnd,
+        IFNULL(SalidaVentaUnd.cantidad, 0) AS StockSalidaVentaUnd,
+        IFNULL(SalidaVentaCaja.cantidad, 0) AS StockSalidaVentaCaja,
+        (IFNULL(SalidaVentaUnd.cantidad, 0) + IFNULL(SalidaVentaCaja.cantidad, 0)) AS TotalVentas,
+        IFNULL(IngresoUndCount.cantidad, 0) AS TotalCompras,
+
+        (IFNULL(IngresoUnd.cantidad, 0) + IFNULL(IngresoCaja.cantidad, 0)  - IFNULL(SalidaCaja.cantidad, 0) - IFNULL(SalidaUnd.cantidad, 0) - IFNULL(SalidaVentaUnd.cantidad,0) - IFNULL(SalidaVentaCaja.cantidad,0)) AS stock
+
+        FROM Gen_Producto
+        INNER JOIN Gen_ProductoCategoria ON Gen_Producto.IdProductoCategoria = Gen_ProductoCategoria.IdProductoCategoria
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        LEFT JOIN $strIngresoUnd AS IngresoUnd ON Gen_Producto.IdProducto = IngresoUnd.IdProducto
+        LEFT JOIN $strSalidaUnd AS SalidaUnd ON Gen_Producto.IdProducto = SalidaUnd.IdProducto
+        LEFT JOIN $strIngresoCaja AS IngresoCaja ON Gen_Producto.IdProducto = IngresoCaja.IdProducto
+        LEFT JOIN $strSalidaCaja AS SalidaCaja ON Gen_Producto.IdProducto = SalidaCaja.IdProducto
+        LEFT JOIN $strSalidaVentaUnd AS SalidaVentaUnd ON Gen_Producto.IdProducto = SalidaVentaUnd.IdProducto
+        LEFT JOIN $strSalidaVentaCaja AS SalidaVentaCaja ON Gen_Producto.IdProducto = SalidaVentaCaja.IdProducto
+        LEFT JOIN $strIngresoUndCount AS IngresoUndCount ON Gen_Producto.IdProducto = IngresoUndCount.IdProducto
+        ORDER BY TotalVentas DESC";
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  0;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $this->db->query('SET SQL_BIG_SELECTS=1');
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
 });
 
 
@@ -874,9 +942,9 @@ $app->post('/productos', function (Request $request, Response $response) {
                 $insertDetId = $insertDet->execute();
             }
         }
-        // return $response->withJson(array("insertId" => $idProducto));
+        return $response->withJson(array("insertId" => $idProducto));
 
-        return $response->withJson(array("affectedRows" => $productosDet));
+        // return $response->withJson(array("affectedRows" => $productosDet));
 
 
 
@@ -1540,6 +1608,28 @@ function stringSalidaVentaCaja($idProducto, $idAlmacen, $fechaHasta) {
             GROUP BY Gen_ProductoDet.IdProductoDet)";
     }
     //print_r($select);exit();
+    return $select;
+}
+
+function stringIngresoUndCount($idProducto, $idAlmacen, $fechaHasta, $fechaDesde = false) {
+    /* $select = "(SELECT IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+        INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
+        INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+        WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+            AND Lo_MovimientoDetalle.IdProducto=$idProducto AND Lo_Movimiento.Anulado=0
+            AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')"; */
+
+    if (!$idProducto) {
+        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, COUNT(Lo_Movimiento.Hash) AS cantidad FROM Lo_Movimiento
+            INNER JOIN Lo_MovimientoDetalle ON Lo_Movimiento.Hash = Lo_MovimientoDetalle.hashMovimiento
+            INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+            WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenDestino = $idAlmacen
+                AND Lo_Movimiento.Anulado=0 " .
+                ($fechaDesde ? " AND Lo_Movimiento.MovimientoFecha > '$fechaDesde' " : "")
+                . " AND Lo_Movimiento.MovimientoFecha < '$fechaHasta'
+            GROUP BY Lo_MovimientoDetalle.IdProducto)";
+    }
+
     return $select;
 }
 
@@ -4522,6 +4612,50 @@ $app->post('/reporte/formato37', function (Request $request, Response $response,
 
     return;
     //return $response->withRedirect('/api/reporte/formato13.1.xlsx');
+});
+
+$app->get('/reporte/articulosmovimientos', function (Request $request, Response $response, array $args) use ($app) {
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/masrotacion.xlsx');
+    $formato = $spreadsheet->getSheet(0);
+    // $formato->getColumnDimension('B')->setAutoSize(true);
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaDesde = $request->getParam('fechaDesde');
+    $fechaHasta = $request->getParam('fechaHasta');
+
+    $res = $app->subRequest('GET', '/productos/masrotacion', 'idAlmacen=' . $idAlmacen . '&fechaDesde=' . $fechaDesde . '&fechaHasta=' . $fechaHasta);
+    $productos = (string) $res->getBody();
+    $productos = json_decode($productos, true);
+
+    $init = 9;
+
+    foreach($productos as $prod) {
+        $formato->getCell('A'.$init)->setValue($prod['CodigoBarra']);
+        $formato->duplicateStyle($formato->getStyle('A'.$init),'A'.($init+1));
+
+        $formato->getCell('B'.$init)->setValue($prod['Producto'] . ' - ' . $prod['ProductoCategoria'] . ' - ' . $prod['ProductoMarca']);
+        $formato->duplicateStyle($formato->getStyle('B'.$init),'B'.($init+1));
+
+        $formato->getCell('C'.$init)->setValue($prod['ProductoMedicion']);
+        $formato->duplicateStyle($formato->getStyle('C'.$init),'C'.($init+1));
+
+        $formato->getCell('D'.$init)->setValue($prod['TotalVentas']);
+        $formato->duplicateStyle($formato->getStyle('D'.$init),'D'.($init+1));
+
+        $formato->getCell('E'.$init)->setValue($prod['TotalCompras']);
+        $formato->duplicateStyle($formato->getStyle('E'.$init),'E'.($init+1));
+        $init += 1;
+    }
+
+    $formato->getCell('D3')->setValue('Del ' . $fechaDesde . ' al ' . $fechaHasta);
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/masrotacion.xlsx');
+
+    echo '<script type="text/javascript">
+        location.href = "/api/reporte/masrotacion.xlsx";
+    </script>';
+
+    // return $response->withRedirect('/api/reporte/formato12.1.xlsx');
 });
 
 $app->post('/cierrecaja', function (Request $request, Response $response) {
