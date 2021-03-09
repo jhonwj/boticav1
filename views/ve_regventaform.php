@@ -77,6 +77,11 @@ $(document).ready(function(e){
 		window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0));
 	});
 
+	$("#btnExcel2").click(function(){
+		// window.location.href="reporteExcel5.php?fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked");
+		window.open("/api/index.php/reporte/ventasproducto?idAlmacen=1&fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0));
+	});
+
 });
 
 function EliminarRegVenta(docVenta){
@@ -106,6 +111,7 @@ function EliminarRegVenta(docVenta){
 <div class="fab2">
 	<button id="" class="btn btn-success" onclick="exportarTXT($('#tableRegVenta'))"><i class="fa fa-file"></i>.txt</button>
 	<button id="btnExcel" class="btn btn-success"><i class="fa fa-file-excel-o"></i>.xls</button>
+	<button id="btnExcel2" class="btn btn-warning"><i class="fa fa-file-excel-o"></i>.xls Detalle</button>
 </div>
 
 <div class="bt-panel">

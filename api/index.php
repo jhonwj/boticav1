@@ -1810,7 +1810,7 @@ $app->get('/productos/stock[/{idAlmacen}]', function (Request $request, Response
         $select .= " AND Gen_Producto.IdProducto IN (" . implode(',', $idProductos) . ")";
     }
 
-    $select .= "AND Gen_Producto.ControlaStock=1 ";
+    $select .= "AND (Gen_Producto.ControlaStock=1 OR Gen_Producto.CodigoBarra='MANODEOBRA')";
 
     if(isset($request->getparam('filter')['minimo']) && !$request->getParam('sumaStock') && !$request->getParam('sumaValorizado') && !$request->getParam('sumaValorizadoSin')) {
         $filterMinimo = $request->getParam('filter')['minimo'];
@@ -4153,6 +4153,114 @@ $app->get('/reporte/habitaciones', function (Request $request, Response $respons
 });
 
 
+$app->get('/reporte/ventasproducto', function (Request $request, Response $response, array $args) use ($app) {
+    $idAlmacen = $request->getParam('idAlmacen');
+    $fechaInicio = $request->getParam('fechaInicio');
+    $fechaFin = $request->getParam('fechaFin');
+    $declarado = $request->getParam('declarado') ? 1 : 0;
+    
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
+        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
+        Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion, Ve_DocVentaTipoDoc.CodigoIgv,
+        IFNULL(SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)), 0) AS Total,
+        Gen_Producto.IdProducto,
+        Gen_Producto.Producto,
+        Ve_DocVentaDet.Precio,
+        Ve_DocVentaDet.Cantidad,
+        Ve_DocVentaDet.Descuento
+        FROM
+            Ve_DocVentaDet
+                INNER JOIN
+            Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
+                INNER JOIN
+            Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+                LEFT JOIN
+            Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+                INNER JOIN 
+                Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+        WHERE
+            Ve_DocVentaTipoDoc.VaRegVenta = $declarado
+                AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $fechaInicio . "' AS DATETIME) AND CONCAT('" . $fechaFin . "', ' 23:59:59')
+                AND Ve_DocVentaTipoDoc.CodSunat IN ('01', '03')
+        GROUP BY Ve_DocVenta.idDocVenta
+        ORDER BY Ve_DocVenta.FechaDoc DESC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $ventas = $stmt->fetchAll();
+
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/reporteventas.xlsx');
+    $sheet = $spreadsheet->getSheet(0);
+
+    $cont = 2;
+    foreach($ventas as $ven) {
+        $exonerado = 0;
+        $igv = 0;
+        $subtotal = $ven['Total'];
+        // $estado = 1; // 1 activo, 2 anulado
+        if ($ven['TieneIgv']) {
+            // $igv = $ven['Total'] * 0.18;
+            // $subtotal = $ven['Total'] - $igv;
+            $subtotal = number_format($ven['Total'] / 1.18, 2);
+            $igv = number_format($ven['Total'] - ($ven['Total'] / 1.18), 2);
+        }
+
+        /*if ($ven['CodigoIgv'] == '20') {
+            $subtotal = 0;
+            $igv = 0;  
+            $exonerado = $ven['Total'];
+        }*/
+
+        if ($ven['Anulado']) {
+            $subtotal = 0;
+            $igv = 0;
+            $exonerado = 0;
+            $ven['Total'] = 0;
+            $ven['Cantidad'] = 0;
+            $estado = 2;
+        }
+
+        $sheet->setCellValue('A'.$cont, date("d/m/Y", strtotime($ven['FechaDoc'])));
+        $sheet->setCellValue('B'.$cont, $ven['CodSunat']);
+        $sheet->setCellValue('C'.$cont, $ven['Anulado'] == 1 ? 'ANULADO' : 'ACTIVO');
+        $sheet->setCellValue('D'.$cont, $ven['Serie']);
+        $sheet->setCellValue('E'.$cont, $ven['Numero']);
+        $sheet->setCellValue('F'.$cont, $ven['DniRuc']);
+        $sheet->setCellValue('G'.$cont, $ven['Cliente']);
+        $sheet->setCellValue('H'.$cont, $subtotal);
+        $sheet->setCellValue('I'.$cont, $igv);
+        $sheet->setCellValue('J'.$cont, $ven['Total']);
+        $sheet->setCellValue('L'.$cont, $ven['Producto']);
+        $sheet->setCellValue('M'.$cont, $ven['Precio']);
+        $sheet->setCellValue('N'.$cont, $ven['Cantidad']);
+
+        $sheet->duplicateStyle($sheet->getStyle('A'.$cont),'A'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('B'.$cont),'B'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('C'.$cont),'C'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('D'.$cont),'D'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('E'.$cont),'E'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('F'.$cont),'F'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('G'.$cont),'G'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('H'.$cont),'H'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('I'.$cont),'I'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('J'.$cont),'J'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('K'.$cont),'K'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('L'.$cont),'L'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('M'.$cont),'M'.($cont+1));
+        $sheet->duplicateStyle($sheet->getStyle('N'.$cont),'N'.($cont+1));
+
+        
+        $cont += 1;
+    }
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/reporteventas.xlsx');
+
+    // return $response->withRedirect('/api/reporte/reporteventas.xlsx'); 
+
+    echo "<script>window.location.href = '/api/reporte/reporteventas.xlsx'</script>";
+    exit;
+});
 
 $app->get('/reporte/ventas', function (Request $request, Response $response, array $args) use ($app) {
     $idAlmacen = $request->getParam('idAlmacen');

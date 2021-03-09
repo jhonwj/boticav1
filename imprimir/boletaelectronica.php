@@ -146,6 +146,12 @@ if ($docVenta['CampoDireccion']) {
               <td class="cantidad">
                 <span><?php echo $producto['Cantidad']; ?></span>
               </td>
+              <?php
+                  $producto['Descripcion'] ='';
+                  if (!empty($producto['ProductoDesc'])) $producto['Descripcion'] .= $producto['ProductoDesc'];
+                  if (!empty($producto['ProductoDesc2'])) $producto['Descripcion'] .= $producto['ProductoDesc2'];
+                  if (!empty($producto['ProductoDesc3'])) $producto['Descripcion'] .= $producto['ProductoDesc3'];
+                ?>
               <td class="producto">
                 <?php if($producto['Descripcion']) : ?>
                 <span>
