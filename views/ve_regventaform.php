@@ -25,7 +25,7 @@ $(document).ready(function(e){
 					if(value.Anulado == '1') {
 						style='danger';
 					}
-					tableBody = tableBody + "<tr class='" + style + "'><td>"+value.idDocVenta+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +");'><i class='fa fa-ban'></i></a></td></tr>" ;
+					tableBody = tableBody + "<tr class='" + style + "'><td>"+value.idDocVenta+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +",\""+value.FechaDoc+"\");'><i class='fa fa-ban'></i></a></td></tr>" ;
 					TotalGeneral = TotalGeneral + parseFloat(value.Total);
 				});
 				$("#tableRegVenta tbody").append(tableBody);
@@ -84,7 +84,14 @@ $(document).ready(function(e){
 
 });
 
-function EliminarRegVenta(docVenta){
+function EliminarRegVenta(docVenta,FechaDoc){
+		let fecha1 = new Date(FechaDoc);
+	    let fecha2 = new Date()
+	    let resta = Math.round((fecha2.getTime() - fecha1.getTime())/ (1000*60*60*24))
+		if (resta>5){
+			alert('No es posible eliminar la venta pasado los 5 dias')
+			return
+		}
 	var r = confirm("Estas seguro que desea anular la venta?");
 	if (r == true) {
 	  var xhr =  $.ajax({
