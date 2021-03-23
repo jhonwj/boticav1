@@ -2215,7 +2215,9 @@ $app->get('/ventas', function (Request $request, Response $response) {
     $filtros = '';
 
     $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
-        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
+        Ve_DocVenta.Anulado, 
+        CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) as Correlativo,
+        Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
@@ -2232,13 +2234,19 @@ $app->get('/ventas', function (Request $request, Response $response) {
     }
 
     $filter = ($request->getParam('filter')) ? $request->getParam('filter') : [];
-    if (!isset($filter['fechaInicio'])) {
+    if (!isset($filter['fechaInicio']) && is_array($filter)) {
         //$filter['fechaInicio'] = getNow('Y') . '-01-01';
         $filter['fechaInicio'] = getNow('Y-m-d');
     }
 
-    if (!isset($filter['fechaFin'])) {
+    if (!isset($filter['fechaFin']) && is_array($filter)) {
         $filter['fechaFin'] = getNow('Y-m-d');
+    }
+
+    $noFecha = $request->getParam('noFecha');
+    if ($noFecha == 1 && isset($filter['fechaInicio']) && isset($filter['fechaFin'])) {
+        unset($filter['fechaInicio']);
+        unset($filter['fechaFin']);
     }
 
     if ($filter) {
@@ -2248,8 +2256,14 @@ $app->get('/ventas', function (Request $request, Response $response) {
             if (isset($filter['cliente']) && $filter['cliente']) $filtros .= " AND Ve_DocVentaCliente.Cliente = '" . $filter['cliente'] . "'";
             if (isset($filter['declarado'])) $filtros .= " AND Ve_DocVentaTipoDoc.VaRegVenta = " . $filter['declarado'];
             if (isset($filter['fechaInicio']) && isset($filter['fechaFin'])) $filtros .= " AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $filter['fechaInicio'] . "' AS DATETIME) AND CONCAT('" . $filter['fechaFin'] . "',' 23:59:59')";
-
+            
         } else {
+            $select .= " AND (Ve_DocVenta.idDocVenta LIKE '%" . $filter . 
+                       "%' OR CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $filter . 
+                       "%' OR Ve_DocVentaTipoDoc.TipoDoc LIKE '%" . $filter . 
+                       "%' OR Ve_DocVentaCliente.Cliente LIKE '%" . $filter . 
+                       "%' OR Ve_DocVentaCliente.DniRuc LIKE '%" . $filter . 
+                       "%' )";  
         }
     }
 
@@ -2307,7 +2321,12 @@ $app->get('/ventas', function (Request $request, Response $response) {
 
 $app->get('/ventas/count', function (Request $request, Response $response) {
     $idAlmacen = $request->getParam('idAlmacen');
-    $select = "SELECT COUNT(*) as total FROM Ve_DocVenta WHERE Ve_DocVenta.IdAlmacen = $idAlmacen";
+    //$select = "SELECT COUNT(*) as total FROM Ve_DocVenta WHERE Ve_DocVenta.IdAlmacen = $idAlmacen";
+    $select = "SELECT COUNT(*) as total FROM Ve_DocVenta";
+
+    if ($idAlmacen) {
+        $select .= " WHERE Ve_DocVenta.IdAlmacen = $idAlmacen";
+    }
 
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -3678,7 +3697,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         // "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
         "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] - ($docVenta['Total'] / 1.18), 2) : 0,
         "txtTOTAL"=> $docVenta['Total'],
-        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true),
+        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2, '.', ''),'SOLES',true),
         "txtNRO_COMPROBANTE"=> $docVenta['Serie'] . "-" . $docVenta['Numero'], //
         "txtFECHA_DOCUMENTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
@@ -3838,7 +3857,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
         "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0",
         "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
         "txtTOTAL"=> $docVenta['Total'],
-        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2),'SOLES',true),
+        "txtTOTAL_LETRAS"=> NumerosEnLetras::convertir(number_format($docVenta['Total'], 2, '.', ''),'SOLES',true),
         "txtNRO_COMPROBANTE"=> $docVenta['Serie'] . "-" . $docVenta['Numero'], //
         "txtFECHA_DOCUMENTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtFECHA_CREDITO"=> date("Y-m-d", strtotime($docVenta['FechaCredito'])),
@@ -4093,7 +4112,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
                     'txtSUB_TOTAL' => $boleta['Total'],
                     'txtTOTAL_IGV' => "0",
                     'txtTOTAL' => $boleta['Total'],
-                    'txtTOTAL_LETRAS' => NumerosEnLetras::convertir(number_format($boleta['Total'], 2),'SOLES',true),
+                    'txtTOTAL_LETRAS' => NumerosEnLetras::convertir(number_format($boleta['Total'], 2, '.', ''),'SOLES',true),
                     'txtFECHA_DOCUMENTO' => date("Y-m-d", strtotime($boleta['FechaDoc'])),
                     'txtTIPO_DOCUMENTO_CLIENTE' => strlen($boleta['DniRuc']) > 9 ? "6" : "1",
                     'txtNRO_DOCUMENTO_CLIENTE' => $boleta['DniRuc'],
@@ -4331,8 +4350,8 @@ $app->get('/reporte/ventasproducto', function (Request $request, Response $respo
         if ($ven['TieneIgv']) {
             // $igv = $ven['Total'] * 0.18;
             // $subtotal = $ven['Total'] - $igv;
-            $subtotal = number_format($ven['Total'] / 1.18, 2);
-            $igv = number_format($ven['Total'] - ($ven['Total'] / 1.18), 2);
+            $subtotal = number_format($ven['Total'] / 1.18, 2, '.', '');
+            $igv = number_format($ven['Total'] - ($ven['Total'] / 1.18), 2, '.', '');
         }
 
         /*if ($ven['CodigoIgv'] == '20') {
@@ -5237,7 +5256,9 @@ $app->get('/cierrecaja/ingresos/adelantos', function (Request $request, Response
     $idDocVentas = $request->getParam('idDocVentas');
 
     if($idDocVentas) {
-        $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, Cb_CajaBanco.Concepto  , Cb_CajaBanco.Importe, Ve_DocVenta.idDocVenta, Ve_DocVenta.Serie, Ve_DocVenta.Numero
+        $select = "SELECT Cb_CajaBanco.IdCajaBanco, Cb_TipoCajaBanco.Tipo, Cb_CajaBanco.IdCuenta, Cb_Cuenta.Cuenta, Cb_CajaBanco.FechaDoc, 
+        Cb_CajaBanco.Concepto  , Cb_CajaBanco.Importe, Ve_DocVenta.idDocVenta, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
+        Ve_DocVenta.Anulado AS AnuladoVenta, Ve_DocVenta.EsCredito AS EsCreditoVenta
           FROM Cb_CajaBanco
           INNER JOIN Cb_TipoCajaBanco ON Cb_CajaBanco.IdTipoCajaBanco = Cb_TipoCajaBanco.IdTipoCajaBanco
           INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
