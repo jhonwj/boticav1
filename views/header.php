@@ -130,6 +130,7 @@ date_default_timezone_set('America/Lima');
         <li><a href="/views/reportesdeudacliente.php"> Reporte Deuda Clientes </a></li>
         <li><a href="/views/reportesdeudaproveedor.php"> Reporte Deuda Proveedores </a></li>
         <li><a href="/views/reportesrankingclientes.php"> Reporte Ranking Clientes </a></li>
+        <li><a href="/views/reportesventasporentregar.php"> Reporte Ventas por entregar </a></li>
         <li><a href="/views/reportes.php">REPORTES</a></li>
       </ul>
 

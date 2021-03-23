@@ -34,6 +34,10 @@ include_once("../clases/helpers/Modal.php");
         listarCajaBanco();
       })
 
+      $("#btnExcel").click(function(){
+        window.location.href="ReporteExcel7.php?fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked");
+      });
+
     })
 
     function listarTipoOpe() {
@@ -172,6 +176,11 @@ function listarCajaBanco(){
 
 <body>
 <?php include("header.php"); ?>
+
+<!--<div class="fab2">
+  <button id="btnExcel" class="btn btn-success"><i class="fa fa-file-excel-o"></i>.xls</button>
+</div>-->
+
 <div class="container">
     <div class="" style="margin-left:10px; margin-right:10px;">
         <div class="row">

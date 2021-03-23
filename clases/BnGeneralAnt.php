@@ -470,6 +470,13 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		//exit();
 		return getSQLResultSet($Ssql);
 	}
+	// function ListarCajaBanco2($fechaIni, $fechaFin, $declarado)
+	// {
+	// 	$Ssql = "call SbFrmCb_CajaBancoBuscador($declarado, '$fechaIni', '$fechaFin');";
+	// 	//echo $Ssql;
+	// 	//exit();
+	// 	return getSQLResultSet($Ssql);
+	// }
 	function devolverKardexValorizado($producto, $anno, $stock, $precio){
 		$Ssql = "call SbLo_StockValoriado('$producto', $stock, $precio, $anno);";
 		//echo $Ssql;

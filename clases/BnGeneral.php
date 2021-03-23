@@ -152,6 +152,48 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		//echo "<br/>SE GUARDO ($IdVideo22)!!!!!";
 
     }
+	function fn_devolverDocVentaDetEntrega($criterio){
+
+		$Ssql = "SELECT 
+		vDonVenClie.Cliente AS Cliente,
+		vDonVenClie.DniRuc AS DniRuc,
+		vDocVenDetEnt.Fecha AS Fecha 
+		FROM Ve_DocVenta AS vDocVen INNER JOIN Ve_DocVentaCliente AS vDonVenClie 
+		ON vDonVenClie.IdCliente = vDocVen.IdCliente INNER JOIN Ve_DocVentaDet AS vDocVenDet 
+		ON vDocVen.idDocVenta = vDocVenDet.IdDocVenta INNER JOIN Ve_DocVentaDetEntrega AS vDocVenDetEnt 
+		ON vDocVenDetEnt.IdDocVentaDet = vDocVenDet.IdDocVentaDet";
+
+		//echo $Ssql;
+		if (!empty($criterio)) {
+			$Ssql= $Ssql." WHERE ".$criterio;
+		}
+		//echo $Ssql;
+		return getSQLResultSet($Ssql);
+		//echo "<br/>SE GUARDO ($IdVideo22)!!!!!";
+
+	}
+	function fn_devolverDocVentaDetEntregaDet($criterio){
+
+		$Ssql = "SELECT 
+		vDocVenDetEnt.Cantidad AS Cantidad, 
+		gProd.Producto AS Producto, 
+		vDocVenDet.Precio AS Precio,
+		vDocVenDetEnt.Fecha AS Fecha 
+		FROM Ve_DocVentaDetEntrega AS vDocVenDetEnt INNER JOIN Ve_DocVentaDet AS vDocVenDet 
+		ON vDocVenDetEnt.IdDocVentaDet = vDocVenDet.IdDocVentaDet INNER JOIN Gen_Producto AS gProd 
+		ON gProd.IdProducto = vDocVenDet.IdProducto INNER JOIN Ve_DocVenta AS vDocVen 
+		ON vDocVenDet.IdDocVenta = vDocVen.idDocVenta INNER JOIN Ve_DocVentaCliente AS vDonVenClie 
+		ON vDocVen.IdCliente = vDonVenClie.IdCliente";
+
+		//echo $Ssql;
+		if (!empty($criterio)) {
+			$Ssql= $Ssql." WHERE ".$criterio;
+		}
+		//echo $Ssql;
+		return getSQLResultSet($Ssql);
+		//echo "<br/>SE GUARDO ($IdVideo22)!!!!!";
+
+    }
    function fn_devolverProductoCategoriaSiExiste($ProductoCategoria){
 
 		$Ssql="SELECT IdProductoCategoria, ProductoCategoria, Anulado, FechaReg, UsuarioReg, FechaMod, UsuarioMod FROM Gen_ProductoCategoria";
@@ -581,6 +623,13 @@ INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto "
 		//exit();
 		return getSQLResultSet($Ssql);
 	}
+	// function ListarCajaBanco2($fechaIni, $fechaFin, $declarado, $descripcion = "")
+	// {
+	// 	$Ssql = "call SbFrmCb_CajaBancoBuscador($declarado, '$fechaIni', '$fechaFin', '$descripcion');";
+	// 	//echo $Ssql;
+	// 	//exit();
+	// 	return getSQLResultSet($Ssql);
+	// }
 	function VerificarMovimiento($MovimientoTipo, $Proveedor, $Serie, $Numero)
 	{
 		$Ssql = "call Sb_VerificarMovimiento('$MovimientoTipo', '$Proveedor', '$Serie', $Numero);";

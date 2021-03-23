@@ -53,7 +53,27 @@ if (isset($_GET['IdDocVenta'])) {
 </script>
 <?php } ?>
 
+<?php
+if (isset($_GET['IdDocVent'])) {
+  $idDocVenta = $_GET['IdDocVent'];
+  $fecha = $_GET['fecha'];
+  // $criterio = "vDocVen.idDocVenta=$idDocVenta";
+  // $result = fn_devolverDocVentaDetEntrega($criterio);
+  // $docVentaDetEntre = mysqli_fetch_assoc($result);
 
+
+
+  $criterio = "vDocVen.idDocVenta=$idDocVenta AND vDocVenDetEnt.Fecha=$fecha";
+  $result = fn_devolverDocVentaDetEntrega($criterio);
+  $docVentaDetEntre = mysqli_fetch_assoc($result);
+  
+  $criterio2="vDocVen.idDocVenta=$idDocVenta AND vDocVenDetEnt.Fecha=$fecha";
+  $resultDet2 = fn_devolverDocVentaDetEntregaDet($criterio2);
+  $productos = mysqli_fetch_all($resultDet2, MYSQLI_ASSOC);
+
+  include_once('porEntregar.php');
+}
+?>
 
 
 

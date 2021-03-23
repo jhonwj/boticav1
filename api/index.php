@@ -2067,6 +2067,128 @@ $app->get('/ventas/usuario', function (Request $request, Response $response) {
     return $response->withJson($data);
 });
 
+$app->post('/ventas/entregar', function (Request $request, Response $response) {
+    $idDocVenta = $request->getParam('idDocVenta');
+
+    $sql = "UPDATE Ve_DocVenta SET PorEntregar=0 WHERE idDocVenta='$idDocVenta' ";
+        
+    $stmt = $this->db->prepare($sql);
+    $updated = $stmt->execute();
+    
+    return $response->withJson(array(
+        "updated" => $updated,
+        "IdDocVenta" => $idDocVenta
+    ));
+});
+
+$app->get('/ventas/detalle/entregar', function (Request $request, Response $response) {
+    $idDocVentas = $request->getParam('idDocVenta');
+
+    $select = "SELECT 
+    vdet.IdDocVenta AS IdDocVenta,
+    vdet.IdDocVentaDet AS IdDocVentaDet,
+    vdet.Cantidad AS Cantidad,
+    vdet.Precio AS Precio,
+    prod.Producto AS Producto,
+    ROUND(vdet.Cantidad - IFNULL((
+        SELECT SUM(Cantidad) FROM Ve_DocVentaDetEntrega 
+        where Ve_DocVentaDetEntrega.IdDocVentaDet = vdet.IdDocVentaDet
+    ), 0), 2) AS entregar
+    FROM Ve_DocVentaDet AS vdet 
+    INNER JOIN Gen_Producto AS prod ON
+    prod.IdProducto = vdet.IdProducto 
+    WHERE IdDocVenta='$idDocVentas'";
+
+
+    // $select = "SELECT 
+    // vdet.IdDocVenta AS IdDocVenta,
+    // vdet.IdDocVentaDet AS IdDocVentaDet,
+    // vdet.Cantidad AS Cantidad,
+    // vdet.Precio AS Precio,
+    // prod.Producto AS Producto,
+    // ROUND(vdet.Cantidad - IFNULL((
+    //     SELECT SUM(Cantidad) FROM Ve_DocVentaDetEntrega 
+    //     where Ve_DocVentaDetEntrega.IdDocVentaDet = vdet.IdDocVentaDet
+    // ), 0), 2) AS entregar,
+    // vdetEnt.Fecha AS Fecha 
+    // FROM 
+    // Ve_DocVentaDet AS vdet INNER JOIN Gen_Producto AS prod 
+    // ON prod.IdProducto = vdet.IdProducto INNER JOIN Ve_DocVentaDetEntrega AS vdetEnt 
+    // ON vdetEnt.IdDocVentaDet = vdet.IdDocVentaDet 
+    // WHERE IdDocVenta='$idDocVentas'";
+
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+
+});
+
+$app->post('/entregar', function (Request $request, Response $response) {
+
+    date_default_timezone_set('America/Lima');
+    $productos = $request->getParam('productos');
+    
+    foreach($productos as $producto) {
+        if ($producto['cantEntregar']) {
+        
+            $idDocVentaDet  = $producto['IdDocVentaDet'];
+            $cantidad       = $producto['cantEntregar'];
+            $fecha          = date("Y-m-d h:i:s");
+
+            $insert = $this->db->insert(
+                array(
+                    'IdDocVentaDet',
+                    'Cantidad',
+                    'Fecha'
+                )
+            )->into(
+                'Ve_DocVentaDetEntrega'
+            )->values(
+                array(
+                    $idDocVentaDet,
+                    $cantidad,
+                    $fecha
+                )
+            );
+            $insert->execute();
+        }
+    }
+    
+    return $response->withJson(array("productoEntregado" => $productos, "Fecha" => $fecha));
+
+});
+
+$app->get('/entregar', function (Request $request, Response $response) {
+
+    $idDocVentas = $request->getParam('idDocVenta');
+
+    $select = "SELECT 
+    vdetent.IdDocVentaDetEntrega AS IdDocVentaDetEntrega,
+    prod.Producto AS Producto,
+    vdetent.Cantidad AS Cantidad,
+    vdetent.Fecha AS Fecha 
+    FROM Ve_DocVentaDetEntrega AS vdetent
+    
+    INNER JOIN Ve_DocVentaDet AS vdet ON 
+    vdetent.IdDocVentaDet = vdet.IdDocVentaDet 
+
+    INNER JOIN Gen_Producto AS prod ON 
+    prod.IdProducto = vdet.IdProducto 
+
+    WHERE IdDocVenta='$idDocVentas'
+    ORDER BY vdetent.Fecha DESC";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);    
+
+});
+
 
 $app->get('/ventas/detalle', function (Request $request, Response $response) {
     $idDocVentas = $request->getParam('idDocVentas');
@@ -2123,6 +2245,7 @@ $app->get('/ventas', function (Request $request, Response $response) {
         if(is_array($filter)) {
 
             if (isset($filter['vendedor']) && $filter['vendedor']) $filtros .= " AND Ve_DocVenta.UsuarioReg = '" . $filter['vendedor'] . "'";
+            if (isset($filter['cliente']) && $filter['cliente']) $filtros .= " AND Ve_DocVentaCliente.Cliente = '" . $filter['cliente'] . "'";
             if (isset($filter['declarado'])) $filtros .= " AND Ve_DocVentaTipoDoc.VaRegVenta = " . $filter['declarado'];
             if (isset($filter['fechaInicio']) && isset($filter['fechaFin'])) $filtros .= " AND Ve_DocVenta.FechaDoc BETWEEN CAST('" . $filter['fechaInicio'] . "' AS DATETIME) AND CONCAT('" . $filter['fechaFin'] . "',' 23:59:59')";
 
@@ -2139,6 +2262,11 @@ $app->get('/ventas', function (Request $request, Response $response) {
     // var_dump($estado);exit();
     if($estado || $estado == "0") {
         $filtros .= " AND Ve_DocVenta.Estado=$estado";
+    }
+
+    $porEntregar = $request->getParam('porEntregar');
+    if (!empty($porEntregar)) {
+        $filtros .= " AND Ve_DocVenta.PorEntregar=1";
     }
 
     $anulado = $request->getParam('anulado');
@@ -2209,6 +2337,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $pagoCon = $request->getParam('PagoCon');
 
     $esCredito = $request->getParam('EsCredito');
+    $porEntregar = $request->getParam('PorEntregar');
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
@@ -2276,8 +2405,8 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $numero = $selectNumero['NuevoNumero'] ? $selectNumero['NuevoNumero'] : 1;
 
 
-    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista)
-        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista)";
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista, PorEntregar)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista, '$porEntregar')";
 
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
@@ -2449,10 +2578,11 @@ $app->post('/proformas', function (Request $request, Response $response) {
             $cantidad       = $producto['cantidad'];
             $precio         = $producto['precio'];
             $descuento      = $producto['descuento'];
+            $disabledTotal  = $producto['disabledProf'];
             
-            $insert = $this->db->insert(array('IdProforma', 'IdProducto', 'Descripcion', 'Cantidad', 'Precio', 'Descuento'))
+            $insert = $this->db->insert(array('IdProforma', 'IdProducto', 'DisabledTotal', 'Descripcion', 'Cantidad', 'Precio', 'Descuento'))
                 ->into('Ve_ProformaDet')
-                ->values(array($idProforma, $idProducto, $descripcion, $cantidad, $precio, $descuento));
+                ->values(array($idProforma, $idProducto, $disabledTotal, $descripcion, $cantidad, $precio, $descuento));
             
             $insert->execute();
             //$descuentoTotal += $descuento;
@@ -2478,7 +2608,7 @@ $app->get('/proformas/id/{id}', function (Request $request, Response $response, 
     $stmt->execute();
     $proforma = $stmt->fetch();
 
-    $select = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.Cantidad, Ve_ProformaDet.Precio, Ve_ProformaDet.Descuento, Gen_Producto.* FROM Ve_ProformaDet
+    $select = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.DisabledTotal, Ve_ProformaDet.Cantidad, Ve_ProformaDet.Precio, Ve_ProformaDet.Descuento, Gen_Producto.* FROM Ve_ProformaDet
     INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto
     WHERE Ve_ProformaDet.IdProforma = '" . $args['id'] . "'";
 
