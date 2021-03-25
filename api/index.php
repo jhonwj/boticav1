@@ -21,7 +21,7 @@ $config['db']['user']   = "root";
 // $config['db']['user']   = "neurosys_CUSTODIO";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = "IX!!q!t(&Fc^";
-$config['db']['dbname'] = "neurosys_hotel";
+$config['db']['dbname'] = "neuro";
 // $config['db']['dbname'] = "neurosys_CUSTODIO";
 
 $app = new \Slim\App(["settings" => $config]);
@@ -3629,8 +3629,8 @@ $app->post('/clientes', function (Request $request, Response $response) {
 define('NRO_DOCUMENTO_EMPRESA', '20573027125');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.');
-define('NOMBRE_COMERCIAL_EMPRESA', 'CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.');
+define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
+define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
 define('DIRECCION_EMPRESA', "JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES) HUANUCO - HUANUCO - HUANUCO");
 define('DEPARTAMENTO_EMPRESA', "HUANUCO");

@@ -89,8 +89,8 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>CONSULTORA CONSTRUCTORA NEUROSYSTEM PERU S.A.C.</b></div>
-  <div class="center"><b>RUC: 20573027125</b> </div>
+  <div class="center"><b>INVERSIONES Y AFINES CUSTODIO E.I.R.L.</b></div>
+  <div class="center"><b>RUC:20394084221</b> </div><br>
   <!--<div class="center small">VENTA DE ....</div>-->
   <br />
 
@@ -209,10 +209,12 @@ $igv = 0;
   </div>
   <br />
 
-  <div class="center small">JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES)</div>
-  <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
+ <div class="center small"></div><br />
+
+  <div class="center small">AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II </div>
+  <div class="center small">CORONEL PORTILLO - MANANTAY - UCAYALI</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
-  <div class="center small">.</div>
+  <div class="center small">GRACIAS POR SU COMPRA</div>
   <br />
   <br />
 
