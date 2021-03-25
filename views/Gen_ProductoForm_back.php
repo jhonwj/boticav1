@@ -7,7 +7,7 @@ include_once("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>NEUROSOFT - Producto</title>
+ 	<title>CUSTODIO - Producto</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once 'linker.php'; ?>

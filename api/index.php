@@ -18,11 +18,11 @@ $config['addContentLengthHeader'] = false;
 
 $config['db']['host']   = "127.0.0.1";
 $config['db']['user']   = "root";
-// $config['db']['user']   = "neurosys_NEUROSOFT";
+// $config['db']['user']   = "neurosys_CUSTODIO";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = "IX!!q!t(&Fc^";
 $config['db']['dbname'] = "neurosys_hotel";
-// $config['db']['dbname'] = "neurosys_NEUROSOFT";
+// $config['db']['dbname'] = "neurosys_CUSTODIO";
 
 $app = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
@@ -578,7 +578,7 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
 
 
 
-/* NEUROSOFT */
+/* CUSTODIO */
 $app->get('/habitaciones', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente,

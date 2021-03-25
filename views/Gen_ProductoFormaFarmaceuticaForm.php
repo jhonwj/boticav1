@@ -6,7 +6,7 @@ include("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
-  <title>NEUROSOFT - Forma Farmaceutica</title>
+  <title>CUSTODIO - Forma Farmaceutica</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">

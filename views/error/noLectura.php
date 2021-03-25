@@ -5,7 +5,7 @@
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>NEUROSOFT - Sin permisos de lectura</title>
+ 	<title>CUSTODIO - Sin permisos de lectura</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once $_SERVER["DOCUMENT_ROOT"] . '/views/linker.php'; ?>

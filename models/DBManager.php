@@ -5,7 +5,7 @@ header( 'Content-Type: text/html;charset=utf-8' );
 function ejecutarSQLCommand($commando){
 
   $mysqli = new mysqli("localhost", "root", '', "neurosys_hotel");
-  // $mysqli = new mysqli("localhost", "neurosys_NEUROSOFT", 'IX!!q!t(&Fc^', "neurosys_NEUROSOFT");
+  // $mysqli = new mysqli("localhost", "neurosys_CUSTODIO", 'IX!!q!t(&Fc^', "neurosys_CUSTODIO");
   //$mysqli = new mysqli("localhost", "root", "", "botica");
 /* check connection */
 if ($mysqli->connect_errno) {
@@ -44,7 +44,7 @@ function getSQLResultSet($commando){
 
     // $link = mysql_connect("localhost", "root", "");
     $mysqli = new mysqli("localhost", "root", '', 'neurosys_hotel');
-    // $mysqli = new mysqli("localhost", "neurosys_NEUROSOFT", 'IX!!q!t(&Fc^', "neurosys_NEUROSOFT");
+    // $mysqli = new mysqli("localhost", "neurosys_CUSTODIO", 'IX!!q!t(&Fc^', "neurosys_CUSTODIO");
 
     $mysqli->set_charset("utf8");
     // $acentos = mysql_query("SET NAMES 'utf8'");
@@ -80,7 +80,7 @@ function getSQLResultSet($commando){
 
 function getMysqliLink() {
     $mysqli = new mysqli("localhost", "root", '', 'neurosys_hotel');
-    //$mysqli = new mysqli("localhost", "neurosys_NEUROSOFT", 'IX!!q!t(&Fc^', 'neurosys_NEUROSOFT');
+    //$mysqli = new mysqli("localhost", "neurosys_CUSTODIO", 'IX!!q!t(&Fc^', 'neurosys_CUSTODIO');
     $mysqli->set_charset("utf8");
     if (!$mysqli) {
         die('Error de conexion ' . $mysqli->error );
