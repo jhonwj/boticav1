@@ -74,7 +74,7 @@ date_default_timezone_set('America/Lima');
             <li><a href="<?php echo ReporteKardexValorizado."?Tipo=0"; ?>">1. KARDEX VALORIZADO</a></li>
           <li class="dropdown-header">KARDEX FECHA STOCK</li>
             <li><a href="<?php echo ReporteKardex."?Tipo=1"; ?>">1. KARDEX</a></li>
-            <li><a href="<?php echo ReporteKardexValorizado."?Tipo=1"; ?>">2. KARDEX VALORIZADO</a></li>
+            <!-- <li><a href="<?php /*echo ReporteKardexValorizado."?Tipo=1";*/ ?>">2. KARDEX VALORIZADO</a></li> -->
             <li><a href="/views/lo_reportemasmovimiento.php">ARTICULOS CON MAS MOVIMIENTOS</a></li>
           <li role="separator" class="divider"></li>
           <li><a href="/views/lo_kardex.php">NUEVO KARDEX</a></li>
