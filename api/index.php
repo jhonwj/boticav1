@@ -877,6 +877,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $stockMinimo = $request->getParam('StockMinimo');
     $codigoBarra = $request->getParam('CodigoBarra');
     $precioPorMayor = $request->getParam('PrecioPorMayor') ? $request->getParam('PrecioPorMayor') : null;
+    $stockPorMayor = $request->getParam('StockPorMayor') ? $request->getParam('StockPorMayor') : null;
     $esHabitacion = $request->getParam('EsHabitacion');
     $piso = $request->getParam('Piso');
     $controlaStock = $request->getParam('ControlaStock') ? $request->getParam('ControlaStock') : 0;
@@ -884,7 +885,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $productosDet = $request->getParam('productosDet');
     $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
     $precioContado = $request->getParam('PrecioContado') ? $request->getParam('PrecioContado') : 0;
-
+    $precioEspecial = $request->getParam('PrecioEspecial') ? $request->getParam('PrecioEspecial') : 0;
     $preciosPorProducto = json_encode($request->getParam('PreciosPorProducto'));
 
     // Actualizamos el producto si le pasamos el ID
@@ -918,10 +919,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "PrecioCosto" =>                    $precioCosto,
                             "PrecioContado" =>                  $precioContado,
                             "precioConvenio" =>                 $precioConvenio,
+                            "PrecioEspecial" =>                 $precioEspecial,
                             "ProductoPresentacion" =>           $productoPresentacion,
                             "EsPadre" =>                        $esPadre,
                             "StockMinimo" =>                    $stockMinimo,
                             "PrecioPorMayor" =>                 $precioPorMayor,
+                            "StockPorMayor"=>                   $stockPorMayor,
                             "EsHabitacion" =>                   $esHabitacion,
                             "Piso" =>                           $piso,
                             "PreciosPorProducto" =>             $preciosPorProducto
@@ -996,10 +999,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                 'ProductoPresentacion', 
                 'EsPadre', 
                 'PrecioPorMayor', 
-                'StockMinimo', 
+                'StockMinimo',
+                'StockPorMayor', 
                 'CodigoBarra', 
                 'PrecioCosto', 
-                'PrecioContado', 
+                'PrecioContado',
+                'PrecioEspecial',
                 'EsHabitacion', 
                 'Piso', 
                 'PreciosPorProducto'))
@@ -1027,9 +1032,11 @@ $app->post('/productos', function (Request $request, Response $response) {
                 $esPadre, 
                 $precioPorMayor, 
                 $stockMinimo, 
+                $stockPorMayor,
                 $codigoBarra, 
                 $precioCosto, 
                 $precioContado, 
+                $precioEspecial,
                 $esHabitacion, 
                 $piso, 
                 $preciosPorProducto));
