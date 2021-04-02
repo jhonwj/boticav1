@@ -2363,7 +2363,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $pagoCon = $request->getParam('PagoCon');
 
     $esCredito = $request->getParam('EsCredito');
-    $porEntregar = $request->getParam('PorEntregar');
+    $porEntregar = $request->getParam('PorEntregar') ? $request->getParam('PorEntregar') : 0;
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
