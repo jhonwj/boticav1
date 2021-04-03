@@ -19,6 +19,30 @@
 		//echo "<br/>SE GUARDO ($IdVideo22)!!!!!";
 
     }
+
+	function fn_devolverProforma($idProforma) {
+		$Ssql = "SELECT Ve_Proforma.*, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.Direccion, 
+		Ve_DocVentaCliente.Email AS ClienteEmail, Ve_DocVentaCliente.DniRuc
+			FROM Ve_Proforma
+			INNER JOIN Ve_DocVentaCliente ON Ve_Proforma.IdCliente = Ve_DocVentaCliente.IdCliente
+			WHERE Ve_Proforma.IdProforma = '" . $idProforma . "' ";
+
+		return getSQLResultSet($Ssql);
+
+	}
+	//Detalle con unidad de medicion
+	function fn_devolverProformaDet($idProforma) {
+		$Ssql = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.Cantidad, 
+		Ve_ProformaDet.Precio, Ve_ProformaDet.Descuento, Gen_Producto.*,Gen_ProductoMedicion.ProductoMedicion,
+		Round(Ve_ProformaDet.Cantidad*Ve_ProformaDet.Precio,2) as TOTAL
+		FROM Ve_ProformaDet
+		INNER JOIN Gen_Producto ON Ve_ProformaDet.IdProducto = Gen_Producto.IdProducto
+		INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion=Gen_ProductoMedicion.IdProductoMedicion
+		WHERE Ve_ProformaDet.IdProforma = '" . $idProforma . "'";
+
+		return getSQLResultSet($Ssql);
+	}
+
 	function fn_devolverProductoMarca($criterio, $orden){
 
 		$Ssql="SELECT IdProductoMarca, ProductoMarca, Anulado, FechaReg, UsuarioReg, FechaMod, UsuarioMod FROM Gen_ProductoMarca";
