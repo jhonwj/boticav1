@@ -118,7 +118,7 @@ $igv = 0;
         <tr>
           <th class="cantidad">CANT</th>
           <th class="producto">PRODUCTO</th>
-          <!--<th class="unitario">P/U</th>-->
+          <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
       </thead>
@@ -141,9 +141,9 @@ $igv = 0;
             <td class="producto">
               <span><?php echo $producto['Producto'] ?></span>
             </td>
-            <!--<td class="precio">
+            <td class="precio">
               <span>S/.<?php echo $producto['Precio'] ?></span>
-            </td>-->
+            </td>
             <td class="text-right">
               <?php 
                 if ($producto['CodigoBarra'] === "MANODEOBRA") {
@@ -170,7 +170,7 @@ $igv = 0;
         }
         ?>
         <tr>
-          <td></td>
+          <td></td><td></td>
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
@@ -187,7 +187,7 @@ $igv = 0;
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td>
+          <td></td><td></td>
           <td class="text-right"><strong>TOTAL</strong></td>
           <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
         </tr>
@@ -210,7 +210,9 @@ $igv = 0;
   <br />
 
  <div class="center small"></div><br />
-
+        <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
+        <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
+        <br />
   <div class="center small">AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II </div>
   <div class="center small">CORONEL PORTILLO - MANANTAY - UCAYALI</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
