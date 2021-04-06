@@ -187,9 +187,9 @@ $html.='
 <tr>
       <td>'.$producto['txtCODIGO_DET'].'</td>
       <td>'.$producto['txtDESCRIPCION_DET'].'</td>
-      <td>'.$producto['txtPRECIO_DET'].'</td>
+      <td>'.number_format($producto['txtPRECIO_DET'], 2, '.', '').'</td>
       <td>'.$producto['txtCANTIDAD_DET'].'</td>
-      <td>'.$producto['txtIMPORTE_DET'].'</td>
+      <td>'.number_format($producto['txtIMPORTE_DET'], 2, '.', '').'</td>
     </tr>';
 }
 $html.='
@@ -227,15 +227,15 @@ Representación impresa de la '.$tdocumento.'<br>
 
 <table width="100%" border="0" cellspacing="0"  class="total"  >
         <tbody>
-<tr><td class="total2" width="50%"><strong>SUB.TOTAL:</strong></td><td><strong>'.$cab['txtSUB_TOTAL'].'</strong></td></tr>
+<tr><td class="total2" width="50%"><strong>SUB.TOTAL:</strong></td><td><strong>'.number_format($cab['txtSUB_TOTAL'], '2', '.', '').'</strong></td></tr>
 <tr><td class="total2"><strong>GRAVADAS:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>INAFECTA:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>'.$cab['txtSUB_TOTAL'].'</strong></td></tr>
+<tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>'.number_format($cab['txtSUB_TOTAL'], '2', '.', '').'</strong></td></tr>
 <tr><td class="total2"><strong>GRATUITA:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>'.$cab['txtTOTAL_DESCUENTO'].'</strong></td></tr>
-<tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.$cab['txtTOTAL_IGV'].'</strong></td></tr>
+<tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>'.number_format($cab['txtTOTAL_DESCUENTO'], '2', '.', '').'</strong></td></tr>
+<tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.number_format($cab['txtTOTAL_IGV'], '2', '.', '').'</strong></td></tr>
 <tr><td class="total2"><strong>ISC:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>TOTAL:</strong></td><td><strong>'.$cab['txtTOTAL'].'</strong></td></tr>
+<tr><td class="total2"><strong>TOTAL:</strong></td><td><strong>'.number_format($cab['txtTOTAL'], '2', '.', '').'</strong></td></tr>
 
         </tbody>
       </table>
