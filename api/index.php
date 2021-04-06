@@ -3633,7 +3633,7 @@ $app->post('/clientes', function (Request $request, Response $response) {
 
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '20573027125');
+define('NRO_DOCUMENTO_EMPRESA', '20394084221');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
 define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
