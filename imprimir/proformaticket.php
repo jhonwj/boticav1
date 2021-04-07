@@ -3,7 +3,7 @@ include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
 include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 
 //var_dump($docVenta);
-$emision = strtotime($docVenta['FechaDoc']);
+$emision = strtotime($docVenta['FechaReg']);
 $day = date("d", $emision);
 $mes = date("m", $emision);
 $meses = array(
@@ -26,8 +26,8 @@ $direccion = strtoupper($docVenta['Direccion']);
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = $docVenta['LimiteItems'];
-$docVentaNro = $docVenta['Serie'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
-$fechaDoc = $docVenta['FechaDoc'];
+$docVentaNro = $docVenta['Anio'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
+$fechaDoc = $docVenta['FechaReg'];
 $serieMaq = $docVenta['SerieImpresora'];
 $tipoDoc = $docVenta['TipoDoc'];
 
@@ -38,12 +38,12 @@ $igv = 0;
 ?>
 <style>
   * {
-    font-size: 3mm;
+    font-size: 2.8mm;
     font-family: sans-serif;
   }
   body {
     display: block;
-    margin: 8px;
+    margin: 0;
   }
   td,
   th,
@@ -53,9 +53,9 @@ $igv = 0;
     border-collapse: collapse;
   }
   .container {
-    width: 100%;
+    width: 80mm;
     max-width: 100%;
-    padding: 0 4mm;
+    padding: 3mm 4.5mm 3mm 4mm;
     box-sizing: border-box;
   }
 
@@ -72,7 +72,7 @@ $igv = 0;
     font-size: 1em;
   }
   td, th {
-    padding: 0 6px;
+    padding: 0 2px;
   }
   td.cantidad {
     text-align: center;
@@ -88,10 +88,10 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>INVERSIONES Y AFINES CUSTODIO E.I.R.L.</b></div>
-  <div class="center"><b>RUC:20394084221</b> </div><br>
-  <!--<div class="center small">VENTA DE ....</div>-->
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br />
+  <div class="center">INVERSIONES Y AFINES "CUSTODIO" E.I.R.L.</div>
+  <div class="center">RUC: 20394084221 </div>
+  <div class="center small">.</div>
   <br />
 
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -101,9 +101,8 @@ $igv = 0;
     <br />
   <?php endif; ?>
 
-  <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
+  <div class=""><b>PROFORMA NRO: </b><?php echo $docVentaNro; ?></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
-  <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
 
   <div class="separar"></div>
   <div>SR(ES) : <?php echo $cliente ?></div>
@@ -118,38 +117,26 @@ $igv = 0;
         <tr>
           <th class="cantidad">CANT</th>
           <th class="producto">PRODUCTO</th>
-          <th class="unitario">P/U</th>
-          <th class="precio text-right">TOTAL</th>
+          <th class="unitario text-right">P/U</th>
+          <th class="precio text-right">TOT</th>
         </tr>
       </thead>
       <tbody>
         <?php
-        $sumManoDeObra = 0;
-        foreach ($productos as $key => $producto) {
-          if ($producto['EsManoDeObra']) {
-            $sumManoDeObra += $producto['TOTAL'];
-          }
-        }
-
         $filas = 0;
         foreach ($productos as $key => $producto) { ?>
-        <?php if (empty($producto['EsManoDeObra'])) : ?>
           <tr>
             <td class="cantidad">
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
             <td class="producto">
-              <span><?php echo $producto['Producto'] ?></span>
+              <span><?php echo $producto['Producto'] . ' (' . $producto['ProductoMedicion'] . ')' ?></span>
             </td>
-            <td class="precio">
+
+            <td class="precio text-right">
               <span>S/.<?php echo $producto['Precio'] ?></span>
             </td>
             <td class="text-right">
-              <?php 
-                if ($producto['CodigoBarra'] === "MANODEOBRA") {
-                  $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
-                }
-              ?>
               <span>S/.<?php echo $producto['TOTAL'] ?></span>
             </td>
           </tr>
@@ -157,8 +144,6 @@ $igv = 0;
           $filas += 1;
           $totalDescuento += floatval($producto['Descuento']);
           $total += floatval($producto['TOTAL']);
-
-          endif;
         }
 
         if ($tieneIgv) {
@@ -170,8 +155,8 @@ $igv = 0;
         }
         ?>
         <tr>
-          <td></td><td></td>
-          <td class="text-right">SUBTOTAL</td>
+          <td></td>
+          <td colspan="2" class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
         <!--<tr>
@@ -182,41 +167,26 @@ $igv = 0;
         <?php if ($totalDescuento > 0) : ?>
           <tr>
             <td></td>
-            <td class="text-right">DESCUENTO</td>
+            <td colspan="2" class="text-right">DESCUENTO</td>
             <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2); ?></td>
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td>
-          <td class="text-right"><strong>TOTAL</strong></td>
+          <td></td>
+          <td colspan="2" class="text-right"><strong>TOTAL</strong></td>
           <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
         </tr>
       </tbody>
     </table>
     <br />
-    <?php if ($docVenta['Puntos']): ?>
-      <span style="text-transform: uppercase">Usted tiene <b><?php echo $docVenta['Puntos']?></b> Puntos</span><br>
-    <?php endif; ?>
-    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total - $totalDescuento, 2, '.', ''),'SOLES',true, 'asd')); ?></span><br/>
-    <span style="text-transform: uppercase">VENDEDOR: <?php echo $docVenta['UsuarioReg']; ?></span><br>
-    
-
-    <?php if ($docVenta['PagoCon'] > 0) : ?>
-      <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
-      <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>
-    <?php endif; ?>
+    <span class="son">SON: <?php echo strtoupper(NumerosEnLetras::convertir(number_format($total - $totalDescuento, 2, '.', ''),'SOLES',true, 'asd')); ?></span>
 
   </div>
   <br />
-
- <div class="center small"></div><br />
-        <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
-        <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
-        <br />
-  <div class="center small">AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II </div>
-  <div class="center small">CORONEL PORTILLO - MANANTAY - UCAYALI</div>
-  <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
-  <div class="center small">GRACIAS POR SU COMPRA</div>
+  <div class="center small">AV. TUPAC AMARU MZ 19 LT 18 - AAHH SIEMPRE UNIDOS II</div>
+  <br />
+  <div class="center small">UCAYALI - CORONEL PORTILLO – MANANTAY</div>
+  <div class="center small">.</div>
   <br />
   <br />
 
