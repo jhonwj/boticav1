@@ -25,8 +25,19 @@ $(document).ready(function(e){
 					if(value.Anulado == '1') {
 						style='danger';
 					}
+					if (value.CodSunat == '07') {
+							value.SubTotal =  (-1 * value.SubTotal).toFixed(2);
+							value.Total = (-1 * value.Total).toFixed(2);
+							if (value.Anulado == '0') {
+								TotalGeneral = TotalGeneral + parseFloat(value.Total);
+							}
+						} else {
+							if (value.Anulado == '0') {
+								TotalGeneral = TotalGeneral + parseFloat(value.Total);
+							}
+					}
 					tableBody = tableBody + "<tr class='" + style + "'><td>"+value.idDocVenta+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +",\""+value.FechaDoc+"\");'><i class='fa fa-ban'></i></a></td></tr>" ;
-					TotalGeneral = TotalGeneral + parseFloat(value.Total);
+
 				});
 				$("#tableRegVenta tbody").append(tableBody);
 				$("#txtTotal").val(TotalGeneral);
