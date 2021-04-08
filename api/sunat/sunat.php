@@ -18,15 +18,17 @@ class api_sunat {
         curl_close($curl);
     }
         
-    public function creaPDFNota($id, $arch){
+    public function creaPDFNota($data){
     
-        $rutapdf=$arch.'/plugins/dompdf/';	
+        $rutapdf = $_SERVER['HTTP_HOST'] . '/api/sunat/plugins/dompdf/';
         
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => $rutapdf."nota.php?id=".$id,
-            CURLOPT_USERAGENT => "Codular Sample cURL Request"
+            CURLOPT_URL => $rutapdf."nota.php?",
+            CURLOPT_USERAGENT => "Codular Sample cURL Request",
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $data
         ));
         // Send the request & save response to $resp
         $resp = curl_exec($curl);

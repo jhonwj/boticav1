@@ -2302,6 +2302,10 @@ $app->get('/ventas', function (Request $request, Response $response) {
         Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
+        Ve_DocVenta.CodSunatModifica,
+        Ve_DocVenta.NroComprobanteModifica,
+        Ve_DocVenta.NotaIdMotivo,
+        Ve_DocVenta.NotaDescMotivo,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -3800,10 +3804,10 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
         //==========documentos de referencia(nota credito, debito)=============
-        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['codSunatModifica']) && $docVenta['codSunatModifica'] ? $docVenta['codSunatModifica'] : "", //aqui completar
-        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['nroComprobanteModifica']) && $docVenta['nroComprobanteModifica'] ? $docVenta['nroComprobanteModifica'] : "",
-        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['notaIdMotivo']) && $docVenta['notaIdMotivo'] ? $docVenta['notaIdMotivo'] : "",
-        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['notaDescMotivo']) && $docVenta['notaDescMotivo'] ? $docVenta['notaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
+        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
+        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['NroComprobanteModifica']) && $docVenta['NroComprobanteModifica'] ? $docVenta['NroComprobanteModifica'] : "",
+        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['NotaIdMotivo']) && $docVenta['NotaIdMotivo'] ? $docVenta['NotaIdMotivo'] : "",
+        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['NotaDescMotivo']) && $docVenta['NotaDescMotivo'] ? $docVenta['NotaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
         //=================datos del cliente=================8
          "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
          "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
@@ -3865,7 +3869,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
             $insert = $stmt->execute();
             $lastInsert = $this->db->lastInsertId();
 
-            return $response->withJson($me);
+            //return $response->withJson($me);
         }
 
         if ($docVenta['CodSunat'] == '08') {
@@ -3873,22 +3877,14 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         }
     }
 
-    // Nota de credito
-    if ($docVenta['CodSunat'] == '07') {
+    // Para los casos de factura, boleta y nota de credito se actualiza misma tabla
+    $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
+        Msj_sunat='$me[msj_sunat]' WHERE idDocVenta='$docVenta[idDocVenta]' ";
 
-
-    } else if($docVenta['CodSunat'] == '08') {
-
-
-    } else {
-        // Para los casos de factura y boleta
-        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
-            Msj_sunat='$me[msj_sunat]' WHERE idDocVenta='$docVenta[idDocVenta]' ";
-
-        $stmt = $this->db->prepare($sql);
-        $updated = $stmt->execute();
-        $me['Estado'] = $estado;
-    }
+    $stmt = $this->db->prepare($sql);
+    $updated = $stmt->execute();
+    $me['Estado'] = $estado;
+    
 
     return $response->withJson($me);
 });
@@ -3964,10 +3960,10 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
         "txtALMACEN_DIRECCION" => $docVenta['DireccionAlmacen'],
         "txtALMACEN_ES_PRINCIPAL" => $docVenta['EsAlmacenPrincipal'],
         //==========documentos de referencia(nota credito, debito)=============
-        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['codSunatModifica']) && $docVenta['codSunatModifica'] ? $docVenta['codSunatModifica'] : "", //aqui completar
-        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['nroComprobanteModifica']) && $docVenta['nroComprobanteModifica'] ? $docVenta['nroComprobanteModifica'] : "",
-        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['notaIdMotivo']) && $docVenta['notaIdMotivo'] ? $docVenta['notaIdMotivo'] : "",
-        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['notaDescMotivo']) && $docVenta['notaDescMotivo'] ? $docVenta['notaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
+        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
+        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['NroComprobanteModifica']) && $docVenta['NroComprobanteModifica'] ? $docVenta['NroComprobanteModifica'] : "",
+        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['NotaIdMotivo']) && $docVenta['NotaIdMotivo'] ? $docVenta['NotaIdMotivo'] : "",
+        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['NotaDescMotivo']) && $docVenta['NotaDescMotivo'] ? $docVenta['NotaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
         //=================datos del cliente=================8
          "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
          "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
@@ -3999,7 +3995,13 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
     }
 
     $data['hash_cpe'] = isset($docVenta['Hash_cpe']) ? $docVenta['Hash_cpe'] : '';
-    $new->creaPDF(json_encode($data));
+
+    if($docVenta['CodSunat']=='07'){
+        $new->creaPDFNota(json_encode($data));
+    }else{
+        $new->creaPDF(json_encode($data));
+    }
+    
 
 });
 
@@ -4011,7 +4013,10 @@ $app->get('/imprimirpdf/{id}', function (Request $request, Response $response, a
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
         Ve_DocVenta.FechaCredito, Lo_Almacen.Almacen, Lo_Almacen.Direccion DireccionAlmacen, Lo_Almacen.EsPrincipal EsAlmacenPrincipal,
-        Ve_DocVentaCliente.NombreComercial,
+        Ve_DocVentaCliente.NombreComercial,Ve_DocVenta.CodSunatModifica,
+        Ve_DocVenta.NroComprobanteModifica,
+        Ve_DocVenta.NotaIdMotivo,
+        Ve_DocVenta.NotaDescMotivo,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
