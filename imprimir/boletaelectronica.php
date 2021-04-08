@@ -234,7 +234,7 @@ if ($docVenta['CampoDireccion']) {
         <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
         <br />
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '20393999463');
+        define('NRO_DOCUMENTO_EMPRESA', '20394084221');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }

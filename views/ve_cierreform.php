@@ -26,6 +26,10 @@ if (isset($_GET['idCierre'])) {
 }else {
     $src = "/nuevo/index.html#/reportes/cierrecaja";
 }
+
+if (isset($_GET['noDetalle'])) {
+  $src .= '?noDetalle=1';
+}
 ?>
 <iframe src="<?php echo $src; ?>" width="100%" frameborder="0"  onload="resizeIframe(this)"></iframe>
 

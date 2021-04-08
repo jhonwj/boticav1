@@ -3732,15 +3732,15 @@ define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
 define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
 define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES) HUANUCO - HUANUCO - HUANUCO");
-define('DEPARTAMENTO_EMPRESA', "HUANUCO");
-define('PROVINCIA_EMPRESA', "HUANUCO");
-define('DISTRITO_EMPRESA', "HUANUCO");
+define('DIRECCION_EMPRESA', "AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II (ANTES DEL GRIFO SANTA FELICIA) UCAYALI - CORONEL PORTILLO - MANANTAY");
+define('DEPARTAMENTO_EMPRESA', "UCAYALI");
+define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
+define('DISTRITO_EMPRESA', "MANANTAY");
 define('TELEFONOS_EMPRESA', "");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'NEUR0515'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'Neur0515'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'CUSTODIO'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'Custodi0'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
