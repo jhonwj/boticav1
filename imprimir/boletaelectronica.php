@@ -158,7 +158,7 @@ if ($docVenta['CampoDireccion']) {
                 <?php echo $producto['Producto'] . ' (' . $producto['Descripcion'] . ') ' ?>
                 </span>
                 <?php else : ?>
-                <span><?php echo $producto['Producto'] ?></span>
+                <?php echo $producto['Producto'] . ' (' . $producto['ProductoMedicion'] . ') ' ?>
                 <?php endif; ?>
               </td>
               <td class="precio">

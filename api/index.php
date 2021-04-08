@@ -2279,7 +2279,7 @@ $app->get('/ventas/detalle', function (Request $request, Response $response) {
         ROUND(Ve_DocVentaDet.Descuento, 2) AS Descuento,
         ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
         ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
-        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
+        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion,Gen_ProductoMedicion.ProductoMedicion
         FROM Ve_DocVentaDet
         INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
@@ -3762,6 +3762,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = $producto['Precio'];
         $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD
@@ -3803,6 +3804,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         //==========documentos de referencia(nota credito, debito)=============
         "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
         "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['NroComprobanteModifica']) && $docVenta['NroComprobanteModifica'] ? $docVenta['NroComprobanteModifica'] : "",
@@ -3909,6 +3911,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = $producto['Precio'];
         $json["txtPRECIO_DESC_DET"] = $producto['Descuento'];
@@ -3956,6 +3959,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         "txtALMACEN"=> $docVenta['Almacen'],
         "txtALMACEN_DIRECCION" => $docVenta['DireccionAlmacen'],
         "txtALMACEN_ES_PRINCIPAL" => $docVenta['EsAlmacenPrincipal'],

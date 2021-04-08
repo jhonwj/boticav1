@@ -90,7 +90,7 @@ th,td { padding: 3pt; }
 .celda_left{  border-left: 1px solid black; }         
 
 .footer th, .footer td { padding: 1pt; border: solid 1px #000000; }
-.footer { position: fixed; bottom: 150px; font-size:10px;  width: 100%; border: solid 0px #000000; }
+.footer { position: fixed; bottom: 180px; font-size:10px;  width: 100%; border: solid 0px #000000; }
 .fg { font-size: 11px;} 
 .fg2 { text-align: center; }
 .fg3 { border: solid 0px; } 
@@ -186,7 +186,7 @@ foreach ($cab['detalle'] as $producto) {
 $html.='
 <tr>
       <td>'.$producto['txtCODIGO_DET'].'</td>
-      <td>'.$producto['txtDESCRIPCION_DET'].'</td>
+      <td>'.$producto['txtDESCRIPCION_DET'].' ('.$producto['txtUNIDAD_MEDIDA_NOMBRE_DET'].')</td>
       <td>'.number_format($producto['txtPRECIO_DET'], 2, '.', '').'</td>
       <td>'.$producto['txtCANTIDAD_DET'].'</td>
       <td>'.number_format($producto['txtIMPORTE_DET'], 2, '.', '').'</td>
@@ -249,13 +249,20 @@ Representación impresa de la '.$tdocumento.'<br>
   </td>
   </tr>
 <tr><td>'.$cab['txtRAZON_SOCIAL_CLIENTE'].'</td></tr>
-<tr><td>---</td></tr>
+<tr><td><strong>VENDEDOR:</strong>'.$cab['txtVENDEDOR'].'</td></tr>
 <tr>  
 <td>
 <!-- Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00 -->
   </td>
 </tr>
    
+<tr>
+  <td colspan="3" style="padding: 5px; text-align:center" >
+  BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN
+  <br>
+  SELVA PARA SER CONSUMIDOS EN LA MISMA
+  </td>
+</tr>
 
   </tbody>
 </table>

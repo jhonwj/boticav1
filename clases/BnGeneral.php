@@ -163,11 +163,13 @@ Gen_Producto.Producto,
 Gen_Producto.CodigoBarra,
 Ve_DocVentaDet.Cantidad,
 Ve_DocVentaDet.Precio,
+Gen_ProductoMedicion.ProductoMedicion,
 Round(Ve_DocVentaDet.Cantidad*
 Ve_DocVentaDet.Precio,2) as TOTAL
 FROM
 Ve_DocVentaDet
-INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto ";
+INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
+INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion=Gen_ProductoMedicion.IdProductoMedicion";
 		//echo $Ssql;
 		if (!empty($criterio)) {
 			$Ssql= $Ssql." WHERE ".$criterio;

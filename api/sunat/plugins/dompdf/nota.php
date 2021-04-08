@@ -209,7 +209,7 @@ foreach ($cab['detalle'] as $producto) {
   $html.='
   <tr>
         <td>'.$producto['txtCODIGO_DET'].'</td>
-        <td>'.$producto['txtDESCRIPCION_DET'].'</td>
+        <td>'.$producto['txtDESCRIPCION_DET'].' ('.$producto['txtUNIDAD_MEDIDA_NOMBRE_DET'].')</td>
         <td>'.number_format($producto['txtPRECIO_DET'], 2, '.', '').'</td>
         <td>'.$producto['txtCANTIDAD_DET'].'</td>
         <td>'.number_format($producto['txtIMPORTE_DET'], 2, '.', '').'</td>
@@ -271,13 +271,19 @@ foreach ($cab['detalle'] as $producto) {
   </td>
   </tr>
 <tr><td>'.$cab['txtRAZON_SOCIAL_CLIENTE'].'</td></tr>
-<tr><td>---</td></tr>
+<tr><td><strong>VENDEDOR:</strong>'.$cab['txtVENDEDOR'].'</td></tr>
 <tr>  
 <td>
-Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00
+<!-- Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00 -->
   </td>
 </tr>
-   
+<tr>
+  <td colspan="3" style="padding: 5px; text-align:center" >
+  BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN
+  <br>
+  SELVA PARA SER CONSUMIDOS EN LA MISMA
+  </td>
+</tr>  
 
   </tbody>
 </table>
