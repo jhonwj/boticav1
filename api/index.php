@@ -1573,7 +1573,7 @@ function stringSalidaCaja($idProducto, $idAlmacen, $fechaHasta) {
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad), 0) AS cantidad
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(IF(Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07'),-1*Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad,Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad)), 0) AS cantidad
             FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
@@ -1596,7 +1596,7 @@ function stringSalidaUnd($idProducto, $idAlmacen, $fechaHasta) {
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(IF(Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07'), -1*Lo_MovimientoDetalle.Cantidad,Lo_MovimientoDetalle.Cantidad)), 0) AS cantidad FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
             WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
@@ -1619,7 +1619,7 @@ function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta, $fechaDesde 
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Ve_DocVentaDet.IdProducto, IFNULL(SUM(Ve_DocVentaDet.Cantidad), 0) AS cantidad FROM Ve_DocVenta
+        $select = "(SELECT Ve_DocVentaDet.IdProducto, IFNULL(SUM(IF(Ve_DocVentaTipoDoc.CodSunat = '07' AND Ve_DocVenta.NotaIdMotivo IN ('01', '02', '06', '07'),-1*Ve_DocVentaDet.Cantidad,Ve_DocVentaDet.Cantidad)), 0) AS cantidad FROM Ve_DocVenta
             INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
             INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
             WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
@@ -1646,7 +1646,7 @@ function stringSalidaVentaCaja($idProducto, $idAlmacen, $fechaHasta) {
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad), 0) AS cantidad
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(IF(Ve_DocVentaTipoDoc.CodSunat = '07' AND Ve_DocVenta.NotaIdMotivo IN ('01', '02', '06', '07'),-1*Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad,Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad)), 0) AS cantidad
             FROM Ve_DocVenta
             INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
             INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
