@@ -28,6 +28,8 @@ if (isset($_GET['IdDocVenta'])) {
     } else {
       include_once('facturarojas.php');
     }
+  }elseif($docVenta['CodSunat'] == 07){
+      include_once('notacredito.php');
   }
 ?>
 
