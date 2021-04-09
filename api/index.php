@@ -21,7 +21,7 @@ $config['db']['user']   = "root";
 // $config['db']['user']   = "neurosys_CUSTODIO";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = "IX!!q!t(&Fc^";
-$config['db']['dbname'] = "neuro";
+$config['db']['dbname'] = "fact_icustodio";
 // $config['db']['dbname'] = "neurosys_CUSTODIO";
 
 $app = new \Slim\App(["settings" => $config]);
@@ -877,6 +877,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $stockMinimo = $request->getParam('StockMinimo');
     $codigoBarra = $request->getParam('CodigoBarra');
     $precioPorMayor = $request->getParam('PrecioPorMayor') ? $request->getParam('PrecioPorMayor') : null;
+    $stockPorMayor = $request->getParam('StockPorMayor') ? $request->getParam('StockPorMayor') : null;
     $esHabitacion = $request->getParam('EsHabitacion');
     $piso = $request->getParam('Piso');
     $controlaStock = $request->getParam('ControlaStock') ? $request->getParam('ControlaStock') : 0;
@@ -884,7 +885,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $productosDet = $request->getParam('productosDet');
     $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
     $precioContado = $request->getParam('PrecioContado') ? $request->getParam('PrecioContado') : 0;
-
+    $precioEspecial = $request->getParam('PrecioEspecial') ? $request->getParam('PrecioEspecial') : 0;
     $preciosPorProducto = json_encode($request->getParam('PreciosPorProducto'));
 
     // Actualizamos el producto si le pasamos el ID
@@ -918,10 +919,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "PrecioCosto" =>                    $precioCosto,
                             "PrecioContado" =>                  $precioContado,
                             "precioConvenio" =>                 $precioConvenio,
+                            "PrecioEspecial" =>                 $precioEspecial,
                             "ProductoPresentacion" =>           $productoPresentacion,
                             "EsPadre" =>                        $esPadre,
                             "StockMinimo" =>                    $stockMinimo,
                             "PrecioPorMayor" =>                 $precioPorMayor,
+                            "StockPorMayor"=>                   $stockPorMayor,
                             "EsHabitacion" =>                   $esHabitacion,
                             "Piso" =>                           $piso,
                             "PreciosPorProducto" =>             $preciosPorProducto
@@ -996,10 +999,12 @@ $app->post('/productos', function (Request $request, Response $response) {
                 'ProductoPresentacion', 
                 'EsPadre', 
                 'PrecioPorMayor', 
-                'StockMinimo', 
+                'StockMinimo',
+                'StockPorMayor', 
                 'CodigoBarra', 
                 'PrecioCosto', 
-                'PrecioContado', 
+                'PrecioContado',
+                'PrecioEspecial',
                 'EsHabitacion', 
                 'Piso', 
                 'PreciosPorProducto'))
@@ -1027,9 +1032,11 @@ $app->post('/productos', function (Request $request, Response $response) {
                 $esPadre, 
                 $precioPorMayor, 
                 $stockMinimo, 
+                $stockPorMayor,
                 $codigoBarra, 
                 $precioCosto, 
                 $precioContado, 
+                $precioEspecial,
                 $esHabitacion, 
                 $piso, 
                 $preciosPorProducto));
@@ -1398,7 +1405,14 @@ function stringSalidaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
     Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
     'S/' AS Moneda,
     '0' AS IngresoCantidad, '0' AS IngresoPrecio,
-    Lo_MovimientoDetalle.Cantidad as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio,
+    (CASE
+        WHEN Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07') THEN '0'
+        ELSE Lo_MovimientoDetalle.Cantidad
+    END) AS SalidaCantidad, 
+    (CASE
+        WHEN Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07') THEN '0'
+        ELSE Lo_MovimientoDetalle.Precio
+    END) AS SalidaPrecio,
     '0' AS Descuento FROM Lo_Movimiento
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
@@ -1414,7 +1428,14 @@ function stringSalidaCajaProducto($idProducto, $idAlmacen, $fechaHasta) {
     Lo_MovimientoTipo.TipoMovimiento AS Detalle, Lo_Movimiento.Serie, Lo_Movimiento.Numero, Lo_Proveedor.Proveedor AS Nombres,
     'S/' AS Moneda, 
     '0' AS IngresoCantidad, '0' AS IngresoPrecio, 
-    (Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad) as SalidaCantidad, Lo_MovimientoDetalle.Precio AS SalidaPrecio, 
+    (CASE
+        WHEN Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07') THEN '0' 
+        ELSE (Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad) 
+    END) AS SalidaCantidad, 
+    (CASE
+        WHEN Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07') THEN '0' 
+        ELSE Lo_MovimientoDetalle.Precio 
+    END) AS SalidaPrecio, 
     '0' AS Descuento FROM Lo_Movimiento
         INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
         INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
@@ -1431,8 +1452,22 @@ function stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
     CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero,
     Ve_DocVentaCliente.Cliente AS Nombres,
     'S/' AS Moneda,
-    '0' AS IngresoCantidad, '0' AS IngresoPrecio,
-    Ve_DocVentaDet.Cantidad as SalidaCantidad, Ve_DocVentaDet.Precio AS SalidaPrecio,
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' AND NotaIdMotivo IN ('01', '02', '06', '07') THEN Ve_DocVentaDet.Cantidad
+        ELSE '0'
+    END) AS IngresoCantidad, 
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' AND NotaIdMotivo IN ('01', '02', '06', '07') THEN Ve_DocVentaDet.Precio
+        ELSE '0'
+    END) AS IngresoPrecio, 
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' THEN '0'
+        ELSE Ve_DocVentaDet.Cantidad
+    END) AS SalidaCantidad, 
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' THEN '0'
+        ELSE Ve_DocVentaDet.Precio
+    END) AS SalidaPrecio, 
     Ve_DocVentaDet.Descuento FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1440,6 +1475,7 @@ function stringSalidaVentaUndProducto($idProducto, $idAlmacen, $fechaHasta) {
         WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
             AND Ve_DocVentaDet.IdProducto = $idProducto
             AND Ve_DocVenta.Anulado = 0
+            AND Ve_DocVentaTipoDoc.VaRegVenta = 1
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     return $select;
@@ -1450,8 +1486,22 @@ function stringSalidaVentaCajaProducto($idProducto, $idAlmacen, $fechaHasta) {
     CONCAT('VENTA - ', Ve_DocVentaTipoDoc.TipoDoc) AS Detalle, Ve_DocVenta.Serie, Ve_DocVenta.Numero, 
     Ve_DocVentaCliente.Cliente AS Nombres, 
     'S/' AS Moneda,
-    '0' AS IngresoCantidad, '0' AS IngresoPrecio, 
-    (Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad) as SalidaCantidad, Ve_DocVentaDet.Precio AS SalidaPrecio, 
+    (CASE
+    WHEN Ve_DocVentaTipoDoc.CodSunat = '07' AND NotaIdMotivo IN ('01', '02', '06', '07') THEN (Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad)
+    ELSE '0'
+    END) AS IngresoCantidad, 
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' AND NotaIdMotivo IN ('01', '02', '06', '07') THEN Ve_DocVentaDet.Precio
+        ELSE '0'
+    END) AS IngresoPrecio, 
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' THEN '0'
+        ELSE (Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad)
+    END) AS SalidaCantidad, 
+    (CASE
+        WHEN Ve_DocVentaTipoDoc.CodSunat = '07' THEN '0'
+        ELSE Ve_DocVentaDet.Precio
+    END) AS SalidaPrecio,  
     Ve_DocVentaDet.Descuento FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1523,7 +1573,7 @@ function stringSalidaCaja($idProducto, $idAlmacen, $fechaHasta) {
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad), 0) AS cantidad
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(IF(Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07'),-1*Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad,Lo_MovimientoDetalle.Cantidad * Gen_ProductoDet.Cantidad)), 0) AS cantidad
             FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
@@ -1546,7 +1596,7 @@ function stringSalidaUnd($idProducto, $idAlmacen, $fechaHasta) {
             AND Lo_Movimiento.MovimientoFecha < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(Lo_MovimientoDetalle.Cantidad), 0) AS cantidad FROM Lo_Movimiento
+        $select = "(SELECT Lo_MovimientoDetalle.IdProducto, IFNULL(SUM(IF(Lo_MovimientoTipo.CodSunat = '07' AND Lo_Movimiento.NotaIdMotivo NOT IN ('01', '02', '06', '07'), -1*Lo_MovimientoDetalle.Cantidad,Lo_MovimientoDetalle.Cantidad)), 0) AS cantidad FROM Lo_Movimiento
             INNER JOIN Lo_MovimientoDetalle On Lo_Movimiento.`Hash`=Lo_MovimientoDetalle.hashMovimiento
             INNER JOIN Lo_MovimientoTipo ON Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
             WHERE Lo_MovimientoTipo.VaRegCompra = 1 AND Lo_Movimiento.IdAlmacenOrigen = $idAlmacen
@@ -1569,7 +1619,7 @@ function stringSalidaVentaUnd($idProducto, $idAlmacen, $fechaHasta, $fechaDesde 
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Ve_DocVentaDet.IdProducto, IFNULL(SUM(Ve_DocVentaDet.Cantidad), 0) AS cantidad FROM Ve_DocVenta
+        $select = "(SELECT Ve_DocVentaDet.IdProducto, IFNULL(SUM(IF(Ve_DocVentaTipoDoc.CodSunat = '07' AND Ve_DocVenta.NotaIdMotivo IN ('01', '02', '06', '07'),-1*Ve_DocVentaDet.Cantidad,Ve_DocVentaDet.Cantidad)), 0) AS cantidad FROM Ve_DocVenta
             INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
             INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
             WHERE Ve_DocVenta.IdAlmacen = $idAlmacen
@@ -1596,7 +1646,7 @@ function stringSalidaVentaCaja($idProducto, $idAlmacen, $fechaHasta) {
             AND Ve_DocVenta.FechaDoc < '$fechaHasta')";
 
     if (!$idProducto) {
-        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad), 0) AS cantidad
+        $select = "(SELECT Gen_ProductoDet.IdProductoDet AS IdProducto, IFNULL(SUM(IF(Ve_DocVentaTipoDoc.CodSunat = '07' AND Ve_DocVenta.NotaIdMotivo IN ('01', '02', '06', '07'),-1*Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad,Gen_ProductoDet.cantidad * Ve_DocVentaDet.Cantidad)), 0) AS cantidad
             FROM Ve_DocVenta
             INNER JOIN Ve_DocVentaDet ON Ve_DocVenta.idDocVenta=Ve_DocVentaDet.IdDocVenta
             INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -1902,6 +1952,38 @@ $app->get('/ventas/tipos', function (Request $request, Response $response, array
     return $response->withJson($data);
 });
 
+$app->get('/ventas/solonumero', function (Request $request, Response $response, array $args) {
+    $serie = $request->getParam('serie');
+    $idTipoDoc = $request->getParam('idTipoDoc');
+
+    // Obtener siguiente Numero
+    $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta 
+        WHERE IdTipoDoc=$idTipoDoc AND Serie='$serie'
+        ORDER BY Numero DESC LIMIT 1";
+    $stmt = $this->db->query($selectNumero);
+    $stmt->execute();
+    $selectNumero = $stmt->fetch();
+    $numero = $selectNumero['NuevoNumero'];
+    return $response->withJson(array(
+        "numero" => $numero ? $numero : 1
+    ));
+});
+
+$app->get('/ventas/lista', function (Request $request, Response $response) { 
+    $select = "SELECT Ve_DocVentaTipoDoc.CodSunat, CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) AS NroComprobante FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc";
+    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND
+    CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $request->getParam('q') . "%'  ";
+    $select .= " LIMIT 10";
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    
+    return $response->withJson($data);
+});
+
+
 $app->get('/ventas/tipos/electronicos', function (Request $request, Response $response, array $args) {
     //$select = $this->db->select()->from('Ve_DocVentaTipoDoc')->whereLike('TipoDoc', '%' . $request->getParam('q') . '%');
 
@@ -2197,7 +2279,7 @@ $app->get('/ventas/detalle', function (Request $request, Response $response) {
         ROUND(Ve_DocVentaDet.Descuento, 2) AS Descuento,
         ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
         ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
-        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion
+        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion,Gen_ProductoMedicion.ProductoMedicion
         FROM Ve_DocVentaDet
         INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
         INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
@@ -2220,6 +2302,10 @@ $app->get('/ventas', function (Request $request, Response $response) {
         Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
+        Ve_DocVenta.CodSunatModifica,
+        Ve_DocVenta.NroComprobanteModifica,
+        Ve_DocVenta.NotaIdMotivo,
+        Ve_DocVenta.NotaDescMotivo,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -2354,9 +2440,12 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $anulado = 0;
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
     $pagoCon = $request->getParam('PagoCon');
-
+    $codSunatModifica = $request->getParam('CodSunatModifica');
+    $nroComprobanteModifica = $request->getParam('NroComprobanteModifica');
+    $notaIdMotivo = $request->getParam('NotaIdMotivo');
+    $notaDescMotivo = $request->getParam('NotaDescMotivo');
     $esCredito = $request->getParam('EsCredito');
-    $porEntregar = $request->getParam('PorEntregar');
+    $porEntregar = $request->getParam('PorEntregar') ? $request->getParam('PorEntregar') : 0;
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
@@ -2408,6 +2497,17 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
     // OBTENER EL SIGUIENTE NUMERO
     if ($codSunat == '07' || $codSunat == '08') { // 07 nota de credito, 08 nota de debito
+
+        if($codSunatModifica =='01'  ){
+            $serie = str_replace("_","F",$serie);
+        }
+
+        if($codSunatModifica =='03'  ){
+            $serie = str_replace("_","B",$serie);
+        }
+
+        //$serie = $request->getParam('Serie'); 
+
         $selectNumero = "SELECT Numero + 1 AS NuevoNumero FROM Ve_DocVenta
             WHERE IdTipoDoc=$idTipoDoc AND Serie='$serie'
             ORDER BY Numero DESC LIMIT 1";
@@ -2424,8 +2524,8 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $numero = $selectNumero['NuevoNumero'] ? $selectNumero['NuevoNumero'] : 1;
 
 
-    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista, PorEntregar)
-        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista, '$porEntregar')";
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista, PorEntregar, CodSunatModifica, NroComprobanteModifica, NotaIdMotivo, NotaDescMotivo)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista, '$porEntregar','$codSunatModifica', '$nroComprobanteModifica', '$notaIdMotivo', '$notaDescMotivo')";
 
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
@@ -3626,21 +3726,21 @@ $app->post('/clientes', function (Request $request, Response $response) {
 
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '20573027125');
+define('NRO_DOCUMENTO_EMPRESA', '20394084221');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
 define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
 define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "JR. 28 DE JULIO NRO. 313 CENT C.U HUANUCO (FRENTE AL GRIFO TORRES) HUANUCO - HUANUCO - HUANUCO");
-define('DEPARTAMENTO_EMPRESA', "HUANUCO");
-define('PROVINCIA_EMPRESA', "HUANUCO");
-define('DISTRITO_EMPRESA', "HUANUCO");
+define('DIRECCION_EMPRESA', "AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II (ANTES DEL GRIFO SANTA FELICIA) UCAYALI - CORONEL PORTILLO - MANANTAY");
+define('DEPARTAMENTO_EMPRESA', "UCAYALI");
+define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
+define('DISTRITO_EMPRESA', "MANANTAY");
 define('TELEFONOS_EMPRESA', "");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'NEUR0515'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'Neur0515'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'CUSTODIO'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'Custodi0'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
@@ -3662,6 +3762,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = $producto['Precio'];
         $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD
@@ -3703,11 +3804,12 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         //==========documentos de referencia(nota credito, debito)=============
-        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['codSunatModifica']) && $docVenta['codSunatModifica'] ? $docVenta['codSunatModifica'] : "", //aqui completar
-        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['nroComprobanteModifica']) && $docVenta['nroComprobanteModifica'] ? $docVenta['nroComprobanteModifica'] : "",
-        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['notaIdMotivo']) && $docVenta['notaIdMotivo'] ? $docVenta['notaIdMotivo'] : "",
-        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['notaDescMotivo']) && $docVenta['notaDescMotivo'] ? $docVenta['notaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
+        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
+        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['NroComprobanteModifica']) && $docVenta['NroComprobanteModifica'] ? $docVenta['NroComprobanteModifica'] : "",
+        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['NotaIdMotivo']) && $docVenta['NotaIdMotivo'] ? $docVenta['NotaIdMotivo'] : "",
+        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['NotaDescMotivo']) && $docVenta['NotaDescMotivo'] ? $docVenta['NotaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
         //=================datos del cliente=================8
          "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
          "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
@@ -3769,7 +3871,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
             $insert = $stmt->execute();
             $lastInsert = $this->db->lastInsertId();
 
-            return $response->withJson($me);
+            //return $response->withJson($me);
         }
 
         if ($docVenta['CodSunat'] == '08') {
@@ -3777,22 +3879,14 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         }
     }
 
-    // Nota de credito
-    if ($docVenta['CodSunat'] == '07') {
+    // Para los casos de factura, boleta y nota de credito se actualiza misma tabla
+    $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
+        Msj_sunat='$me[msj_sunat]' WHERE idDocVenta='$docVenta[idDocVenta]' ";
 
-
-    } else if($docVenta['CodSunat'] == '08') {
-
-
-    } else {
-        // Para los casos de factura y boleta
-        $sql = "UPDATE Ve_DocVenta SET Estado=$estado, hash_cpe='$me[hash_cpe]', Hash_cdr='$me[hash_cdr]',
-            Msj_sunat='$me[msj_sunat]' WHERE idDocVenta='$docVenta[idDocVenta]' ";
-
-        $stmt = $this->db->prepare($sql);
-        $updated = $stmt->execute();
-        $me['Estado'] = $estado;
-    }
+    $stmt = $this->db->prepare($sql);
+    $updated = $stmt->execute();
+    $me['Estado'] = $estado;
+    
 
     return $response->withJson($me);
 });
@@ -3817,6 +3911,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = $producto['Precio'];
         $json["txtPRECIO_DESC_DET"] = $producto['Descuento'];
@@ -3864,14 +3959,15 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         "txtALMACEN"=> $docVenta['Almacen'],
         "txtALMACEN_DIRECCION" => $docVenta['DireccionAlmacen'],
         "txtALMACEN_ES_PRINCIPAL" => $docVenta['EsAlmacenPrincipal'],
         //==========documentos de referencia(nota credito, debito)=============
-        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['codSunatModifica']) && $docVenta['codSunatModifica'] ? $docVenta['codSunatModifica'] : "", //aqui completar
-        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['nroComprobanteModifica']) && $docVenta['nroComprobanteModifica'] ? $docVenta['nroComprobanteModifica'] : "",
-        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['notaIdMotivo']) && $docVenta['notaIdMotivo'] ? $docVenta['notaIdMotivo'] : "",
-        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['notaDescMotivo']) && $docVenta['notaDescMotivo'] ? $docVenta['notaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
+        "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
+        "txtNRO_DOCUMENTO_MODIFICA"=> isset($docVenta['NroComprobanteModifica']) && $docVenta['NroComprobanteModifica'] ? $docVenta['NroComprobanteModifica'] : "",
+        "txtCOD_TIPO_MOTIVO"=> isset($docVenta['NotaIdMotivo']) && $docVenta['NotaIdMotivo'] ? $docVenta['NotaIdMotivo'] : "",
+        "txtDESCRIPCION_MOTIVO"=> isset($docVenta['NotaDescMotivo']) && $docVenta['NotaDescMotivo'] ? $docVenta['NotaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
         //=================datos del cliente=================8
          "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
          "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
@@ -3903,7 +3999,13 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
     }
 
     $data['hash_cpe'] = isset($docVenta['Hash_cpe']) ? $docVenta['Hash_cpe'] : '';
-    $new->creaPDF(json_encode($data));
+
+    if($docVenta['CodSunat']=='07'){
+        $new->creaPDFNota(json_encode($data));
+    }else{
+        $new->creaPDF(json_encode($data));
+    }
+    
 
 });
 
@@ -3915,7 +4017,10 @@ $app->get('/imprimirpdf/{id}', function (Request $request, Response $response, a
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
         Ve_DocVenta.FechaCredito, Lo_Almacen.Almacen, Lo_Almacen.Direccion DireccionAlmacen, Lo_Almacen.EsPrincipal EsAlmacenPrincipal,
-        Ve_DocVentaCliente.NombreComercial,
+        Ve_DocVentaCliente.NombreComercial,Ve_DocVenta.CodSunatModifica,
+        Ve_DocVenta.NroComprobanteModifica,
+        Ve_DocVenta.NotaIdMotivo,
+        Ve_DocVenta.NotaDescMotivo,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -4468,6 +4573,10 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
             $ven['Total'] = 0;
         }
 
+        if ($ven['CodSunat'] == '07') {
+            $exonerado = -1 * $exonerado;
+            $ven['Total'] = -1 * $ven['Total'];
+        }
         $sheet->setCellValue('A'.$cont, $ven['idDocVenta']);
         $sheet->setCellValue('B'.$cont, date("d/m/Y", strtotime($ven['FechaDoc'])));
         $sheet->setCellValue('C'.$cont, date("d/m/Y", strtotime($ven['FechaDoc'])));
@@ -5097,14 +5206,12 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
     $idCierreCaja = $this->db->lastInsertId();
 
     // Actualizar DocVenta
-    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
-        AND UsuarioReg='" . $usuarioReg . "'";
+    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL ";
     $stmt = $this->db->prepare($updateVenta);
     $updatedVenta = $stmt->execute();
 
     // Actualizar CajaBanco asignando cierre solo de un vendedor
-    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
-        AND EsDelVendedor=1 AND UsuarioReg='" . $usuarioReg . "'";
+    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL ";
     $stmt = $this->db->prepare($updateCajaBanco);
     $updatedCajaBanco = $stmt->execute();
 

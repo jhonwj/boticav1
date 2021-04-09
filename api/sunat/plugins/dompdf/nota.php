@@ -14,44 +14,55 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 include "../phpqrcode/qrlib.php";
 
-require "../../modelos/resumen.php";
-require "../../modelos/numeros-letras.php";
+//require "../../modelos/resumen.php";
+//require "../../modelos/numeros-letras.php";
 
-$resumen=new Resumen();
+//$resumen=new Resumen();
 
-$id=$_GET['id'];
+//$id=$_GET['id'];
 
-$sql="SELECT *FROM venta WHERE idventa='$id' ";
-$mostrar= ejecutarConsultaSimpleFila($sql);
+//$sql="SELECT *FROM venta WHERE idventa='$id' ";
+//$mostrar= ejecutarConsultaSimpleFila($sql);
 
-$sql2="SELECT *FROM persona WHERE idpersona='$mostrar[txtID_CLIENTE]' ";
-$mcliente= ejecutarConsultaSimpleFila($sql2);
+//$sql2="SELECT *FROM persona WHERE idpersona='$mostrar[txtID_CLIENTE]' ";
+//$mcliente= ejecutarConsultaSimpleFila($sql2);
 
-$sql3="SELECT *FROM config WHERE estado='1' ";
-$mempresa= ejecutarConsultaSimpleFila($sql3);
+//$sql3="SELECT *FROM config WHERE estado='1' ";
+//$cab= ejecutarConsultaSimpleFila($sql3);
+$bodyRequest = file_get_contents("php://input");
+$cab = json_decode($bodyRequest, true);
 
-if($mempresa['tipo']=='03'){ $tipop='BETA'; }else{ $tipop='PRODUCCION'; }
 
-$ruta="../../api_cpe/".$tipop."/".$mempresa['ruc']."/";
-$fichero=$mempresa['ruc'].'-'.$mostrar['txtID_TIPO_DOCUMENTO'].'-'.$mostrar['txtSERIE'].'-'.$mostrar['txtNUMERO'];
+if($cab['txtTIPO_PROCESO']=='03'){ $tipop='BETA'; }else{ $tipop='PRODUCCION'; }
 
-if($mostrar['txtID_TIPO_DOCUMENTO']=='07'){ $tdocumento='NOTA DE CREDITO ELECTRÓNICA'; }
-if($mostrar['txtID_TIPO_DOCUMENTO']=='08'){ $tdocumento='NOTA DE DEBITO ELECTRÓNICA'; }
+if($cab ['txtCOD_MONEDA']=='PEN'){ $valmoneda='SOLES'; }
+if($cab ['txtCOD_MONEDA']=='USD'){ $valmoneda='DOLARES'; }
+if($cab ['txtCOD_MONEDA']=='EUR'){ $valmoneda='EUROS'; }
 
-if($mostrar['docmodifica_tipo']=='01'){ $tdocumentom='01 - FACTURA ELECTRÓNICA'; }
-if($mostrar['docmodifica_tipo']=='03'){ $tdocumentom='03 - BOLETA ELECTRÓNICA'; }
+$ruta="../../api_cpe/".$tipop."/".$cab['txtNRO_DOCUMENTO_EMPRESA']."/";
+$fichero=$cab['txtNRO_DOCUMENTO_EMPRESA'].'-'.$cab['txtCOD_TIPO_DOCUMENTO'].'-'.$cab['txtNRO_COMPROBANTE'];
 
-if($mostrar['txtID_MONEDA']=='PEN'){ $valmoneda='SOLES'; }
-if($mostrar['txtID_MONEDA']=='USD'){ $valmoneda='DOLARES'; }
-if($mostrar['txtID_MONEDA']=='EUR'){ $valmoneda='EUROS'; }
+if($cab['txtCOD_TIPO_DOCUMENTO']=='07'){ $tdocumento='NOTA DE CREDITO ELECTRÓNICA'; }
+if($cab['txtCOD_TIPO_DOCUMENTO']=='08'){ $tdocumento='NOTA DE DEBITO ELECTRÓNICA'; }
 
+if($cab['txtTIPO_COMPROBANTE_MODIFICA']=='01'){ $tdocumentom='01 - FACTURA ELECTRÓNICA'; }
+if($cab['txtTIPO_COMPROBANTE_MODIFICA']=='03'){ $tdocumentom='03 - BOLETA ELECTRÓNICA'; }
+
+
+$comprobante = explode('-', $cab['txtNRO_COMPROBANTE']);
+$serie = $comprobante[0];
+$numero = $comprobante[1];
+
+$comprobantemod = explode('-', $cab['txtNRO_DOCUMENTO_MODIFICA']);
+$seriemod = $comprobantemod[0];
+$numeromod = $comprobantemod[1];
 
 //QRcode::png("".$text);
 //DATOS OBLIGATORIOS DE LA SUNAT EN EL QR
 //RUC | TIPO DE DOCUMENTO | SERIE | NUMERO | MTO TOTAL IGV | MTO TOTAL DEL COMPROBANTE | FECHA DE //EMISION |TIPO DE DOCUMENTO ADQUIRENTE | NUMERO DE DOCUMENTO ADQUIRENTE |
 
-$text=$mempresa['ruc'].' | '.$tdocumento.' | '.$mostrar['txtSERIE'].' | '.$mostrar['txtNUMERO'].' | '.$mostrar['txtIGV'].' | '.$mostrar['txtTOTAL'].' | '.date("Y-m-d", strtotime($mostrar['txtFECHA_DOCUMENTO'])).' | '.$mcliente['tipo_documento'].' | '.$mcliente['txtID_CLIENTE'].' |';
-QRcode::png($text, $mempresa['ruc'].".png", 'Q',15, 0);
+$text=$cab['txtNRO_DOCUMENTO_EMPRESA'].' | '.$tdocumento.' | '.$serie.' | '.$numero.' | '.$cab['txtTOTAL_IGV'].' | '.$cab['txtTOTAL'].' | '.$cab['txtFECHA_DOCUMENTO'].' | '.$cab['txtTIPO_DOCUMENTO_CLIENTE'].' | '.$cab['txtNRO_DOCUMENTO_CLIENTE'].' |';
+QRcode::png($text, $cab['txtNRO_DOCUMENTO_EMPRESA'].".png", 'Q',15, 0);
 
  $html =
    '
@@ -107,11 +118,12 @@ th,td { padding: 3pt; }
 <table width="100%" border="0" class="cabecera" cellpadding="0" cellspacing="0">
   <tbody>
     <tr>
-<td width="6%"><img src="../../images/tulogo.png" width="266" height="60" /></td>
-<td class="cabeza"><h1>'.$mempresa['nombre_comercial'].'</h1>
-  <strong>SUCURSAL:</strong> '.$mempresa['direccion'].'<br>
-  <strong>TELF. PRINCIPAL:</strong> '.$mempresa['telefono'].'<br>
-      </td>
+    <td width="6%"><img src="../../images/logo.png" width="123" height="60" /></td>
+	
+    <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
+      <!--<strong>SUCURSAL:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>-->
+      <strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
+    </td>
 		
       <td width="30%">
         
@@ -120,13 +132,13 @@ th,td { padding: 3pt; }
           <tbody>
 
             <tr>
-              <td >RUC N° '.$mempresa['ruc'].'</td>
+              <td >RUC N° '.$cab['txtNRO_DOCUMENTO_EMPRESA'].'</td>
             </tr>
             <tr>
               <td class="nfactura">'.$tdocumento.'</td>
             </tr>
             <tr>
-              <td >'.$mostrar['txtSERIE'].'-'.$mostrar['txtNUMERO'].'</td>
+              <td >'.$cab['txtNRO_COMPROBANTE'].'</td>
             </tr>
           </tbody>
         </table>
@@ -144,19 +156,19 @@ th,td { padding: 3pt; }
 <thead>
     <tr>
       <td width="10%">NRO.DOCU.:</td>
-      <td width="60%">'.$mcliente['txtID_CLIENTE'].'</td>
+      <td width="60%">'.$cab['txtNRO_DOCUMENTO_CLIENTE'].'</td>
       <td width="10%">FECHA:</td>
-      <td width="20%">'.date("Y-m-d", strtotime($mostrar['txtFECHA_DOCUMENTO'])).'</td>
+      <td width="20%">'.date("Y-m-d", strtotime($cab['txtFECHA_DOCUMENTO'])).'</td>
     </tr>
     <tr>
       <td>CLIENTE:</td>
-      <td>'.$mcliente['txtRAZON_SOCIAL'].'</td>
+      <td>'.$cab['txtRAZON_SOCIAL_CLIENTE'].'</td>
       <td>NRO.GUIA:</td>
       <td>&nbsp;</td>
     </tr>
     <tr>
       <td>DIRECCIÓN:</td>
-      <td>'.$mcliente['direccion'].'</td>
+      <td>'.$cab['txtDIRECCION_CLIENTE'].'</td>
       <td>MONEDA:</td>
       <td>'.$valmoneda.'</td>
     </tr>
@@ -174,8 +186,8 @@ th,td { padding: 3pt; }
 <thead>
     <tr>
       <td>TIPO DOCUMENTO: '.$tdocumentom.'</td>
-      <td>NUMERO: '.$mostrar['docmodifica'].'</td>
-      <td>MOTIVO: '.$mostrar['modifica_motivo'].' - '.$mostrar['modifica_motivod'].'</td>
+      <td>NUMERO: '.$numeromod.'</td>
+      <td>MOTIVO: '.$cab['txtDESCRIPCION_MOTIVO'].' - '.$cab['txtCOD_TIPO_MOTIVO'].'</td>
     </tr>
   </thead>
 </table>
@@ -193,18 +205,17 @@ th,td { padding: 3pt; }
 </thead>
 <tbody>
 ';
-$rspta = $resumen->detfactura($mostrar['idventa']);
-while ($reg = $rspta->fetch_object()){	
-$html.='
-<tr>
-      <td>'.$reg->codigoproducto.'</td>
-      <td>'.$reg->nombreproducto.'</td>
-      <td>'.$reg->precio.'</td>
-      <td>'.$reg->txtCANTIDAD_ARTICULO.'</td>
-      <td>'.$reg->importe.'</td>
-    </tr>';
-}
-$html.='
+foreach ($cab['detalle'] as $producto) {
+  $html.='
+  <tr>
+        <td>'.$producto['txtCODIGO_DET'].'</td>
+        <td>'.$producto['txtDESCRIPCION_DET'].' ('.$producto['txtUNIDAD_MEDIDA_NOMBRE_DET'].')</td>
+        <td>'.number_format($producto['txtPRECIO_DET'], 2, '.', '').'</td>
+        <td>'.$producto['txtCANTIDAD_DET'].'</td>
+        <td>'.number_format($producto['txtIMPORTE_DET'], 2, '.', '').'</td>
+      </tr>';
+  }
+  $html.='
   </tbody>
 </table>
 
@@ -220,7 +231,7 @@ $html.='
 <table width="100%"  class="footer" border="0" cellspacing="0">
   <tbody>
     <tr>
-<td colspan="3" class="fg"><strong>SON: '.numtoletras($mostrar['txtTOTAL']).'</strong></td>
+<td colspan="3" class="fg"><strong>SON: '.$cab['txtTOTAL_LETRAS'].'</strong></td>
     </tr>
     <tr>
 <td width="64%">
@@ -229,7 +240,7 @@ $html.='
 </td>
 
 <td width="16%" rowspan="5"  class="fg fg2" >
-<img src="'.$mempresa['ruc'].'.png" width="120" height="120" />
+<img src="'.$cab['txtNRO_DOCUMENTO_EMPRESA'].'.png" width="120" height="120" />
 </td>
 
 
@@ -238,15 +249,15 @@ $html.='
 
 <table width="100%" border="0" cellspacing="0"  class="total"  >
         <tbody>
-<tr><td class="total2" width="50%"><strong>SUB.TOTAL:</strong></td><td><strong>'.$mostrar['txtSUB_TOTAL'].'</strong></td></tr>
-<tr><td class="total2"><strong>GRAVADAS:</strong></td><td><strong>'.$mostrar['txtSUB_TOTAL'].'</strong></td></tr>
+<tr><td class="total2" width="50%"><strong>SUB.TOTAL:</strong></td><td><strong>'.number_format($cab['txtSUB_TOTAL'], '2', '.', '').'</strong></td></tr>
+<tr><td class="total2"><strong>GRAVADAS:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>INAFECTA:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>0.00</strong></td></tr>
+<tr><td class="total2"><strong>EXONERADA:</strong></td><td><strong>'.number_format($cab['txtSUB_TOTAL'], '2', '.', '').'</strong></td></tr>
 <tr><td class="total2"><strong>GRATUITA:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.$mostrar['txtIGV'].'</strong></td></tr>
+<tr><td class="total2"><strong>DESCUENTO:</strong></td><td><strong>'.number_format($cab['txtTOTAL_DESCUENTO'], '2', '.', '').'</strong></td></tr>
+<tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.number_format($cab['txtTOTAL_IGV'], '2', '.', '').'</strong></td></tr>
 <tr><td class="total2"><strong>ISC:</strong></td><td><strong>0.00</strong></td></tr>
-<tr><td class="total2"><strong>TOTAL:</strong></td><td><strong>'.$mostrar['txtTOTAL'].'</strong></td></tr>
+<tr><td class="total2"><strong>TOTAL:</strong></td><td><strong>'.number_format($cab['txtTOTAL'], '2', '.', '').'</strong></td></tr>
 
         </tbody>
       </table>
@@ -256,17 +267,23 @@ $html.='
     </tr>
     <tr>
   <td >
-    <strong>HASH: '.$mostrar['hash_cpe'].'</strong>
+    <strong>HASH: '.$cab['hash_cpe'].'</strong>
   </td>
   </tr>
-<tr><td>'.$mcliente['nombre'].'</td></tr>
-<tr><td>---</td></tr>
+<tr><td>'.$cab['txtRAZON_SOCIAL_CLIENTE'].'</td></tr>
+<tr><td><strong>VENDEDOR:</strong>'.$cab['txtVENDEDOR'].'</td></tr>
 <tr>  
 <td>
-Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00
+<!-- Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00 -->
   </td>
 </tr>
-   
+<tr>
+  <td colspan="3" style="padding: 5px; text-align:center" >
+  BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN
+  <br>
+  SELVA PARA SER CONSUMIDOS EN LA MISMA
+  </td>
+</tr>  
 
   </tbody>
 </table>
