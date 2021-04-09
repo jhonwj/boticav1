@@ -118,6 +118,7 @@ $igv = 0;
         <tr>
           <th class="cantidad">CANT</th>
           <th class="producto">PRODUCTO</th>
+          <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -141,9 +142,12 @@ $igv = 0;
             <td class="producto">
               <span><?php echo $producto['Producto'] ?></span>
             </td>
-            <td class="precio">
-              <span>S/.<?php echo $producto['Precio'] ?></span>
-            </td>
+            <td class="producto" style="text-align: center;">
+              <?php echo $producto['ProductoMedicion'] ?>
+              </td>
+              <td class="precio" style="text-align: center;">
+                <span>S/.<?php echo number_format($producto['Precio'],2) ?></span>
+              </td>
             <td class="text-right">
               <?php 
                 if ($producto['CodigoBarra'] === "MANODEOBRA") {
@@ -170,7 +174,7 @@ $igv = 0;
         }
         ?>
         <tr>
-          <td></td><td></td>
+          <td></td><td></td><td></td>
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
@@ -187,7 +191,7 @@ $igv = 0;
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td>
+          <td></td><td></td><td></td>
           <td class="text-right"><strong>TOTAL</strong></td>
           <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
         </tr>

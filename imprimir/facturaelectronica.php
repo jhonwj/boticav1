@@ -126,6 +126,7 @@ if ($docVenta['CampoDireccion']) {
         <tr>
           <th class="cantidad">CANT</th>
           <th class="producto">PRODUCTO</th>
+          <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -149,14 +150,17 @@ if ($docVenta['CampoDireccion']) {
               <td class="producto">
                 <?php if($producto['Descripcion']) : ?>
                 <span>
-                <?php echo $producto['Producto'] . ' (' . $producto['ProductoMedicion'] . ') ' ?>
+                <?php echo $producto['Producto'] ?>
                 </span>
                 <?php else : ?>
                 <span><?php echo $producto['Producto'] ?></span>
                 <?php endif; ?>
               </td>
-              <td class="precio">
-                <span>S/.<?php echo $producto['Precio'] ?></span>
+              <td class="producto" style="text-align: center;">
+              <?php echo $producto['ProductoMedicion'] ?>
+              </td>
+              <td class="precio" style="text-align: center;">
+                <span>S/.<?php echo number_format($producto['Precio'],2) ?></span>
               </td>
               <td class="text-right">
                 <?php 
@@ -185,7 +189,7 @@ if ($docVenta['CampoDireccion']) {
         }
         ?>
         <tr>
-          <td></td><td></td>
+          <td></td><td></td><td></td>
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
@@ -204,7 +208,7 @@ if ($docVenta['CampoDireccion']) {
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td>
+          <td></td><td></td><td></td>
           <td class="text-right"><strong>TOTAL</strong></td>
           <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
         </tr>
