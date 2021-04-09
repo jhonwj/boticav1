@@ -134,6 +134,19 @@ function listarCajaBanco(){
              },
              "drawCallback": function( settings ) {
 
+              },
+              "footerCallback": function ( row, data, start, end, display ) {
+                var api = this.api();
+                var monTotal = api
+                .column( 5 )
+                .data()
+                .reduce( function (a, b) {
+                    return parseFloat(a) + parseFloat(b);
+                }, 0 );
+
+                $( api.column( 5 ).footer() ).html(monTotal);
+
+                // console.log(monTotal);
               }
          });
    }
@@ -232,9 +245,19 @@ function listarCajaBanco(){
              <th>Importe</th>
            </tr>
          </thead>
+
+         <tfoot>
+            <tr>
+                <th colspan="5" style="text-align:right">Total:</th>
+                <th></th>
+            </tr>
+          </tfoot>
        </table>
      </div>
     </div>
+
+    <button class="btn btn-success" onclick="exportTableToExcel('tableCajaBanco')">Exportar</button>
+
 </div>
 <?php include("footer.php"); ?>
 
