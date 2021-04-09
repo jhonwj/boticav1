@@ -95,7 +95,7 @@ date_default_timezone_set('America/Lima');
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
           <li><a href="<?php echo Clientes; ?>">Clientes </a></li>
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
-          <li><a href="/views/habitaciones.php">Proyectos</a></li>
+          <!--<li><a href="/views/habitaciones.php">Proyectos</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>

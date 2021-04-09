@@ -1972,7 +1972,7 @@ $app->get('/ventas/solonumero', function (Request $request, Response $response, 
 $app->get('/ventas/lista', function (Request $request, Response $response) { 
     $select = "SELECT Ve_DocVentaTipoDoc.CodSunat, CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) AS NroComprobante FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc";
-    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND
+    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND Ve_DocVenta.Anulado=0 AND
     CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $request->getParam('q') . "%'  ";
     $select .= " LIMIT 10";
     
@@ -2173,7 +2173,7 @@ $app->get('/venta/detalle/comprobante', function (Request $request, Response $re
     Ve_DocVentaDet.Cantidad AS cantidad,Ve_DocVentaDet.Cantidad AS cantxPrecio,'1' AS cantidadPres, 
     Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Descuento AS descuento,
     false AS estadoPxP,Gen_Producto.Producto,Gen_Producto.PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
-    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial
+    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_Producto.PrecioCosto
     FROM Ve_DocVentaDet 
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.IdDocVenta
     INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
