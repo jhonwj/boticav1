@@ -2163,6 +2163,29 @@ $app->post('/ventas/entregar', function (Request $request, Response $response) {
     ));
 });
 
+$app->get('/venta/detalle/comprobante', function (Request $request, Response $response) {
+    $nroComprobante = $request->getParam('NroComprobante');
+    $comprobante = explode('-', $nroComprobante );
+    $serie = $comprobante[0];
+    $numero = $comprobante[1];
+
+    $select = "SELECT Ve_DocVentaDet.IdDocVentaDet,Ve_DocVentaDet.IdDocVenta,Ve_DocVentaDet.IdProducto,
+    Ve_DocVentaDet.Cantidad AS cantidad,Ve_DocVentaDet.Cantidad AS cantxPrecio,'1' AS cantidadPres, 
+    Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Descuento AS descuento,
+    false AS estadoPxP,Gen_Producto.Producto,Gen_Producto.PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
+    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial
+    FROM Ve_DocVentaDet 
+    INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.IdDocVenta
+    INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
+
+    WHERE Ve_DocVenta.Serie='$serie' AND Ve_DocVenta.Numero='$numero' ORDER BY Ve_DocVentaDet.IdDocVentaDet DESC ";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
 $app->get('/ventas/detalle/entregar', function (Request $request, Response $response) {
     $idDocVentas = $request->getParam('idDocVenta');
 
@@ -3861,7 +3884,12 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $estado = 2;
         // generamos PDF para su descarga
         $data['hash_cpe'] = $me['hash_cpe'];
-        $new->creaPDF(json_encode($data));
+        
+        if($docVenta['CodSunat'] == '07'){
+            $new->creaPDFNota(json_encode($data));
+        }else{
+            $new->creaPDF(json_encode($data));
+        }
 
         // Si es nota de credito/debito insertar en tabla
         if ($docVenta['CodSunat'] == '07') { // nota de credito

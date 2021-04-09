@@ -11,7 +11,7 @@ if (isset($_GET['IdDocVenta'])) {
   $docVenta = mysqli_fetch_assoc($result);
 
   $criterio="Ve_DocVentaDet.IdDocVenta=$idDocVenta";
-  $resultDet = fn_devolverDocVentaDet($criterio, "Gen_Producto.Producto desc");
+  $resultDet = fn_devolverDocVentaDet($criterio, "Ve_DocVentaDet.IdDocVentaDet ASC");
   $productos = mysqli_fetch_all($resultDet, MYSQLI_ASSOC);
 
   if ($docVenta['CodSunat'] == 12) {
