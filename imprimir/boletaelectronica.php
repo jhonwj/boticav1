@@ -29,7 +29,7 @@ $limitProducto = $docVenta['LimiteItems'];
 $docVentaNro = $docVenta['Serie'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
 $fechaDoc = $docVenta['FechaDoc'];
 $fecha = date("Y-m-d", strtotime($docVenta['FechaDoc']));
-$serieMaq = $docVenta['SerieImpresora'];
+//$serieMaq = $docVenta['SerieImpresora'];
 $tipoDoc = $docVenta['TipoDoc'];
 
 $subtotal = 0;
@@ -47,23 +47,24 @@ if ($docVenta['CampoDireccion']) {
 <style>
   * {
     font-size: 3mm;
-    font-family: sans-serif;
+    font-family: monospace;
+    font-weight:  bold;
   }
   body {
     display: block;
-    margin: 8px;
+    margin: 0px;
   }
-  td,
-  th,
+  td.tabla1,
+  th.tabla1,
   tr,
-  table {
-    border-top: 1px solid black;
+  .tabla1 {
+    border-top: black 1px dashed;
     border-collapse: collapse;
   }
   .container {
-    width: 100%;
+    width: 80mm;
     max-width: 100%;
-    padding: 0 4mm;
+    padding:  3mm 0.5mm 3mm .5m;
     box-sizing: border-box;
   }
 
@@ -75,12 +76,12 @@ if ($docVenta['CampoDireccion']) {
     border-top: 1px dashed #000;
 
   }
-  td {
+  td.tabla1 {
     line-height: 1.48em;
     font-size: 1em;
   }
   td, th {
-    padding: 0 6px;
+    padding: 2px;
   }
   td.cantidad {
     text-align: center;
@@ -108,11 +109,11 @@ if ($docVenta['CampoDireccion']) {
     </div>
     <br />
   <?php endif; ?>
-
-  <div class="">BOLETA ELEC. NRO: <?php echo $docVentaNro; ?></div>
+  <center>
+  <div class="">BOLETA ELECTRÓNICA</br> <span style="font-size:15px">  <?php echo $docVentaNro; ?></span></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
-
+  </center>
   <div class="separar"></div>
   <div>SR(ES) : <?php echo $cliente ?></div>
   <div>RUC/DNI : <?php echo $dniRuc; ?></div>
@@ -121,11 +122,12 @@ if ($docVenta['CampoDireccion']) {
   <br />
 
   <div class="productos">
-    <table width="100%">
+    <table width="100%" class="tabla1">
       <thead>
         <tr>
+        <th class="numero">#</th>
+        <th class="producto">PRODUCTO</th>
           <th class="cantidad">CANT</th>
-          <th class="producto">PRODUCTO</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -143,9 +145,9 @@ if ($docVenta['CampoDireccion']) {
         foreach ($productos as $key => $producto) { ?>
           <?php if (empty($producto['EsManoDeObra'])) : ?>
             <tr>
-              <td class="cantidad">
-                <span><?php echo $producto['Cantidad']; ?></span>
-              </td>
+            <td class="Numero">
+              <span><?php echo $filas+1; ?></span>
+            </td>
               <?php
                   $producto['Descripcion'] ='';
                   if (!empty($producto['ProductoDesc'])) $producto['Descripcion'] .= $producto['ProductoDesc'];
@@ -158,11 +160,14 @@ if ($docVenta['CampoDireccion']) {
                 <?php echo $producto['Producto'] . ' (' . $producto['Descripcion'] . ') ' ?>
                 </span>
                 <?php else : ?>
-                <span><?php echo $producto['Producto'] ?></span>
+                <span  style="font-size:9px" ><?php echo $producto['Producto'] ?></span>
                 <?php endif; ?>
               </td>
-              <td class="precio">
-                <span>S/.<?php echo $producto['Precio'] ?></span>
+              <td class="cantidad">
+                <span><?php echo $producto['Cantidad']; ?></span>
+              </td>
+              <td class="precio" align="center">
+                <span><?php echo number_format($producto['Precio'], 2) ?></span>
               </td>
               <td class="text-right">
                 <?php 
@@ -170,7 +175,7 @@ if ($docVenta['CampoDireccion']) {
                     $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
                   }
                 ?>
-                <span>S/.<?php echo $producto['TOTAL']; ?></span>
+                <span><?php echo $producto['TOTAL']; ?></span>
               </td>
             </tr>
             <?php
@@ -191,28 +196,28 @@ if ($docVenta['CampoDireccion']) {
         }
         ?>
         <tr>
-          <td></td><td></td>
+          <td></td><td></td><td></td>
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
         <?php if ($igv > 0) : ?>
           <tr>
-            <td></td>
+            <td></td><td></td><td></td>
             <td class="text-right">IGV</td>
             <td class="text-right">S/.<?php echo number_format($igv, 2); ?></td>
           </tr>
         <?php endif; ?>
         <?php if ($totalDescuento > 0) : ?>
           <tr>
-            <td></td>
+            <td></td><td></td><td></td>
             <td class="text-right">DESCUENTO</td>
             <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2); ?></td>
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td>
-          <td class="text-right"><strong>TOTAL</strong></td>
-          <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
+          <td></td><td></td><td></td>
+          <td class="text-right"><span style="font-size:14px">TOTAL</span></td>
+          <td class="text-right"><span style="font-size:14px">S/.<?php echo number_format($total - $totalDescuento, 2); ?></span></td>
         </tr>
       </tbody>
     </table>
@@ -232,7 +237,14 @@ if ($docVenta['CampoDireccion']) {
   <div class="center">
         <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
         <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
-        <br />
+        <div class="center small">Consulte su comprobante en:</div>
+      <div class="center small"><b>http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div>
+  </div>
+  <center>  
+  <table class="tabla2">
+  <tr >
+  <td width="100" 
+	  heigth="100">
         <?php
         define('NRO_DOCUMENTO_EMPRESA', '20393999463');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
@@ -248,20 +260,23 @@ if ($docVenta['CampoDireccion']) {
         $base64 = base64_encode($imagedata);
         ?>
         <img style="max-width: 100%; width: 100px;" src="data:image/png;base64,<?php echo $base64 ?>" />
-  </div>
-  <br />
-  <div class="center small">Autorizado mediante Resolución de Oficina Zonal</div>
-  <div class="center small">N° 192-005-0000020/SUNAT</div>
-  <div class="center small">Representación impresa de la Boleta Electrónica</div><br>
-  <div class="center small">Consulte su comprobante en:</div>
-  <div class="center small"><b>http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div>
-  <div class="center small"></div><br />
-
-  <div class="center small">AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II </div>
+  
+        </td>
+  <td>
+  <center>
+  <br /><span style="font-size:10px">Autorizado mediante Resolución de Oficina Zonal</span>
+  <br /><span style="font-size:10px">N° 192-005-0000020/SUNAT</span>
+  <br /><span style="font-size:10px">Representación impresa de la Factura Electrónica</span>
+   <center>
+   </td>
+  </tr>
+  </table >
+  </center>
+  <div class="center small">AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. </br>SIEMPRE UNIDOS II </div>
   <div class="center small">CORONEL PORTILLO - MANANTAY - UCAYALI</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">GRACIAS POR SU COMPRA</div>
-  <br />
-  <br />
+  <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>
+
 
 </div>

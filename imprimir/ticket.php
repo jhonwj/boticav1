@@ -28,7 +28,7 @@ $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = $docVenta['LimiteItems'];
 $docVentaNro = $docVenta['Serie'] . ' - ' . str_pad( $docVenta['Numero'], 8, "0", STR_PAD_LEFT);
 $fechaDoc = $docVenta['FechaDoc'];
-$serieMaq = $docVenta['SerieImpresora'];
+//$serieMaq = $docVenta['SerieImpresora'];
 $tipoDoc = $docVenta['TipoDoc'];
 
 $subtotal = 0;
@@ -39,23 +39,24 @@ $igv = 0;
 <style>
   * {
     font-size: 3mm;
-    font-family: sans-serif;
+    font-family: monospace;
+    font-weight:  bold;
   }
   body {
     display: block;
-    margin: 8px;
+    margin: 0px;
   }
-  td,
-  th,
+  td.tabla1,
+  th.tabla1,
   tr,
-  table {
-    border-top: 1px solid black;
+  .tabla1 {
+    border-top: black 1px dashed;
     border-collapse: collapse;
   }
   .container {
-    width: 100%;
+    width: 80mm;
     max-width: 100%;
-    padding: 0 4mm;
+    padding:  3mm 0.5mm 3mm .5m;
     box-sizing: border-box;
   }
 
@@ -67,12 +68,12 @@ $igv = 0;
     border-top: 1px dashed #000;
 
   }
-  td {
+  td.tabla1 {
     line-height: 1.48em;
     font-size: 1em;
   }
   td, th {
-    padding: 0 6px;
+    padding: 2px;
   }
   td.cantidad {
     text-align: center;
@@ -100,11 +101,11 @@ $igv = 0;
     </div>
     <br />
   <?php endif; ?>
-
-  <div class="">TICKET NRO: <?php echo $docVentaNro; ?></div>
+  <center>
+  <div class="">TICKET</br> <span style="font-size:15px"> <?php echo $docVentaNro; ?></span></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
-
+  </center>
   <div class="separar"></div>
   <div>SR(ES) : <?php echo $cliente ?></div>
   <div>RUC/DNI : <?php echo $dniRuc; ?></div>
@@ -113,11 +114,12 @@ $igv = 0;
   <br />
 
   <div class="productos">
-    <table width="100%">
+    <table width="100%"  class="tabla1">
       <thead>
         <tr>
-          <th class="cantidad">CANT</th>
+          <th class="numero">#</th>
           <th class="producto">PRODUCTO</th>
+          <th class="cantidad">CANT</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -135,22 +137,26 @@ $igv = 0;
         foreach ($productos as $key => $producto) { ?>
         <?php if (empty($producto['EsManoDeObra'])) : ?>
           <tr>
+          <td class="Numero">
+              <span><?php echo $filas+1; ?></span>
+            </td>
+            
+            <td class="producto">
+              <span  style="font-size:9px" ><?php echo $producto['Producto'] ?></span>
+            </td>
             <td class="cantidad">
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
-            <td class="producto">
-              <span><?php echo $producto['Producto'] ?></span>
+            <td class="precio"  align="center">
+              <span><?php echo number_format($producto['Precio'], 2) ?></span>
             </td>
-            <td class="precio">
-              <span>S/.<?php echo $producto['Precio'] ?></span>
-            </td>
-            <td class="text-right">
+            <td class="text-right" >
               <?php 
                 if ($producto['CodigoBarra'] === "MANODEOBRA") {
                   $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
                 }
               ?>
-              <span>S/.<?php echo $producto['TOTAL'] ?></span>
+              <span><?php echo $producto['TOTAL'] ?></span>
             </td>
           </tr>
           <?php
@@ -170,8 +176,8 @@ $igv = 0;
         }
         ?>
         <tr>
-          <td></td><td></td>
-          <td class="text-right">SUBTOTAL</td>
+          <td></td><td></td><td></td>
+          <td class="text-right"  >SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
         <!--<tr>
@@ -181,15 +187,15 @@ $igv = 0;
         </tr>-->
         <?php if ($totalDescuento > 0) : ?>
           <tr>
-            <td></td>
+            <td></td><td></td><td></td>
             <td class="text-right">DESCUENTO</td>
             <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2); ?></td>
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td>
-          <td class="text-right"><strong>TOTAL</strong></td>
-          <td class="text-right">S/.<?php echo number_format($total - $totalDescuento, 2); ?></td>
+          <td></td><td></td><td></td>
+          <td class="text-right"><span style="font-size:14px">TOTAL</span></td>
+          <td class="text-right"><span style="font-size:14px">S/.<?php echo number_format($total - $totalDescuento, 2); ?></span></td>
         </tr>
       </tbody>
     </table>

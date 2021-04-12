@@ -158,7 +158,7 @@ if (isset($_GET['IdDocVent'])) {
 </div>
 <style>
   #printer {
-    width: 100%;
+    width: 20%;
     text-align: center; 
   }
   #printer .print {
