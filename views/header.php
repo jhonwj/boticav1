@@ -95,7 +95,7 @@ date_default_timezone_set('America/Lima');
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
           <li><a href="<?php echo Clientes; ?>">Clientes </a></li>
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
-          <li><a href="/views/habitaciones.php">Proyectos</a></li>
+          <!--<li><a href="/views/habitaciones.php">Proyectos</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>
@@ -155,7 +155,7 @@ date_default_timezone_set('America/Lima');
       </li>
       <?php if ($_SESSION['idPerfil'] == 1): ?>
         <li class="dropdown">
-          <a href="#" onclick="window.open('http://app.factura.vip/client/login/20573027125','winname','directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=600,height=700');"><b>APP</b></a>
+          <a href="#" onclick="window.open('http://app.factura.vip/client/login/20394084221','winname','directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=600,height=700');"><b>APP</b></a>
         </li>
       <?php endif; ?>
       <li class="dropdown">

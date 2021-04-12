@@ -119,7 +119,8 @@ $igv = 0;
         <tr>
           <th class="numero">#</th>
           <th class="producto">PRODUCTO</th>
-          <th class="cantidad">CANT</th>
+          <th class="cantidad">CANT.</th>
+          <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -147,10 +148,13 @@ $igv = 0;
             <td class="cantidad">
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
-            <td class="precio"  align="center">
-              <span><?php echo number_format($producto['Precio'], 2) ?></span>
-            </td>
-            <td class="text-right" >
+            <td class="producto" style="text-align: center;">
+              <?php echo $producto['ProductoMedicion'] ?>
+              </td>
+              <td class="precio" style="text-align: center;">
+                <span><?php echo number_format($producto['Precio'],2) ?></span>
+              </td>
+            <td class="text-right">
               <?php 
                 if ($producto['CodigoBarra'] === "MANODEOBRA") {
                   $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
@@ -176,8 +180,8 @@ $igv = 0;
         }
         ?>
         <tr>
-          <td></td><td></td><td></td>
-          <td class="text-right"  >SUBTOTAL</td>
+          <td></td><td></td><td></td><td></td>
+          <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
         <!--<tr>
@@ -187,13 +191,13 @@ $igv = 0;
         </tr>-->
         <?php if ($totalDescuento > 0) : ?>
           <tr>
-            <td></td><td></td><td></td>
+            <td></td><td></td><td></td><td></td>
             <td class="text-right">DESCUENTO</td>
             <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2); ?></td>
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
           <td class="text-right"><span style="font-size:14px">TOTAL</span></td>
           <td class="text-right"><span style="font-size:14px">S/.<?php echo number_format($total - $totalDescuento, 2); ?></span></td>
         </tr>

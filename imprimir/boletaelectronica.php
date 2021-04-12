@@ -128,6 +128,7 @@ if ($docVenta['CampoDireccion']) {
         <th class="numero">#</th>
         <th class="producto">PRODUCTO</th>
           <th class="cantidad">CANT</th>
+          <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -156,18 +157,21 @@ if ($docVenta['CampoDireccion']) {
                 ?>
               <td class="producto">
                 <?php if($producto['Descripcion']) : ?>
-                <span>
+                <span  style="font-size:9px"  >
                 <?php echo $producto['Producto'] . ' (' . $producto['Descripcion'] . ') ' ?>
                 </span>
                 <?php else : ?>
-                <span  style="font-size:9px" ><?php echo $producto['Producto'] ?></span>
+                <span><?php echo $producto['Producto'] ?></span>
                 <?php endif; ?>
               </td>
               <td class="cantidad">
                 <span><?php echo $producto['Cantidad']; ?></span>
               </td>
-              <td class="precio" align="center">
-                <span><?php echo number_format($producto['Precio'], 2) ?></span>
+              <td class="producto" style="text-align: center;">
+              <?php echo $producto['ProductoMedicion'] ?>
+              </td>
+              <td class="precio" style="text-align: center;">
+                <span><?php echo number_format($producto['Precio'],2) ?></span>
               </td>
               <td class="text-right">
                 <?php 
@@ -196,26 +200,26 @@ if ($docVenta['CampoDireccion']) {
         }
         ?>
         <tr>
-          <td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
           <td class="text-right">SUBTOTAL</td>
           <td class="text-right">S/.<?php echo number_format($subtotal, 2); ?></td>
         </tr>
         <?php if ($igv > 0) : ?>
           <tr>
-            <td></td><td></td><td></td>
+            <td></td><td></td><td></td><td></td>
             <td class="text-right">IGV</td>
             <td class="text-right">S/.<?php echo number_format($igv, 2); ?></td>
           </tr>
         <?php endif; ?>
         <?php if ($totalDescuento > 0) : ?>
           <tr>
-            <td></td><td></td><td></td>
+            <td></td><td></td><td></td><td></td>
             <td class="text-right">DESCUENTO</td>
             <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2); ?></td>
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
           <td class="text-right"><span style="font-size:14px">TOTAL</span></td>
           <td class="text-right"><span style="font-size:14px">S/.<?php echo number_format($total - $totalDescuento, 2); ?></span></td>
         </tr>
@@ -246,7 +250,7 @@ if ($docVenta['CampoDireccion']) {
   <td width="100" 
 	  heigth="100">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '20393999463');
+        define('NRO_DOCUMENTO_EMPRESA', '20394084221');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }
