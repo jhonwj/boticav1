@@ -12,7 +12,7 @@ define("PreOrden", SITE_URL . "views/V_PreOrden.php");
 define("Experto", SITE_URL . "views/V_ExpertoForm.php");
 define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
-define("Cierre", SITE_URL . "views/ve_cierreform.php");
+define("Cierre", SITE_URL . "views/ve_cierreform.php?noDetalle=1");
 define("CierreReporte", SITE_URL . "/views/v_cierrereporte.php");
 define("CambioPrecioBloque", SITE_URL . "views/ve_cambiopreciobloque.php");
 define("Reimpresion", SITE_URL . "views/ve_reimpresionDocumentos.php");
