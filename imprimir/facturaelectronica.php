@@ -126,8 +126,8 @@ if ($docVenta['CampoDireccion']) {
     <table width="100%"  class="tabla1">
       <thead>
         <tr>
-        <th class="numero">#</th>
-          <th class="producto"></p></p>PRODUCTO </p></p></th>
+        <th class="numero" width="5%">#</th>
+          <th class="producto" width="50%">PRODUCTO</th>
           <th class="cantidad">CANT</th>
           <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
@@ -161,13 +161,13 @@ if ($docVenta['CampoDireccion']) {
                 <?php endif; ?>
               </td>
               <td class="cantidad">
-                <span><?php echo $producto['Cantidad']; ?></span>
+                <span style="font-size:10px"><?php echo $producto['Cantidad']; ?></span>
               </td>
               <td class="producto" style="text-align: center;">
-              <?php echo $producto['ProductoMedicion'] ?>
+              <span style="font-size:9px"><?php echo $producto['ProductoMedicion'] ?></span>
               </td>
               <td class="precio" style="text-align: center;">
-                <span><?php echo number_format($producto['Precio'],2, '.', '') ?></span>
+                <span style="font-size:10px"><?php echo number_format($producto['Precio'],2, '.', '') ?></span>
               </td>
               <td class="text-right">
                 <?php 
@@ -175,7 +175,7 @@ if ($docVenta['CampoDireccion']) {
                     $producto['TOTAL'] = $producto['TOTAL'] + $sumManoDeObra;
                   }
                 ?>
-                <span><?php echo $producto['TOTAL'] ?></span>
+                <span style="font-size:11px"><?php echo $producto['TOTAL'] ?></span>
               </td>
             </tr>
             <?php
@@ -195,33 +195,35 @@ if ($docVenta['CampoDireccion']) {
           $subtotal = $total;
         }
         ?>
-        <tr>
-          <td></td><td></td><td></td><td></td>
-          <td class="text-right">SUBTOTAL</td>
-          <td class="text-right">S/.<?php echo number_format($subtotal, 2, '.', ''); ?></td>
+      </tbody>
+    </table>
+    <table class="tabla1" width="100%">
+        <tr >
+          <td class="text-right" ><span style="font-size:13px">SUBTOTAL</span></td>
+          <td class="text-right" width="20%" ><span style="font-size:13px">S/<?php echo number_format($subtotal, 2, '.', ''); ?></span></td>
         </tr>
         <?php if ($igv > 0) : ?>
           <tr>
-            <td></td><td></td><td></td><td></td>
-            <td class="text-right">IGV</td>
-            <td class="text-right">S/.<?php echo number_format($igv, 2, '.', ''); ?></td>
+            <td class="text-right"><span style="font-size:13px">IGV</span></td>
+            <td class="text-right" width="20%"><span style="font-size:13px">S/<?php echo number_format($igv, 2, '.', ''); ?></span></td>
           </tr>
-        <?php endif; ?>
+          <?php endif; ?>
         <?php if ($totalDescuento > 0) : ?>
           <tr>
-            <td></td><td></td><td></td><td></td>
-            <td class="text-right">DESCUENTO</td>
-            <td class="text-right">- S/.<?php echo number_format($totalDescuento, 2, '.', ''); ?></td>
+            <td class="text-right"><span style="font-size:13px">DESCUENTO</span></td>
+            <td class="text-right" width="20%"><span style="font-size:13px"> S/<?php echo number_format($totalDescuento, 2, '.', ''); ?></span></td>
           </tr>
         <?php endif; ?>
         <tr>
-          <td></td><td></td><td></td><td></td>
-          <td class="text-right"><span style="font-size:14px">TOTAL</span></td>
-          <td class="text-right"><span style="font-size:14px">S/.<?php echo number_format($total - $totalDescuento, 2, '.', ''); ?></span></td>
+          <td class="text-right"><span style="font-size:16px">TOTAL</span></td>
+          <td class="text-right" width="20%"><span style="font-size:16px">S/<?php echo number_format($total - $totalDescuento, 2, '.', ''); ?></span></td>
         </tr>
-      </tbody>
-    </table>
-    
+     </table >
+
+
+
+
+
     <?php if ($docVenta['Puntos']): ?>
       <span style="text-transform: uppercase">Usted tiene <b><?php echo $docVenta['Puntos']?></b> Puntos</span><br>
     <?php endif; ?>
