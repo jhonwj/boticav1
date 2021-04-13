@@ -113,8 +113,8 @@ th,td { padding: 3pt; }
 <td width="6%"><img src="../../images/logo.png" width="123" height="60" /></td>
 	
 <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
-  <!--<strong>SUCURSAL:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>-->
-  <strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
+<strong>DIRECCIÓN: </strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>
+  <!--<strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>-->
 </td>
 		
       <td width="30%">
