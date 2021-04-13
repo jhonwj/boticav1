@@ -63,6 +63,8 @@ $cabecera = array(
     'txtFECHA_VTO' => $cab['txtFECHA_VTO'],
     'txtCOD_TIPO_DOCUMENTO' => $cab['txtCOD_TIPO_DOCUMENTO'],
     'txtCOD_MONEDA' => $cab['txtCOD_MONEDA'],
+    //==========FORMA DE PAGO=========
+    'detalle_forma_pago' => $cab['detalle_forma_pago'],
     //========================datos del cliente=========================
     'txtNRO_DOCUMENTO_CLIENTE' => $cab['txtNRO_DOCUMENTO_CLIENTE'],
     'txtRAZON_SOCIAL_CLIENTE' => ValidarCaracteresInv($cab['txtRAZON_SOCIAL_CLIENTE']),

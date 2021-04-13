@@ -3827,6 +3827,9 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        'detalle_forma_pago' => [
+            ["COD_FORMA_PAGO" => "Contado"]
+        ],
         "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         //==========documentos de referencia(nota credito, debito)=============
         "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar

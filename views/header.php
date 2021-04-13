@@ -34,7 +34,23 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
 
 date_default_timezone_set('America/Lima');
  ?>
+<script> 
+function datos(){
+          fetch('https://deperu.com/api/rest/cotizaciondolar.json')
+          .then(res =>res.json())
+          .then(data=>{
+            var cotizacion = data.Cotizacion[0];
+            var compra = cotizacion.Compra; 
+            var venta = cotizacion.Venta; 
 
+            if ($.isNumeric(compra) && $.isNumeric(venta)) {
+              $('#compra').html(compra)
+              $('#venta').html(venta)
+            }
+          })
+        }
+        datos();
+</script>
  <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
@@ -161,6 +177,10 @@ date_default_timezone_set('America/Lima');
       <li class="dropdown">
         <a href="<?php echo Logout; ?>"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>
       </li>
+      <li><div style="color: #EBF5FB; font-weight: bold; font-size: 13px; padding-top: 8px; display: block;">
+      Compra: <span id="compra"></span></br> 
+      Venta : <span id="venta"></span>
+      </div></li>
     </ul>
     <!-- <ul class="nav navbar-nav navbar-right"> -->
       <!-- <li><a href=""><i class="fa fa-user-circle"></i> Usuario</a></li> -->
