@@ -596,11 +596,11 @@ function cpeNC($ruta, $cabecera, $detalle) {
 
 		//forma de pago
 		If (count($cabecera["detalle_forma_pago"])==0) {
-			$xmlCPE = $xmlCPE .
-				'<cac:PaymentTerms>        
-				<cbc:ID>FormaPago</cbc:ID>
-		<cbc:PaymentMeansID schemeAgencyName="PE:SUNAT">Contado</cbc:PaymentMeansID>
-			</cac:PaymentTerms>';
+		// 	$xmlCPE = $xmlCPE .
+		// 		'<cac:PaymentTerms>        
+		// 		<cbc:ID>FormaPago</cbc:ID>
+		// <cbc:PaymentMeansID schemeAgencyName="PE:SUNAT">Contado</cbc:PaymentMeansID>
+		// 	</cac:PaymentTerms>';
 		}else{
 			for ($z = 0; $z < count($cabecera["detalle_forma_pago"]); $z++) {
 				$xmlCPE = $xmlCPE . "<cac:PaymentTerms>        

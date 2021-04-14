@@ -3875,6 +3875,12 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
          "detalle"=>$detalle,
         //"detalle" => []
     );
+
+    if($docVenta['CodSunat'] == '07'){
+        unset($data['detalle_forma_pago']);
+    }
+
+
     if ($docVenta['CodigoIgv'] == "20") { // 20 = exonerado Igv
         $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
     }
