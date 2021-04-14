@@ -1969,18 +1969,20 @@ $app->get('/ventas/solonumero', function (Request $request, Response $response, 
     ));
 });
 
-$app->get('/ventas/lista', function (Request $request, Response $response) { 
+$app->get('/ventas/lista/[{idPuntoVenta}]', function (Request $request, Response $response) { 
+    $idPuntoVenta =  $request->getAttribute('idPuntoVenta', 0);
     $select = "SELECT Ve_DocVentaTipoDoc.CodSunat, CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) AS NroComprobante FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc";
-    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND Ve_DocVenta.Anulado=0 AND
+    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND Ve_DocVenta.Anulado=0 AND  Ve_DocVenta.IdDocVentaPuntoVenta = $idPuntoVenta AND
     CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $request->getParam('q') . "%'  ";
     $select .= " LIMIT 10";
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
-    
+
     return $response->withJson($data);
+
 });
 
 
