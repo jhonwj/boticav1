@@ -3076,7 +3076,7 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
         From Ve_DocVenta
         INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
-        Where EsCredito=1 and Ve_DocVenta.IdCliente=$idCliente
+        Where EsCredito=1 and Ve_DocVenta.IdCliente=$idCliente AND Ve_DocVenta.Anulado=0
 
         Group by
         Ve_DocVenta.IdDocVenta,
