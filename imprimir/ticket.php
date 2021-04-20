@@ -22,7 +22,7 @@ $meses = array(
 );
 $lastAnio = substr(date("Y", $emision), -1);
 $cliente = strtoupper($docVenta['Cliente']);
-$direccion = strtoupper($docVenta['Direccion']);
+$direccion = strtoupper($docVenta['CampoDireccion']);
 $dniRuc = $docVenta['DniRuc'];
 $tieneIgv = $docVenta['TieneIgv'];
 $limitProducto = $docVenta['LimiteItems'];

@@ -38,7 +38,7 @@ $totalDescuento = 0;
 $igv = 0;
 
 if ($docVenta['CampoDireccion']) {
-  $direccion = strtoupper($docVenta[$docVenta['CampoDireccion']]);
+  $direccion = strtoupper($docVenta['CampoDireccion']);
 } else {
   $direccion = strtoupper($docVenta['Direccion']);
 }
