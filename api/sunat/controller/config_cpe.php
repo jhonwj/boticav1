@@ -95,6 +95,8 @@ $tipo_proceso, $ruc, $usuario_sol, $pass_sol, $pass_firma,
         'FECHA_VTO' => $cab['txtFECHA_VTO'],
         'COD_TIPO_DOCUMENTO' => $cab['txtCOD_TIPO_DOCUMENTO'],
         'COD_MONEDA' => $cab['txtCOD_MONEDA'],
+        //==========FORMA DE PAGO=========
+        'detalle_forma_pago' => $cab['detalle_forma_pago'],
         //======================CLIENTE======================
         'NRO_DOCUMENTO_CLIENTE' => $cab['txtNRO_DOCUMENTO_CLIENTE'],
         'RAZON_SOCIAL_CLIENTE' => $cab['txtRAZON_SOCIAL_CLIENTE'],

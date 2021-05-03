@@ -12,7 +12,7 @@ define("PreOrden", SITE_URL . "views/V_PreOrden.php");
 define("Experto", SITE_URL . "views/V_ExpertoForm.php");
 define("Inventario", SITE_URL . "views/Lo_InventarioForm.php");
 define("RegVenta", SITE_URL . "views/ve_regventaform.php");
-define("Cierre", SITE_URL . "views/ve_cierreform.php");
+define("Cierre", SITE_URL . "views/ve_cierreform.php?noDetalle=1");
 define("CierreReporte", SITE_URL . "/views/v_cierrereporte.php");
 define("CambioPrecioBloque", SITE_URL . "views/ve_cambiopreciobloque.php");
 define("Reimpresion", SITE_URL . "views/ve_reimpresionDocumentos.php");
@@ -34,7 +34,23 @@ define("Modelo", SITE_URL . "views/Gen_ProductoModelo.php");
 
 date_default_timezone_set('America/Lima');
  ?>
+<script> 
+function datos(){
+          fetch('https://deperu.com/api/rest/cotizaciondolar.json')
+          .then(res =>res.json())
+          .then(data=>{
+            var cotizacion = data.Cotizacion[0];
+            var compra = cotizacion.Compra; 
+            var venta = cotizacion.Venta; 
 
+            if ($.isNumeric(compra) && $.isNumeric(venta)) {
+              $('#compra').html(compra)
+              $('#venta').html(venta)
+            }
+          })
+        }
+        datos();
+</script>
  <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
@@ -95,7 +111,7 @@ date_default_timezone_set('America/Lima');
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
           <li><a href="<?php echo Clientes; ?>">Clientes </a></li>
           <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
-          <li><a href="/views/habitaciones.php">Proyectos</a></li>
+          <!--<li><a href="/views/habitaciones.php">Proyectos</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
           <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>
@@ -161,6 +177,10 @@ date_default_timezone_set('America/Lima');
       <li class="dropdown">
         <a href="<?php echo Logout; ?>"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>
       </li>
+      <li><div style="color: #EBF5FB; font-weight: bold; font-size: 13px; padding-top: 8px; display: block;">
+      Compra: <span id="compra"></span></br> 
+      Venta : <span id="venta"></span>
+      </div></li>
     </ul>
     <!-- <ul class="nav navbar-nav navbar-right"> -->
       <!-- <li><a href=""><i class="fa fa-user-circle"></i> Usuario</a></li> -->

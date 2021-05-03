@@ -1969,18 +1969,20 @@ $app->get('/ventas/solonumero', function (Request $request, Response $response, 
     ));
 });
 
-$app->get('/ventas/lista', function (Request $request, Response $response) { 
+$app->get('/ventas/lista/[{idPuntoVenta}]', function (Request $request, Response $response) { 
+    $idPuntoVenta =  $request->getAttribute('idPuntoVenta', 0);
     $select = "SELECT Ve_DocVentaTipoDoc.CodSunat, CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) AS NroComprobante FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc";
-    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND
+    $select .= " WHERE Ve_DocVentaTipoDoc.CodSunat IN ('01', '03') AND Ve_DocVenta.Anulado=0 AND  Ve_DocVenta.IdDocVentaPuntoVenta = $idPuntoVenta AND
     CONCAT(Ve_DocVenta.Serie, '-', Ve_DocVenta.Numero) LIKE '%" . $request->getParam('q') . "%'  ";
     $select .= " LIMIT 10";
-    
+
     $stmt = $this->db->query($select);
     $stmt->execute();
     $data = $stmt->fetchAll();
-    
+
     return $response->withJson($data);
+
 });
 
 
@@ -2173,7 +2175,7 @@ $app->get('/venta/detalle/comprobante', function (Request $request, Response $re
     Ve_DocVentaDet.Cantidad AS cantidad,Ve_DocVentaDet.Cantidad AS cantxPrecio,'1' AS cantidadPres, 
     Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Descuento AS descuento,
     false AS estadoPxP,Gen_Producto.Producto,Gen_Producto.PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
-    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial
+    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_Producto.PrecioCosto
     FROM Ve_DocVentaDet 
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.IdDocVenta
     INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
@@ -3022,6 +3024,13 @@ $app->get('/preorden/proforma', function (Request $request, Response $response) 
     }
 });
 
+$app->get('/cuentas', function (Request $request, Response $response, array $args) {
+    $select = "SELECT IdCuenta, Cuenta, Anulado FROM Cb_Cuenta WHERE Anulado=0";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    return $response->withJson($data);
+});
 
 $app->get('/cliente', function (Request $request, Response $response, array $args) {
     $idCliente = $request->getParam('idCliente');
@@ -3067,7 +3076,7 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
         From Ve_DocVenta
         INNER JOIN Ve_DocVentaDet On Ve_DocVenta.IdDocVenta=Ve_DocVentaDet.IdDocVenta
         INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
-        Where EsCredito=1 and Ve_DocVenta.IdCliente=$idCliente
+        Where EsCredito=1 and Ve_DocVenta.IdCliente=$idCliente AND Ve_DocVenta.Anulado=0
 
         Group by
         Ve_DocVenta.IdDocVenta,
@@ -3148,7 +3157,8 @@ $app->get('/cliente/deudas', function (Request $request, Response $response, arr
 
 $app->get('/cliente/pagos', function (Request $request, Response $response, array $args) {
     $idCliente = $request->getParam('idCliente');
-    $select = "SELECT * FROM Cb_CajaBanco WHERE IdCliente=$idCliente AND EsDelVendedor=1 ORDER BY Cb_CajaBanco.FechaDoc DESC";
+    $select = "SELECT Cb_CajaBanco.*,Cb_Cuenta.Cuenta FROM Cb_CajaBanco INNER JOIN Cb_Cuenta ON Cb_CajaBanco.IdCuenta = Cb_Cuenta.IdCuenta
+    WHERE Cb_CajaBanco.IdCliente=$idCliente AND Cb_CajaBanco.EsDelVendedor=1 ORDER BY Cb_CajaBanco.FechaDoc DESC";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -3187,39 +3197,46 @@ $app->get('/clientes/deuda/count', function (Request $request, Response $respons
 $app->post('/cliente/deudas/pagar', function (Request $request, Response $response) {
     $cajaBanco = $request->getParam('cajaBanco');
     $documentos = $request->getParam('documentos');
+    $cuentas = $request->getParam('cuentas');
     $vendedor = 'xx';
     if(isset($_SESSION['user'])) {
         $vendedor = $_SESSION['user'];
     }
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
 
-    $importe = 0;
-    foreach($documentos as $doc) {
-        if (isset($doc['aplicar']) && $doc['aplicar'] > 0) {
-            $importe += $doc['aplicar'];
-        }
-    }
-
-    if ($importe > 0) {
-        $insert = $this->db->insert(array('IdTipoCajaBanco', 'IdCuenta', 'FechaDoc', 'Concepto', 'Importe', 'Anulado', 'UsuarioReg', 'IdCliente', 'EsDelVendedor'))
-                        ->into('Cb_CajaBanco')
-                        ->values(array(2, 1, getNow(), $cajaBanco['Concepto'], $importe, '0', $usuarioReg, $cajaBanco['cliente']['IdCliente'], 1));
-
-        $insertId = $insert->execute();
+    
+    foreach ($cuentas as $cuenta) {
+        $importe = 0;
         foreach($documentos as $doc) {
-            if (isset($doc['aplicar']) && $doc['aplicar'] > 0) {
-                $insertDet = $this->db->insert(array('IdCajaBanco', 'IdDocDet', 'Importe', 'Tipo'))
-                    ->into('Cb_CajaBancoDet')
-                    ->values(array($insertId, $doc['IdDocVenta'], $doc['aplicar'], 'VE'));
-                $insertDetId = $insertDet->execute();
+
+            if($doc['cuenta']==$cuenta){
+                if (isset($doc['aplicar']) && $doc['aplicar'] > 0) {
+                    $importe += $doc['aplicar'];
+                }
+            }  
+        }
+
+        if ($importe > 0) {
+            $insert = $this->db->insert(array('IdTipoCajaBanco', 'IdCuenta', 'FechaDoc', 'Concepto', 'Importe', 'Anulado', 'UsuarioReg', 'IdCliente', 'EsDelVendedor'))
+            ->into('Cb_CajaBanco')
+            ->values(array(2, $cuenta , getNow(), $cajaBanco['Concepto'], $importe, 0, $usuarioReg, $cajaBanco['cliente']['IdCliente'], 1));
+            $insertId = $insert->execute();
+
+            foreach($documentos as $doc) {
+                if (isset($doc['aplicar']) && $doc['aplicar'] > 0 && $doc['cuenta']==$cuenta ) {
+                    $insertDet = $this->db->insert(array('IdCajaBanco', 'IdDocDet', 'Importe', 'Tipo'))
+                        ->into('Cb_CajaBancoDet')
+                        ->values(array($insertId, $doc['IdDocVenta'], $doc['aplicar'], 'VE'));
+                    $insertDetId = $insertDet->execute();
+                }
             }
         }
 
-        return $response->withJson(array(
-            "idCajaBanco" => $insertId
-        ));
     }
 
+    return $response->withJson(array(
+        "idCajaBanco" => $insertId
+    ));
 });
 
 $app->get('/proveedores/deuda/count', function (Request $request, Response $response, array $args) {
@@ -3827,6 +3844,9 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
+        'detalle_forma_pago' => [
+            ["COD_FORMA_PAGO" => "Contado"]
+        ],
         "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         //==========documentos de referencia(nota credito, debito)=============
         "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
@@ -3857,6 +3877,12 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
          "detalle"=>$detalle,
         //"detalle" => []
     );
+
+    if($docVenta['CodSunat'] == '07'){
+        unset($data['detalle_forma_pago']);
+    }
+
+
     if ($docVenta['CodigoIgv'] == "20") { // 20 = exonerado Igv
         $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
     }
@@ -4042,7 +4068,7 @@ $app->get('/imprimirpdf/{id}', function (Request $request, Response $response, a
 
     $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
         Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
-        Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Direccion,
+        Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVenta.CampoDireccion as Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,
         Ve_DocVenta.FechaCredito, Lo_Almacen.Almacen, Lo_Almacen.Direccion DireccionAlmacen, Lo_Almacen.EsPrincipal EsAlmacenPrincipal,
         Ve_DocVentaCliente.NombreComercial,Ve_DocVenta.CodSunatModifica,
@@ -5326,7 +5352,7 @@ $app->get('/cierrecaja/ventas', function (Request $request, Response $response, 
     $select = "SELECT
         Ve_DocVenta.idDocVenta, Ve_DocVentaPuntoVenta.PuntoVenta, Ve_DocVentaCliente.Cliente, Ve_DocVenta.FechaDoc, Ve_DocVenta.Anulado,
         Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVenta.Serie, Ve_DocVenta.Numero, SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) as Total,
-        Ve_DocVenta.EsCredito,
+        Ve_DocVenta.EsCredito,Ve_DocVentaTipoDoc.CodSunat,
         (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1) AS EfectivoDesc,
         (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2) AS VisaDesc,
         (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3) AS MastercardDesc,
