@@ -18,11 +18,11 @@ $config['addContentLengthHeader'] = false;
 
 $config['db']['host']   = "127.0.0.1";
 $config['db']['user']   = "root";
-// $config['db']['user']   = "neurosys_CUSTODIO";
+// $config['db']['user']   = "neurosys_ESTICAM";
 $config['db']['pass']   = "";
 // $config['db']['pass']   = "IX!!q!t(&Fc^";
-$config['db']['dbname'] = "fact_icustodio";
-// $config['db']['dbname'] = "neurosys_CUSTODIO";
+$config['db']['dbname'] = "fact_iESTICAM";
+// $config['db']['dbname'] = "neurosys_ESTICAM";
 
 $app = new \Slim\App(["settings" => $config]);
 $container = $app->getContainer();
@@ -578,7 +578,7 @@ $app->get('/productos/kardex/{id}', function (Request $request, Response $respon
 
 
 
-/* CUSTODIO */
+/* ESTICAM */
 $app->get('/habitaciones', function (Request $request, Response $response, array $args) {
     $select = "SELECT Gen_Producto.*, Gen_ProductoCategoria.ProductoCategoria, Gen_ProductoMarca.ProductoMarca,
         Gen_ProductoMedicion.ProductoMedicion, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.Cliente, Ve_DocVentaCliente.IdCliente,
@@ -3769,8 +3769,8 @@ $app->post('/clientes', function (Request $request, Response $response) {
 define('NRO_DOCUMENTO_EMPRESA', '20394084221');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
-define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES Y AFINES CUSTODIO E.I.R.L.');
+define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES ESTICAM E.I.R.L.');
+define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES Y AFINES ESTICAM E.I.R.L.');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
 define('DIRECCION_EMPRESA', "AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II (ANTES DEL GRIFO SANTA FELICIA) UCAYALI - CORONEL PORTILLO - MANANTAY");
 define('DEPARTAMENTO_EMPRESA', "UCAYALI");
@@ -3779,7 +3779,7 @@ define('DISTRITO_EMPRESA', "MANANTAY");
 define('TELEFONOS_EMPRESA', "");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'CUSTODIO'); // cambiar cuando se pase a produccion //NEURO123
+define('USUARIO_SOL_EMPRESA', 'ESTICAM'); // cambiar cuando se pase a produccion //NEURO123
 define('PASS_SOL_EMPRESA', 'Custodi0'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {

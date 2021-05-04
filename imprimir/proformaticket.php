@@ -89,8 +89,9 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br />
-  <div class="center">INVERSIONES Y AFINES "CUSTODIO" E.I.R.L.</div>
-  <div class="center">RUC: 20394084221 </div>
+  <div class="center"><b>DE:TOLENTINO MURRIETA GENITH MAGALY</b></div>
+  <div class="center"><b>RUC:10001088055</b> </div><br>
+  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS DE FERRETERÍA </div>
   <div class="center small">.</div>
   <br />
 
@@ -183,7 +184,8 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">AV. TUPAC AMARU MZ 19 LT 18 - AAHH SIEMPRE UNIDOS II</div>
+  <div class="center small">AV. UNIÓN MZ. B LT. 11 </div>
+  <div class="center small">CORONEL PORTILLO - CALLERIA - UCAYALI</div>
   <br />
   <div class="center small">UCAYALI - CORONEL PORTILLO – MANANTAY</div>
   <div class="center small">.</div>

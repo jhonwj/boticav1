@@ -90,8 +90,9 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>INVERSIONES Y AFINES CUSTODIO E.I.R.L.</b></div>
-  <div class="center"><b>RUC:20394084221</b> </div><br>
+  <div class="center"><b>DE:TOLENTINO MURRIETA GENITH MAGALY</b></div>
+  <div class="center"><b>RUC:10001088055</b> </div><br>
+  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS DE FERRETERÍA </div>
   <!--<div class="center small">VENTA DE ....</div>-->
   <br />
 
@@ -102,7 +103,7 @@ $igv = 0;
     <br />
   <?php endif; ?>
   <center>
-  <div class="">TICKET</br> <span style="font-size:15px"> <?php echo $docVentaNro; ?></span></div>
+  <div class="">NOTA DE VENTA</br> <span style="font-size:15px"> <?php echo $docVentaNro; ?></span></div>
   <div class="">FECHA: <?php echo $fechaDoc; ?></div>
   <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
   </center>
