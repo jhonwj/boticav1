@@ -28,7 +28,7 @@ $(document).ready(function(e){
 
           console.log(data)
           console.log(value)
-          tableBody = tableBody + "<tr data-periodo='"+value.FechaPeriodoTributario+"'><td>"+value.IdMovimiento+"</td><td>"+value.MovimientoFecha+"</td><td>"+value.IdMovimientoTipo+"</td><td>"+value.TipoMovimiento+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.Proveedor+
+          tableBody = tableBody + "<tr data-periodo='"+value.FechaPeriodoTributario+"'><td>"+value.IdMovimiento+"</td><td>"+value.AlmacenOrigen+"</td><td>"+value.AlmacenDestino+"</td><td>"+value.MovimientoFecha+"</td><td>"+value.IdMovimientoTipo+"</td><td>"+value.TipoMovimiento+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.Proveedor+
           "</td><td>"+value.SUBTOTAL+
           "</td><td>"+value.ISC+
           "</td><td>"+value.IGV+
@@ -230,6 +230,8 @@ function SumarTotalIgvSub(){
     <table id="tableRegMov" class="table table-bordered table-striped">
       <thead>
         <th># Movimiento</th>
+        <th>Origen</th>
+        <th>Destino</th>
         <th>FechaMov</th>
         <th># Tipo</th>
         <th>Tipo</th>

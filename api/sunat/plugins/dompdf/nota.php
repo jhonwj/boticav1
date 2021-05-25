@@ -45,8 +45,8 @@ $fichero=$cab['txtNRO_DOCUMENTO_EMPRESA'].'-'.$cab['txtCOD_TIPO_DOCUMENTO'].'-'.
 if($cab['txtCOD_TIPO_DOCUMENTO']=='07'){ $tdocumento='NOTA DE CREDITO ELECTRÓNICA'; }
 if($cab['txtCOD_TIPO_DOCUMENTO']=='08'){ $tdocumento='NOTA DE DEBITO ELECTRÓNICA'; }
 
-if($cab['txtTIPO_COMPROBANTE_MODIFICA']=='01'){ $tdocumentom='01 - FACTURA ELECTRÓNICA'; }
-if($cab['txtTIPO_COMPROBANTE_MODIFICA']=='03'){ $tdocumentom='03 - BOLETA ELECTRÓNICA'; }
+if($cab['txtTIPO_COMPROBANTE_MODIFICA']=='01'){ $tdocumentom='FACTURA ELECTRÓNICA'; }
+if($cab['txtTIPO_COMPROBANTE_MODIFICA']=='03'){ $tdocumentom='BOLETA ELECTRÓNICA'; }
 
 
 $comprobante = explode('-', $cab['txtNRO_COMPROBANTE']);
@@ -82,7 +82,6 @@ color:#000;
 .cabecera h1 {
     font-size:17px; padding-bottom: 0px; margin-bottom: 0px; te
 }
-
 .cabecera2 table { border-collapse: collapse; border: solid 1px #000000;}
 .cabecera2 th, .cabecera2 td { text-align: center; border-collapse: collapse; border: solid 1px #000000; font-size:12px; } 
 .cabeza{ text-align: left; }
@@ -97,7 +96,6 @@ tbody { background-color: #ffffff; }
 th,td { padding: 3pt; }           
 .celda_right{  border-right: 1px solid black;  }
 .celda_left{  border-left: 1px solid black; }         
-
 .footer th, .footer td { padding: 1pt; border: solid 1px #000000; }
 .footer { position: fixed; bottom: 150px; font-size:10px;  width: 100%; border: solid 0px #000000; }
 .fg { font-size: 11px;} 
@@ -105,16 +103,12 @@ th,td { padding: 3pt; }
 .fg3 { border: solid 0px; } 
 .total td { border: solid 0px; padding: 0px; } 
 .total2 { text-align: right; } 
-
    </style>
     
    </head> 
     
    <body>        
-
    
-
-
 <table width="100%" border="0" class="cabecera" cellpadding="0" cellspacing="0">
   <tbody>
     <tr>
@@ -130,7 +124,6 @@ th,td { padding: 3pt; }
         
         <table width="100%" class="cabecera2" cellspacing="0" >
           <tbody>
-
             <tr>
               <td >RUC N° '.$cab['txtNRO_DOCUMENTO_EMPRESA'].'</td>
             </tr>
@@ -150,7 +143,6 @@ th,td { padding: 3pt; }
     </tr>
   </tbody>
 </table>
-
 <br>
 <table width="100%" class="cuerpo" cellspacing="0">
 <thead>
@@ -174,7 +166,6 @@ th,td { padding: 3pt; }
     </tr>
   </thead>
 </table>
-
 <table width="100%" class="cuerpo" cellspacing="0">
 <thead>
     <tr>
@@ -186,13 +177,11 @@ th,td { padding: 3pt; }
 <thead>
     <tr>
       <td>TIPO DOCUMENTO: '.$tdocumentom.'</td>
-      <td>NUMERO: '.$numeromod.'</td>
-      <td>MOTIVO: '.$cab['txtDESCRIPCION_MOTIVO'].' - '.$cab['txtCOD_TIPO_MOTIVO'].'</td>
+      <td>COMPROBANTE: '.$cab['txtNRO_DOCUMENTO_MODIFICA'].'</td>
+      <td>MOTIVO: '.$cab['txtCOD_TIPO_MOTIVO'].' - '.$cab['txtDESCRIPCION_MOTIVO'].'</td>
     </tr>
   </thead>
 </table>
-
-
 <table width="100%" class="cuerpo2" border="0" cellspacing="0">
 <thead> 
     <tr>
@@ -220,16 +209,7 @@ foreach ($cab['detalle'] as $producto) {
   $html.='
   </tbody>
 </table>
-
-
-
-
-
 </div> 
-
-
-
-
 <table width="100%"  class="footer" border="0" cellspacing="0">
   <tbody>
     <tr>
@@ -238,17 +218,11 @@ foreach ($cab['detalle'] as $producto) {
     <tr>
 <td width="64%">
 <br>Representación impresa de la '.$tdocumento.'<br>
-
 </td>
-
 <td width="16%" rowspan="5"  class="fg fg2" >
 <img src="'.$cab['txtNRO_DOCUMENTO_EMPRESA'].'.png" width="120" height="120" />
 </td>
-
-
 <td rowspan="5" class="fg fg2" width="20%" >
-
-
 <table width="100%" border="0" cellspacing="0"  class="total"  >
         <tbody>
 <tr><td class="total2" width="50%"><strong>SUB.TOTAL:</strong></td><td><strong>'.number_format($cab['txtSUB_TOTAL'], '2', '.', '').'</strong></td></tr>
@@ -260,12 +234,9 @@ foreach ($cab['detalle'] as $producto) {
 <tr><td class="total2"><strong>IGV(18%):</strong></td><td><strong>'.number_format($cab['txtTOTAL_IGV'], '2', '.', '').'</strong></td></tr>
 <tr><td class="total2"><strong>ISC:</strong></td><td><strong>0.00</strong></td></tr>
 <tr><td class="total2"><strong>TOTAL:</strong></td><td><strong>'.number_format($cab['txtTOTAL'], '2', '.', '').'</strong></td></tr>
-
         </tbody>
       </table>
-
 </td>
-
     </tr>
     <tr>
   <td >
@@ -286,16 +257,9 @@ foreach ($cab['detalle'] as $producto) {
   SELVA PARA SER CONSUMIDOS EN LA MISMA
   </td>
 </tr>  
-
   </tbody>
 </table>
-
-
-
-
-
 </body> </html>
-
    
    
  ';

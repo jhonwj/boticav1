@@ -46,23 +46,24 @@ if ($docVenta['CampoDireccion']) {
 ?>
 <style>
   * {
-    font-size: 3mm;
+    font-size: 3.5mm;
     font-family: monospace;
     font-weight:  bold;
   }
   body {
     display: block;
-    margin: 0px;
+    margin: 12px;
   }
   td.tabla1,
   th.tabla1,
   tr,
   .tabla1 {
+    width: 73mm;
     border-top: black 1px dashed;
     border-collapse: collapse;
   }
   .container {
-    width: 80mm;
+    width: 75mm;
     max-width: 100%;
     padding:  3mm 0.5mm 3mm .5m;
     box-sizing: border-box;
@@ -90,7 +91,7 @@ if ($docVenta['CampoDireccion']) {
     text-align: right;
   }
   .small {
-    font-size: 11px;
+    font-size: 12px;
   }
 </style>
 <div class="container">
@@ -147,7 +148,7 @@ if ($docVenta['CampoDireccion']) {
           <?php if (empty($producto['EsManoDeObra'])) : ?>
             <tr>
             <td class="Numero">
-              <span><?php echo $filas+1; ?></span>
+              <span style="font-size:11px" ><?php echo $filas+1; ?></span>
             </td>
               <?php
                   $producto['Descripcion'] ='';
@@ -157,7 +158,7 @@ if ($docVenta['CampoDireccion']) {
                 ?>
               <td class="producto">
                 <?php if($producto['Descripcion']) : ?>
-                <span  style="font-size:9px"  >
+                <span  style="font-size:11px"  >
                 <?php echo $producto['Producto'] . ' (' . $producto['Descripcion'] . ') ' ?>
                 </span>
                 <?php else : ?>
@@ -165,13 +166,13 @@ if ($docVenta['CampoDireccion']) {
                 <?php endif; ?>
               </td>
               <td class="cantidad">
-                <span  style="font-size:10px" ><?php echo $producto['Cantidad']; ?></span>
+                <span  style="font-size:11px" ><?php echo $producto['Cantidad']; ?></span>
               </td>
               <td class="producto" style="text-align: center;">
-               <span  style="font-size:9px"  > <?php echo $producto['ProductoMedicion'] ?></span>
+               <span  style="font-size:11px"  > <?php echo $producto['ProductoMedicion'] ?></span>
               </td>
               <td class="precio" style="text-align: center;">
-                <span  style="font-size:10px" ><?php echo number_format($producto['Precio'],2) ?></span>
+                <span  style="font-size:11px" ><?php echo number_format($producto['Precio'],2) ?></span>
               </td>
               <td class="text-right">
                 <?php 
@@ -219,8 +220,8 @@ if ($docVenta['CampoDireccion']) {
           </tr>
         <?php endif; ?>
         <tr>
-          <td class="text-right"><span style="font-size:16px">TOTAL</span></td>
-          <td class="text-right" width="20%"><span style="font-size:16px">S/<?php echo number_format($total - $totalDescuento, 2, '.', ''); ?></span></td>
+          <td class="text-right"><span style="font-size:15px">TOTAL</span></td>
+          <td class="text-right" width="20%"><span style="font-size:15px">S/<?php echo number_format($total - $totalDescuento, 2, '.', ''); ?></span></td>
         </tr>
      </table >
 
@@ -239,10 +240,10 @@ if ($docVenta['CampoDireccion']) {
   </div>
   <br />
   <div class="center">
-        <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
+  <span style="font-size:10px"> <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
         <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
         <div class="center small">Consulte su comprobante en:</div>
-      <div class="center small"><b>http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div>
+      <div class="center small"><b>http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div></span>
   </div>
   <center>  
   <table class="tabla2">

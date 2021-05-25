@@ -36,8 +36,7 @@ $(document).ready(function(e){
 								TotalGeneral = TotalGeneral + parseFloat(value.Total);
 							}
 					}
-					tableBody = tableBody + "<tr class='" + style + "'><td>"+value.idDocVenta+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +",\""+value.FechaDoc+"\");'><i class='fa fa-ban'></i></a></td></tr>" ;
-
+					tableBody = tableBody + "<tr class='" + style + "'><td>"+value.idDocVenta+"</td><td>"+value.UsuarioReg+"</td><td>"+value.FechaDoc+"</td><td>"+value.CodSunat+"</td><td>"+value.TipoDoc+"</td><td>"+value.Anulado+"</td><td>"+value.Serie+"</td><td>"+value.Numero+"</td><td>"+value.SubTotal+"</td><td>"+value.Igv+"</td><td>"+value.Total+"</td><td><a class='btn' onclick='EliminarRegVenta("+ value.idDocVenta +",\""+value.FechaDoc+"\");'><i class='fa fa-ban'></i></a></td></tr>" ;
 				});
 				$("#tableRegVenta tbody").append(tableBody);
 				$("#txtTotal").val(TotalGeneral);
@@ -167,6 +166,7 @@ function EliminarRegVenta(docVenta,FechaDoc){
 		<table id="tableRegVenta" class="table table-bordered table-striped">
 			<thead>
 				<th># DocVenta</th>
+				<th>Vendedor</th>
          		<th>FechaDoc</th>
          		<th>Codigo Sunat</th>
          		<th>TipoDoc</th>

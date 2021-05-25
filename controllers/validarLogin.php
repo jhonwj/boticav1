@@ -18,8 +18,8 @@
 		return getSQLResultSet($Ssql);
 	}
 
-	$Usuario = $_POST["nameUser"];
-	$Password = $_POST["namePass"];
+	$Usuario = addslashes($_POST["nameUser"]);
+	$Password = addslashes($_POST["namePass"]);
 
 	$isLogin = isLogin($Usuario, $Password);
 	if ($isLogin) {
