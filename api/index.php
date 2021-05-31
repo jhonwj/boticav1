@@ -860,7 +860,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $fechaReg = getNow();
     $hash = time();
     // $controlaStock = 1;
-    $porcentajeUtilidad = $request->getParam('PorcentajeUtilidad');
+    $porcentajeUtilidad = $request->getParam('PorcentajeUtilidad')?$request->getParam('PorcentajeUtilidad'):0;
     $genero = $request->getParam('Genero');
     $color = $request->getParam('Color');
     $botapie = $request->getParam('Botapie');
