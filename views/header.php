@@ -196,4 +196,5 @@ function datos(){
 <script>
     sessionStorage.clear();
     sessionStorage.setItem('User', "<?php echo $_SESSION['user'] ?>");
+    sessionStorage.setItem('IdPerfil', "<?php echo $_SESSION['idPerfil'] ?>")
   </script>

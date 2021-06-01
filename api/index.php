@@ -2151,12 +2151,14 @@ $app->get('/venta/detalle/comprobante', function (Request $request, Response $re
 
     $select = "SELECT Ve_DocVentaDet.IdDocVentaDet,Ve_DocVentaDet.IdDocVenta,Ve_DocVentaDet.IdProducto,
     Ve_DocVentaDet.Cantidad AS cantidad,Ve_DocVentaDet.Cantidad AS cantxPrecio,'1' AS cantidadPres, 
-    Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Descuento AS descuento,
+    Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Precio AS PrecioCosto,Ve_DocVentaDet.Descuento AS descuento,
     false AS estadoPxP,Gen_Producto.Producto, 0 AS PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
-    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_Producto.PrecioCosto
+    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_ProductoMedicion.ProductoMedicion,Gen_ProductoMarca.ProductoMarca
     FROM Ve_DocVentaDet 
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.IdDocVenta
     INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
+    INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+    INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
     WHERE Ve_DocVenta.idDocVenta=$idDocVenta ORDER BY Ve_DocVentaDet.IdDocVentaDet DESC ";
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -2523,7 +2525,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
         }
     }
 
-    if($stockCorrecto > 0){
+    if($stockCorrecto > 0 && $codSunat != '07'){
         return $response->withJson(array("actualizar"=>true,"msg"=>"El stock de un producto ya a sido vendido, verifique por favor"));
     }
     //FIN VALIDAR STOCK
@@ -3400,6 +3402,35 @@ $app->get('/proveedores/deudas', function (Request $request, Response $response,
         $select .= " LIMIT " . $limit;
         $select .= " OFFSET " . $offset;
     }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+//Reporte Utilidad Bruta SbVe_ReporteUtilidadBruta
+$app->get('/reporte/utlidadbruta', function (Request $request, Response $response, array $args) {
+
+    $fechaInicio = $request->getParam('fechaInicio');
+    $fechaFin = $request->getParam('fechaFin');
+
+    $select = "SELECT
+	Gen_Producto.IdProducto,
+	Gen_Producto.Producto,
+	SUM(Ve_DocVentaDet.Cantidad) AS Cantidad,
+	Gen_Producto.PrecioCosto,
+	Ve_DocVentaDet.Precio AS PrecioVenta,
+	ROUND(SUM(Ve_DocVentaDet.Cantidad) * Ve_DocVentaDet.Precio, 2) AS TotalVenta,
+	ROUND(Gen_Producto.PrecioCosto * SUM(Ve_DocVentaDet.Cantidad), 2) AS TotalCosto,
+	ROUND(SUM(Ve_DocVentaDet.Cantidad) * Ve_DocVentaDet.Precio - Gen_Producto.PrecioCosto * SUM(Ve_DocVentaDet.Cantidad), 2) AS UtilidadBruta
+	FROM Ve_DocVenta
+	INNER JOIN Ve_DocVentaDet ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
+	INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+	WHERE Ve_DocVenta.Anulado=0 AND Ve_DocVenta.FechaDoc BETWEEN '$fechaInicio' AND '$fechaFin'
+	GROUP BY Gen_Producto.IdProducto,
+	Gen_Producto.Producto";
 
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -5301,6 +5332,109 @@ $app->get('/reporte/articulosmovimientos', function (Request $request, Response 
     </script>';
 
     // return $response->withRedirect('/api/reporte/formato12.1.xlsx');
+});
+
+$app->get('/reporte/ventasxvendedor', function (Request $request, Response $response, array $args) use ($app) {
+    $fechaDesde = $request->getParam('fechaInicio');
+    $fechaHasta = $request->getParam('fechaFin');
+    $idTipoDoc = $request->getParam('idTipoDoc');
+    $usuario = $request->getParam('usuario');
+    $idAlmacen = $request->getParam('idAlmacen');
+    $almacen = $request->getParam('almacen');
+
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc,
+    Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
+    IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
+    FROM Ve_DocVenta
+    INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+    LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+    WHERE Ve_DocVenta.Anulado = 0 AND Ve_DocVenta.FechaDoc BETWEEN CONCAT('$fechaDesde',' 00:00:00')  AND CONCAT('$fechaHasta',' 23:59:59')";
+
+    if($idTipoDoc!=''){
+        $select .=" AND Ve_DocVentaTipoDoc.IdTipoDoc = $idTipoDoc";
+    }
+
+    if ($idAlmacen !='') {
+        $filtros .= " AND Ve_DocVenta.IdAlmacen =  $idAlmacen";
+    }
+
+    $select .=" AND Ve_DocVenta.UsuarioReg  LIKE '%" . $usuario . "%' ";
+    $select .=" ORDER BY  Ve_DocVenta.UsuarioReg, Ve_DocVenta.FechaDoc ASC ";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('template/reporteporvendedor.xlsx');
+    $formato = $spreadsheet->getSheet(0);
+    $init = 12;
+    $formato->getColumnDimension('A')->setAutoSize(true);
+    $formato->getColumnDimension('B')->setAutoSize(true);
+    $formato->getColumnDimension('C')->setAutoSize(true);
+    $formato->getColumnDimension('D')->setAutoSize(true);
+    $formato->getColumnDimension('E')->setAutoSize(true);
+    $formato->getColumnDimension('F')->setAutoSize(true);
+    $formato->getColumnDimension('G')->setAutoSize(true);
+    $formato->getColumnDimension('H')->setAutoSize(true);
+
+    foreach($data as $value) {
+        $formato->getCell('A'.$init)->setValue($value['idDocVenta']);
+        $formato->duplicateStyle($formato->getStyle('A'.$init),'A'.($init+1));
+
+        $formato->getCell('B'.$init)->setValue($value['FechaDoc']);
+        $formato->duplicateStyle($formato->getStyle('B'.$init),'B'.($init+1));
+
+        $formato->getCell('C'.$init)->setValue($value['TipoDoc']);
+        $formato->duplicateStyle($formato->getStyle('C'.$init),'C'.($init+1));
+
+        $formato->getCell('D'.$init)->setValue($value['Serie']);
+        $formato->duplicateStyle($formato->getStyle('D'.$init),'D'.($init+1));
+
+        $formato->getCell('E'.$init)->setValue($value['Numero']);
+        $formato->duplicateStyle($formato->getStyle('E'.$init),'E'.($init+1));
+
+        $formato->getCell('F'.$init)->setValue(@$value['Cliente']);
+        $formato->duplicateStyle($formato->getStyle('F'.$init),'F'.($init+1));
+
+        $formato->getCell('G'.$init)->setValue($value['UsuarioReg']);
+        $formato->duplicateStyle($formato->getStyle('G'.$init),'G'.($init+1));
+
+        $formato->getCell('H'.$init)->setValue($value['Total']);
+        $formato->duplicateStyle($formato->getStyle('H'.$init),'H'.($init+1));
+
+        if($idTipoDoc!=''){
+            $formato->getCell('B8')->setValue($value['TipoDoc']);
+        }else{
+            $formato->getCell('B8')->setValue('TODOS');
+        }
+
+        if($almacen!=''){
+            $formato->getCell('B9')->setValue($almacen);
+        }else{
+            $formato->getCell('B9')->setValue('TODOS');
+        }
+
+
+
+        $almacen = $request->getParam('almacen');
+        $init += 1;
+    }
+
+    $formato->getCell('G'.$init)->setValue('SUMA TOTAL:');    
+    $formato->getCell('H'.$init)->setValue('=SUM(H12:H'.($init-1).')');
+    $formato->getStyle('G'.$init)->getFont()->setBold( true );
+    $formato->getStyle('H'.$init)->getFont()->setBold( true );
+    $formato->getCell('B5')->setValue($usuario==''?'TODOS':$usuario);
+    $formato->getCell('B6')->setValue($fechaDesde);
+    $formato->getCell('B7')->setValue($fechaHasta);
+
+    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('reporte/reporteporvendedor.xlsx');
+
+    echo '<script type="text/javascript">
+        location.href = "/api/reporte/reporteporvendedor.xlsx";
+    </script>';
+
+    //return $response->withRedirect('/api/reporte/formato13.1.xlsx');
 });
 
 $app->post('/cierrecaja', function (Request $request, Response $response) {

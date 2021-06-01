@@ -11,7 +11,7 @@ $(document).ready(function(e){
 	$("#btnGenerar").click(function(e){
 		$("#tableUtilidadBruta tbody").empty();
 		var xhr = $.ajax({
-			url: "../controllers/server_processingReporteUtilidadBruta.php",
+			url: "/api/index.php/reporte/utlidadbruta",
       data: {fechaInicio: $('#fechaIni').val(), fechaFin: $('#fechaFinal').val() },
 			type: "GET",
 			dataType: "json",

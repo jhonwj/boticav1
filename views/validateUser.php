@@ -32,6 +32,7 @@ if ($permiso) {
   <script>
     sessionStorage.clear();
     sessionStorage.setItem('User', "<?php echo $_SESSION['user'] ?>");
+    sessionStorage.setItem('IdPerfil', "<?php echo $_SESSION['idPerfil'] ?>")
     sessionStorage.setItem('Escritura', <?php echo json_encode($permiso['Escritura']); ?>);
   </script>
   <?php
