@@ -2153,7 +2153,8 @@ $app->get('/venta/detalle/comprobante', function (Request $request, Response $re
     Ve_DocVentaDet.Cantidad AS cantidad,Ve_DocVentaDet.Cantidad AS cantxPrecio,'1' AS cantidadPres, 
     Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Precio AS PrecioCosto,Ve_DocVentaDet.Descuento AS descuento,
     false AS estadoPxP,Gen_Producto.Producto, 0 AS PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
-    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_ProductoMedicion.ProductoMedicion,Gen_ProductoMarca.ProductoMarca
+    Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_ProductoMedicion.ProductoMedicion,Gen_ProductoMarca.ProductoMarca,
+    Gen_Producto.PreciosPorProducto
     FROM Ve_DocVentaDet 
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.IdDocVenta
     INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
@@ -2657,7 +2658,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
             $idProducto = $producto['IdProducto'];
             $cantidad = $producto['cantidad'];
             $precio = $producto['precio'];
-            $descuento = $producto['descuento'];
+            $descuento = $producto['descuento']?$producto['descuento']:0;
             $fechaAlquilerInicio = isset($producto['FechaAlquilerInicio']) ? $producto['FechaAlquilerInicio'] : (isset($producto['FechaAlquiler']) ? $producto['FechaAlquiler'] : null);
             $fechaAlquilerFin = isset($producto['FechaAlquilerFin']) ? $producto['FechaAlquilerFin'] : getNow();
             $descripcion = isset($producto['Descripcion']) ? $producto['Descripcion'] : '';
