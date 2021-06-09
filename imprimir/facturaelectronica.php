@@ -239,7 +239,7 @@ if ($docVenta['CampoDireccion']) {
   <span style="font-size:10px">  <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
       <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
       <div class="center small">Consulte su comprobante en:</div>
-      <div class="center small"><b>http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div></span>
+      <div class="center small"><b style="font-size:11px">http://<?php echo $_SERVER['SERVER_NAME'] ?>/api/sunat/pag_cliente/</b></div></span>
   </div>
 
  <center>  

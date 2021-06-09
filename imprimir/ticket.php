@@ -38,23 +38,25 @@ $igv = 0;
 ?>
 <style>
   * {
-    font-size: 3mm;
+    font-size: 3.5mm;
     font-family: monospace;
     font-weight:  bold;
   }
   body {
     display: block;
-    margin: 0px;
+    margin: 12px;
   }
   td.tabla1,
   th.tabla1,
   tr,
   .tabla1 {
+    width: 72mm;
     border-top: black 1px dashed;
     border-collapse: collapse;
+
   }
   .container {
-    width: 80mm;
+    width: 75mm;
     max-width: 100%;
     padding:  3mm 0.5mm 3mm .5m;
     box-sizing: border-box;
@@ -82,7 +84,7 @@ $igv = 0;
     text-align: right;
   }
   .small {
-    font-size: 11px;
+    font-size: 12px;
   }
 </style>
 <div class="container">
@@ -144,16 +146,16 @@ $igv = 0;
             </td>
             
             <td class="producto">
-              <span  style="font-size:9px" ><?php echo $producto['Producto'] ?></span>
+              <span  style="font-size:11px" ><?php echo $producto['Producto'] ?></span>
             </td>
             <td class="cantidad">
-              <span  style="font-size:10px" ><?php echo $producto['Cantidad']; ?></span>
+              <span  style="font-size:11px" ><?php echo $producto['Cantidad']; ?></span>
             </td>
             <td class="producto" style="text-align: center;">
-            <span  style="font-size:9px" ><?php echo $producto['ProductoMedicion'] ?></span>
+            <span  style="font-size:11px" ><?php echo $producto['ProductoMedicion'] ?></span>
               </td>
               <td class="precio" style="text-align: center;">
-                <span style="font-size:10px" ><?php echo number_format($producto['Precio'],2) ?></span>
+                <span style="font-size:11px" ><?php echo number_format($producto['Precio'],2) ?></span>
               </td>
             <td class="text-right">
               <?php 
@@ -199,8 +201,8 @@ $igv = 0;
           </tr>
         <?php endif; ?>
         <tr>
-          <td class="text-right"><span style="font-size:16px">TOTAL</span></td>
-          <td class="text-right" width="20%"><span style="font-size:16px">S/<?php echo number_format($total - $totalDescuento, 2); ?></span></td>
+          <td class="text-right"><span style="font-size:15px">TOTAL</span></td>
+          <td class="text-right" width="20%"><span style="font-size:15px">S/<?php echo number_format($total - $totalDescuento, 2); ?></span></td>
         </tr>
      </table >
 

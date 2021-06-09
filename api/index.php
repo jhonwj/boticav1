@@ -2526,9 +2526,9 @@ $app->post('/ventas', function (Request $request, Response $response) {
         }
     }
 
-    if($stockCorrecto > 0 && $codSunat != '07'){
+/*     if($stockCorrecto > 0 && $codSunat != '07'){
         return $response->withJson(array("actualizar"=>true,"msg"=>"El stock de un producto ya a sido vendido, verifique por favor"));
-    }
+    } */
     //FIN VALIDAR STOCK
 
     // OBTENER SERIE
