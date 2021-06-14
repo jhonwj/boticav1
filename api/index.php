@@ -3870,23 +3870,12 @@ $app->post('/clientes', function (Request $request, Response $response) {
     return $response->withJson($data);
 });
 
-
-
-
-
-
-
-
-
-
-
-
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '20394084221');
+define('NRO_DOCUMENTO_EMPRESA', '10001088055');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'INVERSIONES Y AFINES ESTICAM E.I.R.L.');
-define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES Y AFINES ESTICAM E.I.R.L.');
+define('RAZON_SOCIAL_EMPRESA', 'TOLENTINO MURRIETA GENITH MAGALY');
+define('NOMBRE_COMERCIAL_EMPRESA', 'MULTISERVICIOS ESTICAM');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
 define('DIRECCION_EMPRESA', "AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II (ANTES DEL GRIFO SANTA FELICIA) UCAYALI - CORONEL PORTILLO - MANANTAY");
 define('DEPARTAMENTO_EMPRESA', "UCAYALI");
@@ -3895,8 +3884,8 @@ define('DISTRITO_EMPRESA', "MANANTAY");
 define('TELEFONOS_EMPRESA', "");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'ESTICAM'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'Custodi0'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'ESTICAMN'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'eStiCaMN21'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
