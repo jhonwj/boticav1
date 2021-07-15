@@ -67,7 +67,7 @@ listAgencyName=" United Nations Economic Commission for Europe">PEN</cbc:Documen
 Identidad" schemeAgencyName="PE:SUNAT"
 schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">20100066603</CompanyID>
 <cac:RegistrationAddress>
-<cbc:AddressTypeCode>0001</cbc:AddressTypeCode>
+<cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
 </cac:RegistrationAddress>
 <cac:TaxScheme>
 <cbc:ID>-</cbc:ID>
@@ -578,7 +578,7 @@ function cpeNC($ruta, $cabecera, $detalle) {
             <cac:PartyLegalEntity>
 <cbc:RegistrationName><![CDATA['.$cabecera["RAZON_SOCIAL_EMPRESA"].']]></cbc:RegistrationName>
                 <cac:RegistrationAddress>
-                    <cbc:AddressTypeCode>0001</cbc:AddressTypeCode>
+                    <cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
                 </cac:RegistrationAddress>
             </cac:PartyLegalEntity>
         </cac:Party>
@@ -880,7 +880,7 @@ function cpeND($ruta, $cabecera, $detalle) {
             <cac:PartyLegalEntity>
                 <cbc:RegistrationName><![CDATA['.$cabecera["RAZON_SOCIAL_EMPRESA"].']]></cbc:RegistrationName>
                 <cac:RegistrationAddress>
-                    <cbc:AddressTypeCode>0001</cbc:AddressTypeCode>
+                    <cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
                 </cac:RegistrationAddress>
             </cac:PartyLegalEntity>
         </cac:Party>
