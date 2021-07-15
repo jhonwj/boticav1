@@ -639,9 +639,26 @@ INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion=Gen_ProductoM
 		return getSQLResultSet($Ssql);
 	}
 
-	function ListarRegVenta($fechaIni, $fechaFin, $declarado)
+	function ListarRegVenta($fechaIni, $fechaFin, $declarado, $almacen)
 	{
-		$Ssql = "call SbVe_RegDocVenta($declarado, '$fechaIni', '$fechaFin');";
+		// $Ssql = "call SbVe_RegDocVenta($declarado, '$fechaIni', '$fechaFin');";
+		$Ssql = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.UsuarioReg, Ve_DocVenta.FechaDoc,
+		Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVenta.Anulado,
+	   Ve_DocVenta.Serie, Ve_DocVenta.Numero, IFNULL((Select Sum(Round((Ve_DocVentaDet.Precio* Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento,2)) FROM Ve_DocVentaDet Where Ve_DocVentaDet.IdDocVenta=Ve_DocVenta.idDocVenta),0) as SubTotal,
+	   IF(Ve_DocVentaTipoDoc.TieneIgv = 1,
+	   ROUND((IFNULL((SELECT SUM(Round((Ve_DocVentaDet.Precio* Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento,2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta=Ve_DocVenta.idDocVenta),0)) -
+	   (IFNULL((SELECT SUM(Round((Ve_DocVentaDet.Precio* Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento,2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta=Ve_DocVenta.idDocVenta),0)) / 1.18, 2)
+	   , 0) as Igv,
+	   IFNULL((Select Sum(Round((Ve_DocVentaDet.Precio* Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento,2)) FROM Ve_DocVentaDet Where Ve_DocVentaDet.IdDocVenta=Ve_DocVenta.idDocVenta),0) as Total
+	   FROM Ve_DocVenta INNER JOIN Ve_DocVentaTipoDoc On Ve_DocVenta.IdTipoDoc=Ve_DocVentaTipoDoc.IdTipoDoc
+	   WHERE Ve_DocVentaTipoDoc.VaRegVenta=$declarado ";
+
+	   if(!empty($almacen)) {
+		   $Ssql .= " AND Ve_DocVenta.IdAlmacen = $almacen ";
+	   }
+
+	   $Ssql .= " AND Ve_DocVenta.Fechadoc BETWEEN CAST('$fechaIni' AS DATETIME) and CONCAT('$fechaFin',' 23:59:59')
+		  ORDER BY  Ve_DocVenta.Fechadoc DESC;";
 		//echo $Ssql;
 		//exit();
 		return getSQLResultSet($Ssql);

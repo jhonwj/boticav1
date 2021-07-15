@@ -5,6 +5,7 @@ include_once '../clases/BnGeneral.php';
 		$fechaIni = $_GET["fechaIni"];
 		$fechaFin = $_GET["fechaFin"];
 		$declarado = $_GET["declarado"];
+		$almacen = $_GET["almacen"];
 
 		if($declarado){
 			$declarado = 1;
@@ -12,7 +13,8 @@ include_once '../clases/BnGeneral.php';
 			$declarado = 0;
 		}
 
-		$result = ListarRegVenta($fechaIni, $fechaFin, $declarado);
+		// $result = ListarRegVenta($fechaIni, $fechaFin, $declarado);
+		$result = ListarRegVenta($fechaIni, $fechaFin, $declarado, $almacen);
 		$data = array();
 
 	while ($rows = mysqli_fetch_assoc($result)) {

@@ -4677,7 +4677,8 @@ $app->get('/reporte/ventas', function (Request $request, Response $response, arr
     $fechaFin = $request->getParam('fechaFin');
     $declarado = $request->getParam('declarado') ? 1 : 0;
 
-    $res = $app->subRequest('GET', '/ventas', 'idAlmacen=' . $idAlmacen . '&filter[fechaInicio]=' . $fechaInicio . '&filter[fechaFin]=' . $fechaFin . '&filter[declarado]=' . $declarado . '&sortBy=Ve_DocVenta.FechaDoc&sortDesc=DESC');
+    $res = $app->subRequest('GET', '/ventas', '&filter[fechaInicio]=' . $fechaInicio . '&filter[fechaFin]=' . $fechaFin . '&filter[declarado]=' . $declarado . '&sortBy=Ve_DocVenta.FechaDoc&sortDesc=DESC' .'&idAlmacen=' . $idAlmacen);
+    // $res = $app->subRequest('GET', '/ventas', 'idAlmacen=' . $idAlmacen . '&filter[fechaInicio]=' . $fechaInicio . '&filter[fechaFin]=' . $fechaFin . '&filter[declarado]=' . $declarado . '&sortBy=Ve_DocVenta.FechaDoc&sortDesc=DESC');
     $ventas = (string) $res->getBody();
     $ventas = json_decode($ventas, true);
     // print_r($ventas);exit();

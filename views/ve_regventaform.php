@@ -13,7 +13,12 @@ $(document).ready(function(e){
 		var xhr = $.ajax({
 			url: "../controllers/listarRegVenta.php",
 			type: "get",
-			data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked")},
+			data: {
+				fechaIni : $("#fechaIni").val(), 
+				fechaFin: $("#fechaFinal").val(), 
+				declarado: $("#declarado").prop("checked"),
+				almacen: $("#almacen").val(),
+			},
 			dataType: "html",
 			success: function(res){
 				var respuesta = JSON.parse(res);
@@ -84,7 +89,26 @@ $(document).ready(function(e){
 
 	$("#btnExcel").click(function(){
 		//window.location.href="reporteExcel5.php?fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked");
-		window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0));
+		window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0) + "&idAlmacen=" + $("#almacen").val());
+	});
+
+
+	// cargar almacenes
+	$.ajax({
+		url: "/api/index.php/almacenes",
+		type: "get",
+		dataType: "json",
+		success: function(res){
+			console.log(res);
+
+			$.each(res, function( index, almacen ) {
+				$( "#almacen" ).append( "<option value=" + almacen.IdAlmacen + ">" + almacen.Almacen + "</option>" );
+			});
+		},
+		error: function(err){
+			alert(err);
+		}
+		// window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0));
 	});
 
 	$("#btnExcel2").click(function(){
@@ -148,6 +172,14 @@ function EliminarRegVenta(docVenta,FechaDoc){
 				<div class="checkbox">
   					<label><input id="declarado" type="checkbox">Declarado</label>
 				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-4 form-group">
+				<label>Almacen</label>
+				<select id="almacen"  class="form-control">
+					<option value="0" selected>TODOS</option>
+				</select>
 			</div>
 		</div>
 	</div>

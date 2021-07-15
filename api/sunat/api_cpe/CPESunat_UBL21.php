@@ -296,14 +296,38 @@ function cpeFactura($ruta, $cabecera, $detalle) {
 		</cac:Party>
 	</cac:AccountingCustomerParty>';
 
-	if ($cabecera["TOTAL_DESCUENTO"] > 0) {
-		$xmlCPE = $xmlCPE .
-				'<cac:AllowanceCharge>
-				<cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-				<cbc:AllowanceChargeReasonCode listName="Cargo/descuento" listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo53">00</cbc:AllowanceChargeReasonCode>
-				<cbc:Amount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_DESCUENTO"] . '</cbc:Amount>
-				</cac:AllowanceCharge>';
- }
+// 	if ($cabecera["TOTAL_DESCUENTO"] > 0) {
+// 		$xmlCPE = $xmlCPE .
+// 				'<cac:AllowanceCharge>
+// 				<cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+// 				<cbc:AllowanceChargeReasonCode listName="Cargo/descuento" listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo53">00</cbc:AllowanceChargeReasonCode>
+// 				<cbc:Amount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_DESCUENTO"] . '</cbc:Amount>
+// 				</cac:AllowanceCharge>';
+//  }
+		
+		//forma de pago
+		If (count($cabecera["detalle_forma_pago"])==0) {
+			$xmlCPE = $xmlCPE .
+				'<cac:PaymentTerms>        
+				<cbc:ID>FormaPago</cbc:ID>
+				<cbc:PaymentMeansID schemeAgencyName="PE:SUNAT">Contado</cbc:PaymentMeansID>
+				</cac:PaymentTerms>';
+		}else{
+			for ($z = 0; $z < count($cabecera["detalle_forma_pago"]); $z++) {
+				$xmlCPE = $xmlCPE . "<cac:PaymentTerms>        
+				<cbc:ID>FormaPago</cbc:ID>
+				<cbc:PaymentMeansID schemeAgencyName='PE:SUNAT'>" . $cabecera["detalle_forma_pago"][$z]["COD_FORMA_PAGO"] . "</cbc:PaymentMeansID>";
+
+				If ($cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"]  > 0) {
+					$xmlCPE = $xmlCPE .  "<cbc:Amount currencyID='" . $cabecera["COD_MONEDA"] . "'>" . $cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"] . "</cbc:Amount>";
+				}
+				If ($cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"]!= "") {
+				$xmlCPE = $xmlCPE .  "<cbc:PaymentDueDate>"  . $cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"] .  "</cbc:PaymentDueDate>";
+				}
+				$xmlCPE = $xmlCPE .  " </cac:PaymentTerms>";
+			}
+		}
+
 	$xmlCPE = $xmlCPE .
 	'<cac:TaxTotal>
 		<cbc:TaxAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_IGV"] . '</cbc:TaxAmount>
@@ -594,29 +618,6 @@ function cpeNC($ruta, $cabecera, $detalle) {
         </cac:Party>
 		</cac:AccountingCustomerParty>';
 
-		//forma de pago
-		If (count($cabecera["detalle_forma_pago"])==0) {
-		// 	$xmlCPE = $xmlCPE .
-		// 		'<cac:PaymentTerms>        
-		// 		<cbc:ID>FormaPago</cbc:ID>
-		// <cbc:PaymentMeansID schemeAgencyName="PE:SUNAT">Contado</cbc:PaymentMeansID>
-		// 	</cac:PaymentTerms>';
-		}else{
-			for ($z = 0; $z < count($cabecera["detalle_forma_pago"]); $z++) {
-				$xmlCPE = $xmlCPE . "<cac:PaymentTerms>        
-				<cbc:ID>FormaPago</cbc:ID>
-				<cbc:PaymentMeansID schemeAgencyName='PE:SUNAT'>" . $cabecera["detalle_forma_pago"][$z]["COD_FORMA_PAGO"] . "</cbc:PaymentMeansID>";
-	
-				If ($cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"]  > 0) {
-					$xmlCPE = $xmlCPE .  "<cbc:Amount currencyID='" . $cabecera["COD_MONEDA"] . "'>" . $cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"] . "</cbc:Amount>";
-				}
-				If ($cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"]!= "") {
-				   $xmlCPE = $xmlCPE .  "<cbc:PaymentDueDate>"  . $cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"] .  "</cbc:PaymentDueDate>";
-				}
-				$xmlCPE = $xmlCPE .  " </cac:PaymentTerms>";
-			}
-	   }
-	
 	   $xmlCPE = $xmlCPE .
 	   '<cac:TaxTotal>
         <cbc:TaxAmount currencyID="'.$cabecera["COD_MONEDA"].'">'.$cabecera["TOTAL_IGV"].'</cbc:TaxAmount>

@@ -231,7 +231,7 @@ if ($docVenta['CampoDireccion']) {
 
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/ <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
-      <span>VUELTO: S/<?php echo number_format($docVenta['PagoCon'] - $total, 2) ?></span>
+      <span>VUELTO: S/<?php echo number_format($docVenta['PagoCon'] -  ($total - $totalDescuento), 2) ?></span>
     <?php endif; ?>
   </div>
 </br>
