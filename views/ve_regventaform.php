@@ -14,8 +14,8 @@ $(document).ready(function(e){
 			url: "../controllers/listarRegVenta.php",
 			type: "get",
 			data: {
-				fechaIni : $("#fechaIni").val(), 
-				fechaFin: $("#fechaFinal").val(), 
+				fechaIni : $("#fechaIni").val() + ' ' + $("#horaIni").val(), 
+      			fechaFin: $("#fechaFinal").val() + ' ' + $("#horaFinal").val(),    
 				declarado: $("#declarado").prop("checked"),
 				almacen: $("#almacen").val(),
 			},
@@ -89,7 +89,8 @@ $(document).ready(function(e){
 
 	$("#btnExcel").click(function(){
 		//window.location.href="reporteExcel5.php?fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked");
-		window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0) + "&idAlmacen=" + $("#almacen").val());
+		// window.open("/api/index.php/reporte/ventas?fechaInicio=" + $("#fechaIni").val() + "&fechaFin=" + $("#fechaFinal").val() + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0) + "&idAlmacen=" + $("#almacen").val());
+		window.open("/api/index.php/reporte/ventas?fechaInicio=" + ($("#fechaIni").val() + ' ' + $("#horaIni").val()) + "&fechaFin=" + ($("#fechaFinal").val() + ' ' + $("#horaFinal").val()) + "&declarado=" + ($("#declarado").prop("checked") ? 1 : 0) + "&idAlmacen=" + $("#almacen").val());
 	});
 
 
@@ -158,17 +159,33 @@ function EliminarRegVenta(docVenta,FechaDoc){
 <div class="bt-panel">
 	<div class="container center_div" >
 		<div class="row">
-			<div class="col-md-4 form-group">
+		<div class="col-md-6 form-group">
 				<label>Fecha Inicio</label>
+				</br>
+				<div class="col-md-4 form-group">
 				<input type="date" id="fechaIni" class="form-control">
+				</div>
+				<div class="col-md-3 form-group">
+				<input type="time" id="horaIni" class="form-control" value="00:00">
+				</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-4 form-group">
+		<div class="col-md-6 form-group">
 				<label>Fecha Final</label>
+				</br>
+				<div class="col-md-4 form-group">
 				<input type="date" id="fechaFinal" class="form-control">
 			</div>
 			<div class="col-md-4 form-group">
+				</div>
+				<div class="col-md-3 form-group">
+				<input type="time" id="horaFinal" class="form-control" value="23:59">
+				</div>
+
+		</div>
+				<div class="col-md-6 form-group">
 				<div class="checkbox">
   					<label><input id="declarado" type="checkbox">Declarado</label>
 				</div>

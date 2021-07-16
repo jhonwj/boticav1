@@ -14,7 +14,11 @@ $(document).ready(function(e){
     var xhr = $.ajax({
       url: "../controllers/listarRegMov.php",
       type: "get",
-      data: {fechaIni : $("#fechaIni").val(), fechaFin: $("#fechaFinal").val(), declarado: $("#declarado").prop("checked"), descripcion: $('#descripcion').val()},
+      data: {
+      fechaIni : $("#fechaIni").val() + ' ' + $("#horaIni").val(), 
+      fechaFin: $("#fechaFinal").val() + ' ' + $("#horaFinal").val(),   
+      declarado: $("#declarado").prop("checked"), 
+      descripcion: $('#descripcion').val()},
       dataType: "html",
       success: function(res){
         console.log(res)
@@ -76,7 +80,7 @@ $(document).ready(function(e){
   });
 
   $("#btnExcel").click(function(){
-    window.location.href="ReporteExcel6.php?fechaIni="+$("#fechaIni").val()+"&fechaFin="+$("#fechaFinal").val()+"&declarado="+$("#declarado").prop("checked");
+    window.location.href="ReporteExcel6.php?fechaInicio=" + ($("#fechaIni").val() + ' ' + $("#horaIni").val()) + "&fechaFin=" + ($("#fechaFinal").val() + ' ' + $("#horaFinal").val()) + "&declarado="+$("#declarado").prop("checked");
   });
 
 $("#tableRegMov tbody").on("click", "tr", function(e){
@@ -191,32 +195,45 @@ function SumarTotalIgvSub(){
 
 <div class="bt-panel">
   <div class="container center_div" >
-    <div class="row">
-      <div class="col-md-4 form-group">
-        <label>Fecha Inicio</label>
-        <input type="date" id="fechaIni" class="form-control">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4 form-group">
-        <label>Fecha Final</label>
-        <input type="date" id="fechaFinal" class="form-control">
-      </div>
-      <div class="col-md-4 form-group">
-        <div class="checkbox">
-            <label><input id="declarado" type="checkbox">Declarado</label>
-        </div>
-      </div>
-      <div class="col-md-4 form-group">
-        <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
-      </div>
-    </div>
+  <div class="row">
+    <div class="col-md-6 form-group">
+				<label>Fecha Inicio</label>
+				</br>
+				<div class="col-md-4 form-group">
+				<input type="date" id="fechaIni" class="form-control">
+				</div>
+				<div class="col-md-3 form-group">
+				<input type="time" id="horaIni" class="form-control" value="00:00:00">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+		<div class="col-md-6 form-group">
+				<label>Fecha Final</label>
+				</br>
+				<div class="col-md-4 form-group">
+				<input type="date" id="fechaFinal" class="form-control">
+				</div>
+				<div class="col-md-3 form-group">
+				<input type="time" id="horaFinal" class="form-control" value="23:59:00">
+				</div>
+
+		</div>
+				<div class="col-md-6 form-group">
+				<div class="checkbox">
+  					<label><input id="declarado" type="checkbox">Declarado</label>
+				</div>
+			</div>
+		</div>
     <div class="row">
       <div class="col-md-4 form-group">
         <label>Buscar detalle del movimiento (buscar serie)</label>
         <input type="text" id="descripcion" name="descripcion" class="form-control" value="<?php echo isset($_GET['descripcion']) ? $_GET['descripcion'] : ''; ?>">
       </div>
     </div>
+  </div>
+  <div class="pull-right">
+    <button type="button" id="btnGenerar" class="btn btn-success">Generar</button>
   </div>
   <br>
   <hr>

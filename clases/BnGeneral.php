@@ -657,7 +657,7 @@ INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion=Gen_ProductoM
 		   $Ssql .= " AND Ve_DocVenta.IdAlmacen = $almacen ";
 	   }
 
-	   $Ssql .= " AND Ve_DocVenta.Fechadoc BETWEEN CAST('$fechaIni' AS DATETIME) and CONCAT('$fechaFin',' 23:59:59')
+	   $Ssql .= " AND Ve_DocVenta.Fechadoc BETWEEN CAST('$fechaIni' AS DATETIME) and CAST('$fechaFin' AS DATETIME)
 		  ORDER BY  Ve_DocVenta.Fechadoc DESC;";
 		//echo $Ssql;
 		//exit();
@@ -665,7 +665,101 @@ INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion=Gen_ProductoM
 	}
 	function ListarRegNov($fechaIni, $fechaFin, $declarado, $descripcion = "")
 	{
-		$Ssql = "call SbLo_RegMovimiento($declarado, '$fechaIni', '$fechaFin', '$descripcion');";
+		// $Ssql = "call SbLo_RegMovimiento($declarado, '$fechaIni', '$fechaFin', '$descripcion');";
+		$Ssql ="SELECT
+		Lo_Movimiento.`Hash` as IdMovimiento,
+		Lo_Movimiento.MovimientoFecha,
+		Lo_Movimiento.IdMovimientoTipo,
+		Lo_MovimientoTipo.Tipo,
+		Lo_MovimientoTipo.TipoMovimiento,
+		Lo_Movimiento.Serie,
+		Lo_Movimiento.Numero,
+		Lo_Movimiento.FechaPeriodoTributario,
+		Lo_Proveedor.Proveedor,
+		CASE
+			WHEN Lo_Movimiento.IdAlmacenOrigen>0 THEN (
+			Select
+				Lo_Almacen.Almacen
+			From
+				Lo_Almacen
+			Where
+				Lo_Almacen.IdAlmacen = Lo_Movimiento.IdAlmacenOrigen)
+			ELSE '-'
+		END AS AlmacenOrigen,
+		CASE
+			WHEN Lo_Movimiento.IdAlmacenDestino>0 THEN (
+			Select
+				Lo_Almacen.Almacen
+			From
+				Lo_Almacen
+			Where
+				Lo_Almacen.IdAlmacen = Lo_Movimiento.IdAlmacenDestino)
+			ELSE '-'
+		END AS AlmacenDestino,
+		Lo_Movimiento.Observacion,
+		Lo_Movimiento.Anulado,
+		(
+		SELECT
+			Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio, 2)) as SUBTOTAL
+		FROM
+			Lo_MovimientoDetalle
+		WHERE
+			Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.`Hash`) as SUBTOTAL,
+		(
+		SELECT
+			Sum(CASE WHEN Lo_MovimientoDetalle.TieneIgv = 1 THEN ROUND((Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio)* (Select Igv From GEN_EMPRESA), 2) ELSE 0 END) as IGV
+		FROM
+			Lo_MovimientoDetalle
+		WHERE
+			Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.`Hash`) as IGV,
+		(
+		SELECT
+			Sum(ROUND(Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio, 2)) + Sum(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.ISC)= 1 THEN 0 ELSE Lo_MovimientoDetalle.ISC END, 2)) + SUM(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.FLETE)= 1 THEN 0 ELSE Lo_MovimientoDetalle.FLETE END, 2))
+			+ CASE
+				WHEN ISNULL(Lo_Movimiento.Percepcion)= 1 THEN 0
+				ELSE Lo_Movimiento.Percepcion
+			END + Sum(CASE WHEN Lo_MovimientoDetalle.TieneIgv = 1 THEN ROUND((Lo_MovimientoDetalle.Cantidad*Lo_MovimientoDetalle.Precio)* (Select Igv From GEN_EMPRESA), 2) ELSE 0 END) as TOTAL
+		FROM
+			Lo_MovimientoDetalle
+		WHERE
+			Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.`Hash`) as TOTAL,
+		Lo_Movimiento.FechaReg,
+		Lo_Movimiento.UsuarioReg,
+		Lo_Movimiento.FechaMod,
+		Lo_Movimiento.UsuarioMod,
+		(
+		SELECT
+			SUM(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.ISC)= 1 THEN 0 ELSE Lo_MovimientoDetalle.ISC END, 2))
+		FROM
+			Lo_MovimientoDetalle
+		WHERE
+			Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.`Hash`) as ISC,
+		(
+		SELECT
+			SUM(ROUND(CASE WHEN ISNULL(Lo_MovimientoDetalle.FLETE)= 1 THEN 0 ELSE Lo_MovimientoDetalle.FLETE END, 2))
+		FROM
+			Lo_MovimientoDetalle
+		WHERE
+			Lo_MovimientoDetalle.hashMovimiento = Lo_Movimiento.`Hash`) as FLETE,
+		CASE
+			WHEN ISNULL(Lo_Movimiento.Percepcion)= 1 THEN 0
+			ELSE Lo_Movimiento.Percepcion
+		END AS Percepcion,
+		Lo_Movimiento.TipoCambio,
+		Lo_Movimiento.Moneda
+	FROM
+		Lo_Movimiento
+	INNER JOIN Lo_MovimientoTipo On
+		Lo_Movimiento.IdMovimientoTipo = Lo_MovimientoTipo.IdMovimientoTipo
+	INNER JOIN Lo_Proveedor On
+		Lo_Movimiento.IdProveedor = Lo_Proveedor.IdProveedor
+	WHERE
+		Lo_MovimientoTipo.VaRegCompra = $declarado
+		AND Lo_Movimiento.MovimientoFecha BETWEEN CAST('$fechaIni' AS DATETIME) and  CAST('$fechaFin' AS DATETIME)
+		AND Lo_Movimiento.Hash IN 
+			(SELECT DISTINCT(Lo_MovimientoDetalle.hashMovimiento) FROM Lo_MovimientoDetalle WHERE Lo_MovimientoDetalle.Descripcion like CONCAT('%', '$descripcion', '%'))
+	ORDER BY
+		Lo_Movimiento.MovimientoFecha DESC;";
 		//echo $Ssql;
 		//exit();
 		return getSQLResultSet($Ssql);
