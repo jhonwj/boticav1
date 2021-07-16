@@ -153,12 +153,12 @@ function EliminarRegVenta(docVenta,FechaDoc){
 <div class="fab2">
 	<button id="" class="btn btn-success" onclick="exportarTXT($('#tableRegVenta'))"><i class="fa fa-file"></i>.txt</button>
 	<button id="btnExcel" class="btn btn-success"><i class="fa fa-file-excel-o"></i>.xls</button>
-	<button id="btnExcel2" class="btn btn-warning"><i class="fa fa-file-excel-o"></i>.xls Detalle</button>
+	<!-- <button id="btnExcel2" class="btn btn-warning"><i class="fa fa-file-excel-o"></i>.xls Detalle</button> -->
 </div>
 
 <div class="bt-panel">
 	<div class="container center_div" >
-		<div class="row">
+	<div class="row">
 		<div class="col-md-6 form-group">
 				<label>Fecha Inicio</label>
 				</br>
@@ -171,14 +171,11 @@ function EliminarRegVenta(docVenta,FechaDoc){
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-4 form-group">
 		<div class="col-md-6 form-group">
 				<label>Fecha Final</label>
 				</br>
 				<div class="col-md-4 form-group">
 				<input type="date" id="fechaFinal" class="form-control">
-			</div>
-			<div class="col-md-4 form-group">
 				</div>
 				<div class="col-md-3 form-group">
 				<input type="time" id="horaFinal" class="form-control" value="23:59">

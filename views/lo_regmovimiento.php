@@ -80,7 +80,7 @@ $(document).ready(function(e){
   });
 
   $("#btnExcel").click(function(){
-    window.location.href="ReporteExcel6.php?fechaInicio=" + ($("#fechaIni").val() + ' ' + $("#horaIni").val()) + "&fechaFin=" + ($("#fechaFinal").val() + ' ' + $("#horaFinal").val()) + "&declarado="+$("#declarado").prop("checked");
+    window.location.href="ReporteExcel6.php?fechaIni=" + ($("#fechaIni").val() + ' ' + $("#horaIni").val()) + "&fechaFin=" + ($("#fechaFinal").val() + ' ' + $("#horaFinal").val()) + "&declarado="+$("#declarado").prop("checked");
   });
 
 $("#tableRegMov tbody").on("click", "tr", function(e){

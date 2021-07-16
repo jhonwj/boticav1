@@ -73,42 +73,49 @@ $objPHPExcel->getActiveSheet()->setCellValue('P3', 'TOTAL');
 		$cont++;
 	}
 
-$default_border = array(
-    'style' => PHPExcel_Style_Border::BORDER_THIN,
-    'color' => array('rgb'=>'000000')
-);
-$style_header = array(
-    	'borders' => array(
-        'bottom' => $default_border,
-        'left' => $default_border,
-        'top' => $default_border,
-        'right' => $default_border,
-    ),
-    'fill' => array(
-        'type' => PHPExcel_Style_Fill::FILL_SOLID,
-        'color' => array('rgb'=>'E1E0F7'),
-    ),
-    'font' => array(
-        'bold' => true,
-    ),
-    'alignment' => array(
-         'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-    )
-);
- for ($i=3; $i < 16; $i++) { 
- 	$objPHPExcel->getActiveSheet()->getStyle(chr(68+($i-3)).'3')->applyFromArray( $style_header );
- 	$objPHPExcel->getActiveSheet()->getColumnDimension(chr(68+($i-3)))->setAutoSize(true);
- }
+    $default_border = array(
+        'style' => PHPExcel_Style_Border::BORDER_THIN,
+        'color' => array('rgb'=>'000000')
+    );
+    $style_header = array(
+            'borders' => array(
+            'bottom' => $default_border,
+            'left' => $default_border,
+            'top' => $default_border,
+            'right' => $default_border,
+        ),
+        'fill' => array(
+            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'color' => array('rgb'=>'E1E0F7'),
+        ),
+        'font' => array(
+            'bold' => true,
+        ),
+        'alignment' => array(
+             'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+        )
+    );
+     for ($i=3; $i < 16; $i++) { 
+        $objPHPExcel->getActiveSheet()->getStyle(chr(68+($i-3)).'3')->applyFromArray( $style_header );
+        $objPHPExcel->getActiveSheet()->getColumnDimension(chr(68+($i-3)))->setAutoSize(true);
+     }
 
- $objPHPExcel->getActiveSheet()
- 		->getStyle("D4:H".$cont)
- 		->getAlignment()
- 		->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+     $objPHPExcel->getActiveSheet()
+            ->getStyle("D4:H".$cont)
+            ->getAlignment()
+            ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-header('Content-Disposition: attachment;filename="ReporteRegMovimiento.xlsx"');
-header('Cache-Control: max-age=0');
+    $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+    $fileName = 'movimiento.xlsx';
+    $excelFileName = __DIR__ . '/../api/reporte/' . $fileName;
+    $objWriter->save($excelFileName);
 
-$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-$objWriter->save('php://output');
+// header('Content-Disposition: attachment;filename="ReporteRegMovimiento.xlsx"');
+// header('Cache-Control: max-age=0');
+
+// $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+// $objWriter->save('php://output');
+echo "<script>window.location.href = '/api/reporte/" . $fileName . "'</script>";
+    exit;
 
  ?>
