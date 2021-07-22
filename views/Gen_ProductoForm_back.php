@@ -7,7 +7,7 @@ include_once("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>ESTICAM - Producto</title>
+ 	<title>INVERSIONES NENE - Producto</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once 'linker.php'; ?>

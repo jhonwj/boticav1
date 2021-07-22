@@ -59,7 +59,7 @@ function datos(){
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>">ESTICAM</a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">I. NENE</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >

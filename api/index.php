@@ -3871,21 +3871,21 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '10001088055');
+define('NRO_DOCUMENTO_EMPRESA', '10040732620');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'TOLENTINO MURRIETA GENITH MAGALY');
-define('NOMBRE_COMERCIAL_EMPRESA', 'MULTISERVICIOS ESTICAM');
+define('RAZON_SOCIAL_EMPRESA', 'GUILLERMO COSME EDWIN JESUS');
+define('NOMBRE_COMERCIAL_EMPRESA', 'MULTISERVICIOS NENE');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "AV. TUPAC AMARU MZA. 19 LOTE. 18 A.H. SIEMPRE UNIDOS II (ANTES DEL GRIFO SANTA FELICIA) UCAYALI - CORONEL PORTILLO - MANANTAY");
-define('DEPARTAMENTO_EMPRESA', "UCAYALI");
-define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
-define('DISTRITO_EMPRESA', "MANANTAY");
-define('TELEFONOS_EMPRESA', "");
+define('DIRECCION_EMPRESA', "AV. MARCOS DURAN MARTEL PSTO 5 AMARILIS - HUANUCO - HUANUCO");
+define('DEPARTAMENTO_EMPRESA', "HUANUCO");
+define('PROVINCIA_EMPRESA', "HUANUCO");
+define('DISTRITO_EMPRESA', "AMARILIS");
+define('TELEFONOS_EMPRESA', "913021281");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'ESTICAMN'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'eStiCaMN21'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'NEURO123'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'NEURO123'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");

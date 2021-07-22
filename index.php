@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>ESTICAM</title>
+  <title>INVERSIONES NENE</title>
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>

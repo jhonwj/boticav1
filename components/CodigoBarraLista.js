@@ -27,7 +27,7 @@ export default {
             axios.get('/api/index.php/productos/id/' + this.idProducto)
                 .then((response) => {
                     var producto = response.data
-                    producto.Producto = producto.Producto.split('-').slice(0, -1).join()
+                    producto.Producto = producto.Producto
                     producto.Cantidad = parseInt(this.cantidad)
 
                     this.productos.push(producto)
@@ -43,7 +43,7 @@ export default {
                 }
             }).then((response) => {
                 var productos = response.data.map(function(x) {
-                    x.Producto = x.Producto.split('-').slice(0, -1).join()
+                    x.Producto = x.Producto
                     return x
                 })
                 

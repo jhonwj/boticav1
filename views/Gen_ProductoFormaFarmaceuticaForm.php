@@ -6,7 +6,7 @@ include("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
-  <title>ESTICAM - Forma Farmaceutica</title>
+  <title>INVERSIONES NENE - Forma Farmaceutica</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
