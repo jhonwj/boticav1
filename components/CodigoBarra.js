@@ -18,7 +18,7 @@ export default {
         <!--<div class="item negro">COLOR</div><div class="item derecha">{{ producto.Color }}</div>
         <div class="item negro">PLAZA</div><div class="item derecha">{{ producto.Botapie }}</div>-->
         <div class="barcode-image">
-            <barcode :value="producto.CodigoBarra" tag="svg" :options="{ width: .75, margin:5, height: 18, fontSize: 7, marginTop: 1, marginBottom: 1}" ></barcode>
+            <barcode :value="producto.CodigoBarra" tag="svg" :options="{ width: .9, margin:5, height: 18, fontSize: 7, marginTop: 1, marginBottom: 1}" ></barcode>
         </div>
         <span></span>
     </div>
