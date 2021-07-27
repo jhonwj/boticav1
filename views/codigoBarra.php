@@ -15,7 +15,8 @@
                 margin: 0;
                 font-size: 1.7mm!important;
                 font-family: sans-serif !important;
-                margin-left: 5px;
+                margin-left: 6px;
+                margin-top: 2px;
             }
             /* ESTILOS COMPONENTES */
             #barcode {
