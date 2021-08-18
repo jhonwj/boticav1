@@ -377,6 +377,7 @@ include_once("../clases/helpers/Modal.php");
      var saldo = 0;
      var idCuenta = $("#txtTipoCuentaId").val();
      var fechaDoc = $('#txtFechaVen').val();
+     var usuarioReg = sessionStorage.getItem('User');
 
      $("#tableCajaBanco").DataTable({
              "bProcessing": true,
@@ -385,7 +386,8 @@ include_once("../clases/helpers/Modal.php");
                  "url": "../controllers/server_processingCajaBanco.php",
                  "data": function(d) {
                      d.IdCuenta = idCuenta || 0,
-                     d.FechaDoc = fechaDoc
+                     d.FechaDoc = fechaDoc,
+                     d.UsuarioReg = usuarioReg
                  }
              },
              //"sAjaxSource": "../controllers/server_processingCajaBanco.php",

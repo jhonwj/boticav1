@@ -11,7 +11,7 @@ switch ($method) {
         if (isset($_GET['rango'])) {
             $result = fn_devolverCajaBancoPorFecha($_GET['IdCuenta'], $_GET['IdTipoOperacion'], $_GET['FechaIni'], $_GET['FechaFin']);
         } else {
-            $result = ListarCajaBanco($_GET['IdCuenta'], $_GET['FechaDoc']);
+            $result = ListarCajaBanco($_GET['IdCuenta'], $_GET['FechaDoc'],$_GET['UsuarioReg']);
         }
         
         $data = array();

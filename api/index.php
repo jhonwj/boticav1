@@ -5450,12 +5450,14 @@ $app->post('/cierrecaja', function (Request $request, Response $response) {
     $idCierreCaja = $this->db->lastInsertId();
 
     // Actualizar DocVenta
-    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL ";
+    $updateVenta = "UPDATE Ve_DocVenta SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
+    AND UsuarioReg='" . $usuarioReg . "'";
     $stmt = $this->db->prepare($updateVenta);
     $updatedVenta = $stmt->execute();
 
     // Actualizar CajaBanco asignando cierre solo de un vendedor
-    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL ";
+    $updateCajaBanco = "UPDATE Cb_CajaBanco SET IdCierre=$idCierreCaja WHERE IdCierre IS NULL
+        AND EsDelVendedor=1 AND UsuarioReg='" . $usuarioReg . "'";
     $stmt = $this->db->prepare($updateCajaBanco);
     $updatedCajaBanco = $stmt->execute();
 

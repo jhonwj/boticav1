@@ -2,9 +2,32 @@
 include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
 include_once("../models/DBManager.php");
 
-function ListarCajaBanco($idCuenta, $fechaDoc)
+function ListarCajaBanco($idCuenta, $fechaDoc, $usuarioreg)
 {
-    $Ssql = " call SbCb_ListarCajaBanco($idCuenta, '$fechaDoc');";
+
+    if(isset($_SESSION['User'])) {
+    $vendedor = $_SESSION['User'];
+    }
+
+    $usuarioReg = isset($usuarioreg) ? $usuarioreg : $vendedor;
+    
+    $Ssql = " SELECT
+    CB.IdCajaBanco,
+    CB.Concepto,
+    CASE TCB.Tipo
+      WHEN 1 THEN 0
+          ELSE CB.Importe
+    END AS 'Ingresos',
+      CASE TCB.Tipo
+      WHEN 1 THEN CB.Importe
+          ELSE 0
+    END AS 'Salida'
+      FROM Cb_CajaBanco AS CB
+      INNER JOIN Cb_TipoCajaBanco AS TCB
+      ON CB.IdTipoCajaBanco = TCB.IdTipoCajaBanco
+      WHERE CB.IdCuenta = $idCuenta AND DATE_FORMAT(CB.Fechadoc, '%Y-%m-%d') = '$fechaDoc'
+      AND CB.UsuarioReg = '$usuarioReg'
+    ORDER BY TCB.Tipo,CB.IdCajaBanco;";
     return getSQLResultSet($Ssql);
 }
 
