@@ -26,7 +26,7 @@ if (file_exists($ruta . $archivo . ".pdf")) {
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 col-md-offset-2">
-                        <div class="col-md-6">	    
+                        <div class="col-md-6" style="display: flex; align-items: center; justify-content: center;">	    
                             <img src="./img/tulogo.png" alt=""  width="160px"  />
                         </div>
                         <div class="col-md-6">	    
