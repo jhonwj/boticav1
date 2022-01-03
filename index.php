@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>INVERSIONES NENE</title>
+  <title>DEMO FERRETERIA</title>
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>
@@ -12,7 +12,6 @@ body {
 }
 body {
   font-family: 'Roboto', sans-serif;
-  background: url("http://arttechnologypsyche.com/wp-content/uploads/2015/04/abstract-background.jpg") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -161,9 +160,10 @@ body:before {
 <body>
 <section class="login-box">
   <header class="login-header">
-    <img src="/resources/images/logo.png" style="max-width: 100%" />
+    <img src="/resources/images/logo.png" style="max-width: 70%" />
     <!-- <h1></h1> -->
-    <h2>Ingrese sus datos</h2>
+    <h2 style="margin-bottom: -5px;">DEMO FERRETERIA</h2>
+    <h3 style="margin-bottom: -15px;">Ingrese sus datos</h3>
   </header>
   <div class="login-content">
     <form id="frmLogin" method="post">
@@ -171,6 +171,15 @@ body:before {
     <input class="login-pass" name="namePass" id="namePass" type="password" placeholder="Contraseña"/>
     <button type="submit" class="login-enter">Entrar    </button>
     </form>
+    <div style="text-align: center; font-weight: bold;">
+      <label>CONTACTO</label>
+      <br>
+      <br>
+      <label>Telf: (062) 511550 -  Cel: 954370221</label>
+      <br>
+      <br>
+      <label><a href="http://neurosystemperu.com" target="_blank">Neuro System Perú</a></label>
+    </div>
   </div>
 </section>
 </body>

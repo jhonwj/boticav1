@@ -2309,6 +2309,7 @@ $app->get('/ventas', function (Request $request, Response $response) {
         Ve_DocVenta.NroComprobanteModifica,
         Ve_DocVenta.NotaIdMotivo,
         Ve_DocVenta.NotaDescMotivo,
+        Ve_DocVenta.EsCredito, Ve_DocVenta.FechaCredito,
         IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
@@ -2481,7 +2482,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
     // $numero = $request->getParam('Numero');
     $anulado = 0;
     $usuarioReg = isset($request->getParam('vendedor')['Usuario']) ? $request->getParam('vendedor')['Usuario'] : $vendedor;
-    $pagoCon = $request->getParam('PagoCon');
+    $pagoCon = $request->getParam('PagoCon')=='' || $request->getParam('PagoCon')==null?0:$request->getParam('PagoCon');
     $codSunatModifica = $request->getParam('CodSunatModifica');
     $nroComprobanteModifica = $request->getParam('NroComprobanteModifica');
     $notaIdMotivo = $request->getParam('NotaIdMotivo');
@@ -3871,16 +3872,16 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '10040732620');
+define('NRO_DOCUMENTO_EMPRESA', '21000000000');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'GUILLERMO COSME EDWIN JESUS');
-define('NOMBRE_COMERCIAL_EMPRESA', 'INVERSIONES NENE');
+define('RAZON_SOCIAL_EMPRESA', 'DEMO FERRETERIA');
+define('NOMBRE_COMERCIAL_EMPRESA', 'DEMO FERRETERIA');
 define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "AV. MARCOS DURAN MARTEL PSTO 5 AMARILIS - HUANUCO - HUANUCO");
+define('DIRECCION_EMPRESA', "JR 28 DE JULIO 313 HUANUCO - HUANUCO - HUANUCO");
 define('DEPARTAMENTO_EMPRESA', "HUANUCO");
 define('PROVINCIA_EMPRESA', "HUANUCO");
-define('DISTRITO_EMPRESA', "AMARILIS");
+define('DISTRITO_EMPRESA', "HUANUCO");
 define('TELEFONOS_EMPRESA', "913021281");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
@@ -3891,6 +3892,13 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
 
     $docVenta = $request->getParam('docVenta');
+
+    // Obtener venta.
+    $select = "SELECT * FROM Ve_DocVenta WHERE idDocVenta=" . $docVenta['idDocVenta'];
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $venta = $stmt->fetch();
+
     $new = new api_sunat();
 
     $detalle = array();
@@ -3949,9 +3957,9 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtFECHA_VTO"=> date("Y-m-d", strtotime($docVenta['FechaDoc'])),
         "txtCOD_TIPO_DOCUMENTO"=> $docVenta['CodSunat'], //01=factura,03=boleta,07=notacrediro,08=notadebito
         "txtCOD_MONEDA"=> 'PEN', //PEN= PERU
-        'detalle_forma_pago' => [
-            ["COD_FORMA_PAGO" => "Contado"]
-        ],
+        //'detalle_forma_pago' => [
+        //   ["COD_FORMA_PAGO" => "Contado"]
+        //],
         "txtVENDEDOR"=> $docVenta['UsuarioReg'], //VENDEDOR
         //==========documentos de referencia(nota credito, debito)=============
         "txtTIPO_COMPROBANTE_MODIFICA"=> isset($docVenta['CodSunatModifica']) && $docVenta['CodSunatModifica'] ? $docVenta['CodSunatModifica'] : "", //aqui completar
@@ -3990,6 +3998,26 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
     if ($docVenta['CodigoIgv'] == "20") { // 20 = exonerado Igv
         $data["txtTOTAL_EXONERADAS"] = $docVenta['Total'];
+    }
+
+    // forma de pago
+    if ($venta['EsCredito']) {
+        $data['detalle_forma_pago'] = [
+            [
+                "COD_FORMA_PAGO" => "Credito",
+                "MONTO_FORMA_PAGO" => $gravadas,
+                "FECHA_FORMA_PAGO" => date('Y-m-d', strtotime($venta['FechaCredito']))
+            ],
+            [
+                "COD_FORMA_PAGO" => "Cuota001",
+                "MONTO_FORMA_PAGO" => $gravadas,
+                "FECHA_FORMA_PAGO" => date('Y-m-d', strtotime($venta['FechaCredito']))
+            ]
+        ];
+    } else {
+        $data['detalle_forma_pago'] = [
+            ["COD_FORMA_PAGO" => "Contado"]
+        ];
     }
 
     if($request->getParam('generarXml'))
@@ -4133,6 +4161,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
          "txtNOMBRE_COMERCIAL_CLIENTE"=> $docVenta['NombreComercial'],
          "txtTIPO_DOCUMENTO_CLIENTE"=> strlen($docVenta['DniRuc']) > 9 ? "6" : "1",//1 DNI 6 RUC
          "txtDIRECCION_CLIENTE"=>$docVenta['Direccion'],
+         "txtES_CREDITO" => $docVenta['EsCredito'],
          "txtCIUDAD_CLIENTE"=>"",
          "txtCOD_PAIS_CLIENTE"=>"PE",
         //=================datos de LA EMPRESA=================
@@ -4171,7 +4200,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
 $app->get('/imprimirpdf/{id}', function (Request $request, Response $response, array $args) use ($app) {
     $id = $args['id'];
 
-    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.EsCredito, Ve_DocVenta.FechaCredito, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
         Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
         Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVentaCliente.DniRuc, Ve_DocVenta.CampoDireccion as Direccion,
         Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr, Ve_DocVenta.Msj_sunat,

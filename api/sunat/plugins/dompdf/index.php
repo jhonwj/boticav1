@@ -195,9 +195,12 @@ $html.='
     </tr>
     <tr>
 <td width="64%">
-<br>
-Representación impresa de la '.$tdocumento.'<br>
-</td>
+FORMA DE PAGO: '. (empty($cab['txtES_CREDITO']) ? "CONTADO" : "CRÉDITO").' 
+<br> ';
+if(!empty($cab['txtES_CREDITO'])):
+  $html .='FECHA DE PAGO: '. $cab['txtFECHA_CREDITO'] ;
+endif;
+$html .= '</td>
 <td width="16%" rowspan="5"  class="fg fg2" >
 <img src="'.$cab['txtNRO_DOCUMENTO_EMPRESA'].'.png" width="120" height="120" />
 </td>
@@ -218,12 +221,18 @@ Representación impresa de la '.$tdocumento.'<br>
 </td>
     </tr>
     <tr>
+    <td >
+    Representación impresa de la '.$tdocumento.'<br>
+    </td>
+    </tr>
+    <tr>
   <td >
     <strong>HASH: '.$cab['hash_cpe'].'</strong>
   </td>
   </tr>
 <tr><td>'.$cab['txtRAZON_SOCIAL_CLIENTE'].'</td></tr>
-<tr><td style="text-transform: uppercase"><strong>VENDEDOR:</strong>'.$cab['txtVENDEDOR'].'</td></tr>
+<tr><td style="text-transform: uppercase"><strong>VENDEDOR: </strong>'.$cab['txtVENDEDOR'].'</td></tr>
+<tr><td colspan="3" style="text-align:center">NO ACEPTAMOS DEVOLUCIONES NI RECLAMOS DESPUES DE LA ENTREGA DE MERCANCIA.</td></tr>
 <tr>  
 <td>
 <!-- Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00 -->
@@ -245,7 +254,7 @@ Representación impresa de la '.$tdocumento.'<br>
  ';
 
  $dompdf = new DOMPDF();
- $dompdf->set_paper('letter','portrait');
+ $dompdf->set_paper('A4','portrait');
  //$dompdf->set_paper('legal','landscape');
  $dompdf->load_html($html);
  $dompdf->render();

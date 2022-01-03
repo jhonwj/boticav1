@@ -101,9 +101,9 @@ if ($docVenta['CampoDireccion']) {
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>DE:GUILLERMO COSME EDWIN JESUS</b></div>
-  <div class="center"><b>RUC:10040732620</b> </div><br>
-  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS DE FERRETERÍA </div>
+  <div class="center"><b>DEMO FERRETERIA</b></div>
+  <div class="center"><b>RUC:21000000000</b> </div><br>
+  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS</div>
   <!--<div class="center small">VENTA DE ....</div>-->
 
 
@@ -234,7 +234,12 @@ if ($docVenta['CampoDireccion']) {
       <span>VUELTO: S/<?php echo number_format($docVenta['PagoCon'] -  ($total - $totalDescuento), 2) ?></span>
     <?php endif; ?>
   </div>
-</br>
+  </br>
+  <span style="text-transform: uppercase">FORMA DE PAGO: <?php echo empty($docVenta['EsCredito']) ? 'CONTADO' : 'CRÉDITO' ; ?></span><br />
+    <?php if(!empty($docVenta['EsCredito'])): ?>
+      <span style="text-transform: uppercase">FECHA DE PAGO: <?php echo date('Y-m-d', strtotime($docVenta['FechaCredito'])); ?></span>
+    <?php endif; ?>
+  <br/>
   <div class="center">
   <span style="font-size:10px">  <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
       <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
@@ -273,8 +278,8 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">AV. MARCOS DURAN MARTEL PSTO 5 </div>
-  <div class="center small">AMARILIS - HUANUCO - HUANUCO</div>
+  <div class="center small">JR 28 DE JULIO 313</div>
+  <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
   <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>

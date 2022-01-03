@@ -8,7 +8,7 @@ include_once("../clases/helpers/Modal.php");
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>INVERSIONES NENE - Reimpresión de documentos</title>
+  <title>DEMO FERRETERIA - Reimpresión de documentos</title>
 
  </head>
 <?php include_once 'linker.php'; ?>

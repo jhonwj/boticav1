@@ -89,9 +89,9 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br />
-  <div class="center"><b>DE:GUILLERMO COSME EDWIN JESUS</b></div>
-  <div class="center"><b>RUC:10040732620</b> </div><br>
-  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS DE FERRETERÍA </div>
+  <div class="center"><b>DEMO FERRETERIA</b></div>
+  <div class="center"><b>RUC:21000000000</b> </div><br>
+  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS</div>
   <div class="center small">.</div>
   <br />
 
@@ -184,9 +184,9 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">AV. MARCOS DURAN MARTEL PSTO 5 </div>
+  <div class="center small">JR 28 DE JULIO 313</div>
   <br />
-  <div class="center small">AMARILIS - HUANUCO - HUANUCO</div>
+  <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
   <div class="center small">.</div>
   <br />
   <br />
