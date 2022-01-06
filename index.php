@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>DEMO FERRETERIA</title>
+  <title>BRIANNA - FERRETEREIA</title>
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>
@@ -162,7 +162,6 @@ body:before {
   <header class="login-header">
     <img src="/resources/images/logo.png" style="max-width: 70%" />
     <!-- <h1></h1> -->
-    <h2 style="margin-bottom: -5px;">DEMO FERRETERIA</h2>
     <h3 style="margin-bottom: -15px;">Ingrese sus datos</h3>
   </header>
   <div class="login-content">
@@ -176,6 +175,9 @@ body:before {
       <br>
       <br>
       <label>Telf: (062) 511550 -  Cel: 954370221</label>
+      <br>
+      <br>
+      <label>Cel. Soporte: 997578199</label>
       <br>
       <br>
       <label><a href="http://neurosystemperu.com" target="_blank">Neuro System Perú</a></label>

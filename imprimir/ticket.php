@@ -92,10 +92,10 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>DE:DEMO FERRETERIA</b></div>
-  <div class="center"><b>RUC:21000000000</b> </div><br>
-  <div class="center small">VENTA AL POR MENOR DE ARTÍCULOS </div>
-  <!--<div class="center small">VENTA DE ....</div>-->
+  <div class="center"><b>DE: LEON DURAN AMANCIO VELAN</b></div>
+  <div class="center"><b>RUC:10768688422</b> </div><br>
+  <div class="center small">VENTA DE MATERIALES DE FERRETERIA EN GENERAL</div>
+  <div class="center small">AL POR MAYOR Y MENOR</div>
   <br />
 
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -227,13 +227,13 @@ $igv = 0;
   </div>
   <br />
 
- <div class="center small"></div><br />
+ <div class="center small"></div>
         <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
         <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
         <br />
-  <div class="center small">JR 28 DE JULIO 313</div>
+  <div class="center small">JR. SAN MARTIN NRO 625</div>
   <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
-  <!--<div class="center small">TELF. xxx - CEL. xxx</div>-->
+  <div class="center small">CEL. 948854626</div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <br />
   <br />

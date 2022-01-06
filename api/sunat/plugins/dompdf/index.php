@@ -103,11 +103,11 @@ th,td { padding: 3pt; }
   <tbody>
     <tr>
 	
-<td width="6%"><img src="../../images/logo.png" width="123" height="60" /></td>
+<td width="6%"><img src="../../images/logo.png" width="123" height="90" /></td>
 	
 <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
 <strong>DIRECCIÓN: </strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>
-  <!--<strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>-->
+  <strong>CEL.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
 </td>
 		
       <td width="30%">

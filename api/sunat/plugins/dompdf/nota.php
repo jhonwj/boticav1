@@ -112,11 +112,11 @@ th,td { padding: 3pt; }
 <table width="100%" border="0" class="cabecera" cellpadding="0" cellspacing="0">
   <tbody>
     <tr>
-    <td width="6%"><img src="../../images/logo.png" width="123" height="60" /></td>
+    <td width="6%"><img src="../../images/logo.png" width="123" height="90" /></td>
 	
     <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
-      <!--<strong>SUCURSAL:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>-->
-      <strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
+      <strong>DIRECCIÓN:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>
+      <strong>CEL.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
     </td>
 		
       <td width="30%">
@@ -264,7 +264,7 @@ foreach ($cab['detalle'] as $producto) {
    
  ';
    $dompdf = new DOMPDF();
-   $dompdf->set_paper('letter','landscape');
+   $dompdf->set_paper('A4','portrait');
    //$dompdf->set_paper('legal','landscape');
    $dompdf->load_html($html);
    $dompdf->render();

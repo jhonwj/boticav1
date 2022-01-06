@@ -59,11 +59,11 @@ function datos(){
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>">DEMO F.</a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">FERRETERIA BRIANNA</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >
-      <li class=""><a href="#" class="text-primary-color"><i class="fa fa-home"></i>  Inicio</a></li>
+      <!--<li class=""><a href="#" class="text-primary-color"><i class="fa fa-home"></i>  Inicio</a></li>-->
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="medical-drugs-pills-and-capsules.svg" style="width:1em;"> Gestion Producto
         <span class="caret"></span></a>
@@ -79,8 +79,8 @@ function datos(){
       </li>
 
       <li class="dropdown">
-        <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Logistica
-        <span class="caret"></span></a>
+        <!--<a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-clipboard"></i> Logistica
+        <span class="caret"></span></a>-->
         <ul class="dropdown-menu">
           <li><a href="<?php echo Inventario; ?>">REGISTRO DE COMPRAS</a></li>
           <!--<li><a href="<?php echo GenerarCodigoBarra; ?>">CODIGO DE BARRA</a></li>-->
@@ -110,17 +110,17 @@ function datos(){
         <ul class="dropdown-menu">
           <li><a href="<?php echo PuntoVenta; ?>">Punto de venta</a></li>
           <li><a href="<?php echo Clientes; ?>">Clientes </a></li>
-          <li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>
+          <!--<li><a href="<?php echo PreOrden; ?>">Pre Orden</a></li>-->
           <!--<li><a href="/views/habitaciones.php">Proyectos</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo RegVenta; ?>">Registro de Ventas</a></li>
-          <li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>
+          <!--<li><a href="<?php echo SITE_URL . "views/ve_regventaformvendedor.php" ?>">Registro de Ventas VENDEDOR</a></li>-->
           <li><a href="<?php echo Cierre; ?>">Cierre de Caja</a></li>
-          <li><a href="<?php echo CierreReporte; ?>">Reporte Cierre de Caja</a></li>
+           <!--<li><a href="<?php echo CierreReporte; ?>">Reporte Cierre de Caja</a></li>-->
           <!--<li><a href="<?php echo CambioPrecioBloque; ?>">Cambio de precio por bloque</a></li>-->
           <li role="separator" class="divider"></li>
           <li><a href="<?php echo Reimpresion; ?>">Reimpresión de Documentos</a></li>
-          <li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>
+          <!--<li><a href="<?php echo ReporteUtilidadBruta; ?>">Reporte Utilidad Bruta</a></li>-->
 
         </ul>
       </li>
@@ -138,8 +138,8 @@ function datos(){
 
 
       <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Reportes
-      <span class="caret"></span></a>
+      <!--<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Reportes
+      <span class="caret"></span></a>-->
       <ul class="dropdown-menu">
         <li><a href="/views/reportehuespedes.php"> Registro de Proyectos </a></li>
         <li><a href="/views/reportestockminimo.php"> Reporte Stock Mínimo </a></li>
@@ -154,8 +154,8 @@ function datos(){
 
 
       <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Caja y Banco
-      <span class="caret"></span></a>
+      <!--<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Caja y Banco
+      <span class="caret"></span></a>-->
       <ul class="dropdown-menu">
         <li><a href="<?php echo CajaYBanco; ?>"> Caja y Banco</a></li>
         <li><a href="<?php echo CajaYBancoBuscador; ?>">Buscador de Caja y Banco</a></li>
@@ -163,8 +163,8 @@ function datos(){
 
       </li>
       <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Seguridad
-        <span class="caret"></span></a>
+        <!--<a class="dropdown-toggle" data-toggle="dropdown" href="#"> Seguridad
+        <span class="caret"></span></a>-->
         <ul class="dropdown-menu">
           <li><a href="<?php echo Usuarios; ?>" >Usuarios</a></li>
         </ul>
@@ -181,6 +181,14 @@ function datos(){
       Compra: <span id="compra"></span></br> 
       Venta : <span id="venta"></span>
       </div></li>
+      <li>
+        <img src="/resources/images/neurologo.png" width="150px" style="margin-left: 10px; margin-top: 8px">
+      </li>
+      <li style="color: white; font-weight: bold; margin-left: 5px; font-size: 1.5rem;">
+          <label>Contacto: Telf: (062) 511550 - Cel: 954370221 </label>
+          <br>
+          <label>Soporte: Cel: 997578199 </label>
+      </li>
     </ul>
     <!-- <ul class="nav navbar-nav navbar-right"> -->
       <!-- <li><a href=""><i class="fa fa-user-circle"></i> Usuario</a></li> -->

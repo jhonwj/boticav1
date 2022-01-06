@@ -5,7 +5,7 @@
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>DEMO FERRETERIA - Sin Acceso</title>
+ 	<title>BRIANNA FERRETERIA - Sin Acceso</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once $_SERVER["DOCUMENT_ROOT"] . '/views/linker.php'; ?>

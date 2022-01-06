@@ -6,7 +6,7 @@ include_once("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>DEMO FERRETERIA- Medicion</title>
+ 	<title>BRIANNA FERRETERIA- Medicion</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
