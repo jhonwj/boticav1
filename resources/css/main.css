@@ -13,7 +13,7 @@
 		/*margin-top: 100px;*/
   }
     .navbar{
-    background: #333399;
+    background: #80af13;
   }
   .idProd{
     display: none;
@@ -160,4 +160,8 @@ tr.ambar td {
   background-color: #f6e58d !important;
 }
 
-
+.navbar-nav li a:hover, .navbar-nav > .active > a, .navbar-nav .open >a  {
+  color: #fff !important;
+  background-color:#6c9708 !important;
+  background-image: none !important;
+}
