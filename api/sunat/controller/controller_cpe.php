@@ -106,7 +106,7 @@ $cabecera = array(
 );
 
 // 123456 es el PIN
-$mensaje_cpe = cpe($cab['txtTIPO_PROCESO'], $cab['txtNRO_DOCUMENTO_EMPRESA'], $cab['txtUSUARIO_SOL_EMPRESA'], $cab['txtPASS_SOL_EMPRESA'], 'ARDIAGGI2021', $cabecera, $detalle);
+$mensaje_cpe = cpe($cab['txtTIPO_PROCESO'], $cab['txtNRO_DOCUMENTO_EMPRESA'], $cab['txtUSUARIO_SOL_EMPRESA'], $cab['txtPASS_SOL_EMPRESA'], '5i5t3m4s2022', $cabecera, $detalle);
 
 $resultado['hash_cpe'] = $mensaje_cpe['hash_cpe'];
 $resultado['cod_sunat'] = $mensaje_cpe['hash_cdr']['cod_sunat'];//str_replace("SOAP-ENV:CLIENT.", "", $mensaje_cpe['hash_cdr']['cod_sunat']);

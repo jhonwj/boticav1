@@ -253,7 +253,7 @@ if ($docVenta['CampoDireccion']) {
   <td width="100" 
 	  heigth="100">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '10001088055');
+        define('NRO_DOCUMENTO_EMPRESA', '10768688422');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }

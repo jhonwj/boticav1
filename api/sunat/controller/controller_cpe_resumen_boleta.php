@@ -17,7 +17,7 @@ $cab = json_decode($bodyRequest, true);
 $detalle = $cab['detalle'];
 
 
-$mensaje_cpe = ResumenBoleta($cab['TIPO_PROCESO'], $cab['NRO_DOCUMENTO_EMPRESA'], $cab['USUARIO_SOL_EMPRESA'], $cab['PASS_SOL_EMPRESA'], "ARDIAGGI2021", $cab, $detalle);
+$mensaje_cpe = ResumenBoleta($cab['TIPO_PROCESO'], $cab['NRO_DOCUMENTO_EMPRESA'], $cab['USUARIO_SOL_EMPRESA'], $cab['PASS_SOL_EMPRESA'], "5i5t3m4s2022", $cab, $detalle);
 
 $resultado['hash_cpe'] = $mensaje_cpe['hash_cpe'];
 $resultado['cod_sunat'] = $mensaje_cpe['hash_cdr']['cod_sunat'];//str_replace("SOAP-ENV:CLIENT.", "", $mensaje_cpe['hash_cdr']['cod_sunat']);
