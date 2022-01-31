@@ -296,37 +296,36 @@ function cpeFactura($ruta, $cabecera, $detalle) {
 		</cac:Party>
 	</cac:AccountingCustomerParty>';
 
-	if ($cabecera["TOTAL_DESCUENTO"] > 0) {
-		$xmlCPE = $xmlCPE .
-				'<cac:AllowanceCharge>
-				<cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-				<cbc:AllowanceChargeReasonCode listName="Cargo/descuento" listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo53">00</cbc:AllowanceChargeReasonCode>
-				<cbc:Amount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_DESCUENTO"] . '</cbc:Amount>
-				</cac:AllowanceCharge>';
- }
- //forma de pago
- If (count($cabecera["detalle_forma_pago"])==0) {
-	$xmlCPE = $xmlCPE .
-		'<cac:PaymentTerms>        
-		<cbc:ID>FormaPago</cbc:ID>
-		<cbc:PaymentMeansID schemeAgencyName="PE:SUNAT">Contado</cbc:PaymentMeansID>
-		</cac:PaymentTerms>';
-}else{
-	for ($z = 0; $z < count($cabecera["detalle_forma_pago"]); $z++) {
-		$xmlCPE = $xmlCPE . "<cac:PaymentTerms>        
-		<cbc:ID>FormaPago</cbc:ID>
-		<cbc:PaymentMeansID schemeAgencyName='PE:SUNAT'>" . $cabecera["detalle_forma_pago"][$z]["COD_FORMA_PAGO"] . "</cbc:PaymentMeansID>";
-
-		If ($cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"]  > 0) {
-			$xmlCPE = $xmlCPE .  "<cbc:Amount currencyID='" . $cabecera["COD_MONEDA"] . "'>" . $cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"] . "</cbc:Amount>";
-		}
-		If ($cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"]!= "") {
-		   $xmlCPE = $xmlCPE .  "<cbc:PaymentDueDate>"  . $cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"] .  "</cbc:PaymentDueDate>";
-		}
-		$xmlCPE = $xmlCPE .  " </cac:PaymentTerms>";
-	}
-}
-
+	// if ($cabecera["TOTAL_DESCUENTO"] > 0) {
+	// 	$xmlCPE = $xmlCPE .
+	// 			'<cac:AllowanceCharge>
+	// 			<cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+	// 			<cbc:AllowanceChargeReasonCode listName="Cargo/descuento" listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo53">00</cbc:AllowanceChargeReasonCode>
+	// 			<cbc:Amount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_DESCUENTO"] . '</cbc:Amount>
+	// 			</cac:AllowanceCharge>';
+	//  }
+	 	//forma de pago
+		 If (count($cabecera["detalle_forma_pago"])==0) {
+				$xmlCPE = $xmlCPE .
+					'<cac:PaymentTerms>        
+					<cbc:ID>FormaPago</cbc:ID>
+					<cbc:PaymentMeansID schemeAgencyName="PE:SUNAT">Contado</cbc:PaymentMeansID>
+					</cac:PaymentTerms>';
+			}else{
+				for ($z = 0; $z < count($cabecera["detalle_forma_pago"]); $z++) {
+					$xmlCPE = $xmlCPE . "<cac:PaymentTerms>        
+					<cbc:ID>FormaPago</cbc:ID>
+					<cbc:PaymentMeansID schemeAgencyName='PE:SUNAT'>" . $cabecera["detalle_forma_pago"][$z]["COD_FORMA_PAGO"] . "</cbc:PaymentMeansID>";
+		
+					If ($cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"]  > 0) {
+						$xmlCPE = $xmlCPE .  "<cbc:Amount currencyID='" . $cabecera["COD_MONEDA"] . "'>" . $cabecera["detalle_forma_pago"][$z]["MONTO_FORMA_PAGO"] . "</cbc:Amount>";
+					}
+					If ($cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"]!= "") {
+					   $xmlCPE = $xmlCPE .  "<cbc:PaymentDueDate>"  . $cabecera["detalle_forma_pago"][$z]["FECHA_FORMA_PAGO"] .  "</cbc:PaymentDueDate>";
+					}
+					$xmlCPE = $xmlCPE .  " </cac:PaymentTerms>";
+				}
+		   }
 	$xmlCPE = $xmlCPE .
 	'<cac:TaxTotal>
 		<cbc:TaxAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_IGV"] . '</cbc:TaxAmount>
@@ -442,7 +441,6 @@ function cpeFactura($ruta, $cabecera, $detalle) {
 	<cac:LegalMonetaryTotal>
 		<cbc:LineExtensionAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["SUB_TOTAL"] . '</cbc:LineExtensionAmount>
 		<cbc:TaxInclusiveAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL"] . '</cbc:TaxInclusiveAmount>
-		<cbc:AllowanceTotalAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL_DESCUENTO"] . '</cbc:AllowanceTotalAmount>
 		<cbc:ChargeTotalAmount currencyID="' . $cabecera["COD_MONEDA"] . '">0.00</cbc:ChargeTotalAmount>
 		<cbc:PayableAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $cabecera["TOTAL"] . '</cbc:PayableAmount>
 	</cac:LegalMonetaryTotal>';
@@ -496,8 +494,21 @@ function cpeFactura($ruta, $cabecera, $detalle) {
 				<cbc:PriceAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $detalle[$i]["txtPRECIO_DET"] . '</cbc:PriceAmount>
 				<cbc:PriceTypeCode listName="Tipo de Precio" listAgencyName="PE:SUNAT" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo16">' . $detalle[$i]["txtPRECIO_TIPO_CODIGO"] . '</cbc:PriceTypeCode>
 			</cac:AlternativeConditionPrice>
-		</cac:PricingReference>
-		<cac:TaxTotal>
+		</cac:PricingReference>';
+
+		if ($detalle[$i]["txtPRECIO_DESC_DET"] > 0) {
+			$xmlCPE = $xmlCPE . '
+			<cac:AllowanceCharge>
+				<cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+				<cbc:AllowanceChargeReasonCode>00</cbc:AllowanceChargeReasonCode>
+				<cbc:MultiplierFactorNumeric>' . round($detalle[$i]["txtPRECIO_DESC_DET"] / ($detalle[$i]["txtSUB_TOTAL_DET"] + $detalle[$i]["txtPRECIO_DESC_DET"]), 4) . '</cbc:MultiplierFactorNumeric>
+				<cbc:Amount currencyID="PEN">' . $detalle[$i]["txtPRECIO_DESC_DET"] . '</cbc:Amount>
+				<cbc:BaseAmount currencyID="PEN">' . ($detalle[$i]["txtSUB_TOTAL_DET"] + $detalle[$i]["txtPRECIO_DESC_DET"]) . '</cbc:BaseAmount>
+			</cac:AllowanceCharge>';
+		}
+		
+
+		$xmlCPE = $xmlCPE . '<cac:TaxTotal>
 			<cbc:TaxAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $detalle[$i]["txtIGV"] . '</cbc:TaxAmount>
 			<cac:TaxSubtotal>
 				<cbc:TaxableAmount currencyID="' . $cabecera["COD_MONEDA"] . '">' . $detalle[$i]["txtIMPORTE_DET"] . '</cbc:TaxableAmount>
@@ -601,7 +612,7 @@ function cpeNC($ruta, $cabecera, $detalle) {
             <cac:PartyLegalEntity>
 <cbc:RegistrationName><![CDATA['.$cabecera["RAZON_SOCIAL_EMPRESA"].']]></cbc:RegistrationName>
                 <cac:RegistrationAddress>
-				<cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
+                    <cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
                 </cac:RegistrationAddress>
             </cac:PartyLegalEntity>
         </cac:Party>
@@ -615,11 +626,8 @@ function cpeNC($ruta, $cabecera, $detalle) {
 <cbc:RegistrationName><![CDATA[' . $cabecera["RAZON_SOCIAL_CLIENTE"] . ']]></cbc:RegistrationName>
             </cac:PartyLegalEntity>
         </cac:Party>
-		</cac:AccountingCustomerParty>';
-
-		
-	   $xmlCPE = $xmlCPE .
-	   '<cac:TaxTotal>
+    </cac:AccountingCustomerParty>
+    <cac:TaxTotal>
         <cbc:TaxAmount currencyID="'.$cabecera["COD_MONEDA"].'">'.$cabecera["TOTAL_IGV"].'</cbc:TaxAmount>
         <cac:TaxSubtotal>
 <cbc:TaxableAmount currencyID="'.$cabecera["COD_MONEDA"].'">'.$cabecera["TOTAL_GRAVADAS"].'</cbc:TaxableAmount>
@@ -881,7 +889,7 @@ function cpeND($ruta, $cabecera, $detalle) {
             <cac:PartyLegalEntity>
                 <cbc:RegistrationName><![CDATA['.$cabecera["RAZON_SOCIAL_EMPRESA"].']]></cbc:RegistrationName>
                 <cac:RegistrationAddress>
-				<cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
+                    <cbc:AddressTypeCode listAgencyName="PE:SUNAT" listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
                 </cac:RegistrationAddress>
             </cac:PartyLegalEntity>
         </cac:Party>
@@ -895,8 +903,12 @@ function cpeND($ruta, $cabecera, $detalle) {
 <cbc:RegistrationName><![CDATA['.$cabecera["RAZON_SOCIAL_CLIENTE"].']]></cbc:RegistrationName>
             </cac:PartyLegalEntity>
         </cac:Party>
-    </cac:AccountingCustomerParty>
-    <cac:TaxTotal>
+		</cac:AccountingCustomerParty>';
+
+	
+	
+	   $xmlCPE = $xmlCPE .
+	   '<cac:TaxTotal>
         <cbc:TaxAmount currencyID="'.$cabecera["COD_MONEDA"].'">'.$cabecera["TOTAL_IGV"].'</cbc:TaxAmount>
         <cac:TaxSubtotal>
 <cbc:TaxableAmount currencyID="'.$cabecera["COD_MONEDA"].'">'.$cabecera["TOTAL_GRAVADAS"].'</cbc:TaxableAmount>
@@ -1362,169 +1374,4 @@ private int ITEM;
     return 'XML RESUMEN BOLETA CREADO';
 }
 
-function cpeGuia($ruta, $cabecera, $detalle) {
-    try {
-    $doc = new DOMDocument();
-    $doc->formatOutput = FALSE;
-    $doc->preserveWhiteSpace = TRUE;
-    $doc->encoding = 'ISO-8859-1';
-    $xmlCPE = "<?xml version='1.0' encoding='iso-8859-1'?>
-                    <DespatchAdvice
-                        xmlns:ds='http://www.w3.org/2000/09/xmldsig#'
-                        xmlns:cbc='urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2'
-                        xmlns:qdt='urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2'
-                        xmlns:ccts='urn:un:unece:uncefact:documentation:2'
-                        xmlns:xsd='http://www.w3.org/2001/XMLSchema'
-                        xmlns:udt='urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2'
-                        xmlns:ext='urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2'
-                        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-                        xmlns:cac='urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2'
-                        xmlns:sac='urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1'
-                        xmlns='urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2'>
-                        <ext:UBLExtensions>
-                            <ext:UBLExtension>
-                                <ext:ExtensionContent>
-                                </ext:ExtensionContent>
-                            </ext:UBLExtension>
-                        </ext:UBLExtensions>
-                        <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
-                        <cbc:CustomizationID>1.0</cbc:CustomizationID>
-                        <cbc:ID>" . $cabecera["NRO_COMPROBANTE"] . "</cbc:ID>
-                        <cbc:IssueDate>" . $cabecera["FECHA_DOCUMENTO"] . "</cbc:IssueDate>
-                        <cbc:DespatchAdviceTypeCode>" . $cabecera["COD_TIPO_DOCUMENTO"] . "</cbc:DespatchAdviceTypeCode>
-                        <cbc:Note><![CDATA[" . $cabecera["NOTA"] . "]]></cbc:Note>";
-
-            if($cabecera["NRO_DOCUMENTO_REFERENCIA"] != "") {
-                $xmlCPE = $xmlCPE . "<cac:AdditionalDocumentReference>
-                            <cbc:ID>" . $cabecera["COD_DOCUMENTO_RELACIODO"] . "</cbc:ID>
-                            <cbc:DocumentTypeCode>" . $cabecera["NRO_DOCUMENTO_REFERENCIA"] . "</cbc:DocumentTypeCode>                            
-                         </cac:AdditionalDocumentReference>";
-            }
-
-            if ($cabecera["FLG_ANULADO"] == "1" ){
-               $xmlCPE = $xmlCPE . "<cac:OrderReference>
-                            <cbc:ID>" . $cabecera["DOC_REFERENCIA_ANU"] . "</cbc:ID>
-                            <cbc:OrderTypeCode>" . $cabecera["COD_TIPO_DOC_REFANU"] . "</cbc:OrderTypeCode>
-                            </cac:OrderReference>";
-            }
-
-            $xmlCPE = $xmlCPE . "<cac:Signature>
-		                    <cbc:ID>" . $cabecera["NRO_COMPROBANTE"] . "</cbc:ID>
-		                    <cac:SignatoryParty>
-			                    <cac:PartyIdentification>
-				                    <cbc:ID>" . $cabecera["NRO_DOCUMENTO_EMPRESA"] . "</cbc:ID>
-			                    </cac:PartyIdentification>
-			                    <cac:PartyName>
-				                    <cbc:Name><![CDATA[" . $cabecera["RAZON_SOCIAL_EMPRESA"] . "]]></cbc:Name>
-			                    </cac:PartyName>
-		                    </cac:SignatoryParty>
-		                    <cac:DigitalSignatureAttachment>
-			                    <cac:ExternalReference>
-				                    <cbc:URI>#" . $cabecera["NRO_COMPROBANTE"] . "</cbc:URI>
-			                    </cac:ExternalReference>
-		                    </cac:DigitalSignatureAttachment>
-	                    </cac:Signature>";
-
-            $xmlCPE = $xmlCPE . "<cac:DespatchSupplierParty>
-                            <cbc:CustomerAssignedAccountID schemeID='" . $cabecera["TIPO_DOCUMENTO_EMPRESA"] . "'>" . $cabecera["NRO_DOCUMENTO_EMPRESA"] . "</cbc:CustomerAssignedAccountID>
-                            <cac:Party>
-                                <cac:PartyLegalEntity>
-                                    <cbc:RegistrationName>
-                                        <![CDATA[" . $cabecera["RAZON_SOCIAL_EMPRESA"] . "]]>
-                                    </cbc:RegistrationName>
-                                </cac:PartyLegalEntity>
-                            </cac:Party>
-                        </cac:DespatchSupplierParty>
-                        <cac:DeliveryCustomerParty>
-                            <cbc:CustomerAssignedAccountID schemeID='" . $cabecera["TIPO_DOCUMENTO_CLIENTE"] . "'>" . $cabecera["NRO_DOCUMENTO_CLIENTE"] . "</cbc:CustomerAssignedAccountID>
-                            <cac:Party>
-                                <cac:PartyLegalEntity>
-                                    <cbc:RegistrationName><![CDATA[" . $cabecera["RAZON_SOCIAL_CLIENTE"] . "]]></cbc:RegistrationName>
-                                </cac:PartyLegalEntity>
-                            </cac:Party>
-                        </cac:DeliveryCustomerParty>
-                        <cac:Shipment>
-                            <cbc:ID>" . $cabecera["ITEM_ENVIO"] . "</cbc:ID>
-                            <cbc:HandlingCode>" . $cabecera["COD_MOTIVO_TRASLADO"] . "</cbc:HandlingCode>
-                            <cbc:Information>" . $cabecera["DESCRIPCION_MOTIVO_TRASLADO"] . "</cbc:Information>
-                            <cbc:GrossWeightMeasure unitCode='" . $cabecera["COD_UND_PESO_BRUTO"] . "'>" . $cabecera["PESO_BRUTO"] . "</cbc:GrossWeightMeasure>
-                            <cbc:TotalTransportHandlingUnitQuantity>" . $cabecera["TOTAL_BULTOS"] . "</cbc:TotalTransportHandlingUnitQuantity>
-                            <cac:ShipmentStage>
-                                <cbc:TransportModeCode>" . $cabecera["COD_MODALIDAD_TRASLADO"] . "</cbc:TransportModeCode>
-                                <cac:TransitPeriod>
-                                    <cbc:StartDate>" . $cabecera["FECHA_INICIO"] . "</cbc:StartDate>
-                                </cac:TransitPeriod>
-                                <cac:CarrierParty>
-                                    <cac:PartyIdentification>
-                                        <cbc:ID schemeID='" . $cabecera["TIPO_DOCUMENTO_TRANSPORTISTA"] . "'>" . $cabecera["NRO_DOCUMENTO_TRANSPORTISTA"] . "</cbc:ID>
-                                    </cac:PartyIdentification>
-                                    <cac:PartyName>
-                                        <cbc:Name>
-                                            <![CDATA[" . $cabecera["RAZON_SOCIAL_TRANSPORTISTA"] . "]]>
-                                        </cbc:Name>
-                                    </cac:PartyName>
-                                </cac:CarrierParty>
-                            <cac:TransportMeans>
-                                <cac:RoadTransport>
-                                    <cbc:LicensePlateID>" . $cabecera["PLACA_VEHICULO"] . "</cbc:LicensePlateID>
-                                </cac:RoadTransport>
-                            </cac:TransportMeans>
-                            <cac:DriverPerson>
-                                <cbc:ID schemeID='" . $cabecera["COD_TIPO_DOC_CHOFER"] . "'>"  . $cabecera["NRO_DOC_CHOFER"] . "</cbc:ID>
-                            </cac:DriverPerson>
-                         </cac:ShipmentStage>
-                            <cac:Delivery>
-                                <cac:DeliveryAddress>
-                                    <cbc:ID>" . $cabecera["COD_UBIGEO_DESTINO"] . "</cbc:ID>
-                                    <cbc:StreetName>" . $cabecera["DIRECCION_DESTINO"] . "</cbc:StreetName>
-                                </cac:DeliveryAddress>
-                            </cac:Delivery>";
-
-            if ($cabecera["PLACA_CARRETA"] != "" ){
-               $xmlCPE = $xmlCPE . "<cac:TransportHandlingUnit>
-                                <cbc:ID>" . $cabecera["PLACA_VEHICULO"] . "</cbc:ID>
-                                <cac:TransportEquipment>
-                                    <cbc:ID>" . $cabecera["PLACA_CARRETA"] . "</cbc:ID>
-                                </cac:TransportEquipment>
-                            </cac:TransportHandlingUnit>";
-            }
-
-            $xmlCPE = $xmlCPE . "<cac:OriginAddress>
-                                <cbc:ID>" . $cabecera["COD_UBIGEO_ORIGEN"] . "</cbc:ID>
-                                <cbc:StreetName>" . $cabecera["DIRECCION_ORIGEN"] . "</cbc:StreetName>
-                            </cac:OriginAddress>
-                        </cac:Shipment>";
-
-            for ($i = 0; $i < count($detalle); $i++) {
-                $xmlCPE = $xmlCPE . "<cac:DespatchLine>
-                                        <cbc:ID>" . $detalle[$i]["ITEM"] .  "</cbc:ID>
-                                        <cbc:DeliveredQuantity unitCode='". $detalle[$i]["UNIDAD_MEDIDA"] . "'>". $detalle[$i]["CANTIDAD"] . "</cbc:DeliveredQuantity>
-                                        <cac:OrderLineReference>
-                                            <cbc:LineID>" . $detalle[$i]["ORDER_ITEM"] . "</cbc:LineID>
-                                        </cac:OrderLineReference>
-                                        <cac:Item>
-                                            <cbc:Name>
-                                                <![CDATA[" . $detalle[$i]["DESCRIPCION"] . "]]>
-                                            </cbc:Name>
-                                            <cac:SellersItemIdentification>
-                                                <cbc:ID>" . $detalle[$i]["CODIGO"] . "</cbc:ID>
-                                            </cac:SellersItemIdentification>
-                                        </cac:Item>
-                                    </cac:DespatchLine>";
-            }
-
-            $xmlCPE = $xmlCPE . "</DespatchAdvice>";
-    $doc->loadXML($xmlCPE);
-    $doc->save(dirname(__FILE__) . '/' . $ruta . '.XML');
-    } catch (Exception $e) {
-        //$nombre_archivo = "logs.txt";
-        echo 'Excepción capturada: ', $e->getMessage(), "\n";
-        $mensaje = $e->getMessage();
-        $file = fopen("logs_guia.txt", "w");
-        fwrite($file, $mensaje . PHP_EOL);
-        fwrite($file, "Otra más" . PHP_EOL);
-        fclose($file);
-    }
-    return '1';
-}
 ?>

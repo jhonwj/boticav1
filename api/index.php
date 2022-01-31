@@ -3912,12 +3912,14 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         // $igv = $docVenta['TieneIgv'] ? round($producto['Total'] * 0.18, 2) : 0;
         $igv = $docVenta['TieneIgv'] ? round($producto['Total'] - ($producto['Total'] / 1.18) , 2) : 0;
         $subtotal = $docVenta['TieneIgv'] ? $producto['Total'] - $igv : $producto['Total'];
+        $subtotal = $producto['Descuento'] > 0 ? $subtotal - $producto['Descuento'] : $subtotal;
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
         $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
-        $json["txtPRECIO_DET"] = $producto['Precio'];
+        $json["txtPRECIO_DET"] = round(($subtotal + $igv) / $producto['Cantidad'], 4);
+        $json["txtPRECIO_DESC_DET"] = $producto['Descuento'];
         $json["txtSUB_TOTAL_DET"] = $subtotal;  //PRECIO * CANTIDAD
         $json["txtPRECIO_TIPO_CODIGO"] = "01"; // 02 valor referencial unitario en operaciones no onerosas
         $json["txtIGV"] = $igv;
@@ -3935,8 +3937,9 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     }
 
     // $gravadas = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
-    $gravadas = $docVenta['TieneIgv'] ? round($docVenta['Total'] / 1.18, 2) : $docVenta['Total'];
-    $subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
+    $gravadas = $docVenta['TieneIgv'] ? round($docVenta['Total'] / 1.18, 4) : $docVenta['Total'];
+    //$subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
+    $subtotal = $gravadas;
 
     //ELIMINAR ESPACIOS EN BLANCO DNI/RUC
     $docVenta['DniRuc'] = trim($docVenta['DniRuc']);
@@ -3945,7 +3948,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     $data = array(
         "txtTIPO_OPERACION"=>"0101", // corregir esto despues
         "txtTOTAL_DESCUENTO" => $descuento,
-        "txtTOTAL_GRAVADAS"=> $gravadas,
+        //"txtTOTAL_GRAVADAS"=> $gravadas,
         "txtSUB_TOTAL"=> $subtotal,
         "txtPOR_IGV"=> $docVenta['TieneIgv'] ? "18" : "0",
         // "txtTOTAL_IGV"=> $docVenta['TieneIgv'] ? round($docVenta['Total'] * 0.18, 2) : 0,
