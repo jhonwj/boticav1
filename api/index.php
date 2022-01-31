@@ -3930,7 +3930,8 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         $json["txtCODIGO_DET"] = $producto['CodigoBarra'];
         $json["txtDESCRIPCION_DET"] = trim($producto['Producto']);
         // $json["txtPRECIO_SIN_IGV_DET"] = round($producto['Precio'] - ($producto['Precio'] * 0.18), 2);
-        $json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
+        //$json["txtPRECIO_SIN_IGV_DET"] = $subtotal;
+        $json["txtPRECIO_SIN_IGV_DET"] =  $docVenta['TieneIgv'] ? round($producto['Precio'] / 1.18, 4) : $producto['Precio'];
 
         $detalle[]=$json;
         $descuento += $producto['Descuento'];
