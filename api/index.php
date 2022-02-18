@@ -3938,7 +3938,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
     }
 
     // $gravadas = $docVenta['TieneIgv'] ? $docVenta['Total'] - ($docVenta['Total'] * 0.18) : $docVenta['Total'];
-    $gravadas = $docVenta['TieneIgv'] ? round($docVenta['Total'] / 1.18, 4) : $docVenta['Total'];
+    $gravadas = $docVenta['TieneIgv'] ? round($docVenta['Total'] / 1.18, 2) : $docVenta['Total'];
     //$subtotal = ($descuento > 0) ? $gravadas + $descuento : $gravadas;
     $subtotal = $gravadas;
 
