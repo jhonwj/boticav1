@@ -82,7 +82,7 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center">FERRETERIA BRIANNA</div>
+  <div class="center">FERRETERIA FLEON</div>
   <div class="center">RUC: 10768688422 </div>
   <br />
 

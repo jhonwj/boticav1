@@ -8,7 +8,7 @@ include_once("../clases/helpers/Modal.php");
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>BRIANNA FERRETERIA - Producto</title>
+  <title>FLEON FERRETERIA - Producto</title>
 
  </head>
 <?php include_once 'linker.php'; ?>

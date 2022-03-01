@@ -89,10 +89,10 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br />
-  <div class="center"><b>DE: LEON DURAN AMANCIO VELAN</b></div>
-  <div class="center"><b>RUC:10768688422</b> </div><br>
+  <div class="center"><b>DE: LEON DURAN JUAN EDER</b></div>
+  <div class="center"><b>RUC:10416219295</b> </div><br>
   <div class="center small">VENTA DE MATERIALES DE FERRETERIA EN GENERAL</div>
-  <div class="center small">AL POR MAYOR Y MENOR</div>
+  <div class="center small">AL POR MAYOR Y MENOR</div><br>
   <br />
 
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
@@ -184,10 +184,12 @@ $igv = 0;
 
   </div>
   <br />
-  <div class="center small">JR. SAN MARTIN NRO 625</div>
-  <br />
+    <div class="center small">JR. TARAPACA NRO 366</div>
   <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
-  <div class="center small">.</div>
+  <div class="center small">CEL. 992291342</div>
+  <div class="center small">GRACIAS POR SU COMPRA</div>
+  <br />
+
   <br />
   <br />
 

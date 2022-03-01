@@ -7,7 +7,7 @@ include_once("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>BRIANNA FERRETERIA - Producto</title>
+ 	<title>FLEON FERRETERIA - Producto</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once 'linker.php'; ?>

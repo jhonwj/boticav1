@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>BRIANNA - FERRETERIA</title>
+  <title>FLEON - FERRETERIA</title>
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>
