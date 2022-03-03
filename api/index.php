@@ -3872,21 +3872,21 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '10768688422');
+define('NRO_DOCUMENTO_EMPRESA', '10416219295');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'LEON DURAN AMANCIO VELAN');
-define('NOMBRE_COMERCIAL_EMPRESA', 'FERRETERIA FLEON');
-define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "JR. SAN MARTIN NRO 625 HUANUCO - HUANUCO - HUANUCO");
+define('RAZON_SOCIAL_EMPRESA', 'LEON DURAN JUAN EDER');
+define('NOMBRE_COMERCIAL_EMPRESA', 'AGROFERRETERIA Y MERCERIA LEON');
+define('CODIGO_UBIGEO_EMPRESA', "100101");
+define('DIRECCION_EMPRESA', "JR. TARAPACA NRO 366 HUANUCO - HUANUCO - HUANUCO");
 define('DEPARTAMENTO_EMPRESA', "HUANUCO");
 define('PROVINCIA_EMPRESA', "HUANUCO");
 define('DISTRITO_EMPRESA', "HUANUCO");
 define('TELEFONOS_EMPRESA', "948854626");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'BRIANA22'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'BrIaNa2022'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'FLEON222'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'FLeON2022'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
