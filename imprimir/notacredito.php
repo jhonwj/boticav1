@@ -110,10 +110,9 @@ if ($docVenta['CampoDireccion']) {
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>DE: LEON DURAN JUAN EDER</b></div>
-  <div class="center"><b>RUC:10416219295</b> </div><br>
-  <div class="center small">VENTA DE MATERIALES DE FERRETERIA EN GENERAL</div>
-  <div class="center small">AL POR MAYOR Y MENOR</div><br>
+  <div class="center"><b>DE:MARTEL MALPARTIDA PEDRO DENNIS</b></div>
+  <div class="center"><b>RUC:10801653303</b> </div><br>
+  <div class="center small">VENTA DE INSTRUMENTAL MEDICO Y ORTOPEDIA</div>
   
   <center>
   <div class="">NOTA DE CREDITO </br> <span style="font-size:15px"><?php echo $docVentaNro; ?></span></div>
@@ -285,9 +284,9 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">JR. SAN MARTIN NRO 625</div>
-  <div class="center small">HUANUCO - HUANUCO - HUANUCO</div>
-  <div class="center small">CEL. 948854626</div>
+  <div class="center small">JR. SALAVERRY # 522</div>
+  <div class="center small">CALLERIA - CORONEL PORTILLO - UCAYALI</div>
+  <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>
 

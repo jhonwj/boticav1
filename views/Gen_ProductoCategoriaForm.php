@@ -8,7 +8,7 @@ include_once("../clases/BnGeneral.php");
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>FLEON FERRETERIA - Categoria</title>
+ 	<title>RG - Categoria</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">
