@@ -59,7 +59,7 @@ if (isset($_GET['idCajaBanco'])) {
 
 <div class="container">
     <!--<div class="center">BOTICA</div>-->
-    <div class="center">FERRETERIA FLEON</div>
+    <div class="center"></div>
     <!--<div class="center">RUC: 20393999544 </div>--><br>
 
     <div class="">COMROBANTE NRO: 001- <?php echo $cajaBanco['IdCajaBanco']; ?></div>
