@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>RG</title>
+  <title>DIR</title>
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>

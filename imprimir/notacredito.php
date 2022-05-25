@@ -110,9 +110,9 @@ if ($docVenta['CampoDireccion']) {
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
-  <div class="center"><b>DE:MARTEL MALPARTIDA PEDRO DENNIS</b></div>
-  <div class="center"><b>RUC:10801653303</b> </div><br>
-  <div class="center small">VENTA DE INSTRUMENTAL MEDICO Y ORTOPEDIA</div>
+  <div class="center"><b>DE:RENGIFO RAMIREZ DEMETRIO SEGUNDO</b></div>
+  <div class="center"><b>RUC:10211408630</b> </div><br>
+  <div class="center small">CENTRO DIAGNOSTICO POR IMAGENES</div>
   
   <center>
   <div class="">NOTA DE CREDITO </br> <span style="font-size:15px"><?php echo $docVentaNro; ?></span></div>
@@ -284,9 +284,9 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">JR. SALAVERRY # 522</div>
+  <div class="center small">JR. 7 DE JUNIO # 412</div>
   <div class="center small">CALLERIA - CORONEL PORTILLO - UCAYALI</div>
-  <div class="center small"></div>
+  <div class="center small">TEL. 061-574732</div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>
 
