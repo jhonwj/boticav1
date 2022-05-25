@@ -32,7 +32,7 @@
 	}
 	//Detalle con unidad de medicion
 	function fn_devolverProformaDet($idProforma) {
-		$Ssql = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.Cantidad, 
+		$Ssql = "SELECT Ve_ProformaDet.IdProforma, Ve_ProformaDet.Cantidad, Ve_ProformaDet.Descripcion,
 		Ve_ProformaDet.Precio, Ve_ProformaDet.Descuento, Gen_Producto.*,Gen_ProductoMedicion.ProductoMedicion,
 		Round(Ve_ProformaDet.Cantidad*Ve_ProformaDet.Precio,2) as TOTAL
 		FROM Ve_ProformaDet

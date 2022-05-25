@@ -59,7 +59,7 @@ function datos(){
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="<?php echo Login; ?>"></a>
+      <a class="navbar-brand" href="<?php echo Login; ?>">DIR</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav" >
@@ -170,9 +170,9 @@ function datos(){
         </ul>
       </li>
       <?php if ($_SESSION['idPerfil'] == 1): ?>
-        <li class="dropdown">
+        <!--<li class="dropdown">
           <a href="#" onclick="window.open('http://app.factura.vip/client/login/20394084221','winname','directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=600,height=700');"><b>APP</b></a>
-        </li>
+        </li>-->
       <?php endif; ?>
       <li class="dropdown">
         <a href="<?php echo Logout; ?>"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>

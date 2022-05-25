@@ -2151,7 +2151,7 @@ $app->get('/venta/detalle/comprobante', function (Request $request, Response $re
 
     $select = "SELECT Ve_DocVentaDet.IdDocVentaDet,Ve_DocVentaDet.IdDocVenta,Ve_DocVentaDet.IdProducto,
     Ve_DocVentaDet.Cantidad AS cantidad,Ve_DocVentaDet.Cantidad AS cantxPrecio,'1' AS cantidadPres, 
-    Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Precio AS PrecioCosto,Ve_DocVentaDet.Descuento AS descuento,
+    Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Precio AS PrecioCosto,Ve_DocVentaDet.Descuento AS descuento,Ve_DocVentaDet.Descripcion,
     false AS estadoPxP,Gen_Producto.Producto, 0 AS PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
     Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_ProductoMedicion.ProductoMedicion,Gen_ProductoMarca.ProductoMarca,
     Gen_Producto.PreciosPorProducto
@@ -2506,7 +2506,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
 
     //VALIDAR STOCK
-    $stockCorrecto = 0;
+    /*$stockCorrecto = 0;
     $idProductos = $request->getParam('idProductos');
     $productosVenta = $request->getParam('productos');
     $stmt2 = $this->db->query(obtenerStock($idAlmacen, $idProductos));
@@ -2525,7 +2525,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
             }
         }
-    }
+    }*/
 
 /*     if($stockCorrecto > 0 && $codSunat != '07'){
         return $response->withJson(array("actualizar"=>true,"msg"=>"El stock de un producto ya a sido vendido, verifique por favor"));
@@ -2705,6 +2705,7 @@ $app->post('/ventas', function (Request $request, Response $response) {
 
         if ($totalCart >= $tablaDescuento['PorCada']) {
             $puntosAdicionales = ($totalCart / $tablaDescuento['PorCada']) * $tablaDescuento['Puntos'];
+            $puntosAdicionales =  $puntosAdicionales>0?$puntosAdicionales:0;
             $update = "UPDATE Ve_DocVentaCliente SET Puntos=Puntos+$puntosAdicionales WHERE IdCliente=$idCliente";
             $stmt = $this->db->prepare($update);
             $updated = $stmt->execute();
@@ -3872,21 +3873,21 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '10416219295');
+define('NRO_DOCUMENTO_EMPRESA', '10211408630');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'LEON DURAN JUAN EDER');
-define('NOMBRE_COMERCIAL_EMPRESA', 'AGROFERRETERIA Y MERCERIA LEON');
+define('RAZON_SOCIAL_EMPRESA', 'RENGIFO RAMIREZ DEMETRIO SEGUNDO');
+define('NOMBRE_COMERCIAL_EMPRESA', 'RENGIFO RAMIREZ DEMETRIO SEGUNDO');
 define('CODIGO_UBIGEO_EMPRESA', "100101");
-define('DIRECCION_EMPRESA', "JR. TARAPACA NRO 366 HUANUCO - HUANUCO - HUANUCO");
-define('DEPARTAMENTO_EMPRESA', "HUANUCO");
-define('PROVINCIA_EMPRESA', "HUANUCO");
-define('DISTRITO_EMPRESA', "HUANUCO");
-define('TELEFONOS_EMPRESA', "948854626");
+define('DIRECCION_EMPRESA', "JR. 7 DE JUNIO # 412 CALLERIA - CORONEL PORTILLO - UCAYALI");
+define('DEPARTAMENTO_EMPRESA', "UCAYALI");
+define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
+define('DISTRITO_EMPRESA', "CALLERIA");
+define('TELEFONOS_EMPRESA', "061-574732");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'FLEON222'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'FLeON2022'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'cambiar'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'cambiar'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
@@ -3916,6 +3917,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtDESCRIPCION_DET_PRO"] = trim($producto['Descripcion']);
         $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = round(($subtotal + $igv) / $producto['Cantidad'], 4);
@@ -4102,6 +4104,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
 
         $json['txtITEM']=$n;
         $json["txtUNIDAD_MEDIDA_DET"] = $producto['CodigoMedicion'];
+        $json["txtDESCRIPCION_DET_PRO"] = trim($producto['Descripcion']);
         $json["txtUNIDAD_MEDIDA_NOMBRE_DET"] = $producto['ProductoMedicion'];
         $json["txtCANTIDAD_DET"] = $producto['Cantidad'];
         $json["txtPRECIO_DET"] = $producto['Precio'];

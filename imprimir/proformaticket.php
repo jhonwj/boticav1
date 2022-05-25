@@ -91,7 +91,7 @@ $igv = 0;
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br />
   <div class="center"><b>DE:RENGIFO RAMIREZ DEMETRIO SEGUNDO</b></div>
   <div class="center"><b>RUC:10211408630</b> </div><br>
-  <div class="center small">CENTRO DIAGNOSTICO POR IMAGENES</div>
+  <div class="center small">CENTRO DIAGNOSTICO POR IMAGENES</div><br>
 
   <?php if ($tipoDoc == 'TICKET BOLETA' || $tipoDoc == 'TICKET FACTURA'): ?>
     <div class="strike">
@@ -129,7 +129,7 @@ $igv = 0;
               <span><?php echo $producto['Cantidad']; ?></span>
             </td>
             <td class="producto">
-              <span><?php echo $producto['Producto'] . ' (' . $producto['ProductoMedicion'] . ')' ?></span>
+                <span style="font-size:11px" ><?php echo $producto['Producto'] . ($producto['Descripcion']!=''?(' (' . $producto['Descripcion'] . ')'):'') ?></span>
             </td>
 
             <td class="precio text-right">

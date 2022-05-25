@@ -91,7 +91,7 @@ $igv = 0;
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
   <div class="center"><b>DE:RENGIFO RAMIREZ DEMETRIO SEGUNDO</b></div>
   <div class="center"><b>RUC:10211408630</b> </div><br>
   <div class="center small">CENTRO DIAGNOSTICO POR IMAGENES</div>
@@ -122,7 +122,6 @@ $igv = 0;
           <th class="numero" width="5%">#</th>
           <th class="producto" width="50%">PRODUCTO</th>
           <th class="cantidad">CANT.</th>
-          <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -145,14 +144,11 @@ $igv = 0;
             </td>
             
             <td class="producto">
-              <span  style="font-size:11px" ><?php echo $producto['Producto'] ?></span>
+            <span style="font-size:11px" ><?php echo $producto['Producto'] . ($producto['Descripcion']!=''?(' (' . $producto['Descripcion'] . ')'):'') ?></span>
             </td>
             <td class="cantidad">
               <span  style="font-size:11px" ><?php echo $producto['Cantidad']; ?></span>
             </td>
-            <td class="producto" style="text-align: center;">
-            <span  style="font-size:11px" ><?php echo $producto['ProductoMedicion'] ?></span>
-              </td>
               <td class="precio" style="text-align: center;">
                 <span style="font-size:11px" ><?php echo number_format($producto['Precio'],2) ?></span>
               </td>

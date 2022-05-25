@@ -107,7 +107,7 @@ th,td { padding: 3pt; }
 	
 <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
 <strong>DIRECCIÓN: </strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>
-  <strong>CEL.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
+  <strong>TELF.:</strong>  '.$cab['txtTELEFONOS_EMPRESA'].'<br>
 </td>
 		
       <td width="30%">
@@ -177,7 +177,7 @@ foreach ($cab['detalle'] as $producto) {
 $html.='
 <tr>
       <td>'.$producto['txtCODIGO_DET'].'</td>
-      <td>'.$producto['txtDESCRIPCION_DET'].'</td>
+      <td>'.$producto['txtDESCRIPCION_DET'].($producto['txtDESCRIPCION_DET_PRO']!=''?' ('.$producto['txtDESCRIPCION_DET_PRO'].')':'').'</td>
       <td>'.$producto['txtUNIDAD_MEDIDA_NOMBRE_DET'].'</td>
       <td>'.number_format($producto['txtPRECIO_DET'], 2, '.', '').'</td>
       <td>'.$producto['txtCANTIDAD_DET'].'</td>
@@ -233,11 +233,6 @@ $html .= '</td>
 <tr><td>'.$cab['txtRAZON_SOCIAL_CLIENTE'].'</td></tr>
 <tr><td style="text-transform: uppercase"><strong>VENDEDOR: </strong>'.$cab['txtVENDEDOR'].'</td></tr>
 <tr><td colspan="3" style="text-align:center">NO ACEPTAMOS DEVOLUCIONES NI RECLAMOS DESPUES DE LA ENTREGA DE MERCANCIA.</td></tr>
-<tr>  
-<td>
-<!-- Operación  sujeta al sistma de pago de obligaciones tributarios con el gobierno central SPOT, sujeta a detracción del 10% si es mayor a S/.700.00 -->
-  </td>
-</tr>
    
 <tr>
   <td colspan="3" style="padding: 5px; text-align:center" >

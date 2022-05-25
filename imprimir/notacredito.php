@@ -109,10 +109,10 @@ if ($docVenta['CampoDireccion']) {
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
- <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div><br>
+ <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
   <div class="center"><b>DE:RENGIFO RAMIREZ DEMETRIO SEGUNDO</b></div>
   <div class="center"><b>RUC:10211408630</b> </div><br>
-  <div class="center small">CENTRO DIAGNOSTICO POR IMAGENES</div>
+  <div class="center small">CENTRO DIAGNOSTICO POR IMAGENES</div><br>
   
   <center>
   <div class="">NOTA DE CREDITO </br> <span style="font-size:15px"><?php echo $docVentaNro; ?></span></div>
@@ -139,7 +139,6 @@ if ($docVenta['CampoDireccion']) {
         <th class="numero" width="5%">#</th>
           <th class="producto" width="50%">PRODUCTO</th>
           <th class="cantidad">CANT</th>
-          <th class="producto">U. M.</th>
           <th class="unitario">P/U</th>
           <th class="precio text-right">TOTAL</th>
         </tr>
@@ -162,19 +161,10 @@ if ($docVenta['CampoDireccion']) {
             </td>
              
               <td class="producto">
-                <?php if($producto['Descripcion']) : ?>
-                <span  style="font-size:11px"  >
-                <?php echo $producto['Producto'] ?>
-                </span>
-                <?php else : ?>
-                <span><?php echo $producto['Producto'] ?></span>
-                <?php endif; ?>
+              <span style="font-size:11px" ><?php echo $producto['Producto'] . ($producto['Descripcion']!=''?(' (' . $producto['Descripcion'] . ')'):'') ?></span>
               </td>
               <td class="cantidad">
                 <span style="font-size:11px" ><?php echo $producto['Cantidad']; ?></span>
-              </td>
-              <td class="producto" style="text-align: center;">
-              <span style="font-size:11px" ><?php echo $producto['ProductoMedicion'] ?></span>
               </td>
               <td class="precio" style="text-align: center;">
                 <span style="font-size:11px" ><?php echo number_format($producto['Precio'],2, '.', '') ?></span>
