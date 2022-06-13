@@ -269,7 +269,7 @@ if ($docVenta['CampoDireccion']) {
   </center>
   <div class="center small">JR. 7 DE JUNIO # 412</div>
   <div class="center small">CALLERIA - CORONEL PORTILLO - UCAYALI</div>
-  <div class="center small">TEL. 061-574732</div>
+  <div class="center small">TEL. 061 -283421</div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>
 
