@@ -1,6 +1,7 @@
 <html class>
 <head>
-  <title>DIR</title>
+  <title>M DANIELITO</title>
+ <link rel="manifest" href="/manifest.json">
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
 </head>

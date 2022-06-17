@@ -155,9 +155,29 @@ if (isset($_GET['IdDocVent'])) {
 
 
 <!-- OPEN PRINTER -->
-<div id="printer">
+<div id="printers">
   <a class="print no-print" href='/api/index.php/imprimirpdf/<?php echo $_GET['IdDocVenta']; ?>'>¡IMPRIMIR PDF!</a>
 </div>
+<br />
+<div id="printer">
+<a class="print no-print" href='neuroprinter://factura.vip'> ¡IMPRIMIR POR BLU!</a>
+</div>
+<script src="../resources/js/jquery-3.2.1.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+
+    fetch('/api/index.php/empresa/id/1')
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(empresa) {
+        var ruta = 'neuroprinter://factura.vip?iddocventa=<?php echo $idDocVenta ?>&token=' + empresa.APPTOKEN;
+
+        $('#printer .print').attr('href', ruta)
+      });
+  })
+</script>
 <style>
   #printer {
     width: 20%;
