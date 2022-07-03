@@ -110,8 +110,9 @@ if ($docVenta['CampoDireccion']) {
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
-  <div class="center"><b>TUANAMA JONES WILSON ANTONIO</b></div>
-  <div class="center"><b>RUC:10431975110</b> </div><br>
+  <div class="center"><b>MULTIVENTAS DANIELITO</b></div>
+  <div class="center"><b>DE: PALAVECINO OCHANTES MARIELA </b></div>
+  <div class="center"><b>RUC:10409409755</b> </div><br>
   <div class="center small"></div>
   
   <center>
@@ -274,9 +275,9 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">CALLE BESESATH N° S/N #</div>
-  <div class="center small">CONTAMANA - UCAYALI - LORETO</div>
-  <div class="center small">TEL. 958 901 644</div>
+  <div class="center small">JR. 9 DE DICIEMBRE N° 216 </div>
+  <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
+  <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>
 
