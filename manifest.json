@@ -2,7 +2,7 @@
     "short_name": "M Danielito",
     "name": "M. DANIELITO",
     "display": "standalone",
-    "orientation": "landscape",
+    "orientation": "portrait",
     "background_color": "#0f3e5f",
     "icons": [
         {
