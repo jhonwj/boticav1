@@ -2504,6 +2504,16 @@ $app->post('/ventas', function (Request $request, Response $response) {
     }
     $valorComision = $selectValorComision['valorComision'] ? $selectValorComision['valorComision'] : 0;
 
+    //Obtener almacen y punto según vendedor
+    $selectUsuario = "SELECT * FROM Seg_Usuario WHERE Usuario = '$usuarioReg'";
+    $stmtUser = $this->db->query($selectUsuario);
+    $user = $stmtUser->fetch();
+    $stmtUser->execute();
+
+    if (!empty($user)) {
+        $idDocVentaPuntoVenta = $user['IdDocVentaPuntoVenta'];
+        $idAlmacen = $user['IdAlmacen'];
+    }
 
     //VALIDAR STOCK
     /*$stockCorrecto = 0;

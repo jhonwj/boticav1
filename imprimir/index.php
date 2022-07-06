@@ -160,7 +160,7 @@ if (isset($_GET['IdDocVent'])) {
 </div>
 <br />
 <div id="printer">
-<a class="print no-print" href='neuroprinter://factura.vip'> ¡IMPRIMIR POR BLU!</a>
+<a class="print no-print" href='neuroprinter://factura.vip' style="font-size: 2.5rem; margin-left:2px"> ¡IMPRIMIR POR BLUETOOTH!</a>
 </div>
 <script src="../resources/js/jquery-3.2.1.min.js"></script>
 
