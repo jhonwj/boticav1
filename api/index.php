@@ -3883,21 +3883,21 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '10211408630');
+define('NRO_DOCUMENTO_EMPRESA', '10409409755');
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'RENGIFO RAMIREZ DEMETRIO SEGUNDO');
-define('NOMBRE_COMERCIAL_EMPRESA', 'RENGIFO RAMIREZ DEMETRIO SEGUNDO');
-define('CODIGO_UBIGEO_EMPRESA', "100101");
-define('DIRECCION_EMPRESA', "JR. 7 DE JUNIO # 412 CALLERIA - CORONEL PORTILLO - UCAYALI");
+define('RAZON_SOCIAL_EMPRESA', 'PALAVECINO OCHANTES MARIELA');
+define('NOMBRE_COMERCIAL_EMPRESA', 'PALAVECINO OCHANTES MARIELA');
+define('CODIGO_UBIGEO_EMPRESA', "250101");
+define('DIRECCION_EMPRESA', "JR. 9 DE DICIEMBRE N° 216");
 define('DEPARTAMENTO_EMPRESA', "UCAYALI");
 define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
 define('DISTRITO_EMPRESA', "CALLERIA");
-define('TELEFONOS_EMPRESA', "061-574732");
+define('TELEFONOS_EMPRESA', "");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'DIRR2022'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'dIrR2022'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'DANIELIT'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'D4nIeliT0'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
