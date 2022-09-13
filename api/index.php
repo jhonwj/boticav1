@@ -3896,8 +3896,8 @@ define('DISTRITO_EMPRESA', "CALLERIA");
 define('TELEFONOS_EMPRESA', "");
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'DANIELIT'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'D4nIeliT0'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', 'DANIELTO'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', 'D4nIeliT022'); // cambiar cuando se pase a produccion
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
