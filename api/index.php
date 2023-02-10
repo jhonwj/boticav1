@@ -3983,10 +3983,10 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
         "txtCOD_TIPO_MOTIVO"=> isset($docVenta['NotaIdMotivo']) && $docVenta['NotaIdMotivo'] ? $docVenta['NotaIdMotivo'] : "",
         "txtDESCRIPCION_MOTIVO"=> isset($docVenta['NotaDescMotivo']) && $docVenta['NotaDescMotivo'] ? $docVenta['NotaDescMotivo'] : "", //$("[name='txtID_MOTIVO']
         //=================datos del cliente=================8
-         "txtNRO_DOCUMENTO_CLIENTE"=> $docVenta['DniRuc'],
-         "txtRAZON_SOCIAL_CLIENTE"=> $docVenta['Cliente'],
+         "txtNRO_DOCUMENTO_CLIENTE"=> trim($docVenta['DniRuc']),
+         "txtRAZON_SOCIAL_CLIENTE"=> trim($docVenta['Cliente']),
          "txtTIPO_DOCUMENTO_CLIENTE"=> strlen($docVenta['DniRuc']) > 9 ? "6" : "1",//1 DNI 6 RUC
-         "txtDIRECCION_CLIENTE"=>$docVenta['Direccion'],
+         "txtDIRECCION_CLIENTE"=> trim($docVenta['Direccion']),
          "txtCIUDAD_CLIENTE"=>"",
          "txtCOD_PAIS_CLIENTE"=>"PE",
         //=================datos de LA EMPRESA=================
@@ -4018,6 +4018,9 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
 
     // forma de pago
     if ($venta['EsCredito']) {
+        if(date('Y-m-d', strtotime($venta['FechaCredito'])) == date('Y-m-d', strtotime($venta['FechaDoc']))){ 
+            return $response->withJson(array("msj_sunat"=>'Error, La fecha de credito debe ser diferente a la del documento',"Estado"=>1));
+        }
         $data['detalle_forma_pago'] = [
             [
                 "COD_FORMA_PAGO" => "Credito",
