@@ -1,6 +1,6 @@
 <html class>
 <head>
-  <title>M DANIELITO</title>
+  <title>GARCIA</title>
  <link rel="manifest" href="/manifest.json">
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 
@@ -161,7 +161,7 @@ body:before {
 <body>
 <section class="login-box">
   <header class="login-header">
-    <img src="/resources/images/logo.png" style="max-width: 70%" />
+    <img src="/resources/images/logo.png" style="max-width: 50%" />
     <!-- <h1></h1> -->
     <h3 style="margin-bottom: -15px;">Ingrese sus datos</h3>
   </header>

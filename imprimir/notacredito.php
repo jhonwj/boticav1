@@ -109,10 +109,10 @@ if ($docVenta['CampoDireccion']) {
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
- <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
-  <div class="center"><b>MULTIVENTAS DANIELITO</b></div>
-  <div class="center"><b>DE: PALAVECINO OCHANTES MARIELA </b></div>
-  <div class="center"><b>RUC:10409409755</b> </div><br>
+ <!--<div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>-->
+  <div class="center"><b>INVERSIONES GARCIA</b></div>
+  <div class="center"><b>DE: GARCIA SOTO RUBEN </b></div>
+  <div class="center"><b>RUC: 10423952437</b> </div><br>
   <div class="center small"></div>
   
   <center>
@@ -250,7 +250,7 @@ if ($docVenta['CampoDireccion']) {
   <td width="100" 
 	  heigth="100">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '20394084221');
+        define('NRO_DOCUMENTO_EMPRESA', '10423952437');
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }
@@ -275,7 +275,7 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">JR. 9 DE DICIEMBRE N° 216 </div>
+  <div class="center small">JR. N° 01 MZ WLT.03</div>
   <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
   <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>

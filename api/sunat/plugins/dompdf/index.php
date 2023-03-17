@@ -103,7 +103,7 @@ th,td { padding: 3pt; }
   <tbody>
     <tr>
 	
-<td width="6%"><img src="../../images/logo.png" width="123" height="90" /></td>
+<td width="6%"><!--<img src="../../images/logo.png" width="123" height="90" />--></td>
 	
 <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
 <strong>DIRECCIÓN: </strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>
