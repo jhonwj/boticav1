@@ -98,7 +98,7 @@ if ($docVenta['CampoDireccion']) {
   <!--<div class="center">
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
-  <!--<div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>-->
+  <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
   <div class="center"><b>INVERSIONES GARCIA</b></div>
   <div class="center"><b>DE: GARCIA SOTO RUBEN </b></div>
   <div class="center"><b>RUC: 10423952437</b> </div><br>

@@ -97,7 +97,7 @@ th,td { padding: 3pt; }
 .celda_right{  border-right: 1px solid black;  }
 .celda_left{  border-left: 1px solid black; }         
 .footer th, .footer td { padding: 1pt; border: solid 1px #000000; }
-.footer { position: fixed; bottom: 150px; font-size:10px;  width: 100%; border: solid 0px #000000; }
+.footer { position: fixed; bottom: 180px; font-size:10px;  width: 100%; border: solid 0px #000000; }
 .fg { font-size: 11px;} 
 .fg2 { text-align: center; }
 .fg3 { border: solid 0px; } 
@@ -112,7 +112,7 @@ th,td { padding: 3pt; }
 <table width="100%" border="0" class="cabecera" cellpadding="0" cellspacing="0">
   <tbody>
     <tr>
-    <td width="6%"><!--<img src="../../images/logo.png" width="123" height="90" />--></td>
+    <td width="6%"><img src="../../images/logo.png" width="100" height="90" /></td>
 	
     <td class="cabeza"><h1>'.$cab['txtNOMBRE_COMERCIAL_EMPRESA'].'</h1>
       <strong>DIRECCIÓN:</strong> '.$cab['txtDIRECCION_EMPRESA'].'<br>

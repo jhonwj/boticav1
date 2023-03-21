@@ -30,7 +30,7 @@ body:before {
 }
 .login-box {
   position: relative;
-  top: 10%;
+  top: 5%;
   left: 50%;
   width: 320px;
   margin: 0 auto;
