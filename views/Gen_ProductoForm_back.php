@@ -1,13 +1,13 @@
 <?php
 include_once("../clases/BnGeneral.php");
-
+include_once('../info.php');
 
  ?>
 
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>RG - Producto</title>
+ 	<title><?php echo NOMBRE_SISTEMA ?> - Producto</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once 'linker.php'; ?>

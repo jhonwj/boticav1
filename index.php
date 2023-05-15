@@ -1,6 +1,7 @@
+<?php include_once('info.php');?>
 <html class>
 <head>
-  <title>GARCIA</title>
+  <title><?php echo NOMBRE_SISTEMA ?></title>
  <link rel="manifest" href="/manifest.json">
  <script src="resources/js/jquery-3.2.1.min.js"></script>
 

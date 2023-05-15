@@ -58,7 +58,9 @@ $totalCant = 0;
   }
 </style>
 <div class="container">
-
+  <center><span style="font-weight: bold; font-size:15px"><?php echo RAZON_SOCIAL_E ?></span> </center><br>
+  <center><span style="font-weight: bold; font-size:15px">COMPROBANTE DE ENTREGA</span> </center>
+  <br>
   <div class="">FECHA: <?php echo $fecha; ?></div>
 
   <div class="separar"></div>

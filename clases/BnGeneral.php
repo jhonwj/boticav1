@@ -124,17 +124,36 @@ Ve_DocVenta.CodSunatModifica,
 Ve_DocVenta.NroComprobanteModifica,
 Ve_DocVenta.NotaIdMotivo,
 Ve_DocVenta.NotaDescMotivo,
+Ve_DocVenta.NombreOrganizacion,
+Ve_DocVenta.EsOrganizacion,
 Ve_DocVentaPuntoVenta.SerieImpresora,
 Ve_DocVentaPuntoVenta.RutaImpresora,
 Ve_DocVentaTipoDoc.CodSunat,
 Ve_DocVentaTipoDoc.TieneIgv,
-Ve_DocVentaTipoDoc.LimiteItems
+Ve_DocVentaTipoDoc.LimiteItems,
+MetodoDetalle.EfectivoDesc,
+MetodoDetalle.VisaDesc,
+MetodoDetalle.MastercardDesc,
+MetodoDetalle.Efectivo,
+MetodoDetalle.Visa,
+MetodoDetalle.Mastercard
 FROM
 Ve_DocVenta
 INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
 INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
 INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
-INNER JOIN Lo_Almacen ON Ve_DocVenta.IdAlmacen = Lo_Almacen.IdAlmacen";
+INNER JOIN Lo_Almacen ON Ve_DocVenta.IdAlmacen = Lo_Almacen.IdAlmacen
+LEFT JOIN (
+	SELECT Ve_DocVentaMetodoPagoDet.IdDocVenta, 
+	IFNULL(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1,Ve_DocVentaMetodoPagoDet.NroTarjeta,''),'') AS EfectivoDesc,
+	IFNULL(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2,Ve_DocVentaMetodoPagoDet.NroTarjeta,''),'') AS VisaDesc,
+	IFNULL(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3,Ve_DocVentaMetodoPagoDet.NroTarjeta,''),'') AS MastercardDesc,
+	IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Efectivo,
+	IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Visa,
+	IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Mastercard
+	FROM Ve_DocVentaMetodoPagoDet
+	GROUP BY Ve_DocVentaMetodoPagoDet.IdDocVenta
+) AS MetodoDetalle ON  MetodoDetalle.IdDocVenta = Ve_DocVenta.idDocVenta";
 		//echo $Ssql;
 		if (!empty($criterio)) {
 			$Ssql= $Ssql." WHERE ".$criterio;

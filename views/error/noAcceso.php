@@ -1,11 +1,11 @@
 <?php
-
+include_once('../info.php');
  ?>
 
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>RG - Sin Acceso</title>
+ 	<title><?php echo NOMBRE_SISTEMA ?> - Sin Acceso</title>
   <meta charset="UTF-8">
  </head>
  <?php include_once $_SERVER["DOCUMENT_ROOT"] . '/views/linker.php'; ?>

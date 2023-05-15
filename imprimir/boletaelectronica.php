@@ -99,9 +99,8 @@ if ($docVenta['CampoDireccion']) {
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
-  <div class="center"><b>INVERSIONES GARCIA</b></div>
-  <div class="center"><b>DE: GARCIA SOTO RUBEN </b></div>
-  <div class="center"><b>RUC: 10423952437</b> </div><br>
+  <div class="center"><b><?php echo RAZON_SOCIAL_E ?></b></div>
+  <div class="center"><b>RUC: <?php echo DOCUMENTO_EMPRESA_E ?></b> </div><br>
   <div class="center small"></div>
 
 
@@ -117,7 +116,7 @@ if ($docVenta['CampoDireccion']) {
   <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
   </center>
   <div class="separar"></div>
-  <div>SR(ES) : <?php echo $cliente ?></div>
+  <div>SR(ES) : <?php echo ($docVenta['EsOrganizacion']==1?($docVenta['NombreOrganizacion']!=''?$docVenta['NombreOrganizacion']:$cliente):$cliente) ?></div>
   <div>RUC/DNI : <?php echo $dniRuc; ?></div>
   <div>DIR : <?php echo $direccion; ?></div>
 
@@ -219,7 +218,7 @@ if ($docVenta['CampoDireccion']) {
     
     <?php if ($docVenta['PagoCon'] > 0) : ?>
       <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
-      <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] -  ($total - $totalDescuento), 2) ?></span>
+      <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] - ($total - $totalDescuento), 2) ?></span><br />
     <?php endif; ?>
 
   </div>
@@ -227,6 +226,25 @@ if ($docVenta['CampoDireccion']) {
   <span style="text-transform: uppercase">FORMA DE PAGO: <?php echo empty($docVenta['EsCredito']) ? 'CONTADO' : 'CRÉDITO' ; ?></span><br />
     <?php if(!empty($docVenta['EsCredito'])): ?>
       <span style="text-transform: uppercase">FECHA DE PAGO: <?php echo date('Y-m-d', strtotime($docVenta['FechaCredito'])); ?></span>
+    <?php else:?>
+      <span style="text-transform: uppercase">METODO DE PAGO: <?php 
+        if(($docVenta['Mastercard']>0) || ($docVenta['Visa']>0)){
+          if($docVenta['Mastercard']>0 && $docVenta['Efectivo']>0 && $docVenta['Visa']>0){
+            echo '<br>-EFECTIVO ('.$docVenta['Efectivo'].')<br>-TARJETA ('.$docVenta['Visa'].')<br>-TRANSFERENCIA ('.$docVenta['Mastercard'].')';
+          }
+          else if($docVenta['Mastercard']>0 && $docVenta['Efectivo']>0){
+            echo '<br>-EFECTIVO ('.$docVenta['Efectivo'].')  <br>-TRANSFERENCIA ('.$docVenta['Mastercard'].')';
+          }else if($docVenta['Visa']>0 && $docVenta['Efectivo']>0){
+            echo '<br>-EFECTIVO ('.$docVenta['Efectivo'].')  <br>-TARJETA ('.$docVenta['Visa'].')';
+          }else if($docVenta['Visa']>0){
+            echo 'TARJETA';
+          }else if ($docVenta['Mastercard']>0){
+            echo 'TRANSFERENCIA';
+          }
+        }else{
+          echo 'EFECTIVO';
+        }
+    ?></span><br />
     <?php endif; ?>
   <br/>
   <div class="center">
@@ -241,7 +259,7 @@ if ($docVenta['CampoDireccion']) {
   <td width="100" 
 	  heigth="100">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '10423952437');
+        define('NRO_DOCUMENTO_EMPRESA', DOCUMENTO_EMPRESA_E);
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }
@@ -267,8 +285,8 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">JR. N° 01 MZ WLT.03</div>
-  <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
+  <div class="center small"><?php echo DIRECCION_E_COMPROBANTE ?></div>
+  <div class="center small"><?php echo DEPARTAMENTO_E .' - ' . PROVINCIA_E . ' - ' .DISTRITO_E ?></div>
   <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>

@@ -1,5 +1,6 @@
 <?php
 include_once('../views/validateUser.php');
+include_once('../info.php');
 include_once($_SERVER["DOCUMENT_ROOT"] . "/clases/BnGeneral.php");
 
 if (isset($_GET['IdProforma'])) {

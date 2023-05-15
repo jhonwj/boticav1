@@ -15,9 +15,10 @@ $bodyRequest = file_get_contents("php://input");
 // Decodifica el cuerpo de la solicitud y lo guarda en un array de PHP
 $cab = json_decode($bodyRequest, true);
 $detalle = $cab['detalle'];
+$cab['RAZON_SOCIAL'] = ValidarCaracteresInv($cab['RAZON_SOCIAL']);
 
 
-$mensaje_cpe = ResumenBoleta($cab['TIPO_PROCESO'], $cab['NRO_DOCUMENTO_EMPRESA'], $cab['USUARIO_SOL_EMPRESA'], $cab['PASS_SOL_EMPRESA'], "I5i573m452023G", $cab, $detalle);
+$mensaje_cpe = ResumenBoleta($cab['TIPO_PROCESO'], $cab['NRO_DOCUMENTO_EMPRESA'], $cab['USUARIO_SOL_EMPRESA'], $cab['PASS_SOL_EMPRESA'], $cab['PAS_FIRMA'], $cab, $detalle);
 
 $resultado['hash_cpe'] = $mensaje_cpe['hash_cpe'];
 $resultado['cod_sunat'] = $mensaje_cpe['hash_cdr']['cod_sunat'];//str_replace("SOAP-ENV:CLIENT.", "", $mensaje_cpe['hash_cdr']['cod_sunat']);

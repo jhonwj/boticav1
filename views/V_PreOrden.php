@@ -2,13 +2,14 @@
 include_once("../clases/BnGeneral.php");
 //include("../clases/DtGeneral.php");
 include_once("../clases/helpers/Modal.php");
+include_once('../info.php');
  ?>
 
  <!DOCTYPE html>
  <html>
  <head>
  	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <title>RG  - Producto</title>
+  <title><?php echo NOMBRE_SISTEMA ?>  - Producto</title>
 
  </head>
 <?php include_once 'linker.php'; ?>

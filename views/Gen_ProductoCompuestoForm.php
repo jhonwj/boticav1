@@ -1,12 +1,12 @@
 <?php
 include_once("../clases/BnGeneral.php");
-
+include_once('../info.php');
  ?>
 
  <!DOCTYPE html>
  <html>
  <head>
- 	<title>RG - Compuesto</title>
+ 	<title><?php echo NOMBRE_SISTEMA ?> - COMPUESTO</title>
  </head>
 <?php include_once 'linker.php'; ?>
 <script type="text/javascript">

@@ -7,6 +7,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require 'vendor/autoload.php';
 require 'sunat/sunat.php';
+require '../info.php';
 
 // EXCEL
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -875,6 +876,7 @@ $app->post('/productos', function (Request $request, Response $response) {
     $esHabitacion = $request->getParam('EsHabitacion');
     $piso = $request->getParam('Piso');
     $controlaStock = $request->getParam('ControlaStock') ? $request->getParam('ControlaStock') : 0;
+    $tienePresentacion = $request->getParam('TienePresentacion') ? $request->getParam('TienePresentacion') : 0;
 
     $productosDet = $request->getParam('productosDet');
     $precioCosto = $request->getParam('PrecioCosto') ? $request->getParam('PrecioCosto') : 0;
@@ -921,7 +923,8 @@ $app->post('/productos', function (Request $request, Response $response) {
                             "StockPorMayor"=>                   $stockPorMayor,
                             "EsHabitacion" =>                   $esHabitacion,
                             "Piso" =>                           $piso,
-                            "PreciosPorProducto" =>             $preciosPorProducto
+                            "PreciosPorProducto" =>             $preciosPorProducto,
+                            "TienePresentacion" =>              $tienePresentacion
                         ))
                        ->table('Gen_Producto')
                        ->where('IdProducto', '=', $idProducto);
@@ -1001,7 +1004,8 @@ $app->post('/productos', function (Request $request, Response $response) {
                 'PrecioEspecial',
                 'EsHabitacion', 
                 'Piso', 
-                'PreciosPorProducto'))
+                'PreciosPorProducto',
+                'TienePresentacion'))
         ->into('Gen_Producto')
         ->values(
             array(
@@ -1033,7 +1037,8 @@ $app->post('/productos', function (Request $request, Response $response) {
                 $precioEspecial,
                 $esHabitacion, 
                 $piso, 
-                $preciosPorProducto));
+                $preciosPorProducto,
+                $tienePresentacion));
     $insertId = $insert->execute();
 
     // Generando codigo de barras  // actualizar el nombre para que sea unico
@@ -2154,7 +2159,7 @@ $app->get('/venta/detalle/comprobante', function (Request $request, Response $re
     Ve_DocVentaDet.Precio AS precio, Ve_DocVentaDet.Precio AS PrecioCosto,Ve_DocVentaDet.Descuento AS descuento,Ve_DocVentaDet.Descripcion,
     false AS estadoPxP,Gen_Producto.Producto, 0 AS PorcentajeUtilidad,Ve_DocVenta.IdCliente,Gen_Producto.PrecioContado,
     Gen_Producto.precioConvenio,Gen_Producto.PrecioEspecial,Gen_ProductoMedicion.ProductoMedicion,Gen_ProductoMarca.ProductoMarca,
-    Gen_Producto.PreciosPorProducto
+    Gen_Producto.PreciosPorProducto, Ve_DocVentaDet.Descripcion
     FROM Ve_DocVentaDet 
     INNER JOIN Ve_DocVenta ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.IdDocVenta
     INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto 
@@ -2492,6 +2497,8 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $fechaCredito = $request->getParam('FechaCredito');
     $idPreOrden = $request->getParam('IdPreOrden');
     $campoDireccion = $request->getParam('CampoDireccion');
+    $esOrganizacion = $request->getParam('EsOrganizacion')==1?1:0;
+    $nombreOrganizacion = $request->getParam('NombreOrganizacion');
 
     $idComisionista = isset($request->getParam('comisionista')['IdCliente']) ? $request->getParam('comisionista')['IdCliente'] : $idComisionista;
     // $valorComision = $request->getParam('valorComision'); 
@@ -2602,8 +2609,8 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $numero = $selectNumero['NuevoNumero'] ? $selectNumero['NuevoNumero'] : 1;
 
 
-    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista, PorEntregar, CodSunatModifica, NroComprobanteModifica, NotaIdMotivo, NotaDescMotivo)
-        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista, '$porEntregar','$codSunatModifica', '$nroComprobanteModifica', '$notaIdMotivo', '$notaDescMotivo')";
+    $insert = "INSERT INTO Ve_DocVenta (IdDocVentaPuntoVenta,IdCliente,IdTipoDoc,IdAlmacen,Serie,Numero,FechaDoc,Anulado,FechaReg,UsuarioReg,Hash, EsCredito, FechaCredito, PagoCon, CampoDireccion, valorComision, IdComisionista, PorEntregar, CodSunatModifica, NroComprobanteModifica, NotaIdMotivo, NotaDescMotivo, NombreOrganizacion, EsOrganizacion)
+        VALUES ($idDocVentaPuntoVenta, $idCliente, $idTipoDoc, $idAlmacen, '$serie', '$numero', '" . getNow() . "', $anulado, '" . getNow() . "', '$usuarioReg', UNIX_TIMESTAMP(), $esCredito, '$fechaCredito', '$pagoCon', '$campoDireccion', $valorComision, $idComisionista, '$porEntregar','$codSunatModifica', '$nroComprobanteModifica', '$notaIdMotivo', '$notaDescMotivo', '$nombreOrganizacion', $esOrganizacion)";
 
     $stmt = $this->db->prepare($insert);
     $inserted = $stmt->execute();
@@ -3883,21 +3890,22 @@ $app->post('/clientes', function (Request $request, Response $response) {
 });
 
 // DATOS GLOBALES DE LA EMPRESA
-define('NRO_DOCUMENTO_EMPRESA', '10423952437');
+define('NRO_DOCUMENTO_EMPRESA', DOCUMENTO_EMPRESA_E);
 define('TIPO_DOCUMENTO_EMPRESA', '6'); //1 DNI 6 RUC
 define('TIPO_PROCESO', '01'); //01 PRODUCCION 03 BETA
-define('RAZON_SOCIAL_EMPRESA', 'GARCIA SOTO RUBEN');
-define('NOMBRE_COMERCIAL_EMPRESA', 'GARCIA SOTO RUBEN');
-define('CODIGO_UBIGEO_EMPRESA', "250101");
-define('DIRECCION_EMPRESA', "JR. N° 01 MZ WLT.03");
-define('DEPARTAMENTO_EMPRESA', "UCAYALI");
-define('PROVINCIA_EMPRESA', "CORONEL PORTILLO");
-define('DISTRITO_EMPRESA', "CALLERIA");
-define('TELEFONOS_EMPRESA', "");
+define('RAZON_SOCIAL_EMPRESA', RAZON_SOCIAL_E);
+define('NOMBRE_COMERCIAL_EMPRESA', NOMBRE_COMERCIAL_E);
+define('CODIGO_UBIGEO_EMPRESA', CODIGO_UBIGEO_E);
+define('DIRECCION_EMPRESA', DIRECCION_E);
+define('DEPARTAMENTO_EMPRESA', DEPARTAMENTO_E);
+define('PROVINCIA_EMPRESA', PROVINCIA_E);
+define('DISTRITO_EMPRESA', DISTRITO_E);
+define('TELEFONOS_EMPRESA', TELEFONOS_E);
 
 define('CODIGO_PAIS_EMPRESA', 'PE');
-define('USUARIO_SOL_EMPRESA', 'GARCIA23'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_EMPRESA', 'G4RciA23'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_EMPRESA', USUARIO_SOL_E); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_EMPRESA', PASS_SOL_E); // cambiar cuando se pase a produccion
+define('PAS_FIRMA', 'add');
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
@@ -4002,6 +4010,7 @@ $app->post('/emitirelectronico', function (Request $request, Response $response)
          "txtRAZON_SOCIAL_EMPRESA"=> RAZON_SOCIAL_EMPRESA,
          "txtUSUARIO_SOL_EMPRESA"=> USUARIO_SOL_EMPRESA,
          "txtPASS_SOL_EMPRESA"=> PASS_SOL_EMPRESA,
+         "txtPAS_FIRMA"=> PAS_FIRMA,
          "txtTIPO_PROCESO"=> TIPO_PROCESO, //01 PRODUCCION 03 BETA
          "detalle"=>$detalle,
         //"detalle" => []
@@ -4198,6 +4207,7 @@ $app->post('/generarpdfelectronico', function (Request $request, Response $respo
          "txtTELEFONOS_EMPRESA" => TELEFONOS_EMPRESA,
          "txtUSUARIO_SOL_EMPRESA"=> USUARIO_SOL_EMPRESA,
          "txtPASS_SOL_EMPRESA"=> PASS_SOL_EMPRESA,
+         "txtPAS_FIRMA"=> PAS_FIRMA,
          "txtTIPO_PROCESO"=> TIPO_PROCESO, //01 PRODUCCION 03 BETA
          "detalle"=>$detalle,
         //"detalle" => []
@@ -4365,6 +4375,7 @@ $app->post('/emitirelectronicoboleta', function (Request $request, Response $res
         "TIPO_PROCESO" => TIPO_PROCESO,
         "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
         "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
+        "PAS_FIRMA"=> PAS_FIRMA,
         "detalle" => $detalle
     );
 
@@ -4514,6 +4525,7 @@ $app->post('/bajaelectronico', function (Request $request, Response $response) {
         "TIPO_PROCESO" => TIPO_PROCESO,
         "USUARIO_SOL_EMPRESA" => USUARIO_SOL_EMPRESA,
         "PASS_SOL_EMPRESA" => PASS_SOL_EMPRESA,
+        "PAS_FIRMA"=> PAS_FIRMA,
         "detalle" => $detalle
     );
 
@@ -5594,16 +5606,27 @@ $app->get('/cierrecaja/ventas', function (Request $request, Response $response, 
         Ve_DocVenta.idDocVenta, Ve_DocVentaPuntoVenta.PuntoVenta, Ve_DocVentaCliente.Cliente, Ve_DocVenta.FechaDoc, Ve_DocVenta.Anulado,
         Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVenta.Serie, Ve_DocVenta.Numero, SUM((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento) as Total,
         Ve_DocVenta.EsCredito,Ve_DocVentaTipoDoc.CodSunat,
-        (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1) AS EfectivoDesc,
-        (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2) AS VisaDesc,
-        (SELECT Ve_DocVentaMetodoPagoDet.NroTarjeta FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3) AS MastercardDesc,
-        IFNULL((SELECT SUM(Ve_DocVentaMetodoPagoDet.Importe) FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1), 0) AS Efectivo,
-        IFNULL((SELECT SUM(Ve_DocVentaMetodoPagoDet.Importe) FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2), 0) AS Visa,
-        IFNULL((SELECT SUM(Ve_DocVentaMetodoPagoDet.Importe) FROM Ve_DocVentaMetodoPagoDet WHERE Ve_DocVentaMetodoPagoDet.IdDocVenta = Ve_DocVenta.idDocVenta AND Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3), 0) AS Mastercard
+        MetodoDetalle.EfectivoDesc,
+        MetodoDetalle.VisaDesc,
+        MetodoDetalle.MastercardDesc,
+        MetodoDetalle.Efectivo,
+        MetodoDetalle.Visa,
+        MetodoDetalle.Mastercard
         FROM Ve_DocVenta
         INNER JOIN Ve_DocVentaDet ON Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta
         INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVentaTipoDoc.IdTipoDoc = Ve_DocVenta.IdTipoDoc
         LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+        LEFT JOIN (
+            SELECT Ve_DocVentaMetodoPagoDet.IdDocVenta, 
+            IFNULL(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1,Ve_DocVentaMetodoPagoDet.NroTarjeta,''),'') AS EfectivoDesc,
+            IFNULL(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2,Ve_DocVentaMetodoPagoDet.NroTarjeta,''),'') AS VisaDesc,
+            IFNULL(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3,Ve_DocVentaMetodoPagoDet.NroTarjeta,''),'') AS MastercardDesc,
+            IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 1,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Efectivo,
+            IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 2,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Visa,
+            IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Mastercard
+            FROM Ve_DocVentaMetodoPagoDet
+            GROUP BY Ve_DocVentaMetodoPagoDet.IdDocVenta
+        ) AS MetodoDetalle ON  MetodoDetalle.IdDocVenta = Ve_DocVenta.idDocVenta
         INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta" ;
 
     if($idCierre) {

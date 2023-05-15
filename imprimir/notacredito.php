@@ -110,9 +110,8 @@ if ($docVenta['CampoDireccion']) {
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
-  <div class="center"><b>INVERSIONES GARCIA</b></div>
-  <div class="center"><b>DE: GARCIA SOTO RUBEN </b></div>
-  <div class="center"><b>RUC: 10423952437</b> </div><br>
+  <div class="center"><b><?php echo RAZON_SOCIAL_E ?></b></div>
+  <div class="center"><b>RUC: <?php echo DOCUMENTO_EMPRESA_E ?></b></div><br>
   <div class="center small"></div>
   
   <center>
@@ -250,7 +249,7 @@ if ($docVenta['CampoDireccion']) {
   <td width="100" 
 	  heigth="100">
         <?php
-        define('NRO_DOCUMENTO_EMPRESA', '10423952437');
+        define('NRO_DOCUMENTO_EMPRESA', DOCUMENTO_EMPRESA_E);
         $tipoDocCliente = strlen($docVenta['DniRuc']) > 9 ? "6" : "1";
         if($docVenta['CodSunat']=='03'){ $tdocumento='BOLETA ELECTRÓNICA'; }
         if($docVenta['CodSunat']=='01'){ $tdocumento='FACTURA ELECTRÓNICA'; }
@@ -275,8 +274,8 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small">JR. N° 01 MZ WLT.03</div>
-  <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
+  <div class="center small"><?php echo DIRECCION_E_COMPROBANTE ?></div>
+  <div class="center small"><?php echo DEPARTAMENTO_E .' - ' . PROVINCIA_E . ' - ' .DISTRITO_E ?></div>
   <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>

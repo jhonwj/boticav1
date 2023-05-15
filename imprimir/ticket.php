@@ -92,9 +92,8 @@ $igv = 0;
     <img width="80px" src="../resources/images/delmancito.jpg"  /><br /><br />
   </div>-->
   <div class="center"><img src="/resources/images/logo-ticket.png" style="max-width:100%; width: 40mm"/></div>
-  <div class="center"><b>INVERSIONES GARCIA</b></div>
-  <div class="center"><b>DE: GARCIA SOTO RUBEN </b></div>
-  <div class="center"><b>RUC: 10423952437</b> </div><br>
+  <div class="center"><b><?php echo RAZON_SOCIAL_E ?></b></div>
+  <div class="center"><b>RUC: <?php echo DOCUMENTO_EMPRESA_E ?></b> </div><br>
   <div class="center small"></div>
   <br />
 
@@ -110,7 +109,7 @@ $igv = 0;
   <!-- <div class="">SERIE MAQ REG : <?php echo $serieMaq; ?></div> -->
   </center>
   <div class="separar"></div>
-  <div>SR(ES) : <?php echo $cliente ?></div>
+  <div>SR(ES) : <?php echo ($docVenta['EsOrganizacion']==1?($docVenta['NombreOrganizacion']!=''?$docVenta['NombreOrganizacion']:$cliente):$cliente) ?></div>
   <div>RUC/DNI : <?php echo $dniRuc; ?></div>
   <div>DIR : <?php echo $direccion; ?></div>
 
@@ -145,7 +144,13 @@ $igv = 0;
             </td>
             
             <td class="producto">
-            <span style="font-size:11px" ><?php echo $producto['Producto'] . ($producto['Descripcion']!=''?(' (' . $producto['Descripcion'] . ')'):'') ?></span>
+            <?php if(strlen(trim($producto['Descripcion']))>0) : ?>
+                <span style="font-size:11px">
+                <?php echo $producto['Producto'] . ' (' . $producto['Descripcion'] . ') ' ?>
+                </span>
+                <?php else : ?>
+                <span style="font-size:11px"><?php echo $producto['Producto'] ?></span>
+                <?php endif; ?>
             </td>
             <td class="cantidad">
               <span  style="font-size:11px" ><?php echo $producto['Cantidad']; ?></span>
@@ -216,8 +221,8 @@ $igv = 0;
     
 
     <?php if ($docVenta['PagoCon'] > 0) : ?>
-      <span>PAGÓ CON: S/. <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
-      <span>VUELTO: S/.<?php echo number_format($docVenta['PagoCon'] -  ($total - $totalDescuento), 2) ?></span>
+      <span>PAGÓ CON: S/ <?php echo number_format($docVenta['PagoCon'], 2); ?></span><br />
+      <span>VUELTO: S/ <?php echo number_format($docVenta['PagoCon'] - ($total - $totalDescuento), 2) ?></span><br />
     <?php endif; ?>
 
   </div>
@@ -227,8 +232,8 @@ $igv = 0;
         <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
         <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
         <br />
-  <div class="center small">JR. N° 01 MZ WLT.03</div>
-  <div class="center small">UCAYALI - CORONEL PORTILLO - CALLERIA</div>
+  <div class="center small"><?php echo DIRECCION_E_COMPROBANTE ?></div>
+  <div class="center small"><?php echo DEPARTAMENTO_E .' - ' . PROVINCIA_E . ' - ' .DISTRITO_E ?></div>
   <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
   <br />
