@@ -133,6 +133,7 @@ function datos(){
       <ul class="dropdown-menu">
         <li><a href="/views/facturacion.php"> Facturación Electrónica </a></li>
         <li><a href="/api/sunat/pag_cliente/" target="_blank"> Página Cliente </a></li>
+        <li><a href="http://emision.factura.vip/" target="_blank"> Consulta CPE </a></li>
       </ul>
 
       </li>

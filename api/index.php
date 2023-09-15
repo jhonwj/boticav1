@@ -5735,9 +5735,83 @@ $app->get('/cierrecaja/salidas', function (Request $request, Response $response,
     return $response->withJson($data);
 });
 
+$app->get('/enviar/whatsapp/comprobante/{id}', function (Request $request, Response $response, array $args) use ($app) {
+    $select = "SELECT RUC, RAZONSOCIAL, DEPARTAMENTO, PROVINCIA, DISTRITO, DIRECCION, UBIGEO, TELEFONO FROM GEN_EMPRESA WHERE IDEMPRESA=1";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $empresa = $stmt->fetch();
+    $id = $args['id'];
+    $numero = $request->getParam('numero');
+    $select = "SELECT Ve_DocVenta.idDocVenta, Ve_DocVenta.FechaDoc, Ve_DocVentaTipoDoc.TipoDoc, Ve_DocVentaTipoDoc.TieneIgv,
+        Ve_DocVenta.Anulado, Ve_DocVenta.Serie, Ve_DocVenta.Numero, Ve_DocVentaCliente.Cliente, Ve_DocVenta.UsuarioReg,
+        Ve_DocVentaTipoDoc.CodSunat, Ve_DocVentaCliente.DniRuc, Ve_DocVenta.CampoDireccion as Direccion,
+        Ve_DocVentaTipoDoc.CodigoIgv, Ve_DocVenta.Estado, Ve_DocVenta.Hash_cpe, Ve_DocVenta.Hash_cdr,
+        Ve_DocVenta.FechaCredito, Lo_Almacen.Almacen, Lo_Almacen.Direccion DireccionAlmacen, Lo_Almacen.EsPrincipal EsAlmacenPrincipal,
+        Ve_DocVentaCliente.NombreComercial,Ve_DocVenta.CodSunatModifica,
+        Ve_DocVenta.NroComprobanteModifica,
+        Ve_DocVenta.NotaIdMotivo,
+        Ve_DocVenta.NotaDescMotivo,Ve_DocVenta.EsCredito,Ve_DocVenta.FechaCredito,
+        IFNULL((SELECT SUM(ROUND((Ve_DocVentaDet.Precio * Ve_DocVentaDet.Cantidad) - Ve_DocVentaDet.Descuento, 2)) FROM Ve_DocVentaDet WHERE Ve_DocVentaDet.IdDocVenta = Ve_DocVenta.idDocVenta), 0 ) AS Total
+        FROM Ve_DocVenta
+        INNER JOIN Ve_DocVentaTipoDoc ON Ve_DocVenta.IdTipoDoc = Ve_DocVentaTipoDoc.IdTipoDoc
+        LEFT JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente 
+        INNER JOIN Lo_Almacen ON Ve_DocVenta.IdAlmacen = Lo_Almacen.IdAlmacen
+        WHERE idDocVenta = $id ";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $docVenta = $stmt->fetch();
 
 
+    $select = "SELECT Ve_DocVentaDet.*, Gen_Producto.Producto,
+        ROUND(Ve_DocVentaDet.Descuento, 2) AS Descuento,
+        ROUND((Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio) - Ve_DocVentaDet.Descuento, 2) AS Subtotal,
+        ROUND(Ve_DocVentaDet.Cantidad * Ve_DocVentaDet.Precio, 2) AS Total,
+        Gen_Producto.CodigoBarra, Gen_ProductoMedicion.Codigo AS CodigoMedicion,
+        Gen_ProductoMedicion.ProductoMedicion, Gen_ProductoMarca.ProductoMarca
+        FROM Ve_DocVentaDet
+        INNER JOIN Gen_Producto ON Ve_DocVentaDet.IdProducto = Gen_Producto.IdProducto
+        INNER JOIN Gen_ProductoMedicion ON Gen_Producto.IdProductoMedicion = Gen_ProductoMedicion.IdProductoMedicion
+        INNER JOIN Gen_ProductoMarca ON Gen_Producto.IdProductoMarca = Gen_ProductoMarca.IdProductoMarca
+        WHERE IdDocVenta = $id";
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $productos = $stmt->fetchAll();
 
+
+    $url = "http://emision.factura.vip/api/whatsapp.php/generatepdf";
+    try {
+        $headers = array(
+            "Content-Type: application/json; charset=UTF-8",
+            "Cache-Control: no-cache",
+            "Pragma: no-cache"
+        );
+        $ch = curl_init();
+        $ch = curl_init($url);
+        $fields = array('venta' => $docVenta,'productos' => $productos, 'empresa' => $empresa, 'numero' => $numero);
+        $dataTicket = json_encode($fields);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $dataTicket);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        // converting
+        $responsecurl = curl_exec($ch);
+        $err = curl_error($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($responsecurl == "") {
+            return $response->withJson(array("success"=>false));;
+        }
+
+    } catch (Exception $e) {
+        return $response->withJson(array("success"=>false));;
+    }
+
+    return $response->write($responsecurl);
+});
 
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
     $handler = $this->notFoundHandler; // handle using the default Slim page not found handler

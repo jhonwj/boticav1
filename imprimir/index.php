@@ -179,6 +179,34 @@ if (isset($_GET['IdDocVent'])) {
       });
   })
 </script>
+<div class="print no-print">
+  <br>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <button style="cursor: pointer; margin-left:calc(4vw); background-color:#25d366; border: 1px #25d366 solid; border-radius: 5px; padding: 3px; color:#FFF; font-size:30px; display: flex;
+    justify-content: center; align-items: center;" onclick="enviarNumero()"><i class="fa fa-whatsapp whatsapp-icon"></i><b style="margin-left: 5px;"> Enviar a Whatsapp</b></button>
+</div>
+<script>
+  async function enviarNumero() {
+    let numero = prompt("Ingrese un número de 9 digitos");
+    if((''+numero).trim().length!=9){
+
+      return alert("Numero no valido")
+    }
+    try {
+      const url = '/api/index.php/enviar/whatsapp/comprobante/<?php echo $_GET['IdDocVenta']; ?>?numero=51'+(''+numero).trim();
+      const response = await fetch(url);
+      const data = await response.json();
+      if(data.success){
+        alert("Comprobante enviado")
+      }else{
+        alert("Ha ocurrido un error")
+      }
+
+    } catch (error) {
+      alert("Ha ocurrido un error")
+    }  
+  }
+</script>
 <style>
   #printer {
     width: 20%;
