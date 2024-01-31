@@ -11,6 +11,6 @@ define('PROVINCIA_E', "HUAMALIES");
 define('DISTRITO_E', "LLATA");
 define('TELEFONOS_E', "");
 define('CODIGO_PAIS_E', 'PE');
-define('USUARIO_SOL_E', 'CAMBIAR'); // cambiar cuando se pase a produccion //NEURO123
-define('PASS_SOL_E', 'CAMBIAR'); // cambiar cuando se pase a produccion
+define('USUARIO_SOL_E', 'LLATINOT'); // cambiar cuando se pase a produccion //NEURO123
+define('PASS_SOL_E', 'LL4T1N0t'); // cambiar cuando se pase a produccion
 ?>

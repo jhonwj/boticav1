@@ -288,7 +288,6 @@ if ($docVenta['CampoDireccion']) {
   <div class="center small"><?php echo DEPARTAMENTO_E .' - ' . PROVINCIA_E . ' - ' .DISTRITO_E ?></div>
   <div class="center small"></div>
   <div class="center small">GRACIAS POR SU COMPRA</div>
-  <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosystemperu.com/</span>  </center>
-
+  <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosoft.pe/ - CEL: 954370221</span>  </center>
 
 </div>

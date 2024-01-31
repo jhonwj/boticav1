@@ -3905,7 +3905,7 @@ define('TELEFONOS_EMPRESA', TELEFONOS_E);
 define('CODIGO_PAIS_EMPRESA', 'PE');
 define('USUARIO_SOL_EMPRESA', USUARIO_SOL_E); // cambiar cuando se pase a produccion //NEURO123
 define('PASS_SOL_EMPRESA', PASS_SOL_E); // cambiar cuando se pase a produccion
-define('PAS_FIRMA', 'add');
+define('PAS_FIRMA', '5i573m452024');
 
 $app->post('/emitirelectronico', function (Request $request, Response $response) {
     include_once("../controllers/NumerosEnLetras/NumerosEnLetras.php");
