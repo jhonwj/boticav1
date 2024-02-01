@@ -66,10 +66,15 @@ function datos(){
     <ul class="nav navbar-nav" >
       <!--<li class=""><a href="#" class="text-primary-color"><i class="fa fa-home"></i>  Inicio</a></li>-->
       <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="medical-drugs-pills-and-capsules.svg" style="width:1em;"> Gestion Producto
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="medical-drugs-pills-and-capsules.svg" style="width:1em;"> Gestion
         <span class="caret"></span></a>
         <ul class="dropdown-menu">
-          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Modificar Producto</a></li>
+          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Modificar producto</a></li>
+          <li role="separator" class="divider"></li>
+          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Registro de viajes</a></li>
+          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Registro de conductores</a></li>
+          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Registro de vehiculos</a></li>
+          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Configuración de asientos</a></li>
           <!--<li><a href="<?php echo Marca; ?>" >Marca</a></li>-->
           <!--<li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>-->
           <!--<li><a href="<?php echo Modelo; ?>">Modelo</a></li>

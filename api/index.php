@@ -5813,6 +5813,77 @@ $app->get('/enviar/whatsapp/comprobante/{id}', function (Request $request, Respo
     return $response->write($responsecurl);
 });
 
+//APIS de transporte
+
+$app->get('/transporte/conductor', function (Request $request, Response $response, array $args) {
+    $filter = $request->getParam('q')?$request->getParam('q'):'';
+
+    $select = "SELECT * FROM Tr_Conductor  WHERE CONCAT(Nombres,' ',Apellidos) LIKE '%" . $filter . "%' OR 
+    Dni LIKE '%" . $filter . "%' ";
+
+    if($request->getParam('soloActivos')==1){
+        $select .= " AND Tr_Conductor.Anulado = 0 ";
+    }
+    
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  20;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    $select = "SELECT COUNT(*) as total FROM Tr_Conductor";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $datacount = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $response->withJson(array('data'=>$data, 'count' => $datacount['total']));
+});
+
+$app->post('/transporte/conductor', function (Request $request, Response $response, array $args) {
+    
+    $apellidos = $request->getParam('Apellidos')?$request->getParam('Apellidos'):'';
+    $dni = $request->getParam('Dni')?$request->getParam('Dni'):'';
+    $nombres = $request->getParam('Nombres')?$request->getParam('Nombres'):'';
+    $direccion = $request->getParam('Direccion')?$request->getParam('Direccion'):'';
+    $telefono = $request->getParam('Telefono')?$request->getParam('Telefono'):'';
+    $licencia = $request->getParam('Licencia')?$request->getParam('Licencia'):'';
+    $fechaNacimiento = $request->getParam('FechaNacimiento')?$request->getParam('FechaNacimiento'):getNow('Y-m-d');
+
+    $insert = "INSERT INTO Tr_Conductor(Nombres,Apellidos,Dni,Telefono,Direccion,Licencia,FechaNacimiento,FechaReg,UsuarioReg,ImagenDni) VALUES
+    (:nombres,:apellidos,:dni,:telefono,:direccion,:licencia,:fechanacimiento,:fechareg,'admin',null)";
+    $stmt = $this->db->prepare($insert);
+    $stmt->bindParam(':nombres', $nombres,PDO::PARAM_STR);
+    $stmt->bindParam(':apellidos', $apellidos,PDO::PARAM_STR);
+    $stmt->bindParam(':dni', $dni,PDO::PARAM_STR);
+    $stmt->bindParam(':telefono', $telefono,PDO::PARAM_STR);
+    $stmt->bindParam(':direccion', $direccion,PDO::PARAM_STR);
+    $stmt->bindParam(':licencia', $licencia,PDO::PARAM_STR);
+    $stmt->bindParam(':fechanacimiento', $fechaNacimiento,PDO::PARAM_STR);
+    $stmt->bindParam(':fechareg', getNow('Y-m-d'),PDO::PARAM_STR);
+    $insertId = $stmt->execute();
+
+    return $response->withJson($insertId);
+
+  
+});
+
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
     $handler = $this->notFoundHandler; // handle using the default Slim page not found handler
     return $handler($req, $res);
