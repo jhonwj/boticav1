@@ -5815,6 +5815,8 @@ $app->get('/enviar/whatsapp/comprobante/{id}', function (Request $request, Respo
 
 //APIS de transporte
 
+//Conductor 
+
 $app->get('/transporte/conductor', function (Request $request, Response $response, array $args) {
     $filter = $request->getParam('q')?$request->getParam('q'):'';
 
@@ -5858,6 +5860,22 @@ $app->get('/transporte/conductor', function (Request $request, Response $respons
 
 $app->post('/transporte/conductor', function (Request $request, Response $response, array $args) {
     
+    $usuario = 'xx';
+
+    if(isset($_SESSION['User'])) {
+        $usuario = $_SESSION['User'];
+    }
+
+    $usuarioReg = $request->getParam('usuario') ? $request->getParam('usuario') : $usuario;
+
+    if($usuarioReg == 'xx'){
+        $data = array(
+            'error'    => true,
+            'msg'      => 'Error, no se identifico su usuario, vuelva a iniciar sesión',
+        );
+        return $response->withJson($data);
+    }
+
     $apellidos = $request->getParam('Apellidos')?$request->getParam('Apellidos'):'';
     $dni = $request->getParam('Dni')?$request->getParam('Dni'):'';
     $nombres = $request->getParam('Nombres')?$request->getParam('Nombres'):'';
@@ -5866,22 +5884,251 @@ $app->post('/transporte/conductor', function (Request $request, Response $respon
     $licencia = $request->getParam('Licencia')?$request->getParam('Licencia'):'';
     $fechaNacimiento = $request->getParam('FechaNacimiento')?$request->getParam('FechaNacimiento'):getNow('Y-m-d');
 
-    $insert = "INSERT INTO Tr_Conductor(Nombres,Apellidos,Dni,Telefono,Direccion,Licencia,FechaNacimiento,FechaReg,UsuarioReg,ImagenDni) VALUES
-    (:nombres,:apellidos,:dni,:telefono,:direccion,:licencia,:fechanacimiento,:fechareg,'admin',null)";
-    $stmt = $this->db->prepare($insert);
-    $stmt->bindParam(':nombres', $nombres,PDO::PARAM_STR);
-    $stmt->bindParam(':apellidos', $apellidos,PDO::PARAM_STR);
-    $stmt->bindParam(':dni', $dni,PDO::PARAM_STR);
-    $stmt->bindParam(':telefono', $telefono,PDO::PARAM_STR);
-    $stmt->bindParam(':direccion', $direccion,PDO::PARAM_STR);
-    $stmt->bindParam(':licencia', $licencia,PDO::PARAM_STR);
-    $stmt->bindParam(':fechanacimiento', $fechaNacimiento,PDO::PARAM_STR);
-    $stmt->bindParam(':fechareg', getNow('Y-m-d'),PDO::PARAM_STR);
-    $insertId = $stmt->execute();
+    if ($request->getParam('IdConductor')) {
 
-    return $response->withJson($insertId);
+        $idConductor = $request->getParam('IdConductor');
 
-  
+        $select = "SELECT * FROM Tr_Conductor WHERE Dni ='".$dni."' AND IdConductor <>  $idConductor";
+        $stmt = $this->db->query($select);
+        $cond = $stmt->fetch();
+        $stmt->execute();
+    
+        if (!empty($cond)) {
+            $data = array(
+                'error' => true,
+                'msg' => 'El dni ya existe - '.$cond['Dni'],
+            );
+            return $response->withJson($data);
+        }
+
+        $update = $this->db->update(array(
+                            "Nombres" =>                    $nombres,
+                            "Apellidos" =>                  $apellidos,
+                            "Dni" =>                        $dni,
+                            "Telefono" =>                   $telefono,
+                            "Direccion" =>                  $direccion,
+                            "Licencia" =>                   $licencia,
+                            "FechaNacimiento" =>            $fechaNacimiento,
+                        ))
+                       ->table('Tr_Conductor')
+                       ->where('IdConductor', '=', $idConductor);
+        $affectedRows = $update->execute();
+
+        return $response->withJson(array("insertId" => $idConductor));
+    }
+
+    $select = "SELECT * FROM Tr_Conductor WHERE Dni ='".$dni."'";
+    $stmt = $this->db->query($select);
+    $cond = $stmt->fetch();
+    $stmt->execute();
+
+    if (!empty($cond)) {
+        $data = array(
+            'error' => true,
+            'msg' => 'El dni ya existe - '.$cond['Dni'],
+        );
+        return $response->withJson($data);
+    }
+
+    $insert = $this->db
+        ->insert(
+            array(
+                'Nombres',
+                'Apellidos',
+                'Dni', 
+                'Telefono', 
+                'Direccion', 
+                'Licencia', 
+                'FechaNacimiento', 
+                'FechaReg', 
+                'UsuarioReg'))
+        ->into('Tr_Conductor')
+        ->values(
+            array(
+                $nombres,
+                $apellidos,
+                $dni,
+                $telefono,
+                $direccion,
+                $licencia,
+                $fechaNacimiento,
+                getNow(),
+                $usuarioReg,
+            )
+        );
+    $insertId = $insert->execute();
+    return $response->withJson(array("insertId" => $insertId));
+});
+
+$app->post('/transporte/conductor/estado', function (Request $request, Response $response) {
+    $idConductor = $request->getParam('IdConductor');
+    $estado = $request->getParam('Estado');
+
+    if ($idConductor) {
+
+        $update = "UPDATE Tr_Conductor SET Anulado=$estado WHERE IdConductor=$idConductor";
+        $stmt = $this->db->prepare($update);
+        $updated = $stmt->execute();
+
+        return $response->withJson(array(
+            "updated" => $updated,
+            "IdConductor" => $idConductor
+        ));
+    }
+});
+
+//Vehiculo
+$app->get('/transporte/vehiculo', function (Request $request, Response $response, array $args) {
+    $filter = $request->getParam('q')?$request->getParam('q'):'';
+
+    $select = "SELECT * FROM Tr_Vehiculo  WHERE Vehiculo LIKE '%" . $filter . "%' OR 
+    Placa LIKE '%" . $filter . "%' ";
+
+    if($request->getParam('soloActivos')==1){
+        $select .= " AND Tr_Vehiculo.Anulado = 0 ";
+    }
+    
+    if ($request->getParam('sortBy')) {
+        $sortBy = $request->getParam('sortBy');
+        $sortDesc = $request->getParam('sortDesc');
+        $orientation = $sortDesc ? 'DESC' : 'ASC';
+        $select .= " ORDER BY " . $sortBy . " " . $orientation;
+    }
+
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  20;
+    if ($limit) {
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    $select = "SELECT COUNT(*) as total FROM Tr_Vehiculo";
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $datacount = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $response->withJson(array('data'=>$data, 'count' => $datacount['total']));
+});
+
+$app->post('/transporte/vehiculo', function (Request $request, Response $response, array $args) {
+    
+    $usuario = 'xx';
+
+    if(isset($_SESSION['User'])) {
+        $usuario = $_SESSION['User'];
+    }
+
+    $usuarioReg = $request->getParam('usuario') ? $request->getParam('usuario') : $usuario;
+
+    if($usuarioReg == 'xx'){
+        $data = array(
+            'error'    => true,
+            'msg'      => 'Error, no se identifico su usuario, vuelva a iniciar sesión',
+        );
+        return $response->withJson($data);
+    }
+
+    $vehiculo = $request->getParam('Vehiculo')?$request->getParam('Vehiculo'):'';
+    $placa = $request->getParam('Placa')?$request->getParam('Placa'):'';
+    $asientos = $request->getParam('Asientos')>0?$request->getParam('Asientos'):0;
+    $ejes = $request->getParam('Ejes')>0?$request->getParam('Ejes'):0;
+    $propietario = $request->getParam('Propietario')?$request->getParam('Propietario'):'';
+
+
+    if ($request->getParam('IdVehiculo')) {
+
+        $idVehiculo = $request->getParam('IdVehiculo');
+
+        $select = "SELECT * FROM Tr_Vehiculo WHERE Placa ='".$placa."' AND IdVehiculo <>  $idVehiculo";
+        $stmt = $this->db->query($select);
+        $vehi = $stmt->fetch();
+        $stmt->execute();
+    
+        if (!empty($vehi)) {
+            $data = array(
+                'error' => true,
+                'msg' => 'El placa ya existe - '.$vehi['Placa'],
+            );
+            return $response->withJson($data);
+        }
+
+        $update = $this->db->update(array(
+                            "Vehiculo" =>               $vehiculo,
+                            "Placa" =>                  $placa,
+                            "Asientos" =>               $asientos,
+                            "Ejes" =>                   $ejes,
+                            "Propietario" =>            $propietario,
+                        ))
+                       ->table('Tr_Vehiculo')
+                       ->where('IdVehiculo', '=', $idVehiculo);
+        $affectedRows = $update->execute();
+
+        return $response->withJson(array("insertId" => $idVehiculo));
+    }
+
+    $select = "SELECT * FROM Tr_Vehiculo WHERE Placa ='".$placa."'";
+    $stmt = $this->db->query($select);
+    $vehi = $stmt->fetch();
+    $stmt->execute();
+
+    if (!empty($vehi)) {
+        $data = array(
+            'error' => true,
+            'msg' => 'La placa ya existe - '.$vehi['Placa'],
+        );
+        return $response->withJson($data);
+    }
+
+    $insert = $this->db
+        ->insert(
+            array(
+                'Vehiculo',
+                'Placa',
+                'Asientos', 
+                'Ejes', 
+                'FechaReg', 
+                'UsuarioReg',
+                'Propietario'))
+        ->into('Tr_Vehiculo')
+        ->values(
+            array(
+                $vehiculo,
+                $placa,
+                $asientos,
+                $ejes,
+                getNow(),
+                $usuarioReg,
+                $propietario,
+            )
+        );
+    $insertId = $insert->execute();
+    return $response->withJson(array("insertId" => $insertId));
+});
+
+$app->post('/transporte/vehiculo/estado', function (Request $request, Response $response) {
+    $idVehiculo = $request->getParam('IdVehiculo');
+    $estado = $request->getParam('Estado');
+
+    if ($idVehiculo) {
+
+        $update = "UPDATE Tr_Vehiculo SET Anulado=$estado WHERE IdVehiculo=$idVehiculo";
+        $stmt = $this->db->prepare($update);
+        $updated = $stmt->execute();
+
+        return $response->withJson(array(
+            "updated" => $updated,
+            "IdVehiculo" => $idVehiculo
+        ));
+    }
 });
 
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
