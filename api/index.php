@@ -3461,7 +3461,7 @@ $app->get('/reporte/utlidadbruta', function (Request $request, Response $respons
 
 $app->get('/reporte/deudaclientes2', function (Request $request, Response $response, array $args) use ($app) {
     $idalmacen = $request->getParam('idalmacen');
-    $limit = $request->getParam('limit') ? $request->getParam('limit') :  30;
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  9999999;
     $res = $app->subRequest('GET', 'cliente/deudas', 'idalmacen=' . $idalmacen.'&limit='.$limit);
 
 
