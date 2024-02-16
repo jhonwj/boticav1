@@ -6131,6 +6131,68 @@ $app->post('/transporte/vehiculo/estado', function (Request $request, Response $
     }
 });
 
+$app->post('/transporte/vehiculo/plano', function (Request $request, Response $response, array $args) {
+    
+    $usuario = 'xx';
+
+    if(isset($_SESSION['User'])) {
+        $usuario = $_SESSION['User'];
+    }
+
+    $usuarioReg = $request->getParam('usuario') ? $request->getParam('usuario') : $usuario;
+
+    if($usuarioReg == 'xx'){
+        $data = array(
+            'error'    => true,
+            'msg'      => 'Error, no se identifico su usuario, vuelva a iniciar sesión',
+        );
+        return $response->withJson($data);
+    }
+
+    $plano = json_encode($request->getParam('Plano'));
+    $idVehiculo = $request->getParam('IdVehiculo');
+
+    $update = $this->db->update(array(
+                        "Plano" =>      $plano,
+                    ))
+                    ->table('Tr_Vehiculo')
+                    ->where('IdVehiculo', '=', $idVehiculo);
+    $affectedRows = $update->execute();
+
+    return $response->withJson(array("insertId" => $affectedRows));
+});
+
+
+$app->get('/transporte/viajes', function (Request $request, Response $response, array $args) {
+    $filter = $request->getParam('q')?$request->getParam('q'):'';
+    $fechaInicio = $request->getParam('fechaInicio')?$request->getParam('fechaInicio'):'';
+    $fechaFin = $request->getParam('fechaFin')?$request->getParam('fechaFin'):'';
+
+    $select = "SELECT vi.*, co.Nombre AS CiudadOrigen, cd.Nombre AS CiudadDestino, c.Nombres, c.Dni, ve.Placa, ve.Vehiculo, ve.Asientos FROM Tr_Viaje vi
+    INNER JOIN Tr_Ciudad co ON vi.IdOrigen = co.IdCiudad
+    INNER JOIN Tr_Ciudad cd ON vi.IdDestino = cd.IdCiudad
+    INNER JOIN Tr_Vehiculo ve ON vi.IdVehiculo = ve.IdVehiculo
+    INNER JOIN Tr_Conductor c ON vi.IdConductor = c.IdConductor";
+
+    $select .= " WHERE co.Nombre LIKE '%" . $filter . "%' OR 
+    cd.Nombre LIKE '%" . $filter . "%' ";
+
+    if($request->getParam('Estado') > 0){
+        $select .= " AND vi.Estado =  " . $request->getParam('Estado');
+    }
+
+    if($request->getParam('RangoFecha') == 1 && $fechaInicio!='' && $fechaFin!='' ){
+        $select .= " AND CONCAT(FechaViaje,' ',HoraViaje)  BETWEEN '$fechaInicio 00:00:00' AND '$fechaFin 23:59:59'";
+    }
+
+    $select .= " ORDER BY CONCAT(FechaViaje,' ',HoraViaje) DESC";
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    return $response->withJson($data);
+});
+
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
     $handler = $this->notFoundHandler; // handle using the default Slim page not found handler
     return $handler($req, $res);
