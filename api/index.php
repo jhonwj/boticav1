@@ -6168,7 +6168,7 @@ $app->get('/transporte/viajes', function (Request $request, Response $response, 
     $fechaInicio = $request->getParam('fechaInicio')?$request->getParam('fechaInicio'):'';
     $fechaFin = $request->getParam('fechaFin')?$request->getParam('fechaFin'):'';
 
-    $select = "SELECT vi.*, co.Nombre AS CiudadOrigen, cd.Nombre AS CiudadDestino, c.Nombres, c.Dni, ve.Placa, ve.Vehiculo, ve.Asientos FROM Tr_Viaje vi
+    $select = "SELECT vi.*, co.Nombre AS CiudadOrigen, cd.Nombre AS CiudadDestino, c.Nombres, c.Apellidos, c.Dni, ve.Placa, ve.Vehiculo, ve.Asientos FROM Tr_Viaje vi
     INNER JOIN Tr_Ciudad co ON vi.IdOrigen = co.IdCiudad
     INNER JOIN Tr_Ciudad cd ON vi.IdDestino = cd.IdCiudad
     INNER JOIN Tr_Vehiculo ve ON vi.IdVehiculo = ve.IdVehiculo
@@ -6191,6 +6191,34 @@ $app->get('/transporte/viajes', function (Request $request, Response $response, 
     $stmt->execute();
     $data = $stmt->fetchAll();
     return $response->withJson($data);
+});
+
+$app->post('/transporte/viajes/estado', function (Request $request, Response $response) {
+    $idViaje = $request->getParam('IdViaje');
+    $estadoActual = $request->getParam('EstadoActual');
+    $estadoNuevo = $request->getParam('EstadoNuevo');
+
+    $select = "SELECT * FROM Tr_Viaje WHERE IdViaje = $idViaje ";
+    $stmt = $this->db->query($select);
+    $data = $stmt->fetch();
+
+    if($data['Estado'] != $estadoActual){
+        $data = array(
+            'success' => false,
+            'msg' => 'El viaje tiene otro estado',
+        );
+        return $response->withJson($data);
+    }
+
+    $update = "UPDATE Tr_Viaje SET Estado=$estadoNuevo WHERE IdViaje=$idViaje";
+    $stmt = $this->db->prepare($update);
+    $updated = $stmt->execute();
+
+    return $response->withJson(array(
+        "success" => $updated,
+        "msg" => 'Se cambio de estado correctamente'
+    ));
+    
 });
 
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
