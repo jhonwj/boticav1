@@ -190,10 +190,10 @@ if ($docVenta['CampoDireccion']) {
       </tbody>
     </table>
     <table class="tabla1" width="100%">
-        <tr >
+        <!--<tr >
           <td class="text-right" ><span style="font-size:13px">SUBTOTAL</span></td>
           <td class="text-right" width="20%" ><span style="font-size:13px">S/<?php echo number_format($subtotal, 2, '.', ''); ?></span></td>
-        </tr>
+        </tr>-->
         <?php if ($igv > 0) : ?>
           <tr>
             <td class="text-right"><span style="font-size:13px">IGV</span></td>
@@ -223,7 +223,6 @@ if ($docVenta['CampoDireccion']) {
       <span>VUELTO: S/<?php echo number_format($docVenta['PagoCon'] - ($total - $totalDescuento), 2) ?></span><br />
     <?php endif; ?>
   </div>
-  </br>
   <span style="text-transform: uppercase">FORMA DE PAGO: <?php echo empty($docVenta['EsCredito']) ? 'CONTADO' : 'CRÉDITO' ; ?></span><br />
     <?php if(!empty($docVenta['EsCredito'])): ?>
       <span style="text-transform: uppercase">FECHA DE PAGO: <?php echo date('Y-m-d', strtotime($docVenta['FechaCredito'])); ?></span>
@@ -286,9 +285,11 @@ if ($docVenta['CampoDireccion']) {
   </tr>
   </table >
   </center>
-  <div class="center small"><?php echo DIRECCION_E_COMPROBANTE ?></div>
-  <div class="center small"><?php echo DEPARTAMENTO_E .' - ' . PROVINCIA_E . ' - ' .DISTRITO_E ?></div>
-  <div class="center small"></div>
+  <div class="center small">TERMINAL PRINCIPAL: JR HUALLAYCO 402 <br> HUANUCO CEL: 978 202 060</div>
+  <hr>
+  <div class="center small">SUCURSAL: JR. LIBERTAD NRO. 378 <br> LLATA CEL: 977 196 631</div>
+  <br>
+  <div class="center small">GRACIAS POR SU PREFERENCIA</div>
   <center><br /><span style="font-size:11px">DESARROLLADO POR: </br>https://neurosoft.pe/ - CEL: 954370221</span>  </center>
 
 </div>

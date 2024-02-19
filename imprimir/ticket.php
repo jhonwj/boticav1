@@ -229,14 +229,10 @@ $igv = 0;
   <br />
 
  <div class="center small"></div>
-        <div class="center small">BIENES TRANSFERIDOS EN LA AMAZONÍA REGIÓN</div>
-        <div class="center small"> SELVA PARA SER CONSUMIDOS EN LA MISMA</div>
-        <br />
-  <div class="center small"><?php echo DIRECCION_E_COMPROBANTE ?></div>
-  <div class="center small"><?php echo DEPARTAMENTO_E .' - ' . PROVINCIA_E . ' - ' .DISTRITO_E ?></div>
-  <div class="center small"></div>
-  <div class="center small">GRACIAS POR SU COMPRA</div>
+  <div class="center small">TERMINAL PRINCIPAL: JR HUALLAYCO 402 <br> HUANUCO CEL: 978 202 060</div>
+  <hr>
+  <div class="center small">SUCURSAL: JR. LIBERTAD NRO. 378 <br> LLATA CEL: 977 196 631</div>
+  <br>
+  <div class="center small">GRACIAS POR SU PREFERENCIA</div>
   <br />
-  <br />
-
 </div>

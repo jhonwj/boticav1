@@ -136,7 +136,13 @@ MetodoDetalle.VisaDesc,
 MetodoDetalle.MastercardDesc,
 MetodoDetalle.Efectivo,
 MetodoDetalle.Visa,
-MetodoDetalle.Mastercard
+MetodoDetalle.Mastercard,
+IFNULL(Viaje.Nombre,'') AS Nombre,
+IFNULL(Viaje.FechaViaje,'') AS FechaViaje,
+IFNULL(Viaje.CiudadDestino,'') AS CiudadDestino,
+IFNULL(Viaje.CiudadOrigen,'') AS CiudadOrigen,
+IFNULL(Viaje.HoraViajeFormat,'') AS HoraViajeFormat,
+IFNULL(Viaje.IdAsiento,'') AS IdAsiento
 FROM
 Ve_DocVenta
 INNER JOIN Ve_DocVentaPuntoVenta ON Ve_DocVenta.IdDocVentaPuntoVenta = Ve_DocVentaPuntoVenta.IdDocVentaPuntoVenta
@@ -153,7 +159,14 @@ LEFT JOIN (
 	IFNULL(SUM(IF(Ve_DocVentaMetodoPagoDet.IdMetodoPago = 3,Ve_DocVentaMetodoPagoDet.Importe,0)),0) AS Mastercard
 	FROM Ve_DocVentaMetodoPagoDet
 	GROUP BY Ve_DocVentaMetodoPagoDet.IdDocVenta
-) AS MetodoDetalle ON  MetodoDetalle.IdDocVenta = Ve_DocVenta.idDocVenta";
+) AS MetodoDetalle ON  MetodoDetalle.IdDocVenta = Ve_DocVenta.idDocVenta
+LEFT JOIN (
+	SELECT va.IdDocVenta, vi.Nombre, va.IdAsiento, vi.FechaViaje, co.Nombre AS CiudadOrigen, cd.Nombre AS CiudadDestino,TIME_FORMAT(vi.HoraViaje, '%h:%i %p') AS HoraViajeFormat FROM Tr_Viaje vi
+	INNER JOIN Tr_Ciudad co ON vi.IdOrigen = co.IdCiudad
+	INNER JOIN Tr_Ciudad cd ON vi.IdDestino = cd.IdCiudad
+	LEFT JOIN Tr_VehiculoAsiento va ON vi.IdViaje = va.IdViaje
+	GROUP BY va.IdDocVenta
+) AS Viaje ON Viaje.IdDocVenta = Ve_DocVenta.idDocVenta";
 		//echo $Ssql;
 		if (!empty($criterio)) {
 			$Ssql= $Ssql." WHERE ".$criterio;

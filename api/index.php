@@ -2500,6 +2500,9 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $esOrganizacion = $request->getParam('EsOrganizacion')==1?1:0;
     $nombreOrganizacion = $request->getParam('NombreOrganizacion');
 
+    $idViaje = $request->getParam('IdViaje') > 0 ? $request->getParam('IdViaje') : 0;
+    $idAsiento = $request->getParam('IdAsiento') > 0 ? $request->getParam('IdAsiento') : 0;
+
     $idComisionista = isset($request->getParam('comisionista')['IdCliente']) ? $request->getParam('comisionista')['IdCliente'] : $idComisionista;
     // $valorComision = $request->getParam('valorComision'); 
     if ($idComisionista <> 0) {
@@ -2521,6 +2524,36 @@ $app->post('/ventas', function (Request $request, Response $response) {
         $idDocVentaPuntoVenta = $user['IdDocVentaPuntoVenta'];
         $idAlmacen = $user['IdAlmacen'];
     }
+
+    if($idViaje > 0 && $idAsiento > 0){
+        $selectViaje = "SELECT * FROM Tr_Viaje WHERE IdViaje = $idViaje ";
+        $stmtViaje = $this->db->query($selectViaje);
+        $stmtViaje->execute();
+        $dataViaje = $stmtViaje->fetch();
+
+        if($dataViaje['Estado'] != 1){
+            $data = array(
+                'error' => true,
+                'msg' => 'El viaje seleccionado tiene otro estado, seleccione otro.'
+            );
+        
+            return $response->withJson($data);
+        }
+
+        $selectAsiento = "SELECT * FROM Tr_VehiculoAsiento WHERE IdViaje = $idViaje AND IdAsiento = $idAsiento";
+        $stmtAsiento  = $this->db->query($selectAsiento);
+        $stmtAsiento->execute();
+        $dataAsiento = $stmtAsiento ->fetch();
+
+        if (!empty($dataAsiento)) {
+            $data = array(
+                'error' => true,
+                'msg' => 'El asiento seleccionado ya esta ocupado'
+            );
+            return $response->withJson($data);
+        }
+    }
+
 
     //VALIDAR STOCK
     /*$stockCorrecto = 0;
@@ -2616,6 +2649,15 @@ $app->post('/ventas', function (Request $request, Response $response) {
     $inserted = $stmt->execute();
     $idDocVenta = $this->db->lastInsertId();
     // END INSERTAR NUEVA VENTA
+
+    if($idViaje > 0 && $idAsiento > 0){
+        $insert = $this->db
+        ->insert(array('IdViaje','IdAsiento','FechaOcupacion','IdDocVenta'))
+        ->into('Tr_VehiculoAsiento')
+        ->values(array($idViaje, $idAsiento, getNow(),$idDocVenta)
+        );
+        $insertId = $insert->execute();
+    }
 
     // Actualizar Todas las PreOrden
     if ($idPreOrden) {
@@ -6359,6 +6401,58 @@ $app->post('/transporte/viajes', function (Request $request, Response $response,
         );
     $insertId = $insert->execute();
     return $response->withJson(array("insertId" => $insertId));
+});
+
+$app->get('/transporte/viajes/asiento', function (Request $request, Response $response, array $args) {
+    $idViaje = $request->getParam('idViaje');
+    $idVehiculo = $request->getParam('idVehiculo');
+
+    $select = "SELECT * FROM Tr_Vehiculo WHERE IdVehiculo = $idVehiculo ";
+    $stmt = $this->db->query($select);
+    $data = $stmt->fetch();
+
+    if($data['Plano'] == null){
+        $data = array(
+            'success' => false,
+            'msg' => 'No existe el plano del vehículo',
+        );
+    }
+
+    $vehiculoData = json_decode($data['Plano'],true);
+
+    $select = "SELECT * FROM Tr_VehiculoAsiento WHERE IdViaje =  $idViaje";
+    $stmt = $this->db->query($select);
+    $data = $stmt->fetchAll();
+
+
+    foreach ($data AS $key => $row) {
+        foreach ($vehiculoData AS $vehiculoKey => $vehiculoRow) {
+            foreach ($vehiculoRow AS $asientoKey => $asientoRow) {
+                if($row['IdAsiento'] == $asientoRow['id']){
+                    $vehiculoData[$vehiculoKey][$asientoKey]['ocupado'] = 1;
+                }
+            
+            }
+
+        }
+    } 
+
+    
+    return $response->withJson($vehiculoData);
+});
+
+$app->get('/transporte/viajes/lista', function (Request $request, Response $response, array $args) {
+    $idViaje = $request->getParam('idViaje');
+
+    $select = "SELECT Tr_VehiculoAsiento.*,Ve_DocVentaCliente.Cliente,Ve_DocVentaCliente.DniRuc FROM Tr_VehiculoAsiento
+    INNER JOIN Ve_DocVenta ON Tr_VehiculoAsiento.IdDocVenta = Ve_DocVenta.idDocVenta
+    INNER JOIN Ve_DocVentaCliente ON Ve_DocVenta.IdCliente = Ve_DocVentaCliente.IdCliente
+    WHERE Tr_VehiculoAsiento.IdViaje = $idViaje ORDER BY Tr_VehiculoAsiento.IdAsiento ASC";
+    
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    return $response->withJson($data);
 });
 
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {

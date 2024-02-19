@@ -71,10 +71,10 @@ function datos(){
         <ul class="dropdown-menu">
           <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Modificar producto</a></li>
           <li role="separator" class="divider"></li>
-          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Registro de viajes</a></li>
-          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Registro de conductores</a></li>
-          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Registro de vehiculos</a></li>
-          <li ><a href= "/views/Gen_ProductoForm.php" class="text-primary-color"><i class="fa fa-"></i>Configuración de asientos</a></li>
+          <li ><a href= "/views/Tr_Viajes.php" class="text-primary-color"><i class="fa fa-"></i>Registro de viajes</a></li>
+          <li ><a href= "/views/Tr_Conductores.php" class="text-primary-color"><i class="fa fa-"></i>Registro de conductores</a></li>
+          <li ><a href= "/views/Tr_Vehiculos.php" class="text-primary-color"><i class="fa fa-"></i>Registro de vehiculos</a></li>
+          <!--<li ><a href= "/views/Tr_Asientos.php" class="text-primary-color"><i class="fa fa-"></i>Configuración de asientos</a></li>-->
           <!--<li><a href="<?php echo Marca; ?>" >Marca</a></li>-->
           <!--<li><a href="<?php echo Forma_Farmaceutica; ?>">Forma Farmaceutica</a></li>-->
           <!--<li><a href="<?php echo Modelo; ?>">Modelo</a></li>

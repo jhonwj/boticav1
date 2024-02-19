@@ -162,7 +162,7 @@ body:before {
 <body>
 <section class="login-box">
   <header class="login-header">
-    <img src="/resources/images/logo.png" style="max-width: 50%" />
+    <img src="/resources/images/logo.png" style="max-width: 60%" />
     <!-- <h1></h1> -->
     <h3 style="margin-bottom: -15px;">Ingrese sus datos</h3>
   </header>
