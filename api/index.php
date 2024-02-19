@@ -5820,8 +5820,8 @@ $app->get('/enviar/whatsapp/comprobante/{id}', function (Request $request, Respo
 $app->get('/transporte/conductor', function (Request $request, Response $response, array $args) {
     $filter = $request->getParam('q')?$request->getParam('q'):'';
 
-    $select = "SELECT * FROM Tr_Conductor  WHERE CONCAT(Nombres,' ',Apellidos) LIKE '%" . $filter . "%' OR 
-    Dni LIKE '%" . $filter . "%' ";
+    $select = "SELECT * FROM Tr_Conductor  WHERE (CONCAT(Nombres,' ',Apellidos) LIKE '%" . $filter . "%' OR 
+    Dni LIKE '%" . $filter . "%') ";
 
     if($request->getParam('soloActivos')==1){
         $select .= " AND Tr_Conductor.Anulado = 0 ";
@@ -5981,8 +5981,8 @@ $app->post('/transporte/conductor/estado', function (Request $request, Response 
 $app->get('/transporte/vehiculo', function (Request $request, Response $response, array $args) {
     $filter = $request->getParam('q')?$request->getParam('q'):'';
 
-    $select = "SELECT * FROM Tr_Vehiculo  WHERE Vehiculo LIKE '%" . $filter . "%' OR 
-    Placa LIKE '%" . $filter . "%' ";
+    $select = "SELECT * FROM Tr_Vehiculo  WHERE (Vehiculo LIKE '%" . $filter . "%' OR 
+    Placa LIKE '%" . $filter . "%') ";
 
     if($request->getParam('soloActivos')==1){
         $select .= " AND Tr_Vehiculo.Anulado = 0 ";
@@ -6039,7 +6039,6 @@ $app->post('/transporte/vehiculo', function (Request $request, Response $respons
 
     $vehiculo = $request->getParam('Vehiculo')?$request->getParam('Vehiculo'):'';
     $placa = $request->getParam('Placa')?$request->getParam('Placa'):'';
-    $asientos = $request->getParam('Asientos')>0?$request->getParam('Asientos'):0;
     $ejes = $request->getParam('Ejes')>0?$request->getParam('Ejes'):0;
     $propietario = $request->getParam('Propietario')?$request->getParam('Propietario'):'';
 
@@ -6064,7 +6063,6 @@ $app->post('/transporte/vehiculo', function (Request $request, Response $respons
         $update = $this->db->update(array(
                             "Vehiculo" =>               $vehiculo,
                             "Placa" =>                  $placa,
-                            "Asientos" =>               $asientos,
                             "Ejes" =>                   $ejes,
                             "Propietario" =>            $propietario,
                         ))
@@ -6093,7 +6091,6 @@ $app->post('/transporte/vehiculo', function (Request $request, Response $respons
             array(
                 'Vehiculo',
                 'Placa',
-                'Asientos', 
                 'Ejes', 
                 'FechaReg', 
                 'UsuarioReg',
@@ -6103,7 +6100,6 @@ $app->post('/transporte/vehiculo', function (Request $request, Response $respons
             array(
                 $vehiculo,
                 $placa,
-                $asientos,
                 $ejes,
                 getNow(),
                 $usuarioReg,
@@ -6151,9 +6147,11 @@ $app->post('/transporte/vehiculo/plano', function (Request $request, Response $r
 
     $plano = json_encode($request->getParam('Plano'));
     $idVehiculo = $request->getParam('IdVehiculo');
+    $asientos = $request->getParam('Asientos');
 
     $update = $this->db->update(array(
                         "Plano" =>      $plano,
+                        "Asientos"=>    $asientos
                     ))
                     ->table('Tr_Vehiculo')
                     ->where('IdVehiculo', '=', $idVehiculo);
@@ -6168,24 +6166,29 @@ $app->get('/transporte/viajes', function (Request $request, Response $response, 
     $fechaInicio = $request->getParam('fechaInicio')?$request->getParam('fechaInicio'):'';
     $fechaFin = $request->getParam('fechaFin')?$request->getParam('fechaFin'):'';
 
-    $select = "SELECT vi.*, co.Nombre AS CiudadOrigen, cd.Nombre AS CiudadDestino, c.Nombres, c.Apellidos, c.Dni, ve.Placa, ve.Vehiculo, ve.Asientos FROM Tr_Viaje vi
+    $select = "SELECT vi.*, co.Nombre AS CiudadOrigen, cd.Nombre AS CiudadDestino, c.Nombres, c.Apellidos, c.Dni, ve.Placa, ve.Vehiculo, ve.Asientos, TIME_FORMAT(vi.HoraViaje, '%h:%i %p') as HoraViajeFormat, COUNT(va.IdVehiculoAsiento) AS AsientosOcupados FROM Tr_Viaje vi
     INNER JOIN Tr_Ciudad co ON vi.IdOrigen = co.IdCiudad
     INNER JOIN Tr_Ciudad cd ON vi.IdDestino = cd.IdCiudad
     INNER JOIN Tr_Vehiculo ve ON vi.IdVehiculo = ve.IdVehiculo
-    INNER JOIN Tr_Conductor c ON vi.IdConductor = c.IdConductor";
+    INNER JOIN Tr_Conductor c ON vi.IdConductor = c.IdConductor
+    LEFT JOIN Tr_VehiculoAsiento va ON vi.IdViaje = va.IdViaje";
 
-    $select .= " WHERE co.Nombre LIKE '%" . $filter . "%' OR 
-    cd.Nombre LIKE '%" . $filter . "%' ";
+    $select .= " WHERE (co.Nombre LIKE '%" . $filter . "%' OR 
+    cd.Nombre LIKE '%" . $filter . "%') ";
 
-    if($request->getParam('Estado') > 0){
-        $select .= " AND vi.Estado =  " . $request->getParam('Estado');
+    if($request->getParam('estado') > 0){
+        $select .= " AND vi.Estado =  " . $request->getParam('estado');
     }
 
-    if($request->getParam('RangoFecha') == 1 && $fechaInicio!='' && $fechaFin!='' ){
+    if($request->getParam('unicaFecha') == 1 && $fechaInicio!=''){
+        $select .= " AND CONCAT(FechaViaje,' ',HoraViaje)  BETWEEN '$fechaInicio 00:00:00' AND '$fechaInicio 23:59:59'";
+    }
+
+    if($request->getParam('rangoFecha') == 1 && $fechaInicio!='' && $fechaFin!='' ){
         $select .= " AND CONCAT(FechaViaje,' ',HoraViaje)  BETWEEN '$fechaInicio 00:00:00' AND '$fechaFin 23:59:59'";
     }
 
-    $select .= " ORDER BY CONCAT(FechaViaje,' ',HoraViaje) DESC";
+    $select .= " GROUP BY vi.IdViaje ORDER BY CONCAT(FechaViaje,' ',HoraViaje) DESC";
     
     $stmt = $this->db->query($select);
     $stmt->execute();
@@ -6219,6 +6222,143 @@ $app->post('/transporte/viajes/estado', function (Request $request, Response $re
         "msg" => 'Se cambio de estado correctamente'
     ));
     
+});
+
+$app->get('/transporte/ciudad', function (Request $request, Response $response, array $args) {
+    $q = $request->getParam('q');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+
+    $select = "SELECT * FROM Tr_Ciudad WHERE Nombre LIKE '" . $q . "%' ";
+
+    if ($limit) {
+        // $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+$app->get('/transporte/conductor/seleccion', function (Request $request, Response $response, array $args) {
+    $q = $request->getParam('q');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+
+    $select = "SELECT Tr_Conductor.*, CONCAT(Nombres,' ',Apellidos) as NombreCompleto FROM Tr_Conductor WHERE (CONCAT(Nombres,' ',Apellidos) LIKE '%" . $q . "%' OR 
+    Dni LIKE '%" . $q . "%') ";
+
+    $select .= " AND Tr_Conductor.Anulado = 0 ";
+
+    if ($limit) {
+        // $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+$app->get('/transporte/vehiculo/seleccion', function (Request $request, Response $response, array $args) {
+    $q = $request->getParam('q');
+    $limit = $request->getParam('limit') ? $request->getParam('limit') :  5;
+
+    $select = "SELECT *, CONCAT(Vehiculo,' (',Asientos,')') as VehiculoCompleto FROM Tr_Vehiculo  WHERE (Vehiculo LIKE '%" . $q . "%' OR 
+    Placa LIKE '%" . $q . "%') ";
+
+    $select .= " AND Anulado = 0 ";
+
+    if ($limit) {
+        // $limit = $request->getParam('limit');
+        $offset = 0;
+        if ($request->getParam('page')) {
+            $page = $request->getParam('page');
+            $offset = (--$page) * $limit;
+        }
+        $select .= " LIMIT " . $limit;
+        $select .= " OFFSET " . $offset;
+    }
+
+    $stmt = $this->db->query($select);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+
+    return $response->withJson($data);
+});
+
+$app->post('/transporte/viajes', function (Request $request, Response $response, array $args) {
+    
+    $usuario = 'xx';
+
+    if(isset($_SESSION['User'])) {
+        $usuario = $_SESSION['User'];
+    }
+
+    $usuarioReg = $request->getParam('usuario') ? $request->getParam('usuario') : $usuario;
+
+    if($usuarioReg == 'xx'){
+        $data = array(
+            'error'    => true,
+            'msg'      => 'Error, no se identifico su usuario, vuelva a iniciar sesión',
+        );
+        return $response->withJson($data);
+    }
+
+    $idOrigen = $request->getParam('origen')['IdCiudad'];
+    $idDestino = $request->getParam('destino')['IdCiudad'];
+    $nombreOrigen = $request->getParam('origen')['Nombre'];
+    $nombreDestino = $request->getParam('destino')['Nombre'];
+
+    $idConductor = $request->getParam('conductor')['IdConductor'];
+    $idVehiculo = $request->getParam('vehiculo')['IdVehiculo'];
+
+    $fecha = $request->getParam('fecha');
+    $hora = $request->getParam('hora');
+
+    $insert = $this->db
+        ->insert(
+            array(
+                'Nombre',
+                'IdDestino',
+                'IdOrigen',
+                'FechaViaje', 
+                'HoraViaje', 
+                'IdVehiculo',
+                'IdConductor',
+                'FechaReg',
+                'UsuarioReg'))
+        ->into('Tr_Viaje')
+        ->values(
+            array(
+                $nombreOrigen .' - '. $nombreDestino,
+                $idDestino,
+                $idOrigen,
+                $fecha,
+                $hora,
+                $idVehiculo,
+                $idConductor,
+                getNow(),
+                $usuarioReg
+            )
+        );
+    $insertId = $insert->execute();
+    return $response->withJson(array("insertId" => $insertId));
 });
 
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
