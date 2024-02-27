@@ -1,10 +1,10 @@
 <?php
 header( 'Content-Type: text/html;charset=utf-8' );
 //include_once($_SERVER["DOCUMENT_ROOT"] . '/views/validateUser.php');
-
+error_reporting(0);
 function ejecutarSQLCommand($commando){
 
-  $mysqli = new mysqli("localhost", "root", '', "neuro");
+  $mysqli = new mysqli("localhost", "root", '', "transportes");
   // $mysqli = new mysqli("localhost", "neurosys_ESTICAM", 'IX!!q!t(&Fc^', "neurosys_ESTICAM");
   //$mysqli = new mysqli("localhost", "root", "", "botica");
 /* check connection */
@@ -43,7 +43,7 @@ return true;
 function getSQLResultSet($commando){
 
     // $link = mysql_connect("localhost", "root", "");
-    $mysqli = new mysqli("localhost", "root", '', 'neuro');
+    $mysqli = new mysqli("localhost", "root", '', 'transportes');
     // $mysqli = new mysqli("localhost", "neurosys_ESTICAM", 'IX!!q!t(&Fc^', "neurosys_ESTICAM");
 
     $mysqli->set_charset("utf8");
@@ -79,7 +79,7 @@ function getSQLResultSet($commando){
 }
 
 function getMysqliLink() {
-    $mysqli = new mysqli("localhost", "root", '', 'neuro');
+    $mysqli = new mysqli("localhost", "root", '', 'transportes');
     //$mysqli = new mysqli("localhost", "neurosys_ESTICAM", 'IX!!q!t(&Fc^', 'neurosys_ESTICAM');
     $mysqli->set_charset("utf8");
     if (!$mysqli) {
